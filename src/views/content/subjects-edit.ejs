@@ -4,28 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>KMed | Editar Matéria</title>
+
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-<link rel="stylesheet" href="/public/css/content/base.css">
-<link rel="stylesheet" href="/public/css/content/form.css">
-
+  <link rel="stylesheet" href="/public/css/content/base.css">
+  <link rel="stylesheet" href="/public/css/content/form.css">
 </head>
-<body>
-  <div class="container">
-    <div class="topbar">
-      <a href="/conteudos/materias" class="btnSecondary">← Voltar</a>
-      <a href="/logout" class="btnSecondary">Sair</a>
-    </div>
 
-    <div class="card">
-      <h1>Editar Matéria</h1>
-      <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
+<body class="page-bg">
 
-      <form method="POST" action="/conteudos/materias/<%= subject.id %>/editar" class="formCol">
-        <label>Nome</label>
-        <input name="nome" value="<%= subject.nome %>" required />
-        <button type="submit">Salvar</button>
-      </form>
+  <%- include("../partials/sidebar", { active: "conteudos", userNome }) %>
+
+
+  <main class="with-sidebar">
+    <div class="container">
+
+      <div class="topbar">
+        <a href="/conteudos/materias" class="btnSecondary">← Voltar</a>
+        
+      </div>
+
+      <div class="card">
+        <h1>Editar Matéria</h1>
+
+        <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
+
+        <form method="POST"
+              action="/conteudos/materias/<%= subject.id %>/editar"
+              class="formCol">
+          <label>Nome</label>
+          <input name="nome" value="<%= subject.nome %>" required />
+          <button type="submit">Salvar</button>
+        </form>
+      </div>
+
     </div>
-  </div>
+  </main>
+
 </body>
 </html>

@@ -1,40 +1,69 @@
+/* ===== FORMS ===== */
+
 form {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
-label {
-  font-size: 13px;
-  color: #a9b7cc;
+.formRow {
+  display: flex;
+  gap: 12px;
+}
+
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 420px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 input,
 select {
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #263248;
-  background: #0f1522;
-  color: #e6edf7;
-  min-width: 220px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #e5e7eb;
 }
 
 input::placeholder {
-  color: #6f7d95;
+  color: #64748b;
 }
 
 button {
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #22c55e;
   border: none;
-  background: #2ee59d;
-  color: #07110f;
-  font-weight: bold;
+  color: #022c22;
+  font-weight: 600;
   cursor: pointer;
 }
 
-button.secondary {
-  background: transparent;
-  border: 1px solid #263248;
-  color: #e6edf7;
+button:hover {
+  opacity: .9;
+}
+
+/* feedback */
+
+.alert {
+  background: #450a0a;
+  border: 1px solid #dc2626;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.ok {
+  background: #052e16;
+  border: 1px solid #22c55e;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
 }

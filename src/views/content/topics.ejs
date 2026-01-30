@@ -4,68 +4,73 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>KMed | Tópicos</title>
+
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-<link rel="stylesheet" href="/public/css/content/base.css">
-<link rel="stylesheet" href="/public/css/content/list.css">
-<link rel="stylesheet" href="/public/css/content/form.css">
-
+  <link rel="stylesheet" href="/public/css/content/base.css">
+  <link rel="stylesheet" href="/public/css/content/list.css">
+  <link rel="stylesheet" href="/public/css/content/form.css">
 </head>
-<body>
-  <div class="container">
-    <div class="topbar">
-      <a href="/dashboard" class="btnSecondary">← Dashboard</a>
-      <div class="tabs">
-        <a class="tab" href="/conteudos/materias">Matérias</a>
-        <a class="tab active" href="/conteudos/topicos">Tópicos</a>
-        <a class="tab" href="/conteudos/assuntos">Assuntos</a>
-      </div>
-      <a href="/logout" class="btnSecondary">Sair</a>
-    </div>
 
-    <div class="card">
-      <h1>Tópicos</h1>
-      <p class="sub">Cada tópico pertence a uma matéria (ex: Matemática → Progressão Aritmética).</p>
+<body class="page-bg">
 
-      <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
-      <% if (ok) { %><div class="ok"><%= ok %></div><% } %>
+  <%- include("../partials/sidebar", { active: "conteudos", userNome }) %>
 
-      <form method="POST" action="/conteudos/topicos" class="formGrid">
-        <select name="subject_id" required>
-          <option value="">Selecione a matéria</option>
-          <% subjects.forEach(s => { %>
-            <option value="<%= s.id %>"><%= s.nome %></option>
-          <% }) %>
-        </select>
 
-        <input name="nome" placeholder="Nome do tópico" required />
-        <button type="submit">Adicionar</button>
-      </form>
+  <main class="with-sidebar">
+    <div class="container">
 
-      <div class="table">
-        <div class="thead">
-          <div>Matéria</div>
-          <div>Tópico</div>
-          <div>Ações</div>
+      <div class="topbar">
+       
+
+        <div class="tabs">
+          <a class="tab" href="/conteudos/materias">Matérias</a>
+          <a class="tab active" href="/conteudos/topicos">Tópicos</a>
+          <a class="tab" href="/conteudos/assuntos">Assuntos</a>
         </div>
 
-        <% if (!topics.length) { %>
-          <div class="trow"><div class="muted" style="grid-column:1/-1;">Nenhum tópico cadastrado ainda.</div></div>
-        <% } %>
+        
+      </div>
 
-        <% topics.forEach(t => { %>
-          <div class="trow">
-            <div><%= t.subject ? t.subject.nome : "-" %></div>
-            <div><%= t.nome %></div>
-            <div class="actions">
-              <a class="btnSecondary" href="/conteudos/topicos/<%= t.id %>/editar">Editar</a>
-              <form method="POST" action="/conteudos/topicos/<%= t.id %>/excluir" onsubmit="return confirm('Excluir tópico? Isso remove assuntos também.');">
-                <button class="danger" type="submit">Excluir</button>
-              </form>
-            </div>
+      <div class="card">
+        <h1>Tópicos</h1>
+        <p class="sub">Cada tópico pertence a uma matéria.</p>
+
+        <form method="POST" action="/conteudos/topicos" class="formGrid">
+          <select name="subject_id" required>
+            <option value="">Selecione a matéria</option>
+            <% subjects.forEach(s => { %>
+              <option value="<%= s.id %>"><%= s.nome %></option>
+            <% }) %>
+          </select>
+
+          <input name="nome" placeholder="Nome do tópico" required />
+          <button type="submit">Adicionar</button>
+        </form>
+
+        <div class="table">
+          <div class="thead">
+            <div>Matéria</div>
+            <div>Tópico</div>
+            <div>Ações</div>
           </div>
-        <% }) %>
+
+          <% topics.forEach(t => { %>
+            <div class="trow">
+              <div><%= t.subject?.nome || "-" %></div>
+              <div><%= t.nome %></div>
+              <div class="actions">
+                <a class="btnSecondary" href="/conteudos/topicos/<%= t.id %>/editar">Editar</a>
+                <form method="POST" action="/conteudos/topicos/<%= t.id %>/excluir">
+                  <button class="danger">Excluir</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
       </div>
     </div>
-  </div>
+  </main>
+
 </body>
 </html>
