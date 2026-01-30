@@ -4,43 +4,35 @@ const express = require("express");
 const session = require("express-session");
 
 const sequelize = require("./config/database");
-
-// Models (garante que o Sequelize “conheça”)
-require("./models/User");
+require("./models/index");
 
 const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
+const contentRoutes = require("./routes/contentRoutes");
 
 const app = express();
 
-// View engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Middlewares básicos
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Sessão
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "kmed_secret",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      httpOnly: true
-    }
+    cookie: { httpOnly: true }
   })
 );
 
-// Static
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// Rotas
 app.use(authRoutes);
 app.use(appRoutes);
+app.use(contentRoutes);
 
-// Start
 const PORT = process.env.PORT || 3000;
 
 (async () => {

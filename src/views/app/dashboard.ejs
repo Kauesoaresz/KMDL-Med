@@ -4,22 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>KMed | Dashboard</title>
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/dashboard.css" />
-
 </head>
-<body>
-  <div class="container">
-    <div class="card">
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "dashboard", userNome: nome }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
       <h1>Dashboard</h1>
       <p class="sub">Bem-vindo, <strong><%= nome %></strong></p>
 
-      <div class="actions">
-        <a href="/logout" class="btn-secondary btn">Sair</a>
+      <div class="card">
+        <p>Login pronto. Agora dá pra ir em <strong>Matérias / Tópicos</strong> e depois <strong>Registrar o Dia</strong>.</p>
+        <div class="actions">
+          <a class="btn" href="/conteudos">Cadastrar matérias</a>
+          <a class="btn btn-secondary" href="/registrar">Registrar o dia</a>
+        </div>
       </div>
-
-      <p class="hint">Login pronto. Próximo passo: registro diário.</p>
     </div>
-  </div>
+  </main>
 </body>
-
 </html>

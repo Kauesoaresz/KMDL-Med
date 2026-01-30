@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Editar Assunto</title>
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+<link rel="stylesheet" href="/public/css/content/base.css">
+<link rel="stylesheet" href="/public/css/content/form.css">
+
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="/conteudos/assuntos" class="btnSecondary">← Voltar</a>
+      <a href="/logout" class="btnSecondary">Sair</a>
+    </div>
+
+    <div class="card">
+      <h1>Editar Assunto</h1>
+      <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
+
+      <form method="POST" action="/conteudos/assuntos/<%= subtopic.id %>/editar" class="formCol">
+        <label>Tópico</label>
+        <select name="topic_id" required>
+          <% topics.forEach(t => { %>
+            <option value="<%= t.id %>" <%= (subtopic.topic_id === t.id ? "selected" : "") %>>
+              <%= t.subject ? t.subject.nome : "-" %> → <%= t.nome %>
+            </option>
+          <% }) %>
+        </select>
+
+        <label>Nome do assunto</label>
+        <input name="nome" value="<%= subtopic.nome %>" required />
+
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

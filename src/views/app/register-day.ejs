@@ -1,0 +1,161 @@
+<h1>Registrar Dia</h1>
+
+<form method="POST" action="/registrar" id="form-dia">
+  <label>Data</label><br>
+  <input type="date" name="data" value="<%= hoje %>" required>
+
+  <hr>
+
+  <div id="blocos"></div>
+
+  <button type="button" onclick="addBloco()">+ Adicionar bloco</button>
+
+  <hr>
+
+  <h3>Resumo do Dia</h3>
+  <div id="resumo">
+    <p><strong>Total de horas:</strong> <span id="resumo-horas">0</span>h</p>
+    <p><strong>Total de questões:</strong> <span id="resumo-questoes">0</span></p>
+    <p><strong>Acertos:</strong> <span id="resumo-acertos">0</span></p>
+    <p><strong>% de acerto:</strong> <span id="resumo-percent">0%</span></p>
+
+    <div id="resumo-materias"></div>
+  </div>
+
+  <br>
+  <button type="submit">Salvar Dia</button>
+</form>
+
+<script>
+const subjects = <%- JSON.stringify(subjects) %>;
+
+function addBloco() {
+  const div = document.createElement("div");
+  div.className = "bloco";
+
+  div.innerHTML = `
+    <hr>
+    <button type="button" onclick="removeBloco(this)">🗑 Remover bloco</button><br><br>
+
+    <select data-name="subject_id" onchange="loadTopics(this); atualizarResumo();" required>
+      <option value="">Matéria</option>
+      ${subjects.map(s => `<option value="${s.id}" data-nome="${s.nome}">${s.nome}</option>`).join("")}
+    </select>
+
+    <select data-name="topic_id" required onchange="atualizarResumo()">
+      <option value="">Tópico</option>
+    </select>
+
+    <select data-name="subtopic_id" onchange="atualizarResumo()">
+      <option value="">Assunto (opcional)</option>
+    </select>
+
+    <input type="number" step="0.25" data-name="horas" placeholder="Horas"
+           oninput="atualizarResumo()" required>
+
+    <input type="number" data-name="questoes" placeholder="Questões"
+           oninput="atualizarResumo()">
+
+    <input type="number" data-name="acertos" placeholder="Acertos"
+           oninput="atualizarResumo()">
+
+    <select data-name="dificuldade" onchange="atualizarResumo()">
+      <option value="FACIL">Fácil</option>
+      <option value="MEDIA" selected>Média</option>
+      <option value="DIFICIL">Difícil</option>
+    </select>
+  `;
+
+  document.getElementById("blocos").appendChild(div);
+  reindex();
+  atualizarResumo();
+}
+
+function removeBloco(btn) {
+  btn.closest(".bloco").remove();
+  reindex();
+  atualizarResumo();
+}
+
+function reindex() {
+  document.querySelectorAll(".bloco").forEach((bloco, idx) => {
+    bloco.querySelectorAll("[data-name]").forEach(el => {
+      el.name = `blocos[${idx}][${el.dataset.name}]`;
+    });
+  });
+}
+
+async function loadTopics(sel) {
+  const bloco = sel.closest(".bloco");
+  const topicSel = bloco.querySelector("[data-name='topic_id']");
+  const subSel = bloco.querySelector("[data-name='subtopic_id']");
+
+  topicSel.innerHTML = `<option value="">Carregando...</option>`;
+  subSel.innerHTML = `<option value="">Assunto</option>`;
+
+  const res = await fetch(`/api/subjects/${sel.value}/topics`);
+  const data = await res.json();
+
+  topicSel.innerHTML = `<option value="">Tópico</option>` +
+    data.map(t => `<option value="${t.id}">${t.nome}</option>`).join("");
+
+  topicSel.onchange = async () => {
+    const r = await fetch(`/api/topics/${topicSel.value}/subtopics`);
+    const d = await r.json();
+    subSel.innerHTML = `<option value="">Assunto (opcional)</option>` +
+      d.map(s => `<option value="${s.id}">${s.nome}</option>`).join("");
+  };
+}
+
+// =========================
+// RESUMO AUTOMÁTICO
+// =========================
+function atualizarResumo() {
+  let totalHoras = 0;
+  let totalQuestoes = 0;
+  let totalAcertos = 0;
+  const porMateria = {};
+
+  document.querySelectorAll(".bloco").forEach(bloco => {
+    const horas = parseFloat(bloco.querySelector("[data-name='horas']")?.value || 0);
+    const questoes = parseInt(bloco.querySelector("[data-name='questoes']")?.value || 0);
+    const acertos = parseInt(bloco.querySelector("[data-name='acertos']")?.value || 0);
+
+    const subjectSel = bloco.querySelector("[data-name='subject_id']");
+    const subjectNome = subjectSel?.selectedOptions[0]?.dataset.nome;
+
+    if (horas > 0) {
+      totalHoras += horas;
+
+      if (subjectNome) {
+        porMateria[subjectNome] = (porMateria[subjectNome] || 0) + horas;
+      }
+    }
+
+    if (questoes > 0) {
+      totalQuestoes += questoes;
+      totalAcertos += Math.min(acertos, questoes);
+    }
+  });
+
+  document.getElementById("resumo-horas").innerText = totalHoras.toFixed(2);
+  document.getElementById("resumo-questoes").innerText = totalQuestoes;
+  document.getElementById("resumo-acertos").innerText = totalAcertos;
+
+  const percent = totalQuestoes > 0
+    ? ((totalAcertos / totalQuestoes) * 100).toFixed(1)
+    : 0;
+
+  document.getElementById("resumo-percent").innerText = percent + "%";
+
+  const matDiv = document.getElementById("resumo-materias");
+  matDiv.innerHTML = "<strong>Horas por matéria:</strong><ul>" +
+    Object.entries(porMateria)
+      .map(([m, h]) => `<li>${m}: ${h.toFixed(2)}h</li>`)
+      .join("") +
+    "</ul>";
+}
+
+// inicia com 1 bloco
+addBloco();
+</script>

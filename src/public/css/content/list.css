@@ -1,0 +1,40 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-item strong {
+  font-weight: 700;
+}
+
+.list-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit {
+  font-size: 13px;
+  color: #2ee59d;
+}
+
+.delete {
+  font-size: 13px;
+  color: #ff6b6b;
+}
+
+.edit:hover,
+.delete:hover {
+  text-decoration: underline;
+}

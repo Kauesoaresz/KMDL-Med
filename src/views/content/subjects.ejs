@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Matérias</title>
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+<link rel="stylesheet" href="/public/css/content/base.css">
+<link rel="stylesheet" href="/public/css/content/list.css">
+<link rel="stylesheet" href="/public/css/content/form.css">
+
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="/dashboard" class="btnSecondary">← Dashboard</a>
+      <div class="tabs">
+        <a class="tab active" href="/conteudos/materias">Matérias</a>
+        <a class="tab" href="/conteudos/topicos">Tópicos</a>
+        <a class="tab" href="/conteudos/assuntos">Assuntos</a>
+      </div>
+      <a href="/logout" class="btnSecondary">Sair</a>
+    </div>
+
+    <div class="card">
+      <h1>Matérias</h1>
+      <p class="sub">Cadastre suas matérias (ex: Matemática, Biologia...).</p>
+
+      <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
+      <% if (ok) { %><div class="ok"><%= ok %></div><% } %>
+
+      <form method="POST" action="/conteudos/materias" class="formRow">
+        <input name="nome" placeholder="Nome da matéria" required />
+        <button type="submit">Adicionar</button>
+      </form>
+
+      <div class="list">
+        <% if (!subjects.length) { %>
+          <p class="empty">Nenhuma matéria cadastrada ainda.</p>
+        <% } %>
+
+        <% subjects.forEach(s => { %>
+          <div class="item">
+            <div class="name"><%= s.nome %></div>
+            <div class="actions">
+              <a class="btnSecondary" href="/conteudos/materias/<%= s.id %>/editar">Editar</a>
+              <form method="POST" action="/conteudos/materias/<%= s.id %>/excluir" onsubmit="return confirm('Excluir matéria? Isso remove tópicos/assuntos também.');">
+                <button class="danger" type="submit">Excluir</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,295 @@
+/* ===== KMed Sidebar (icons-only + expand on hover) ===== */
+
+:root{
+  --sb-bg: #0f1522;
+  --sb-border: rgba(255,255,255,0.06);
+  --sb-text: #e6edf7;
+  --sb-muted: #a9b7cc;
+  --sb-accent: #2ee59d;
+  --sb-accent-2: rgba(46,229,157,0.16);
+  --sb-hover: rgba(46,229,157,0.10);
+
+  --sb-collapsed: 78px;
+  --sb-expanded: 260px;
+}
+
+/* Sidebar container */
+.sidebar{
+  position: fixed;
+  inset: 0 auto 0 0;
+  height: 100vh;
+
+  width: var(--sb-collapsed);
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+
+  display: flex;
+  flex-direction: column;
+  padding: 14px 10px;
+
+  overflow: hidden;
+  transition: width 180ms ease;
+  z-index: 20;
+}
+
+.sidebar:hover{
+  width: var(--sb-expanded);
+}
+
+/* Brand */
+.sidebar__brand{
+  padding: 6px 4px 14px 4px;
+  border-bottom: 1px solid var(--sb-border);
+}
+
+.sidebar__brandLink{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.sidebar__logo{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--sb-accent);
+  color: #07110f;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 18px;
+  flex: 0 0 44px;
+}
+
+.sidebar__brandText{
+  color: var(--sb-text);
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.sidebar:hover .sidebar__brandText{
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Nav */
+.sidebar__nav{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 4px;
+}
+
+/* Item */
+.sidebar__item{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  height: 52px;
+  padding: 0 12px;
+  border-radius: 16px;
+
+  color: var(--sb-text);
+  text-decoration: none;
+
+  border: 1px solid transparent;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+/* Icon box */
+.sidebar__icon{
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 12px;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 16px;
+}
+
+/* Label (hidden when collapsed) */
+.sidebar__label{
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--sb-text);
+
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+/* Show labels only when expanded */
+.sidebar:hover .sidebar__label{
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Hover/Active states */
+.sidebar__item:hover{
+  background: var(--sb-hover);
+  border-color: rgba(46,229,157,0.20);
+}
+
+.sidebar__item.is-active{
+  background: var(--sb-accent-2);
+  border-color: rgba(46,229,157,0.35);
+}
+
+.sidebar__item.is-active .sidebar__icon{
+  background: rgba(46,229,157,0.18);
+  border-color: rgba(46,229,157,0.30);
+}
+
+/* Tooltip when sidebar is collapsed */
+.sidebar__tooltip{
+  position: absolute;
+  left: calc(var(--sb-collapsed) + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+
+  background: rgba(18, 24, 38, 0.98);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--sb-text);
+
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+/* Only show tooltip when sidebar is NOT hovered (collapsed state) */
+.sidebar:not(:hover) .sidebar__item:hover .sidebar__tooltip,
+.sidebar:not(:hover) .sidebar__user:hover .sidebar__tooltip{
+  opacity: 1;
+}
+
+/* Footer */
+.sidebar__footer{
+  margin-top: auto;
+  padding: 12px 4px 0 4px;
+  border-top: 1px solid var(--sb-border);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar__user{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  height: 52px;
+  padding: 0 12px;
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar__avatar{
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 12px;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar__userText{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.sidebar:hover .sidebar__userText{
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__userName{
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sb-text);
+  white-space: nowrap;
+}
+
+.sidebar__userSub{
+  font-size: 12px;
+  color: var(--sb-muted);
+  white-space: nowrap;
+}
+
+.sidebar__logout{
+  margin-top: 0;
+}
+
+/* ===== Layout helper (page content offset) ===== */
+.with-sidebar{
+  margin-left: var(--sb-collapsed);
+  transition: margin-left 180ms ease;
+}
+
+.sidebar:hover ~ .with-sidebar{
+  margin-left: var(--sb-expanded);
+}
+
+/* ===== Fix: modo fechado (somente ícones, sem “quadrado a mais”) ===== */
+.sidebar:not(:hover) .sidebar__item,
+.sidebar:not(:hover) .sidebar__user {
+  width: 52px;              /* vira quadrado */
+  height: 52px;
+  padding: 0;               /* remove padding lateral que cria o retângulo */
+  border-radius: 16px;
+  justify-content: center;  /* centraliza o ícone */
+  align-self: center;       /* centraliza dentro do nav/footer */
+}
+
+.sidebar:not(:hover) .sidebar__nav,
+.sidebar:not(:hover) .sidebar__footer {
+  align-items: center;      /* centraliza os itens na coluna */
+}
+
+.sidebar:not(:hover) .sidebar__icon,
+.sidebar:not(:hover) .sidebar__avatar {
+  margin: 0;                /* garante que não “puxe” pro lado */
+}
+
+/* remove o “fundo grandão” do usuário no modo fechado */
+.sidebar:not(:hover) .sidebar__user {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* remove qualquer texto/reserva invisível */
+.sidebar:not(:hover) .sidebar__label,
+.sidebar:not(:hover) .sidebar__userText,
+.sidebar:not(:hover) .sidebar__brandText {
+  display: none;
+}
