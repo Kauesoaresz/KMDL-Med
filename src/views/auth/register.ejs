@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Cadastro</title>
+  <link rel="stylesheet" href="/public/css/auth/register.css" />
+
+</head>
+<body class="bg">
+  <div class="card">
+    <h1>KMed</h1>
+    <p class="sub">Criar conta</p>
+
+    <% if (erro) { %>
+      <div class="alert"><%= erro %></div>
+    <% } %>
+
+    <form method="POST" action="/cadastrar" class="form">
+      <label>Nome</label>
+      <input name="nome" type="text" required />
+
+      <label>Email</label>
+      <input name="email" type="email" required />
+
+      <label>Senha</label>
+      <input name="senha" type="password" required />
+
+      <button type="submit">Criar conta</button>
+    </form>
+
+    <p class="link">
+      Já tem conta? <a href="/login">Entrar</a>
+    </p>
+  </div>
+</body>
+</html>
