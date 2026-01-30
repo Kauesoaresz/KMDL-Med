@@ -1,4 +1,5 @@
 <aside class="sidebar" aria-label="Menu lateral">
+
   <div class="sidebar__brand">
     <a class="sidebar__brandLink" href="/dashboard" title="KMed">
       <div class="sidebar__logo">K</div>
@@ -14,6 +15,14 @@
       <span class="sidebar__icon">🏠</span>
       <span class="sidebar__label">Dashboard</span>
       <span class="sidebar__tooltip">Dashboard</span>
+    </a>
+
+    <!-- CALENDÁRIO (NOVO) -->
+    <a class="sidebar__item <%= (active === 'calendario') ? 'is-active' : '' %>"
+       href="/calendario" title="Calendário">
+      <span class="sidebar__icon">📅</span>
+      <span class="sidebar__label">Calendário</span>
+      <span class="sidebar__tooltip">Calendário</span>
     </a>
 
     <!-- ESTATÍSTICAS -->
@@ -67,4 +76,5 @@
     </a>
 
   </div>
+
 </aside>

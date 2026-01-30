@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+  <title>KMed | Calendário</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/calendario.css" />
+</head>
+
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", {
+    active: "calendario",
+    userNome,
+    userFoto
+  }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+
+      <!-- HEADER -->
+      <div class="kmed-header">
+        <h1>Calendário de Estudos</h1>
+        <p>Veja sua constância de estudos mês a mês.</p>
+      </div>
+
+      <!-- NAVEGAÇÃO -->
+      <div class="kmed-calendar-nav">
+        <a href="/calendario?ano=<%= anoAnterior %>&mes=<%= mesAnterior %>">
+          ⬅ Mês anterior
+        </a>
+
+        <strong><%= mesLabel %></strong>
+
+        <a href="/calendario?ano=<%= anoProximo %>&mes=<%= mesProximo %>">
+          Próximo mês ➜
+        </a>
+      </div>
+
+      <!-- CALENDÁRIO -->
+      <div class="kmed-calendar-grid">
+  <% diasMes.forEach(d => { %>
+
+    <a
+      class="kmed-cal-day <%= d.cor %> 
+             <%= d.isHoje ? 'today' : '' %>
+             <%= d.futuro ? 'future' : '' %>
+             <%= d.perfeito ? 'perfect' : '' %>"
+      <% if (!d.futuro) { %>
+        href="/registrar/editar/<%= d.dataISO %>"
+      <% } %>
+      title="<%= d.horas %>h"
+    >
+      <span><%= d.dia %></span>
+    </a>
+
+  <% }) %>
+</div>
+
+
+        <!-- LEGENDA -->
+        <div class="kmed-calendar-legend">
+          <span><i class="h8"></i> 8h+</span>
+          <span><i class="h7"></i> 7h</span>
+          <span><i class="h6"></i> 6h</span>
+          <span><i class="h5"></i> 5h</span>
+          <span><i class="h4"></i> 4h</span>
+          <span><i class="h3"></i> 3h</span>
+          <span><i class="h2"></i> 2h</span>
+          <span><i class="h1"></i> 1h</span>
+          <span><i class="zero"></i> 0h</span>
+        </div>
+
+      </div>
+
+      <!-- RESUMO -->
+      <div class="kmed-month-summary">
+        <div>
+          <small>Total de horas</small>
+          <strong><%= totalHorasMes %> h</strong>
+        </div>
+
+        <div>
+          <small>Dias estudados</small>
+          <strong><%= diasEstudados %></strong>
+        </div>
+
+        <div>
+          <small>Média por dia</small>
+          <strong><%= mediaDiaria %> h</strong>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

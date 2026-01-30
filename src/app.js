@@ -11,6 +11,7 @@ const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
+const calendarioRoutes = require("./routes/calendarioRoutes"); // 👈 NOVO
 
 const app = express();
 
@@ -47,7 +48,8 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 app.use(authRoutes);
 app.use(appRoutes);
 app.use(contentRoutes);
-app.use(statisticsRoutes); // 👈 AGORA AQUI
+app.use(statisticsRoutes);
+app.use(calendarioRoutes); // 👈 CALENDÁRIO AQUI
 
 
 // =========================
