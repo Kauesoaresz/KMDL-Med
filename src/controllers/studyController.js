@@ -1,7 +1,6 @@
 const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
 
-
 function ensureInt(v) {
   const n = parseInt(v, 10);
   return Number.isFinite(n) ? n : null;
@@ -13,11 +12,10 @@ function ensureInt(v) {
 exports.hub = async (req, res) => {
   res.render("app/register-hub", {
     active: "registrar",
-    userNome: req.session.userNome
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
-
-
 
 // =========================
 // REGISTRAR NOVO DIA
@@ -33,14 +31,17 @@ exports.registerPage = async (req, res) => {
   const hoje = new Date().toISOString().slice(0, 10);
 
   res.render("app/register-day", {
-  subjects,
-  hoje,
-  active: "registrar",
-  userNome: req.session.userNome
-});
-
+    subjects,
+    hoje,
+    active: "registrar",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
 };
 
+// =========================
+// SALVAR NOVO DIA
+// =========================
 exports.registerSave = async (req, res) => {
   const userId = req.session.userId;
   const { data, blocos } = req.body;
@@ -105,13 +106,12 @@ exports.listDays = async (req, res) => {
   }));
 
   res.render("app/register-list", {
-  dias,
-  active: "registrar",
-  userNome: req.session.userNome
-});
-
+    dias,
+    active: "registrar",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
 };
-
 
 // =========================
 // EDITAR DIA
@@ -135,15 +135,18 @@ exports.editPage = async (req, res) => {
   }
 
   res.render("app/register-edit", {
-  data,
-  subjects,
-  entries,
-  active: "registrar",
-  userNome: req.session.userNome
-});
-
+    data,
+    subjects,
+    entries,
+    active: "registrar",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
 };
 
+// =========================
+// SALVAR EDIÇÃO
+// =========================
 exports.editSave = async (req, res) => {
   const userId = req.session.userId;
   const data = req.params.data;

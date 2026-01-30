@@ -4,26 +4,103 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>KMed | Dashboard</title>
+
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/dashboard.css" />
 </head>
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "dashboard", userNome: nome }) %>
+  <%- include("../partials/sidebar", { active: "dashboard", userNome }) %>
 
   <main class="with-sidebar">
     <div class="page">
-      <h1>Dashboard</h1>
-      <p class="sub">Bem-vindo, <strong><%= nome %></strong></p>
 
-      <div class="card">
-        <p>Login pronto. Agora dá pra ir em <strong>Matérias / Tópicos</strong> e depois <strong>Registrar o Dia</strong>.</p>
-        <div class="actions">
-          <a class="btn" href="/conteudos">Cadastrar matérias</a>
-          <a class="btn btn-secondary" href="/registrar">Registrar o dia</a>
+      <header class="page-header">
+        <h1>Dashboard</h1>
+        <p class="sub">Bem-vindo, <strong><%= userNome %></strong></p>
+      </header>
+
+      <!-- =========================
+           KPIs
+      ========================== -->
+      <section class="dashboard-cards">
+
+        <div class="card kpi">
+          <h3>Hoje</h3>
+          <p class="value"><%= horasHoje %>h</p>
+          <span class="label">Horas estudadas</span>
+          <span class="extra"><%= questoesHoje %> questões</span>
         </div>
-      </div>
+
+        <div class="card kpi">
+          <h3>Últimos 7 dias</h3>
+          <p class="value"><%= horasSemana %>h</p>
+          <span class="label">Horas estudadas</span>
+          <span class="extra">
+            <%= questoesSemana %> questões • <%= taxaSemana %>% acerto
+          </span>
+        </div>
+
+        <div class="card kpi">
+          <h3>Últimos 30 dias</h3>
+          <p class="value"><%= horasMes %>h</p>
+          <span class="label">Horas estudadas</span>
+          <span class="extra"><%= questoesMes %> questões</span>
+        </div>
+
+        <div class="card kpi highlight">
+          <h3>Total</h3>
+          <p class="value"><%= horasTotal %>h</p>
+          <span class="label">Horas acumuladas</span>
+          <span class="extra">
+            <%= questoesTotal %> questões • <%= taxaGeral %>% acerto
+          </span>
+        </div>
+
+      </section>
+
+      <!-- =========================
+           EVOLUÇÃO (BASE GRÁFICOS)
+      ========================== -->
+      <section class="dashboard-section">
+        <h2>Evolução (últimos 30 dias)</h2>
+
+        <% if (evolucao.length === 0) { %>
+          <p class="muted">Nenhum dado registrado ainda.</p>
+        <% } else { %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Horas</th>
+                <th>Questões</th>
+                <th>Acertos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% evolucao.forEach(d => { %>
+                <tr>
+                  <td><%= d.data %></td>
+                  <td><%= d.horas %>h</td>
+                  <td><%= d.questoes %></td>
+                  <td><%= d.acertos %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+
+      <!-- =========================
+           AÇÕES RÁPIDAS
+      ========================== -->
+      <section class="dashboard-actions">
+        <a href="/registrar" class="btn">Registrar o dia</a>
+        <a href="/conteudos" class="btn btn-secondary">Gerenciar conteúdos</a>
+      </section>
+
     </div>
   </main>
+
 </body>
 </html>

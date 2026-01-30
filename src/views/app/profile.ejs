@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMed | Perfil</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/profile.css">
+</head>
+<body class="page-bg">
+
+<%- include("../partials/sidebar", { active: "perfil", userNome }) %>
+
+<main class="with-sidebar">
+  <div class="page profile-page">
+
+    <h1>Meu Perfil</h1>
+
+    <% if (erro) { %>
+      <div class="alert error"><%= erro %></div>
+    <% } %>
+
+    <% if (ok) { %>
+      <div class="alert ok"><%= ok %></div>
+    <% } %>
+
+    <form method="POST" enctype="multipart/form-data" class="profile-card">
+
+      <div class="avatar">
+        <img src="<%= user.foto || '/public/img/avatar-default.png' %>" alt="Foto">
+        <input type="file" name="foto" accept="image/*">
+      </div>
+
+      <label>Nome</label>
+      <input type="text" name="nome" value="<%= user.nome %>" required>
+
+      <label>Email</label>
+      <input type="email" name="email" value="<%= user.email %>" required>
+
+      <label>Nova senha (opcional)</label>
+      <input type="password" name="senha" placeholder="mínimo 6 caracteres">
+
+      <button class="btn">Salvar alterações</button>
+    </form>
+
+  </div>
+</main>
+
+</body>
+</html>

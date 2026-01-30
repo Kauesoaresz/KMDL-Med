@@ -24,7 +24,9 @@ exports.subjectsIndex = async (req, res) => {
     subjects,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -40,7 +42,9 @@ exports.subjectsIndexWithMsg = async (req, res, erro) => {
     subjects,
     erro,
     ok: null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -71,7 +75,9 @@ exports.subjectsEditPage = async (req, res) => {
     subject,
     erro: req.query.erro || null,
     ok: null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -126,7 +132,9 @@ exports.topicsIndex = async (req, res) => {
     topics,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -163,7 +171,9 @@ exports.topicsEditPage = async (req, res) => {
     topic,
     erro: req.query.erro || null,
     ok: null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -218,7 +228,9 @@ exports.subtopicsIndex = async (req, res) => {
     subtopics,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 
@@ -256,7 +268,9 @@ exports.subtopicsEditPage = async (req, res) => {
     subtopic,
     erro: req.query.erro || null,
     ok: null,
-    userNome: req.session.userNome
+    active: "conteudos",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
   });
 };
 

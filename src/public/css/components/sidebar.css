@@ -293,3 +293,12 @@
 .sidebar:not(:hover) .sidebar__brandText {
   display: none;
 }
+
+.sidebar__avatar img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #2ee59d;
+}
+

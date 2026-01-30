@@ -1,6 +1,18 @@
-* { box-sizing: border-box; font-family: Arial, sans-serif; }
-body { margin: 0; }
+/* =========================
+   RESET BÁSICO
+========================= */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
+body {
+  margin: 0;
+}
+
+/* =========================
+   FUNDO E CONTAINER
+========================= */
 .page-bg {
   background: #0b0f14;
   color: #e6edf7;
@@ -8,47 +20,204 @@ body { margin: 0; }
 }
 
 .page {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 32px auto;
-  padding: 0 18px;
+  padding: 0 20px 40px;
 }
 
-h1 {
-  margin: 0 0 10px;
+/* =========================
+   HEADER
+========================= */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  margin: 0 0 6px;
   font-size: 28px;
+  font-weight: 800;
 }
 
 .sub {
-  margin: 0 0 18px;
+  margin: 0;
   color: #a9b7cc;
+  font-size: 14px;
+}
+
+/* =========================
+   DASHBOARD CARDS (KPIs)
+========================= */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 36px;
 }
 
 .card {
   background: #121826;
   border: 1px solid #1f2a3a;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 18px;
+  padding: 18px 20px;
 }
 
-.actions {
-  margin-top: 14px;
+.card.kpi {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card.kpi h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8fa3c8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card.kpi .value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.card.kpi .label {
+  font-size: 13px;
+  color: #a9b7cc;
+}
+
+.card.kpi .extra {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #7f91b2;
+}
+
+/* Card em destaque (Total) */
+.card.kpi.highlight {
+  border-color: #2ee59d;
+  background: linear-gradient(180deg, #121826, #0f1c17);
+}
+
+.card.kpi.highlight .value {
+  color: #2ee59d;
+}
+
+/* =========================
+   SEÇÕES
+========================= */
+.dashboard-section {
+  margin-bottom: 36px;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #e6edf7;
+}
+
+/* =========================
+   TABELA
+========================= */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #121826;
+  border: 1px solid #1f2a3a;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table thead {
+  background: #0f1624;
+}
+
+.table th,
+.table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.table th {
+  color: #9fb0cf;
+  font-weight: 700;
+}
+
+.table td {
+  color: #e6edf7;
+  border-top: 1px solid #1f2a3a;
+}
+
+.table tbody tr:hover {
+  background: #0e1624;
+}
+
+/* =========================
+   TEXTO AUXILIAR
+========================= */
+.muted {
+  color: #7f91b2;
+  font-size: 14px;
+}
+
+/* =========================
+   AÇÕES
+========================= */
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .btn {
-  display: inline-block;
-  padding: 10px 14px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 14px;
   background: #2ee59d;
   color: #07110f;
   text-decoration: none;
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 229, 157, 0.25);
 }
 
 .btn-secondary {
   background: transparent;
   border: 1px solid #263248;
   color: #e6edf7;
+}
+
+.btn-secondary:hover {
+  background: #121826;
+  box-shadow: none;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 600px) {
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  .card.kpi .value {
+    font-size: 26px;
+  }
+
+  .dashboard-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
 }

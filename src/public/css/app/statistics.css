@@ -1,0 +1,50 @@
+/* LISTAS */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ITEM */
+.stats-item {
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.stats-item:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56,189,248,.25);
+}
+
+/* TEXTO */
+.stats-item .label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e5e7eb; /* ✅ visível */
+  margin-bottom: 6px;
+}
+
+.stats-item .value {
+  font-size: 14px;
+  color: #94a3b8; /* ✅ visível */
+}
+
+/* PLACEHOLDER */
+.placeholder {
+  padding: 20px;
+  border-radius: 12px;
+  background: #020617;
+  color: #64748b;
+  text-align: center;
+}
+
+.with-sidebar {
+  margin-left: 88px;
+  padding: 32px;
+  min-height: 100vh;
+}
