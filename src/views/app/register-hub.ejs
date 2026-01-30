@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Registrar Dia</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+<link rel="stylesheet" href="/public/css/app/register-hub.css" />
+
+
+</head>
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "registrar", userNome }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+      <h1>Registrar Dia</h1>
+      
+
+      <div style="display:flex; gap:20px; margin-top:30px;">
+
+        <a href="/registrar/novo" style="flex:1; text-decoration:none;">
+          <div class="card">
+            <h2>Registrar novo dia</h2>
+            <p>Cadastrar um novo dia de estudos</p>
+          </div>
+        </a>
+
+        <a href="/registrar/lista" style="flex:1; text-decoration:none;">
+          <div class="card">
+            <h2>Dias já registrados</h2>
+            <p>Ver, editar ou excluir dias cadastrados</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

@@ -10,8 +10,23 @@ router.get("/dashboard", auth, (req, res) => {
   res.render("app/dashboard", { nome: req.session.userNome });
 });
 
-// REGISTRAR DIA
-router.get("/registrar", auth, study.registerPage);
-router.post("/registrar", auth, study.registerSave);
+// =========================
+// REGISTRAR DIA - HUB
+// =========================
+router.get("/registrar", auth, study.hub);
+
+// novo dia
+router.get("/registrar/novo", auth, study.registerPage);
+router.post("/registrar/novo", auth, study.registerSave);
+
+// lista de dias
+router.get("/registrar/lista", auth, study.listDays);
+
+// editar dia (acesso SEMPRE pela lista)
+router.get("/registrar/editar/:data", auth, study.editPage);
+router.post("/registrar/editar/:data", auth, study.editSave);
+
+// excluir dia
+router.post("/registrar/excluir/:data", auth, study.deleteDay);
 
 module.exports = router;

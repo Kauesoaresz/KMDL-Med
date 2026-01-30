@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Editar Dia</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+<link rel="stylesheet" href="/public/css/app/register-edit.css" />
+
+</head>
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "registrar", userNome }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+      <h1>Editar dia <%= data %></h1>
+      <a href="/registrar" class="btn-back">← Voltar</a>
+
+
+      <form method="POST" action="/registrar/editar/<%= data %>" id="form-dia">
+        <div id="blocos"></div>
+
+        <button type="button" onclick="addBloco()">+ Adicionar bloco</button>
+        <br><br>
+        <button type="submit">Salvar alterações</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- JS DE CARREGAR BLOCOS continua IGUAL -->
+</body>
+</html>
+
+
+<script>
+const subjects = <%- JSON.stringify(subjects) %>;
+const entries = <%- JSON.stringify(entries) %>;
+
+function addBloco(entry = null) {
+  const div = document.createElement("div");
+  div.className = "bloco";
+
+  div.innerHTML = `
+    <hr>
+    <button type="button" onclick="removeBloco(this)">🗑 Remover</button><br><br>
+
+    <select data-name="subject_id" onchange="loadTopics(this)" required>
+      <option value="">Matéria</option>
+      ${subjects.map(s => `
+        <option value="${s.id}" ${entry && entry.subject_id === s.id ? "selected" : ""}>
+          ${s.nome}
+        </option>`).join("")}
+    </select>
+
+    <select data-name="topic_id" required></select>
+
+    <select data-name="subtopic_id">
+      <option value="">Assunto (opcional)</option>
+    </select>
+
+    <input type="number" step="0.25" data-name="horas" placeholder="Horas" value="${entry ? entry.horas : ""}" required>
+    <input type="number" data-name="questoes" placeholder="Questões" value="${entry ? entry.questoes : ""}">
+    <input type="number" data-name="acertos" placeholder="Acertos" value="${entry ? entry.acertos : ""}">
+
+    <select data-name="dificuldade">
+      <option value="FACIL" ${entry?.dificuldade === "FACIL" ? "selected" : ""}>Fácil</option>
+      <option value="MEDIA" ${!entry || entry.dificuldade === "MEDIA" ? "selected" : ""}>Média</option>
+      <option value="DIFICIL" ${entry?.dificuldade === "DIFICIL" ? "selected" : ""}>Difícil</option>
+    </select>
+  `;
+
+  document.getElementById("blocos").appendChild(div);
+  reindex();
+
+  if (entry) {
+    loadTopics(div.querySelector("[data-name='subject_id']"), entry);
+  }
+}
+
+function removeBloco(btn) {
+  btn.closest(".bloco").remove();
+  reindex();
+}
+
+function reindex() {
+  document.querySelectorAll(".bloco").forEach((bloco, idx) => {
+    bloco.querySelectorAll("[data-name]").forEach(el => {
+      el.name = `blocos[${idx}][${el.dataset.name}]`;
+    });
+  });
+}
+
+async function loadTopics(sel, entry = null) {
+  const bloco = sel.closest(".bloco");
+  const topicSel = bloco.querySelector("[data-name='topic_id']");
+  const subSel = bloco.querySelector("[data-name='subtopic_id']");
+
+  const res = await fetch(`/api/subjects/${sel.value}/topics`);
+  const topics = await res.json();
+
+  topicSel.innerHTML = `<option value="">Tópico</option>` +
+    topics.map(t => `
+      <option value="${t.id}" ${entry && entry.topic_id === t.id ? "selected" : ""}>
+        ${t.nome}
+      </option>`).join("");
+
+  if (entry) {
+    const r = await fetch(`/api/topics/${entry.topic_id}/subtopics`);
+    const subs = await r.json();
+
+    subSel.innerHTML = `<option value="">Assunto</option>` +
+      subs.map(s => `
+        <option value="${s.id}" ${entry.subtopic_id === s.id ? "selected" : ""}>
+          ${s.nome}
+        </option>`).join("");
+  }
+}
+
+// carrega blocos existentes
+entries.forEach(e => addBloco(e));
+</script>

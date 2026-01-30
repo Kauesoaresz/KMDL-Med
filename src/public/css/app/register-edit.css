@@ -1,0 +1,16 @@
+.with-sidebar {
+  margin-left: 88px;
+  padding: 32px;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1200px;
+}
+
+.btn-back {
+  display: inline-block;
+  margin: 12px 0 24px;
+  text-decoration: none;
+  color: #7c3aed;
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Dias Registrados</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+<link rel="stylesheet" href="/public/css/app/register-list.css" />
+
+
+</head>
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "registrar", userNome }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+      <h1>Dias registrados</h1>
+      <a href="/registrar" class="btn-back">← Voltar</a>
+
+
+      <table border="1" cellpadding="10" cellspacing="0" style="margin-top:20px; width:100%;">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Horas</th>
+            <th>Questões</th>
+            <th>Acertos</th>
+            <th>%</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (dias.length === 0) { %>
+            <tr>
+              <td colspan="6">Nenhum dia registrado</td>
+            </tr>
+          <% } %>
+
+          <% dias.forEach(d => { 
+            const percent = d.total_questoes > 0
+              ? ((d.total_acertos / d.total_questoes) * 100).toFixed(1)
+              : 0;
+          %>
+            <tr>
+              <td><%= d.data %></td>
+              <td><%= d.total_horas.toFixed(2) %>h</td>
+              <td><%= d.total_questoes %></td>
+              <td><%= d.total_acertos %></td>
+              <td><%= percent %>%</td>
+              <td>
+                <a href="/registrar/editar/<%= d.data %>">✏️ Editar</a>
+                <form method="POST" action="/registrar/excluir/<%= d.data %>" style="display:inline;">
+                  <button type="submit">🗑 Excluir</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</body>
+</html>
