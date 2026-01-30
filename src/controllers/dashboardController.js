@@ -2,25 +2,71 @@ const { StudyEntry } = require("../models");
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
 
+// =========================
+// HELPERS DE DATA (SEM BUG)
+// =========================
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
 }
 
 function daysAgoISO(days) {
   const d = new Date();
   d.setDate(d.getDate() - days);
+  d.setHours(0, 0, 0, 0);
   return d.toISOString().slice(0, 10);
 }
 
+function parseLocalDate(isoDate) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+const diasSemana = [
+  "Domingo",
+  "Segunda-feira",
+  "Terça-feira",
+  "Quarta-feira",
+  "Quinta-feira",
+  "Sexta-feira",
+  "Sábado"
+];
+
+function formatarDataDashboard(dataISO) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const data = parseLocalDate(dataISO);
+  data.setHours(0, 0, 0, 0);
+
+  const diffDias = Math.round(
+    (hoje - data) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffDias === 0) return "Hoje";
+  if (diffDias === 1) return "Ontem";
+  if (diffDias === 2) return "Anteontem";
+
+  if (diffDias > 2 && diffDias < 7) {
+    return diasSemana[data.getDay()];
+  }
+
+  return data.toLocaleDateString("pt-BR");
+}
+
+// =========================
+// DASHBOARD
+// =========================
 exports.dashboard = async (req, res) => {
   const userId = req.session.userId;
 
   const hoje = todayISO();
-  const inicioSemana = daysAgoISO(6); // últimos 7 dias (hoje incluso)
-  const inicioMes = daysAgoISO(29);   // últimos 30 dias
+  const inicioSemana = daysAgoISO(6);
+  const inicioMes = daysAgoISO(29);
 
   // =========================
-  // AGREGADOS GERAIS
+  // TOTAIS
   // =========================
   const totais = await StudyEntry.findOne({
     where: { user_id: userId },
@@ -46,8 +92,7 @@ exports.dashboard = async (req, res) => {
     where: { user_id: userId, data: hoje },
     attributes: [
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
+      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"]
     ],
     raw: true
   });
@@ -97,7 +142,7 @@ exports.dashboard = async (req, res) => {
   const questoesMes = Number(mesAgg?.questoes) || 0;
 
   // =========================
-  // EVOLUÇÃO (BASE PARA GRÁFICOS)
+  // EVOLUÇÃO (30 DIAS)
   // =========================
   const evolucaoRaw = await StudyEntry.findAll({
     where: {
@@ -111,12 +156,12 @@ exports.dashboard = async (req, res) => {
       [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
     ],
     group: ["data"],
-    order: [["data", "ASC"]],
+    order: [["data", "DESC"]],
     raw: true
   });
 
   const evolucao = evolucaoRaw.map(d => ({
-    data: d.data,
+    dataLabel: formatarDataDashboard(d.data),
     horas: Number(d.horas) || 0,
     questoes: Number(d.questoes) || 0,
     acertos: Number(d.acertos) || 0
@@ -125,22 +170,21 @@ exports.dashboard = async (req, res) => {
   // =========================
   // RENDER
   // =========================
- res.render("app/dashboard", {
-  active: "dashboard",
-  userNome: req.session.userNome,
-  userFoto: req.session.userFoto,
+  res.render("app/dashboard", {
+    active: "dashboard",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto,
 
-  horasHoje,
-  horasSemana,
-  horasMes,
-  horasTotal,
-  questoesHoje,
-  questoesSemana,
-  questoesMes,
-  questoesTotal,
-  taxaGeral,
-  taxaSemana,
-  evolucao
-});
-
+    horasHoje,
+    horasSemana,
+    horasMes,
+    horasTotal,
+    questoesHoje,
+    questoesSemana,
+    questoesMes,
+    questoesTotal,
+    taxaGeral,
+    taxaSemana,
+    evolucao
+  });
 };

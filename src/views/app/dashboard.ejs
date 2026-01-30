@@ -20,9 +20,7 @@
         <p class="sub">Bem-vindo, <strong><%= userNome %></strong></p>
       </header>
 
-      <!-- =========================
-           KPIs
-      ========================== -->
+      <!-- KPIs -->
       <section class="dashboard-cards">
 
         <div class="card kpi">
@@ -59,9 +57,7 @@
 
       </section>
 
-      <!-- =========================
-           EVOLUÇÃO (BASE GRÁFICOS)
-      ========================== -->
+      <!-- EVOLUÇÃO -->
       <section class="dashboard-section">
         <h2>Evolução (últimos 30 dias)</h2>
 
@@ -71,7 +67,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Data</th>
+                <th>Dia</th>
                 <th>Horas</th>
                 <th>Questões</th>
                 <th>Acertos</th>
@@ -80,7 +76,7 @@
             <tbody>
               <% evolucao.forEach(d => { %>
                 <tr>
-                  <td><%= d.data %></td>
+                  <td><%= d.dataLabel %></td>
                   <td><%= d.horas %>h</td>
                   <td><%= d.questoes %></td>
                   <td><%= d.acertos %></td>
@@ -91,9 +87,7 @@
         <% } %>
       </section>
 
-      <!-- =========================
-           AÇÕES RÁPIDAS
-      ========================== -->
+      <!-- AÇÕES -->
       <section class="dashboard-actions">
         <a href="/registrar" class="btn">Registrar o dia</a>
         <a href="/conteudos" class="btn btn-secondary">Gerenciar conteúdos</a>

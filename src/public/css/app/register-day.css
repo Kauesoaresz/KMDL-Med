@@ -1,16 +1,173 @@
-.with-sidebar {
-  margin-left: 88px;
-  padding: 32px;
-  min-height: 100vh;
+/* =========================
+   BASE
+========================= */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
-.page {
-  max-width: 1200px;
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #111827;
 }
 
 .btn-back {
   display: inline-block;
-  margin: 12px 0 24px;
+  margin-bottom: 20px;
+  color: #2563eb;
   text-decoration: none;
-  color: #7c3aed;
+  font-weight: 500;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   FORM
+========================= */
+form {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+label {
+  font-weight: 600;
+  color: #374151;
+}
+
+input[type="date"] {
+  margin-top: 6px;
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+/* =========================
+   BLOCOS
+========================= */
+#blocos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bloco {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.bloco hr {
+  display: none;
+}
+
+/* =========================
+   CAMPOS
+========================= */
+.bloco select,
+.bloco input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #fff;
+}
+
+.bloco select:focus,
+.bloco input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* grid */
+.bloco {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+/* spans */
+.bloco select[data-name="subject_id"] {
+  grid-column: span 2;
+}
+
+.bloco select[data-name="topic_id"] {
+  grid-column: span 2;
+}
+
+.bloco select[data-name="subtopic_id"] {
+  grid-column: span 2;
+}
+
+.bloco input[data-name="horas"],
+.bloco input[data-name="questoes"],
+.bloco input[data-name="acertos"],
+.bloco select[data-name="dificuldade"] {
+  grid-column: span 1;
+}
+
+/* =========================
+   BOTÕES
+========================= */
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+button[type="submit"]:hover {
+  background: #1d4ed8;
+}
+
+button[type="button"] {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+button[type="button"]:hover {
+  background: #d1d5db;
+}
+
+/* remover bloco */
+.bloco > button {
+  grid-column: span 6;
+  justify-self: flex-end;
+  background: transparent;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.bloco > button:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 900px) {
+  .bloco {
+    grid-template-columns: 1fr;
+  }
+
+  .bloco select,
+  .bloco input,
+  .bloco button {
+    grid-column: span 1 !important;
+  }
 }

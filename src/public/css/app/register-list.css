@@ -1,21 +1,172 @@
-.with-sidebar {
-  margin-left: 88px;
-  padding: 32px;
-  min-height: 100vh;
-}
-
+/* =========================
+   BASE
+========================= */
 .page {
   max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
-table {
-  width: 100%;
-  margin-top: 24px;
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #111827;
 }
 
 .btn-back {
   display: inline-block;
-  margin: 12px 0 24px;
+  margin-bottom: 20px;
+  color: #2563eb;
   text-decoration: none;
-  color: #7c3aed;
+  font-weight: 500;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   TABELA
+========================= */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+/* HEADER */
+thead {
+  background: #f9fafb;
+}
+
+thead th {
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* BODY */
+tbody td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* linha hover */
+tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* última linha sem borda */
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================
+   ESTADOS
+========================= */
+tbody tr.empty td {
+  text-align: center;
+  color: #6b7280;
+  padding: 24px;
+}
+
+/* =========================
+   PORCENTAGEM
+========================= */
+td.percent {
+  font-weight: 600;
+}
+
+td.percent.good {
+  color: #16a34a;
+}
+
+td.percent.medium {
+  color: #ca8a04;
+}
+
+td.percent.bad {
+  color: #dc2626;
+}
+
+/* =========================
+   AÇÕES
+========================= */
+td.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+td.actions a {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+td.actions a:hover {
+  text-decoration: underline;
+}
+
+td.actions form button {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+td.actions form button:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 900px) {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px;
+  }
+
+  tbody td {
+    border: none;
+    padding: 6px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  td.actions {
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
 }

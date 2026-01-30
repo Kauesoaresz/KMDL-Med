@@ -1,60 +1,141 @@
+/* =========================
+   BASE
+========================= */
 .profile-page {
-  max-width: 500px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
+.profile-page h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* =========================
+   ALERTAS
+========================= */
+.alert {
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert.ok {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* =========================
+   CARD PRINCIPAL
+========================= */
 .profile-card {
-  background: #121826;
-  border: 1px solid #1f2a3a;
-  border-radius: 18px;
-  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
+/* =========================
+   AVATAR
+========================= */
 .avatar {
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-
-.avatar img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #2ee59d;
-}
-
-input[type="file"] {
-  color: #a9b7cc;
-}
-
-label {
-  font-size: 13px;
-  color: #9fb0cf;
-}
-
-input {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #263248;
-  background: #0b0f14;
-  color: #e6edf7;
-}
-
-.alert {
-  padding: 10px;
-  border-radius: 10px;
+  gap: 20px;
   margin-bottom: 10px;
 }
 
-.alert.error {
-  background: #3a1212;
-  color: #ff9b9b;
+.avatar img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
 }
 
-.alert.ok {
-  background: #0f2a1f;
-  color: #2ee59d;
+.avatar input[type="file"] {
+  font-size: 14px;
+}
+
+/* =========================
+   FORMULÁRIO
+========================= */
+.profile-card label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.profile-card input[type="text"],
+.profile-card input[type="email"],
+.profile-card input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.profile-card input::placeholder {
+  color: #9ca3af;
+}
+
+.profile-card input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* =========================
+   BOTÃO
+========================= */
+.profile-card .btn {
+  margin-top: 10px;
+  align-self: flex-start;
+  padding: 12px 22px;
+  border-radius: 14px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.profile-card .btn:hover {
+  background: #1d4ed8;
+}
+
+.profile-card .btn:active {
+  transform: translateY(1px);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 600px) {
+  .avatar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
 }

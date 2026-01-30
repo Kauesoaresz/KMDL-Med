@@ -1,24 +1,89 @@
-.with-sidebar {
-  margin-left: 88px;
-  padding: 32px;
-  min-height: 100vh;
-}
-
+/* =========================
+   BASE
+========================= */
 .page {
-  max-width: 1200px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 
-.hub-actions {
-  display: flex;
+h1 {
+  font-size: 30px;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.page > p {
+  color: #6b7280;
+  margin-bottom: 32px;
+}
+
+/* =========================
+   GRID DE AÇÕES
+========================= */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  margin-top: 32px;
+  margin-top: 30px;
 }
 
-.hub-card {
-  flex: 1;
-  padding: 40px;
-  border: 1px solid #444;
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
+/* =========================
+   CARD
+========================= */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 28px;
+  transition: all 0.25s ease;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.card p {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* =========================
+   HOVER / INTERAÇÃO
+========================= */
+.card:hover {
+  transform: translateY(-4px);
+  border-color: #2563eb;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+a {
+  text-decoration: none;
+}
+
+/* =========================
+   DESTAQUES VISUAIS
+========================= */
+.card.new {
+  border-left: 6px solid #2563eb;
+}
+
+.card.list {
+  border-left: 6px solid #16a34a;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 800px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
 }
