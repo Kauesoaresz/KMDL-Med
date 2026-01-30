@@ -73,17 +73,22 @@
         </div>
       </section>
 
+      <!-- FILTRO -->
+      <div class="period-filter">
+        <button data-period="7">Semana</button>
+        <button data-period="30">Mês</button>
+        <button data-period="all" class="active">Total</button>
+      </div>
+
       <!-- MATÉRIAS -->
       <section class="stats-block">
         <h2>Desempenho por Matéria</h2>
-
         <div id="materias-list" class="stats-list">
-          <!-- carregado via JS -->
           <div class="placeholder">Carregando matérias...</div>
         </div>
       </section>
 
-      <!-- DRILL DOWN -->
+      <!-- DETALHES -->
       <section class="stats-block">
         <h2 id="detail-title">Detalhes</h2>
         <div id="detail-list" class="stats-list">
@@ -91,9 +96,16 @@
         </div>
       </section>
 
+      <!-- GRÁFICO -->
+      <section class="stats-block">
+        <h2>Aproveitamento por Matéria</h2>
+        <canvas id="materiasChart" height="120"></canvas>
+      </section>
+
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/public/js/app/statistics.js"></script>
 </body>
 </html>
