@@ -1,0 +1,108 @@
+/* =========================
+   TELA: EDITAR ASSUNTO
+========================= */
+
+/* ---------- TOPBAR ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.topbar .btnSecondary {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid #263248;
+  background: transparent;
+  color: #e6edf7;
+  text-decoration: none;
+}
+
+.topbar .btnSecondary:hover {
+  background: #1a2438;
+}
+
+/* ---------- CARD ---------- */
+.card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card h1 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+/* ---------- FORM ---------- */
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formCol label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #9fb0cf;
+}
+
+/* inputs e selects */
+.formCol select,
+.formCol input {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #1f2a3a;
+  background: #0f1624;
+  color: #e6edf7;
+  font-size: 14px;
+}
+
+.formCol select option {
+  background: #0f1624;
+}
+
+.formCol select:focus,
+.formCol input:focus {
+  outline: none;
+  border-color: #2ee59d;
+}
+
+/* ---------- BOTÃO ---------- */
+.formCol button {
+  margin-top: 8px;
+  height: 46px;
+  border-radius: 14px;
+  background: #2ee59d;
+  color: #07110f;
+  font-weight: 900;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.formCol button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(46, 229, 157, 0.25);
+}
+
+/* ---------- ALERTA ---------- */
+.alert {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 107, 107, 0.12);
+  color: #ffb3b3;
+  font-size: 14px;
+}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 600px) {
+  .card {
+    max-width: 100%;
+  }
+}

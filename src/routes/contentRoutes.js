@@ -1,35 +1,45 @@
 const express = require("express");
 const auth = require("../middlewares/auth");
-const content = require("../controllers/contentController");
+const contentController = require("../controllers/contentController");
 
 const router = express.Router();
 
-// Menu/atalho: redireciona para matérias
-router.get("/conteudos", auth, (req, res) => res.redirect("/conteudos/materias"));
+// =========================
+// SUBJECTS (Matérias)
+// =========================
+router.get("/conteudos/materias", auth, contentController.subjectsIndex);
+router.post("/conteudos/materias", auth, contentController.subjectsCreate);
+router.get("/conteudos/materias/:id/editar", auth, contentController.subjectsEditPage);
+router.post("/conteudos/materias/:id/editar", auth, contentController.subjectsUpdate);
+router.post("/conteudos/materias/:id/excluir", auth, contentController.subjectsDelete);
 
-// Matérias
-router.get("/conteudos/materias", auth, content.subjectsIndex);
-router.post("/conteudos/materias", auth, content.subjectsCreate);
-router.get("/conteudos/materias/:id/editar", auth, content.subjectsEditPage);
-router.post("/conteudos/materias/:id/editar", auth, content.subjectsUpdate);
-router.post("/conteudos/materias/:id/excluir", auth, content.subjectsDelete);
+// =========================
+// TOPICS (Tópicos)
+// =========================
+router.get("/conteudos/topicos", auth, contentController.topicsIndex);
+router.post("/conteudos/topicos", auth, contentController.topicsCreate);
+router.get("/conteudos/topicos/:id/editar", auth, contentController.topicsEditPage);
+router.post("/conteudos/topicos/:id/editar", auth, contentController.topicsUpdate);
+router.post("/conteudos/topicos/:id/excluir", auth, contentController.topicsDelete);
 
-// Tópicos
-router.get("/conteudos/topicos", auth, content.topicsIndex);
-router.post("/conteudos/topicos", auth, content.topicsCreate);
-router.get("/conteudos/topicos/:id/editar", auth, content.topicsEditPage);
-router.post("/conteudos/topicos/:id/editar", auth, content.topicsUpdate);
-router.post("/conteudos/topicos/:id/excluir", auth, content.topicsDelete);
+// =========================
+// SUBTOPICS (Assuntos)
+// =========================
+router.get("/conteudos/assuntos", auth, contentController.subtopicsIndex);
+router.post("/conteudos/assuntos", auth, contentController.subtopicsCreate);
+router.get("/conteudos/assuntos/:id/editar", auth, contentController.subtopicsEditPage);
+router.post("/conteudos/assuntos/:id/editar", auth, contentController.subtopicsUpdate);
+router.post("/conteudos/assuntos/:id/excluir", auth, contentController.subtopicsDelete);
 
-// Assuntos
-router.get("/conteudos/assuntos", auth, content.subtopicsIndex);
-router.post("/conteudos/assuntos", auth, content.subtopicsCreate);
-router.get("/conteudos/assuntos/:id/editar", auth, content.subtopicsEditPage);
-router.post("/conteudos/assuntos/:id/editar", auth, content.subtopicsUpdate);
-router.post("/conteudos/assuntos/:id/excluir", auth, content.subtopicsDelete);
+// =========================
+// API HELPERS
+// =========================
+router.get("/conteudos/api/topicos/:subjectId", auth, contentController.apiTopicsBySubject);
+router.get("/conteudos/api/assuntos/:topicId", auth, contentController.apiSubtopicsByTopic);
 
-// API para selects dinâmicos (usaremos depois no Registrar Dia)
-router.get("/api/subjects/:subjectId/topics", auth, content.apiTopicsBySubject);
-router.get("/api/topics/:topicId/subtopics", auth, content.apiSubtopicsByTopic);
+router.get("/conteudos", (req, res) => {
+  return res.redirect("/conteudos/materias");
+});
+
 
 module.exports = router;

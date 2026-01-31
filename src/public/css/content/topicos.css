@@ -1,0 +1,133 @@
+/* =========================
+   TELA: TÓPICOS
+========================= */
+
+/* ---------- HEADER ---------- */
+.card h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.card .sub {
+  margin: 4px 0 20px;
+  color: #9fb0cf;
+  font-size: 14px;
+}
+
+/* ---------- FORM ADD ---------- */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr auto;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.formGrid select,
+.formGrid input {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #1f2a3a;
+  background: #0f1624;
+  color: #e6edf7;
+  font-size: 14px;
+}
+
+.formGrid select option {
+  background: #0f1624;
+}
+
+.formGrid input::placeholder {
+  color: #6f83a8;
+}
+
+.formGrid select:focus,
+.formGrid input:focus {
+  outline: none;
+  border-color: #2ee59d;
+}
+
+/* ---------- BOTÃO ---------- */
+.formGrid button {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: #2ee59d;
+  color: #07110f;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+}
+
+.formGrid button:hover {
+  filter: brightness(1.05);
+}
+
+/* ---------- TABELA ---------- */
+.table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #1f2a3a;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.thead,
+.trow {
+  display: grid;
+  grid-template-columns: 1.4fr 2fr auto;
+  align-items: center;
+}
+
+.thead {
+  background: #0f1624;
+  color: #9fb0cf;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.thead div,
+.trow div {
+  padding: 14px 16px;
+}
+
+.trow {
+  background: #121826;
+  border-top: 1px solid #1f2a3a;
+  transition: background 0.15s ease;
+}
+
+.trow:hover {
+  background: #162033;
+}
+
+/* ---------- AÇÕES ---------- */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions form {
+  margin: 0;
+}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 700px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .thead {
+    display: none;
+  }
+
+  .trow {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+}

@@ -1,18 +1,11 @@
 /* =========================
-   RESET BÁSICO
+   BASE
 ========================= */
 * {
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-body {
-  margin: 0;
-}
-
-/* =========================
-   FUNDO E CONTAINER
-========================= */
 .page-bg {
   background: #0b0f14;
   color: #e6edf7;
@@ -26,58 +19,122 @@ body {
 }
 
 /* =========================
-   HEADER
+   BOAS-VINDAS + STREAK
 ========================= */
-.page-header {
-  margin-bottom: 28px;
+.welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(135deg, #121826, #0f1c17);
+  border: 1px solid #1f2a3a;
+  border-radius: 18px;
+  padding: 22px 26px;
+  margin-bottom: 24px;
 }
 
-.page-header h1 {
+.welcome-text h1 {
   margin: 0 0 6px;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
 }
 
-.sub {
+.welcome-text p {
   margin: 0;
-  color: #a9b7cc;
+  color: #9fb0cf;
   font-size: 14px;
 }
 
+.streak-box {
+  text-align: right;
+}
+
+.streak-fire {
+  font-size: 22px;
+  display: block;
+}
+
+.streak-box strong {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.streak-week {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.streak-week .day {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #263248;
+}
+
+.streak-week .day.on {
+  background: #2ee59d;
+}
+
 /* =========================
-   DASHBOARD CARDS (KPIs)
+   FILTRO GLOBAL
 ========================= */
-.dashboard-cards {
+.dashboard-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #263248;
+  background: transparent;
+  color: #9fb0cf;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  background: #121826;
+}
+
+.filter-btn.active {
+  background: #2ee59d;
+  color: #07110f;
+  border-color: #2ee59d;
+}
+
+/* =========================
+   CARDS KPI
+========================= */
+.dashboard-cards.clean {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 18px;
   margin-bottom: 36px;
 }
 
-.card {
+.card.kpi {
   background: #121826;
   border: 1px solid #1f2a3a;
   border-radius: 18px;
   padding: 18px 20px;
 }
 
-.card.kpi {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .card.kpi h3 {
-  margin: 0;
+  margin: 0 0 6px;
   font-size: 13px;
   font-weight: 700;
   color: #8fa3c8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .card.kpi .value {
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 900;
   color: #ffffff;
 }
@@ -88,136 +145,96 @@ body {
 }
 
 .card.kpi .extra {
-  margin-top: 4px;
+  display: block;
+  margin-top: 6px;
   font-size: 12px;
-  color: #7f91b2;
 }
 
-/* Card em destaque (Total) */
-.card.kpi.highlight {
-  border-color: #2ee59d;
-  background: linear-gradient(180deg, #121826, #0f1c17);
-}
-
-.card.kpi.highlight .value {
+.card.kpi .extra.up {
   color: #2ee59d;
 }
 
+.card.kpi .extra.down {
+  color: #ff6b6b;
+}
+
 /* =========================
-   SEÇÕES
+   EVOLUÇÃO
 ========================= */
 .dashboard-section {
-  margin-bottom: 36px;
+  margin-bottom: 40px;
 }
 
 .dashboard-section h2 {
   margin: 0 0 14px;
   font-size: 18px;
   font-weight: 800;
-  color: #e6edf7;
 }
 
-/* =========================
-   TABELA
-========================= */
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.dashboard-section canvas {
   background: #121826;
   border: 1px solid #1f2a3a;
-  border-radius: 14px;
-  overflow: hidden;
+  border-radius: 16px;
+  padding: 14px;
 }
 
-.table thead {
-  background: #0f1624;
+/* =========================
+   AÇÃO FINAL
+========================= */
+.dashboard-action {
+  text-align: center;
+  margin-top: 20px;
 }
 
-.table th,
-.table td {
-  padding: 12px 14px;
-  text-align: left;
-  font-size: 13px;
-}
-
-.table th {
+.dashboard-action p {
+  margin-bottom: 14px;
   color: #9fb0cf;
-  font-weight: 700;
+  font-size: 15px;
 }
 
-.table td {
-  color: #e6edf7;
-  border-top: 1px solid #1f2a3a;
-}
-
-.table tbody tr:hover {
-  background: #0e1624;
-}
-
-/* =========================
-   TEXTO AUXILIAR
-========================= */
-.muted {
-  color: #7f91b2;
-  font-size: 14px;
-}
-
-/* =========================
-   AÇÕES
-========================= */
-.dashboard-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.btn {
+.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 18px;
-  border-radius: 14px;
+  padding: 14px 28px;
+  border-radius: 16px;
   background: #2ee59d;
   color: #07110f;
-  text-decoration: none;
   font-weight: 900;
-  font-size: 14px;
+  font-size: 15px;
+  text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.btn:hover {
+.btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(46, 229, 157, 0.25);
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid #263248;
-  color: #e6edf7;
-}
-
-.btn-secondary:hover {
-  background: #121826;
-  box-shadow: none;
+  box-shadow: 0 10px 24px rgba(46, 229, 157, 0.25);
 }
 
 /* =========================
    RESPONSIVO
 ========================= */
-@media (max-width: 600px) {
-  .page-header h1 {
-    font-size: 24px;
+@media (max-width: 900px) {
+  .dashboard-cards.clean {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .card.kpi .value {
-    font-size: 26px;
-  }
-
-  .dashboard-actions {
+  .welcome-card {
     flex-direction: column;
+    align-items: flex-start;
   }
 
-  .btn {
-    width: 100%;
+  .streak-box {
+    text-align: left;
+  }
+
+  .streak-week {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 500px) {
+  .dashboard-cards.clean {
+    grid-template-columns: 1fr;
   }
 }

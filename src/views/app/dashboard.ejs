@@ -2,11 +2,14 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KMed | Dashboard</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/dashboard.css" />
+
+  <!-- Chart.js (gráfico simples) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="page-bg">
 
@@ -15,86 +18,131 @@
   <main class="with-sidebar">
     <div class="page">
 
-      <header class="page-header">
-        <h1>Dashboard</h1>
-        <p class="sub">Bem-vindo, <strong><%= userNome %></strong></p>
-      </header>
+      <!-- =========================
+           BOAS-VINDAS + STREAK
+      ========================== -->
+      <section class="welcome-card">
+        <div class="welcome-text">
+          <h1>Olá, <%= userNome %>!</h1>
+          <p>Seu objetivo está cada dia mais próximo.</p>
+        </div>
 
-      <!-- KPIs -->
-      <section class="dashboard-cards">
+        <div class="streak-box">
+          <span class="streak-fire">🔥</span>
+          <strong><%= streakAtual || 0 %> dias seguidos</strong>
+
+          <div class="streak-week">
+            <% (streakSemana || []).forEach(d => { %>
+              <span class="day <%= d ? 'on' : '' %>"></span>
+            <% }) %>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================
+           FILTRO GLOBAL
+      ========================== -->
+      <section class="dashboard-filter">
+        <% const filtros = ["hoje", "semana", "mes", "total"]; %>
+        <% filtros.forEach(f => { %>
+          <a
+            href="/dashboard?periodo=<%= f %>"
+            class="filter-btn <%= periodo === f ? 'active' : '' %>"
+          >
+            <%= f.charAt(0).toUpperCase() + f.slice(1) %>
+          </a>
+        <% }) %>
+      </section>
+
+      <!-- =========================
+           CARDS RESUMO
+      ========================== -->
+      <section class="dashboard-cards clean">
 
         <div class="card kpi">
-          <h3>Hoje</h3>
-          <p class="value"><%= horasHoje %>h</p>
-          <span class="label">Horas estudadas</span>
-          <span class="extra"><%= questoesHoje %> questões</span>
+          <h3>Horas</h3>
+          <p class="value"><%= stats?.horas || 0 %>h</p>
+          <span class="label">Estudadas</span>
+          <% if (stats?.horasDiff !== undefined) { %>
+            <span class="extra <%= stats.horasDiff >= 0 ? 'up' : 'down' %>">
+              <%= stats.horasDiff >= 0 ? '↑' : '↓' %>
+              <%= Math.abs(stats.horasDiff) %>h
+            </span>
+          <% } %>
         </div>
 
         <div class="card kpi">
-          <h3>Últimos 7 dias</h3>
-          <p class="value"><%= horasSemana %>h</p>
-          <span class="label">Horas estudadas</span>
-          <span class="extra">
-            <%= questoesSemana %> questões • <%= taxaSemana %>% acerto
-          </span>
+          <h3>Questões</h3>
+          <p class="value"><%= stats?.questoes || 0 %></p>
+          <span class="label">Resolvidas</span>
         </div>
 
         <div class="card kpi">
-          <h3>Últimos 30 dias</h3>
-          <p class="value"><%= horasMes %>h</p>
-          <span class="label">Horas estudadas</span>
-          <span class="extra"><%= questoesMes %> questões</span>
+          <h3>Aproveitamento</h3>
+          <p class="value"><%= stats?.taxa || 0 %>%</p>
+          <span class="label">Acertos</span>
         </div>
 
-        <div class="card kpi highlight">
-          <h3>Total</h3>
-          <p class="value"><%= horasTotal %>h</p>
-          <span class="label">Horas acumuladas</span>
-          <span class="extra">
-            <%= questoesTotal %> questões • <%= taxaGeral %>% acerto
-          </span>
+        <div class="card kpi">
+          <h3>Constância</h3>
+          <p class="value"><%= stats?.dias || 0 %></p>
+          <span class="label">Dias estudados</span>
         </div>
 
       </section>
 
-      <!-- EVOLUÇÃO -->
+      <!-- =========================
+           EVOLUÇÃO
+      ========================== -->
       <section class="dashboard-section">
-        <h2>Evolução (últimos 30 dias)</h2>
+        <h2>Evolução de estudos</h2>
 
-        <% if (evolucao.length === 0) { %>
-          <p class="muted">Nenhum dado registrado ainda.</p>
+        <% if (!evolucao || evolucao.length === 0) { %>
+          <p class="muted">Ainda não há dados suficientes.</p>
         <% } else { %>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Dia</th>
-                <th>Horas</th>
-                <th>Questões</th>
-                <th>Acertos</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% evolucao.forEach(d => { %>
-                <tr>
-                  <td><%= d.dataLabel %></td>
-                  <td><%= d.horas %>h</td>
-                  <td><%= d.questoes %></td>
-                  <td><%= d.acertos %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+          <canvas id="evolucaoChart" height="90"></canvas>
         <% } %>
       </section>
 
-      <!-- AÇÕES -->
-      <section class="dashboard-actions">
-        <a href="/registrar" class="btn">Registrar o dia</a>
-        <a href="/conteudos" class="btn btn-secondary">Gerenciar conteúdos</a>
+      <!-- =========================
+           AÇÃO FINAL
+      ========================== -->
+      <section class="dashboard-action">
+        <p>O que vamos fazer agora?</p>
+        <a href="/registrar/novo" class="btn-primary">
+          Registrar estudo de hoje
+        </a>
       </section>
 
     </div>
   </main>
+
+  <% if (evolucao && evolucao.length > 0) { %>
+  <script>
+    const ctx = document.getElementById("evolucaoChart").getContext("2d");
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: <%- JSON.stringify(evolucao.map(e => e.label)) %>,
+        datasets: [{
+          data: <%- JSON.stringify(evolucao.map(e => e.horas)) %>,
+          borderColor: "#2ee59d",
+          backgroundColor: "rgba(46,229,157,0.15)",
+          tension: 0.35,
+          fill: true
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: "#1f2a3a" } }
+        }
+      }
+    });
+  </script>
+  <% } %>
 
 </body>
 </html>

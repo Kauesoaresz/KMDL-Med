@@ -1,0 +1,96 @@
+/* =========================
+   TELA: MATÉRIAS
+========================= */
+
+.card h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.card .sub {
+  margin: 4px 0 20px;
+  color: #9fb0cf;
+  font-size: 14px;
+}
+
+/* ---------- FORM ---------- */
+.formRow {
+  display: grid;
+  grid-template-columns: 2fr auto;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.formRow input {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #1f2a3a;
+  background: #0f1624;
+  color: #e6edf7;
+  font-size: 14px;
+}
+
+.formRow input::placeholder {
+  color: #6f83a8;
+}
+
+.formRow input:focus {
+  outline: none;
+  border-color: #2ee59d;
+}
+
+.formRow button {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: #2ee59d;
+  color: #07110f;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+}
+
+.formRow button:hover {
+  filter: brightness(1.05);
+}
+
+/* ---------- LISTA ---------- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #121826;
+  border: 1px solid #1f2a3a;
+}
+
+.item .name {
+  font-weight: 700;
+}
+
+.item .actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 600px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

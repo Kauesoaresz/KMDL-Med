@@ -6,40 +6,46 @@
   <title>KMed | Tópicos</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/content/base.css">
-  <link rel="stylesheet" href="/public/css/content/list.css">
-  <link rel="stylesheet" href="/public/css/content/form.css">
+<link rel="stylesheet" href="/public/css/content/base.css">
+<link rel="stylesheet" href="/public/css/content/topicos.css">
 </head>
 
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "conteudos", userNome }) %>
-
+  <%- include("../partials/sidebar", { active: "conteudos", userNome, userFoto }) %>
 
   <main class="with-sidebar">
     <div class="container">
 
       <div class="topbar">
-       
-
         <div class="tabs">
           <a class="tab" href="/conteudos/materias">Matérias</a>
           <a class="tab active" href="/conteudos/topicos">Tópicos</a>
           <a class="tab" href="/conteudos/assuntos">Assuntos</a>
         </div>
-
-        
       </div>
 
       <div class="card">
         <h1>Tópicos</h1>
-        <p class="sub">Cada tópico pertence a uma matéria.</p>
+        <p class="sub">Cadastre vários tópicos sem perder o filtro.</p>
 
-        <form method="POST" action="/conteudos/topicos" class="formGrid">
-          <select name="subject_id" required>
+        <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
+        <% if (ok) { %><div class="ok"><%= ok %></div><% } %>
+
+        <!-- FORM -->
+        <form method="POST"
+              action="/conteudos/topicos?subject_id=<%= filtroSubjectId || '' %>"
+              class="formGrid">
+
+          <select name="subject_id" required
+        onchange="window.location.href='?subject_id=' + this.value">
+
             <option value="">Selecione a matéria</option>
             <% subjects.forEach(s => { %>
-              <option value="<%= s.id %>"><%= s.nome %></option>
+              <option value="<%= s.id %>"
+                <%= String(filtroSubjectId) === String(s.id) ? "selected" : "" %>>
+                <%= s.nome %>
+              </option>
             <% }) %>
           </select>
 
@@ -47,6 +53,7 @@
           <button type="submit">Adicionar</button>
         </form>
 
+        <!-- LISTA -->
         <div class="table">
           <div class="thead">
             <div>Matéria</div>
@@ -54,13 +61,25 @@
             <div>Ações</div>
           </div>
 
+          <% if (!topics.length) { %>
+            <div class="trow">
+              <div class="muted" style="grid-column:1/-1;">
+                Nenhum tópico encontrado.
+              </div>
+            </div>
+          <% } %>
+
           <% topics.forEach(t => { %>
             <div class="trow">
               <div><%= t.subject?.nome || "-" %></div>
               <div><%= t.nome %></div>
               <div class="actions">
-                <a class="btnSecondary" href="/conteudos/topicos/<%= t.id %>/editar">Editar</a>
-                <form method="POST" action="/conteudos/topicos/<%= t.id %>/excluir">
+                <a class="btnSecondary" href="/conteudos/topicos/<%= t.id %>/editar">
+                  Editar
+                </a>
+                <form method="POST"
+                      action="/conteudos/topicos/<%= t.id %>/excluir"
+                      onsubmit="return confirm('Excluir tópico?');">
                   <button class="danger">Excluir</button>
                 </form>
               </div>

@@ -30,38 +30,16 @@ exports.subjectsIndex = async (req, res) => {
   });
 };
 
-exports.subjectsIndexWithMsg = async (req, res, erro) => {
-  const userId = req.session.userId;
-
-  const subjects = await Subject.findAll({
-    where: { user_id: userId },
-    order: [["nome", "ASC"]]
-  });
-
-  res.render("content/subjects", {
-    subjects,
-    erro,
-    ok: null,
-    active: "conteudos",
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto
-  });
-};
-
 exports.subjectsCreate = async (req, res) => {
   const userId = req.session.userId;
   const nome = safeTrim(req.body.nome);
 
   if (!nome) {
-    return exports.subjectsIndexWithMsg(req, res, "Digite o nome da matéria.");
+    return res.redirect("/conteudos/materias?erro=Digite o nome da matéria");
   }
 
-  try {
-    await Subject.create({ user_id: userId, nome });
-    return res.redirect("/conteudos/materias?ok=Matéria criada");
-  } catch {
-    return exports.subjectsIndexWithMsg(req, res, "Erro ao criar matéria.");
-  }
+  await Subject.create({ user_id: userId, nome });
+  return res.redirect("/conteudos/materias?ok=Matéria criada");
 };
 
 exports.subjectsEditPage = async (req, res) => {
@@ -69,7 +47,9 @@ exports.subjectsEditPage = async (req, res) => {
   const id = ensureInt(req.params.id);
 
   const subject = await Subject.findOne({ where: { id, user_id: userId } });
-  if (!subject) return res.redirect("/conteudos/materias?erro=Matéria não encontrada");
+  if (!subject) {
+    return res.redirect("/conteudos/materias?erro=Matéria não encontrada");
+  }
 
   res.render("content/subjects-edit", {
     subject,
@@ -90,14 +70,10 @@ exports.subjectsUpdate = async (req, res) => {
     return res.redirect(`/conteudos/materias/${id}/editar?erro=Nome obrigatório`);
   }
 
-  const [updated] = await Subject.update(
+  await Subject.update(
     { nome },
     { where: { id, user_id: userId } }
   );
-
-  if (!updated) {
-    return res.redirect("/conteudos/materias?erro=Matéria não encontrada");
-  }
 
   return res.redirect("/conteudos/materias?ok=Matéria atualizada");
 };
@@ -115,14 +91,20 @@ exports.subjectsDelete = async (req, res) => {
 // =========================
 exports.topicsIndex = async (req, res) => {
   const userId = req.session.userId;
+  const filtroSubjectId = ensureInt(req.query.subject_id);
 
   const subjects = await Subject.findAll({
     where: { user_id: userId },
     order: [["nome", "ASC"]]
   });
 
+  const where = { user_id: userId };
+  if (filtroSubjectId) {
+    where.subject_id = filtroSubjectId;
+  }
+
   const topics = await Topic.findAll({
-    where: { user_id: userId },
+    where,
     include: [{ model: Subject, as: "subject" }],
     order: [["nome", "ASC"]]
   });
@@ -130,6 +112,7 @@ exports.topicsIndex = async (req, res) => {
   res.render("content/topics", {
     subjects,
     topics,
+    filtroSubjectId,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
     active: "conteudos",
@@ -138,18 +121,23 @@ exports.topicsIndex = async (req, res) => {
   });
 };
 
+
+
 exports.topicsCreate = async (req, res) => {
   const userId = req.session.userId;
   const subject_id = ensureInt(req.body.subject_id);
   const nome = safeTrim(req.body.nome);
 
   if (!subject_id || !nome) {
-    return res.redirect("/conteudos/topicos?erro=Dados inválidos");
+    return res.redirect(`/conteudos/topicos?subject_id=${subject_id}&erro=Dados inválidos`);
   }
 
   await Topic.create({ user_id: userId, subject_id, nome });
-  return res.redirect("/conteudos/topicos?ok=Tópico criado");
+
+  // 🔥 mantém o filtro
+  return res.redirect(`/conteudos/topicos?subject_id=${subject_id}&ok=Tópico criado`);
 };
+
 
 exports.topicsEditPage = async (req, res) => {
   const userId = req.session.userId;
@@ -164,7 +152,9 @@ exports.topicsEditPage = async (req, res) => {
     where: { id, user_id: userId }
   });
 
-  if (!topic) return res.redirect("/conteudos/topicos?erro=Tópico não encontrado");
+  if (!topic) {
+    return res.redirect("/conteudos/topicos?erro=Tópico não encontrado");
+  }
 
   res.render("content/topics-edit", {
     subjects,
@@ -198,9 +188,15 @@ exports.topicsUpdate = async (req, res) => {
 exports.topicsDelete = async (req, res) => {
   const userId = req.session.userId;
   const id = ensureInt(req.params.id);
+  const redirect_subject_id = ensureInt(req.body.redirect_subject_id);
 
   await Topic.destroy({ where: { id, user_id: userId } });
-  return res.redirect("/conteudos/topicos?ok=Tópico excluído");
+
+  const redirect = redirect_subject_id
+    ? `/conteudos/topicos?subject_id=${redirect_subject_id}`
+    : "/conteudos/topicos";
+
+  return res.redirect(redirect);
 };
 
 // =========================
@@ -208,6 +204,7 @@ exports.topicsDelete = async (req, res) => {
 // =========================
 exports.subtopicsIndex = async (req, res) => {
   const userId = req.session.userId;
+  const filtroTopicId = ensureInt(req.query.topic_id);
 
   const topics = await Topic.findAll({
     where: { user_id: userId },
@@ -215,8 +212,13 @@ exports.subtopicsIndex = async (req, res) => {
     order: [["nome", "ASC"]]
   });
 
+  const where = { user_id: userId };
+  if (filtroTopicId) {
+    where.topic_id = filtroTopicId;
+  }
+
   const subtopics = await Subtopic.findAll({
-    where: { user_id: userId },
+    where,
     include: [
       { model: Topic, as: "topic", include: [{ model: Subject, as: "subject" }] }
     ],
@@ -226,6 +228,7 @@ exports.subtopicsIndex = async (req, res) => {
   res.render("content/subtopics", {
     topics,
     subtopics,
+    filtroTopicId,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
     active: "conteudos",
@@ -234,18 +237,23 @@ exports.subtopicsIndex = async (req, res) => {
   });
 };
 
+
+
 exports.subtopicsCreate = async (req, res) => {
   const userId = req.session.userId;
   const topic_id = ensureInt(req.body.topic_id);
   const nome = safeTrim(req.body.nome);
 
   if (!topic_id || !nome) {
-    return res.redirect("/conteudos/assuntos?erro=Dados inválidos");
+    return res.redirect(`/conteudos/assuntos?topic_id=${topic_id}&erro=Dados inválidos`);
   }
 
   await Subtopic.create({ user_id: userId, topic_id, nome });
-  return res.redirect("/conteudos/assuntos?ok=Assunto criado");
+
+  // 🔥 mantém o filtro
+  return res.redirect(`/conteudos/assuntos?topic_id=${topic_id}&ok=Assunto criado`);
 };
+
 
 exports.subtopicsEditPage = async (req, res) => {
   const userId = req.session.userId;
@@ -261,7 +269,9 @@ exports.subtopicsEditPage = async (req, res) => {
     where: { id, user_id: userId }
   });
 
-  if (!subtopic) return res.redirect("/conteudos/assuntos?erro=Assunto não encontrado");
+  if (!subtopic) {
+    return res.redirect("/conteudos/assuntos?erro=Assunto não encontrado");
+  }
 
   res.render("content/subtopics-edit", {
     topics,
@@ -295,13 +305,19 @@ exports.subtopicsUpdate = async (req, res) => {
 exports.subtopicsDelete = async (req, res) => {
   const userId = req.session.userId;
   const id = ensureInt(req.params.id);
+  const redirect_topic_id = ensureInt(req.body.redirect_topic_id);
 
   await Subtopic.destroy({ where: { id, user_id: userId } });
-  return res.redirect("/conteudos/assuntos?ok=Assunto excluído");
+
+  const redirect = redirect_topic_id
+    ? `/conteudos/assuntos?topic_id=${redirect_topic_id}`
+    : "/conteudos/assuntos";
+
+  return res.redirect(redirect);
 };
 
 // =========================
-// API helpers (para selects dinâmicos)
+// API HELPERS (MANTIDOS)
 // =========================
 exports.apiTopicsBySubject = async (req, res) => {
   const userId = req.session.userId;

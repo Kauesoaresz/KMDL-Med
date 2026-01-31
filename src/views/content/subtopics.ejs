@@ -6,46 +6,46 @@
   <title>KMed | Assuntos</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/content/base.css">
-  <link rel="stylesheet" href="/public/css/content/list.css">
-  <link rel="stylesheet" href="/public/css/content/form.css">
+<link rel="stylesheet" href="/public/css/content/base.css">
+<link rel="stylesheet" href="/public/css/content/assuntos.css">
+  
 </head>
 
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "conteudos", userNome }) %>
-
+  <%- include("../partials/sidebar", { active: "conteudos", userNome, userFoto }) %>
 
   <main class="with-sidebar">
     <div class="container">
 
       <div class="topbar">
-        
-
         <div class="tabs">
           <a class="tab" href="/conteudos/materias">Matérias</a>
           <a class="tab" href="/conteudos/topicos">Tópicos</a>
           <a class="tab active" href="/conteudos/assuntos">Assuntos</a>
         </div>
-
-        
       </div>
 
       <div class="card">
         <h1>Assuntos</h1>
-        <p class="sub">
-          Assuntos pertencem a um tópico (ex: PA → Soma dos termos).
-        </p>
+        <p class="sub">Cadastre vários assuntos sem perder o filtro.</p>
 
         <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
         <% if (ok) { %><div class="ok"><%= ok %></div><% } %>
 
-        <form method="POST" action="/conteudos/assuntos" class="formGrid">
-          <select name="topic_id" required>
+        <!-- FORM -->
+        <form method="POST"
+              action="/conteudos/assuntos?topic_id=<%= filtroTopicId || '' %>"
+              class="formGrid">
+
+          <select name="topic_id" required
+        onchange="window.location.href='?topic_id=' + this.value">
+
             <option value="">Selecione o tópico</option>
             <% topics.forEach(t => { %>
-              <option value="<%= t.id %>">
-                <%= t.subject ? t.subject.nome : "-" %> → <%= t.nome %>
+              <option value="<%= t.id %>"
+                <%= String(filtroTopicId) === String(t.id) ? "selected" : "" %>>
+                <%= t.subject?.nome %> → <%= t.nome %>
               </option>
             <% }) %>
           </select>
@@ -54,6 +54,7 @@
           <button type="submit">Adicionar</button>
         </form>
 
+        <!-- LISTA -->
         <div class="table">
           <div class="thead">
             <div>Matéria</div>
@@ -65,7 +66,7 @@
           <% if (!subtopics.length) { %>
             <div class="trow">
               <div class="muted" style="grid-column:1/-1;">
-                Nenhum assunto cadastrado ainda.
+                Nenhum assunto encontrado.
               </div>
             </div>
           <% } %>
@@ -76,13 +77,14 @@
               <div><%= s.topic?.nome || "-" %></div>
               <div><%= s.nome %></div>
               <div class="actions">
-                <a class="btnSecondary" href="/conteudos/assuntos/<%= s.id %>/editar">
+                <a class="btnSecondary"
+                   href="/conteudos/assuntos/<%= s.id %>/editar">
                   Editar
                 </a>
                 <form method="POST"
                       action="/conteudos/assuntos/<%= s.id %>/excluir"
                       onsubmit="return confirm('Excluir assunto?');">
-                  <button class="danger" type="submit">Excluir</button>
+                  <button class="danger">Excluir</button>
                 </form>
               </div>
             </div>
