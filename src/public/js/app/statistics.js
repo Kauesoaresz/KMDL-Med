@@ -1,9 +1,16 @@
 // =========================
+// ESTADO GLOBAL
+// =========================
+let currentPeriod = "all";
+let materiasChart = null;
+
+// =========================
 // ELEMENTOS
 // =========================
 const materiasList = document.getElementById("materias-list");
 const detailList = document.getElementById("detail-list");
 const detailTitle = document.getElementById("detail-title");
+const filterButtons = document.querySelectorAll(".period-filter button");
 
 // =========================
 // HELPERS
@@ -30,6 +37,21 @@ function loading(target, text = "Carregando...") {
 }
 
 // =========================
+// FILTRO DE PERÍODO
+// =========================
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    filterButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    currentPeriod = btn.dataset.period;
+
+    loadMaterias();
+    renderChart();
+  });
+});
+
+// =========================
 // BREADCRUMB
 // =========================
 function bindBreadcrumb() {
@@ -53,7 +75,7 @@ async function loadMaterias() {
     `<div class="placeholder">Selecione uma matéria para ver tópicos</div>`;
 
   try {
-    const res = await fetch("/estatisticas/materias");
+    const res = await fetch(`/estatisticas/materias?period=${currentPeriod}`);
     const materias = await res.json();
 
     if (!materias.length) {
@@ -93,7 +115,9 @@ async function loadTopicos(subjectId, subjectNome) {
   `;
 
   try {
-    const res = await fetch(`/estatisticas/materias/${subjectId}/topicos`);
+    const res = await fetch(
+      `/estatisticas/materias/${subjectId}/topicos?period=${currentPeriod}`
+    );
     const topicos = await res.json();
 
     if (!topicos.length) {
@@ -138,7 +162,9 @@ async function loadAssuntos(topicId, topicNome, subjectId, subjectNome) {
   `;
 
   try {
-    const res = await fetch(`/estatisticas/topicos/${topicId}/assuntos`);
+    const res = await fetch(
+      `/estatisticas/topicos/${topicId}/assuntos?period=${currentPeriod}`
+    );
     const assuntos = await res.json();
 
     if (!assuntos.length) {
@@ -163,6 +189,51 @@ async function loadAssuntos(topicId, topicNome, subjectId, subjectNome) {
 }
 
 // =========================
+// GRÁFICO
+// =========================
+async function renderChart() {
+  try {
+    const res = await fetch(`/estatisticas/materias?period=${currentPeriod}`);
+    const data = await res.json();
+
+    const labels = data.map(m => m.nome);
+    const values = data.map(m => m.aproveitamento);
+
+    const ctx = document
+      .getElementById("materiasChart")
+      .getContext("2d");
+
+    if (materiasChart) materiasChart.destroy();
+
+    materiasChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Aproveitamento (%)",
+            data: values,
+            backgroundColor: "#22c55e"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.error("Erro ao renderizar gráfico", err);
+  }
+}
+
+// =========================
 // INIT
 // =========================
 loadMaterias();
+renderChart();

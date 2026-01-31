@@ -1,29 +1,53 @@
 const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
+const { Op } = require("sequelize");
 
 const Simulado = require("../models/Simulado");
 const SimuladoParte = require("../models/SimuladoParte");
 const SimuladoErro = require("../models/SimuladoErro");
 
-// util
+// =========================
+// UTILS
+// =========================
 function calcStats(row) {
   const horas = Number(row.horas) || 0;
   const questoes = Number(row.questoes) || 0;
   const acertos = Number(row.acertos) || 0;
   const erros = questoes - acertos;
-  const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
+  const aproveitamento = questoes > 0
+    ? Math.round((acertos / questoes) * 100)
+    : 0;
 
   return { horas, questoes, acertos, erros, aproveitamento };
 }
 
-/* =========================
-   VISÃO GERAL
-========================= */
+function getDateLimit(period) {
+  if (period === "7") {
+    return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  }
+
+  if (period === "30") {
+    return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  }
+
+  return null; // all
+}
+
+// =========================
+// VISÃO GERAL
+// =========================
 exports.geral = async (req, res) => {
   const userId = req.session.userId;
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  const where = { user_id: userId };
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
 
   const [row] = await StudyEntry.findAll({
-    where: { user_id: userId },
+    where,
     attributes: [
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
@@ -42,6 +66,9 @@ exports.geral = async (req, res) => {
   });
 };
 
+// =========================
+// HUB
+// =========================
 exports.hub = async (req, res) => {
   res.render("app/estatisticas-hub", {
     active: "estatisticas",
@@ -50,22 +77,33 @@ exports.hub = async (req, res) => {
   });
 };
 
-/* =========================
-   POR MATÉRIA
-========================= */
+// =========================
+// POR MATÉRIA
+// =========================
 exports.porMateria = async (req, res) => {
   const userId = req.session.userId;
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  const where = { user_id: userId };
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
 
   const rows = await StudyEntry.findAll({
-    where: { user_id: userId },
+    where,
     attributes: [
       "subject_id",
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
       [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
     ],
-    include: [{ model: Subject, as: "subject", attributes: ["id", "nome"] }],
-    group: ["subject_id"],
+    include: [{
+      model: Subject,
+      as: "subject",
+      attributes: ["id", "nome"]
+    }],
+    group: ["subject_id", "subject.id"],
     raw: true,
     nest: true
   });
@@ -79,23 +117,34 @@ exports.porMateria = async (req, res) => {
   res.json(materias);
 };
 
-/* =========================
-   POR TÓPICO
-========================= */
+// =========================
+// POR TÓPICO
+// =========================
 exports.porTopico = async (req, res) => {
   const userId = req.session.userId;
   const subjectId = req.params.subjectId;
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  const where = { user_id: userId, subject_id: subjectId };
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
 
   const rows = await StudyEntry.findAll({
-    where: { user_id: userId, subject_id: subjectId },
+    where,
     attributes: [
       "topic_id",
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
       [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
     ],
-    include: [{ model: Topic, as: "topic", attributes: ["id", "nome"] }],
-    group: ["topic_id"],
+    include: [{
+      model: Topic,
+      as: "topic",
+      attributes: ["id", "nome"]
+    }],
+    group: ["topic_id", "topic.id"],
     raw: true,
     nest: true
   });
@@ -109,23 +158,34 @@ exports.porTopico = async (req, res) => {
   res.json(topicos);
 };
 
-/* =========================
-   POR ASSUNTO
-========================= */
+// =========================
+// POR ASSUNTO
+// =========================
 exports.porAssunto = async (req, res) => {
   const userId = req.session.userId;
   const topicId = req.params.topicId;
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  const where = { user_id: userId, topic_id: topicId };
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
 
   const rows = await StudyEntry.findAll({
-    where: { user_id: userId, topic_id: topicId },
+    where,
     attributes: [
       "subtopic_id",
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
       [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
     ],
-    include: [{ model: Subtopic, as: "subtopic", attributes: ["id", "nome"] }],
-    group: ["subtopic_id"],
+    include: [{
+      model: Subtopic,
+      as: "subtopic",
+      attributes: ["id", "nome"]
+    }],
+    group: ["subtopic_id", "subtopic.id"],
     raw: true,
     nest: true
   });
@@ -139,20 +199,18 @@ exports.porAssunto = async (req, res) => {
   res.json(assuntos);
 };
 
-/* =========================
-   ESTATÍSTICAS DE SIMULADOS
-========================= */
+// =========================
+// ESTATÍSTICAS DE SIMULADOS
+// =========================
 exports.simulados = async (req, res) => {
   if (!req.session.userId) return res.redirect("/login");
 
   const userId = req.session.userId;
 
-  /* TOTAL DE SIMULADOS */
   const totalSimulados = await Simulado.count({
     where: { user_id: userId }
   });
 
-  /* TOTAL DE ERROS */
   const totalErros = await SimuladoErro.count({
     include: [{
       model: SimuladoParte,
@@ -165,7 +223,6 @@ exports.simulados = async (req, res) => {
     }]
   });
 
-  /* ERROS REVISADOS */
   const totalRevisados = await SimuladoErro.count({
     where: { revisado: true },
     include: [{
@@ -181,7 +238,6 @@ exports.simulados = async (req, res) => {
 
   const totalPendentes = totalErros - totalRevisados;
 
-  /* ERROS POR ÁREA */
   const errosPorAreaRaw = await SimuladoParte.findAll({
     attributes: [
       "area",
@@ -201,7 +257,6 @@ exports.simulados = async (req, res) => {
     raw: true
   });
 
-  /* NORMALIZA AREAS */
   const baseAreas = {
     LINGUAGENS: 0,
     HUMANAS: 0,
@@ -219,7 +274,6 @@ exports.simulados = async (req, res) => {
     acertos: 45 - erros
   }));
 
-  /* ERROS POR DIA */
   const errosPorDiaRaw = await SimuladoParte.findAll({
     attributes: [
       "dia",
@@ -242,7 +296,6 @@ exports.simulados = async (req, res) => {
   const dia1 = errosPorDiaRaw.find(d => d.dia === "DIA_1")?.erros || 0;
   const dia2 = errosPorDiaRaw.find(d => d.dia === "DIA_2")?.erros || 0;
 
-  /* NOVAS ESTATÍSTICAS */
   const totalQuestoes = 180;
   const acertosTotais = totalQuestoes - totalErros;
   const proficiencia = Math.round((acertosTotais / totalQuestoes) * 100);
@@ -261,7 +314,6 @@ exports.simulados = async (req, res) => {
   const piorDia =
     dia1 === dia2 ? "EQUILIBRADO" : (dia1 > dia2 ? "DIA_1" : "DIA_2");
 
-  /* RENDER */
   res.render("app/estatisticas-simulados", {
     active: "estatisticas",
     userNome: req.session.userNome,
