@@ -1,0 +1,110 @@
+.simulados-erros {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================
+   BLOCO DIA
+========================= */
+
+.bloco-dia {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-top: 30px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.bloco-dia h2 {
+  font-size: 20px;
+  color: #020617;
+  margin-bottom: 4px;
+}
+
+.meta-dia {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 18px;
+}
+
+/* =========================
+   ÁREA
+========================= */
+
+.bloco-area {
+  margin-top: 18px;
+}
+
+.bloco-area h3 {
+  font-size: 16px;
+  color: #020617;
+  margin-bottom: 8px;
+}
+
+/* =========================
+   ERROS
+========================= */
+
+.lista-erros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.erro-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.erro-item input {
+  cursor: pointer;
+}
+
+.questao-erro {
+  background: #fee2e2;
+  color: #7f1d1d;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================
+   REVISADO
+========================= */
+
+.erro-item.revisado .questao-erro {
+  background: #e5e7eb;
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+/* =========================
+   SEM ERROS
+========================= */
+
+.sem-erros {
+  font-size: 14px;
+  color: #16a34a;
+}
+
+/* =========================
+   VOLTAR
+========================= */
+
+.btn-voltar {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.vazio {
+  margin-top: 30px;
+  font-size: 15px;
+  color: #64748b;
+}

@@ -5,7 +5,10 @@
   <title>KMed | Novo Simulado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
+
+  <!-- CSS DA TELA -->
   <link rel="stylesheet" href="/public/css/app/simulados-novo.css">
 </head>
 
@@ -20,33 +23,67 @@
 <main class="with-sidebar">
 <section class="page simulados-novo">
 
-<h1>Novo Simulado</h1>
+<header class="kmed-header">
+  <h1><%= simulado ? "Continuar Simulado" : "Novo Simulado" %></h1>
+  <p>
+    <%= simulado
+      ? "Complete uma parte do simulado iniciado anteriormente."
+      : "Cadastre um novo simulado ou inicie o ENEM por partes." %>
+  </p>
+</header>
 
 <form method="POST" action="/simulados/novo" id="formSimulado">
 
-<div class="grid-top">
+  <!-- SE ESTIVER CONTINUANDO -->
+  <% if (simulado) { %>
+    <input type="hidden" name="simulado_id" value="<%= simulado.id %>">
+  <% } %>
 
-<input type="text" name="nome" placeholder="ENEM 2024" required>
+  <div class="grid-top">
 
-<select name="dia" id="dia" required>
-  <option value="DIA_1">Dia 1</option>
-  <option value="DIA_2">Dia 2</option>
-</select>
+    <input
+      type="text"
+      name="nome"
+      placeholder="Ex: ENEM 2025"
+      value="<%= simulado ? simulado.nome : "" %>"
+      <%= simulado ? "readonly" : "required" %>
+    >
 
-<select name="area" id="area" required></select>
+    <select name="tipo" <%= simulado ? "disabled" : "required" %>>
+      <option value="ENEM" selected>ENEM</option>
+      <option value="PROPRIO">Simulado próprio</option>
+      <option value="OUTRO">Outro</option>
+    </select>
 
-<input type="date" name="data_prova" required>
+    <select name="dia" id="dia" required>
+      <option value="DIA_1">Dia 1</option>
+      <option value="DIA_2">Dia 2</option>
+    </select>
 
-<input type="number" name="tempo_minutos" placeholder="Tempo (min)" required>
+    <select name="area" id="area" required></select>
 
-</div>
+    <input type="date" name="data_prova" required>
 
-<h2>Questões erradas</h2>
-<div id="gridQuestoes" class="grid-questoes"></div>
+    <input
+      type="number"
+      name="tempo_minutos"
+      placeholder="Tempo (min)"
+      min="1"
+      required
+    >
 
-<input type="hidden" name="erros" id="errosInput">
+  </div>
 
-<button type="submit">Salvar Simulado</button>
+  <h2>Questões erradas</h2>
+
+  <div id="gridQuestoes" class="grid-questoes"></div>
+
+  <input type="hidden" name="erros" id="errosInput">
+
+  <div class="acoes-form">
+    <a href="/simulados" class="btn-voltar">← Voltar</a>
+    <button type="submit" class="btn-salvar">Salvar Parte</button>
+  </div>
 
 </form>
 
@@ -60,7 +97,7 @@ const grid = document.getElementById("gridQuestoes");
 const errosInput = document.getElementById("errosInput");
 
 /* =========================
-   ESTADO GLOBAL (CORRETO)
+   ESTADO GLOBAL DE ERROS
 ========================= */
 const errosPorArea = {
   LINGUAGENS: [],
@@ -93,7 +130,8 @@ function renderQuestoes() {
   grid.innerHTML = "";
 
   const area = areaSelect.value;
-  let inicio, fim;
+  let inicio = 1;
+  let fim = 45;
 
   if (area === "LINGUAGENS") [inicio, fim] = [1, 45];
   if (area === "HUMANAS") [inicio, fim] = [46, 90];
@@ -105,7 +143,6 @@ function renderQuestoes() {
     btn.type = "button";
     btn.textContent = i;
 
-    // 🔁 restaura marcado
     if (errosPorArea[area].includes(i)) {
       btn.classList.add("erro");
     }

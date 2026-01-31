@@ -10,7 +10,7 @@ const SimuladoErro = sequelize.define(
       autoIncrement: true
     },
 
-    simulado_id: {
+    simulado_parte_id: {
       type: DataTypes.INTEGER,
       allowNull: false
     },

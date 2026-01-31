@@ -1,51 +1,77 @@
-.simulados-novo h1 {
-  margin-bottom: 16px;
+.simulados-novo {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .grid-top {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
 }
 
 .grid-top input,
 .grid-top select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #1f2933;
   background: #020617;
-  color: #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.grid-top input:focus,
+.grid-top select:focus {
+  outline: none;
+  border-color: #38bdf8;
 }
 
 .grid-questoes {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 6px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 10px;
+  margin: 20px 0 30px;
 }
 
 .grid-questoes button {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #1f2933;
   background: #020617;
-  color: #9ca3af;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 0;
+  color: #fff;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.grid-questoes button:hover {
+  background: #020617;
+  border-color: #38bdf8;
 }
 
 .grid-questoes button.erro {
   background: #7f1d1d;
-  color: #fff;
-  border-color: #b91c1c;
+  border-color: #ef4444;
 }
 
-button[type="submit"] {
-  padding: 12px;
-  border-radius: 10px;
+.acoes-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.btn-voltar {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn-salvar {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   border: none;
-  background: #22c55e;
+  padding: 12px 26px;
+  border-radius: 10px;
   color: #022c22;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
 }

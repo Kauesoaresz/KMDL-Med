@@ -5,9 +5,12 @@ const Subtopic = require("./Subtopic");
 const StudyEntry = require("./StudyEntry");
 
 const Simulado = require("./Simulado");
+const SimuladoParte = require("./SimuladoParte");
 const SimuladoErro = require("./SimuladoErro");
 
-// User -> Subject/Topic/Subtopic/StudyEntry
+// ==========================
+// USUÁRIO
+// ==========================
 User.hasMany(Subject, { foreignKey: "user_id", as: "subjects" });
 Subject.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
@@ -20,36 +23,51 @@ Subtopic.belongsTo(User, { foreignKey: "user_id", as: "user" });
 User.hasMany(StudyEntry, { foreignKey: "user_id", as: "entries" });
 StudyEntry.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
-// Subject -> Topic
+// ==========================
+// CONTEÚDOS
+// ==========================
 Subject.hasMany(Topic, { foreignKey: "subject_id", as: "topics" });
 Topic.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
 
-// Topic -> Subtopic
 Topic.hasMany(Subtopic, { foreignKey: "topic_id", as: "subtopics" });
 Subtopic.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 
-// Entry -> Subject/Topic/Subtopic
 StudyEntry.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
 StudyEntry.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 StudyEntry.belongsTo(Subtopic, { foreignKey: "subtopic_id", as: "subtopic" });
 
-
-// 🔗 Associações dos simulados
-Simulado.hasMany(SimuladoErro, {
+// ==========================
+// SIMULADOS (PARTE IMPORTANTE)
+// ==========================
+Simulado.hasMany(SimuladoParte, {
   foreignKey: "simulado_id",
-  as: "erros"
+  as: "partes",
+  onDelete: "CASCADE"
 });
 
-SimuladoErro.belongsTo(Simulado, {
+SimuladoParte.belongsTo(Simulado, {
   foreignKey: "simulado_id",
   as: "simulado"
 });
 
+SimuladoParte.hasMany(SimuladoErro, {
+  foreignKey: "simulado_parte_id",
+  as: "erros",
+  onDelete: "CASCADE"
+});
+
+SimuladoErro.belongsTo(SimuladoParte, {
+  foreignKey: "simulado_parte_id",
+  as: "parte"
+});
 
 module.exports = {
   User,
   Subject,
   Topic,
   Subtopic,
-  StudyEntry
+  StudyEntry,
+  Simulado,
+  SimuladoParte,
+  SimuladoErro
 };

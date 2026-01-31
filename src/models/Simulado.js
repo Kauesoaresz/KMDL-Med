@@ -20,33 +20,15 @@ const Simulado = sequelize.define(
       allowNull: false
     },
 
-    dia: {
-      type: DataTypes.ENUM("DIA_1", "DIA_2"),
-      allowNull: false
-    },
-
-    area: {
-      type: DataTypes.ENUM(
-        "LINGUAGENS",
-        "HUMANAS",
-        "NATUREZA",
-        "MATEMATICA"
-      ),
-      allowNull: false
-    },
-
-    data_prova: {
-      type: DataTypes.DATEONLY,
-      allowNull: false
-    },
-
-    tempo_minutos: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    tipo: {
+      type: DataTypes.ENUM("ENEM", "PROPRIO", "OUTRO"),
+      allowNull: false,
+      defaultValue: "ENEM"
     },
 
     status: {
       type: DataTypes.ENUM("EM_ANDAMENTO", "FINALIZADO"),
+      allowNull: false,
       defaultValue: "EM_ANDAMENTO"
     }
   },
