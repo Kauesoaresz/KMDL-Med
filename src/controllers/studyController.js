@@ -116,6 +116,9 @@ exports.listDays = async (req, res) => {
 // =========================
 // EDITAR DIA
 // =========================
+// =========================
+// EDITAR DIA
+// =========================
 exports.editPage = async (req, res) => {
   const userId = req.session.userId;
   const data = req.params.data;
@@ -125,14 +128,49 @@ exports.editPage = async (req, res) => {
     order: [["nome", "ASC"]]
   });
 
-  const entries = await StudyEntry.findAll({
+  const entriesRaw = await StudyEntry.findAll({
     where: { user_id: userId, data },
-    order: [["id", "ASC"]]
+    order: [["id", "ASC"]],
+    include: [
+      {
+        model: Subject,
+        as: "subject",
+        attributes: ["id", "nome"]
+      },
+      {
+        model: Topic,
+        as: "topic",
+        attributes: ["id", "nome"]
+      },
+      {
+        model: Subtopic,
+        as: "subtopic",
+        attributes: ["id", "nome"],
+        required: false
+      }
+    ]
   });
 
-  if (!entries.length) {
+  if (!entriesRaw.length) {
     return res.redirect("/registrar/lista");
   }
+
+  // 🔥 formata exatamente como o front espera
+  const entries = entriesRaw.map(e => ({
+    subject_id: e.subject_id,
+    subject_nome: e.subject?.nome || "",
+
+    topic_id: e.topic_id,
+    topic_nome: e.topic?.nome || "",
+
+    subtopic_id: e.subtopic_id,
+    subtopic_nome: e.subtopic?.nome || "",
+
+    horas: e.horas,
+    questoes: e.questoes,
+    acertos: e.acertos,
+    dificuldade: e.dificuldade
+  }));
 
   res.render("app/register-edit", {
     data,
@@ -143,6 +181,7 @@ exports.editPage = async (req, res) => {
     userFoto: req.session.userFoto
   });
 };
+
 
 // =========================
 // SALVAR EDIÇÃO

@@ -1,110 +1,238 @@
-.simulados-erros {
-  max-width: 1200px;
-  margin: 0 auto;
+/* ===============================
+   KMed | Erros do Simulado
+   =============================== */
+
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #0b0c10 70%);
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* =========================
-   BLOCO DIA
-========================= */
+.with-sidebar {
+  margin-left: 78px;
+  padding: 32px;
+}
+
+.page.simulados-erros {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #14161a, #101216);
+  border-radius: 20px;
+  padding: 36px 32px 40px;
+  border: 1px solid #1f2229;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.65);
+}
+
+/* ===============================
+   HEADER
+   =============================== */
+
+.kmed-header {
+  margin-bottom: 22px;
+}
+
+.kmed-header h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.kmed-header p {
+  font-size: 0.95rem;
+  color: #9aa1ad;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status.ok {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.status.warn {
+  background: rgba(234, 179, 8, 0.25);
+  color: #facc15;
+}
+
+/* ===============================
+   AÇÕES TOPO
+   =============================== */
+
+.acoes-topo {
+  margin-bottom: 26px;
+}
+
+.btn-voltar {
+  text-decoration: none;
+  color: #8bbcff;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(139, 188, 255, 0.12);
+  transition: all 0.2s;
+}
+
+.btn-voltar:hover {
+  background: rgba(139, 188, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ===============================
+   ESTADO VAZIO
+   =============================== */
+
+.vazio {
+  text-align: center;
+  margin-top: 60px;
+  color: #9aa1ad;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ===============================
+   BLOCO DO DIA
+   =============================== */
 
 .bloco-dia {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 22px 24px;
-  margin-top: 30px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom: 36px;
+  padding: 26px 24px;
+  background: #12141a;
+  border-radius: 18px;
+  border: 1px solid #1f2229;
 }
 
 .bloco-dia h2 {
-  font-size: 20px;
-  color: #020617;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
 .meta-dia {
-  font-size: 14px;
-  color: #475569;
+  font-size: 0.85rem;
+  color: #9aa1ad;
   margin-bottom: 18px;
 }
 
-/* =========================
-   ÁREA
-========================= */
+/* ===============================
+   BLOCO DA ÁREA
+   =============================== */
 
 .bloco-area {
-  margin-top: 18px;
+  background: #0f1116;
+  border-radius: 14px;
+  padding: 18px 18px 20px;
+  border: 1px solid #1f2229;
+  margin-bottom: 18px;
+}
+
+.bloco-area:last-child {
+  margin-bottom: 0;
 }
 
 .bloco-area h3 {
-  font-size: 16px;
-  color: #020617;
-  margin-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
 }
 
-/* =========================
-   ERROS
-========================= */
+/* ===============================
+   LISTA DE ERROS
+   =============================== */
 
 .lista-erros {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   gap: 10px;
 }
 
 .erro-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #12151b;
+  border: 1px solid #1f2229;
   cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.erro-item:hover {
+  background: #171a21;
+  transform: translateY(-1px);
 }
 
 .erro-item input {
-  cursor: pointer;
+  display: none;
 }
 
+/* NÚMERO DA QUESTÃO */
 .questao-erro {
-  background: #fee2e2;
-  color: #7f1d1d;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #cbd5f5;
 }
 
-/* =========================
-   REVISADO
-========================= */
+/* ===============================
+   ERRO REVISADO
+   =============================== */
+
+.erro-item.revisado {
+  background: linear-gradient(135deg, #123018, #0d1f12);
+  border-color: #22c55e;
+}
 
 .erro-item.revisado .questao-erro {
-  background: #e5e7eb;
-  color: #64748b;
+  color: #86efac;
   text-decoration: line-through;
 }
 
-/* =========================
+/* ===============================
    SEM ERROS
-========================= */
+   =============================== */
 
 .sem-erros {
-  font-size: 14px;
-  color: #16a34a;
+  font-size: 0.9rem;
+  color: #86efac;
+  font-weight: 600;
 }
 
-/* =========================
-   VOLTAR
-========================= */
+/* ===============================
+   RESPONSIVO
+   =============================== */
 
-.btn-voltar {
-  display: inline-block;
-  margin-top: 20px;
-  font-size: 14px;
-  color: #2563eb;
-  text-decoration: none;
-}
+@media (max-width: 700px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 20px;
+  }
 
-.vazio {
-  margin-top: 30px;
-  font-size: 15px;
-  color: #64748b;
+  .page.simulados-erros {
+    padding: 26px 22px 30px;
+  }
+
+  .kmed-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .lista-erros {
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  }
 }

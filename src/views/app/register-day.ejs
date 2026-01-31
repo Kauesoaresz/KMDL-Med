@@ -6,163 +6,215 @@
   <title>KMed | Registrar Novo Dia</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-<link rel="stylesheet" href="/public/css/app/register-day.css" />
-
-
+  <link rel="stylesheet" href="/public/css/app/register-day.css" />
 </head>
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "registrar", userNome }) %>
+<%- include("../partials/sidebar", { active: "registrar", userNome }) %>
 
-  <main class="with-sidebar">
-    <div class="page">
-      <h1>Registrar novo dia</h1>
-      <a href="/registrar" class="btn-back">← Voltar</a>
+<main class="with-sidebar">
+  <div class="page">
+    <h1>Registrar novo dia</h1>
+    <a href="/registrar" class="btn-back">← Voltar</a>
 
+    <form method="POST" action="/registrar/novo" id="form-dia">
+      <label>Data</label><br>
+      <input type="date" name="data" value="<%= hoje %>" required>
 
-      <form method="POST" action="/registrar/novo" id="form-dia">
-        <label>Data</label><br>
-        <input type="date" name="data" value="<%= hoje %>" required>
+      <div id="blocos"></div>
 
-        <div id="blocos"></div>
-
-        <button type="button" onclick="addBloco()">+ Adicionar bloco</button>
-        <br><br>
-        <button type="submit">Salvar dia</button>
-      </form>
-    </div>
-  </main>
+      <button type="button" onclick="addBloco()">+</button>
+      <br><br>
+      <button type="submit" class="btn-primary" id="btn-salvar">Salvar dia</button>
+    </form>
+  </div>
+</main>
 
 <script>
 const subjects = <%- JSON.stringify(subjects) %>;
+let blocoIndex = 0;
+
+/* ===============================
+   HELPERS
+================================ */
+
+function openList(input) {
+  input.disabled = false;
+  input.focus();
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.click();
+}
+
+function autoSelect(input, list, hidden) {
+  const value = input.value.toLowerCase().trim();
+
+  const matches = [...list.querySelectorAll("option")]
+    .filter(o => o.value.toLowerCase().startsWith(value));
+
+  if (matches.length === 1) {
+    input.value = matches[0].value;
+    hidden.value = matches[0].dataset.id;
+    return true;
+  }
+
+  return false;
+}
+
+/* ===============================
+   BLOCO
+================================ */
 
 function addBloco() {
-  const div = document.createElement("div");
-  div.className = "bloco";
+  const idx = blocoIndex++;
+  const bloco = document.createElement("div");
+  bloco.className = "bloco";
 
-  div.innerHTML = `
-    <hr>
-    <button type="button" onclick="removeBloco(this)">🗑 Remover bloco</button><br><br>
+  bloco.innerHTML = `
+    <button type="button" class="btn-remove" onclick="this.closest('.bloco').remove()">🗑</button>
 
-    <select data-name="subject_id" onchange="loadTopics(this); atualizarResumo();" required>
-      <option value="">Matéria</option>
-      ${subjects.map(s => `<option value="${s.id}" data-nome="${s.nome}">${s.nome}</option>`).join("")}
-    </select>
+    <input list="subjects-${idx}" placeholder="Disciplina" class="subject-input" required>
+    <datalist id="subjects-${idx}">
+      ${subjects.map(s => `<option data-id="${s.id}" value="${s.nome}"></option>`).join("")}
+    </datalist>
+    <input type="hidden" name="blocos[${idx}][subject_id]">
 
-    <select data-name="topic_id" required onchange="atualizarResumo()">
-      <option value="">Tópico</option>
-    </select>
+    <input list="topics-${idx}" placeholder="Tópico" class="topic-input" disabled required>
+    <datalist id="topics-${idx}"></datalist>
+    <input type="hidden" name="blocos[${idx}][topic_id]">
 
-    <select data-name="subtopic_id" onchange="atualizarResumo()">
-      <option value="">Assunto (opcional)</option>
-    </select>
+    <input list="subtopics-${idx}" placeholder="Assunto (opcional)" class="subtopic-input" disabled>
+    <datalist id="subtopics-${idx}"></datalist>
+    <input type="hidden" name="blocos[${idx}][subtopic_id]">
 
-    <input type="number" step="0.25" data-name="horas" placeholder="Horas"
-           oninput="atualizarResumo()" required>
+    <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required>
+    <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
+    <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
 
-    <input type="number" data-name="questoes" placeholder="Questões"
-           oninput="atualizarResumo()">
-
-    <input type="number" data-name="acertos" placeholder="Acertos"
-           oninput="atualizarResumo()">
-
-    <select data-name="dificuldade" onchange="atualizarResumo()">
+    <select name="blocos[${idx}][dificuldade]">
       <option value="FACIL">Fácil</option>
       <option value="MEDIA" selected>Média</option>
       <option value="DIFICIL">Difícil</option>
     </select>
   `;
 
-  document.getElementById("blocos").appendChild(div);
-  reindex();
-  atualizarResumo();
-}
+  const subjectInput = bloco.querySelector(".subject-input");
+  const topicInput = bloco.querySelector(".topic-input");
+  const subInput = bloco.querySelector(".subtopic-input");
 
-function removeBloco(btn) {
-  btn.closest(".bloco").remove();
-  reindex();
-  atualizarResumo();
-}
+  const horas = bloco.querySelector('input[name$="[horas]"]');
+  const questoes = bloco.querySelector('input[name$="[questoes]"]');
+  const acertos = bloco.querySelector('input[name$="[acertos]"]');
+  const dificuldade = bloco.querySelector("select");
 
-function reindex() {
-  document.querySelectorAll(".bloco").forEach((bloco, idx) => {
-    bloco.querySelectorAll("[data-name]").forEach(el => {
-      el.name = `blocos[${idx}][${el.dataset.name}]`;
+  const subjectHidden = bloco.querySelector(`input[name="blocos[${idx}][subject_id]"]`);
+  const topicHidden = bloco.querySelector(`input[name="blocos[${idx}][topic_id]"]`);
+  const subHidden = bloco.querySelector(`input[name="blocos[${idx}][subtopic_id]"]`);
+
+  const subjectsList = bloco.querySelector(`#subjects-${idx}`);
+  const topicsList = bloco.querySelector(`#topics-${idx}`);
+  const subtopicsList = bloco.querySelector(`#subtopics-${idx}`);
+
+  /* ===============================
+     DISCIPLINA
+  ================================ */
+
+  subjectInput.addEventListener("keydown", async e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+
+    if (!autoSelect(subjectInput, subjectsList, subjectHidden)) return;
+
+    topicInput.disabled = false;
+    topicsList.innerHTML = "";
+
+    const res = await fetch(`/api/subjects/${subjectHidden.value}/topics`);
+    const topics = await res.json();
+
+    topics.forEach(t => {
+      topicsList.innerHTML += `<option data-id="${t.id}" value="${t.nome}"></option>`;
     });
-  });
-}
 
-async function loadTopics(sel) {
-  const bloco = sel.closest(".bloco");
-  const topicSel = bloco.querySelector("[data-name='topic_id']");
-  const subSel = bloco.querySelector("[data-name='subtopic_id']");
-
-  topicSel.innerHTML = `<option value="">Carregando...</option>`;
-  subSel.innerHTML = `<option value="">Assunto</option>`;
-
-  const res = await fetch(`/api/subjects/${sel.value}/topics`);
-  const data = await res.json();
-
-  topicSel.innerHTML = `<option value="">Tópico</option>` +
-    data.map(t => `<option value="${t.id}">${t.nome}</option>`).join("");
-
-  topicSel.onchange = async () => {
-    const r = await fetch(`/api/topics/${topicSel.value}/subtopics`);
-    const d = await r.json();
-    subSel.innerHTML = `<option value="">Assunto (opcional)</option>` +
-      d.map(s => `<option value="${s.id}">${s.nome}</option>`).join("");
-  };
-}
-
-// =========================
-// RESUMO AUTOMÁTICO
-// =========================
-function atualizarResumo() {
-  let totalHoras = 0;
-  let totalQuestoes = 0;
-  let totalAcertos = 0;
-  const porMateria = {};
-
-  document.querySelectorAll(".bloco").forEach(bloco => {
-    const horas = parseFloat(bloco.querySelector("[data-name='horas']")?.value || 0);
-    const questoes = parseInt(bloco.querySelector("[data-name='questoes']")?.value || 0);
-    const acertos = parseInt(bloco.querySelector("[data-name='acertos']")?.value || 0);
-
-    const subjectSel = bloco.querySelector("[data-name='subject_id']");
-    const subjectNome = subjectSel?.selectedOptions[0]?.dataset.nome;
-
-    if (horas > 0) {
-      totalHoras += horas;
-
-      if (subjectNome) {
-        porMateria[subjectNome] = (porMateria[subjectNome] || 0) + horas;
-      }
-    }
-
-    if (questoes > 0) {
-      totalQuestoes += questoes;
-      totalAcertos += Math.min(acertos, questoes);
-    }
+    openList(topicInput);
   });
 
-  document.getElementById("resumo-horas").innerText = totalHoras.toFixed(2);
-  document.getElementById("resumo-questoes").innerText = totalQuestoes;
-  document.getElementById("resumo-acertos").innerText = totalAcertos;
+  /* ===============================
+     TÓPICO
+  ================================ */
 
-  const percent = totalQuestoes > 0
-    ? ((totalAcertos / totalQuestoes) * 100).toFixed(1)
-    : 0;
+  topicInput.addEventListener("keydown", async e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
 
-  document.getElementById("resumo-percent").innerText = percent + "%";
+    if (!autoSelect(topicInput, topicsList, topicHidden)) return;
 
-  const matDiv = document.getElementById("resumo-materias");
-  matDiv.innerHTML = "<strong>Horas por matéria:</strong><ul>" +
-    Object.entries(porMateria)
-      .map(([m, h]) => `<li>${m}: ${h.toFixed(2)}h</li>`)
-      .join("") +
-    "</ul>";
+    subInput.disabled = false;
+    subtopicsList.innerHTML = "";
+
+    const res = await fetch(`/api/topics/${topicHidden.value}/subtopics`);
+    const subs = await res.json();
+
+    if (!subs.length) {
+      horas.focus();
+      return;
+    }
+
+    subs.forEach(s => {
+      subtopicsList.innerHTML += `<option data-id="${s.id}" value="${s.nome}"></option>`;
+    });
+
+    openList(subInput);
+  });
+
+  /* ===============================
+     ASSUNTO
+  ================================ */
+
+  subInput.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+
+    autoSelect(subInput, subtopicsList, subHidden);
+    horas.focus();
+  });
+
+  /* ===============================
+     FLUXO NUMÉRICO
+  ================================ */
+
+  horas.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      questoes.focus();
+    }
+  });
+
+  questoes.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      acertos.focus();
+    }
+  });
+
+  acertos.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      dificuldade.focus();
+    }
+  });
+
+  dificuldade.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("form-dia").requestSubmit();
+    }
+  });
+
+  document.getElementById("blocos").appendChild(bloco);
+  openList(subjectInput);
 }
 
-// inicia com 1 bloco
 addBloco();
 </script>
+
+</body>
+</html>

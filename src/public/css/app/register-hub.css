@@ -1,167 +1,165 @@
-/* =========================
-   BASE
-========================= */
+/* ===============================
+   KMed | Registrar Dia (Cards Fullscreen)
+   =============================== */
 
 * {
   box-sizing: border-box;
 }
 
-.page-bg {
-  background: #020617;
+html, body {
+  height: 100%;
 }
+
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e5e7eb;
+  overflow: hidden; /* 🔑 SEM SCROLL */
+}
+
+/* ===============================
+   LAYOUT COM SIDEBAR
+   =============================== */
 
 .with-sidebar {
-  margin-left: 88px;
-  padding: 24px;
+  margin-left: 78px;
+  height: 100vh;
+  padding: 32px;
+
+  display: flex;
+  flex-direction: column;
 }
 
-/* =========================
-   CONTAINER
-========================= */
-
-.page {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-}
-
-/* =========================
+/* ===============================
    TÍTULO
-========================= */
+   =============================== */
 
 .page h1 {
-  font-size: 1.7rem;
-  font-weight: 600;
-  color: #f8fafc;
-  margin-bottom: 22px;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 32px;
 }
 
-/* =========================
-   GRID DE AÇÕES
-========================= */
+/* ===============================
+   GRID PRINCIPAL
+   =============================== */
 
 .actions-grid {
+  flex: 1; /* ocupa o resto da tela */
+
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: stretch;
 }
 
-/* =========================
-   CARD BASE
-========================= */
+/* ===============================
+   CARD (BOTÕES GRANDES)
+   =============================== */
 
 .card {
   position: relative;
+  border-radius: 28px;
+  padding: 56px;
 
-  background: linear-gradient(
-    180deg,
-    #020617,
-    #020617cc
-  );
-
-  border: 1px solid #1f2933;
-  border-radius: 16px;
-
-  padding: 28px;
-  min-height: 160px;
+  background: linear-gradient(145deg, #14161c, #0e0f14);
+  border: 1px solid #23262f;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 16px;
 
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
+  transition: all 0.25s ease;
+  overflow: hidden;
 }
 
-/* Linha lateral */
+/* brilho suave */
 .card::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: 16px 0 0 16px;
-  background: transparent;
-  transition: background 0.18s ease;
+  inset: 0;
+  background: radial-gradient(
+    circle at top left,
+    rgba(139, 188, 255, 0.18),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-/* =========================
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+}
+
+/* ===============================
    TEXTO
-========================= */
+   =============================== */
 
 .card h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #f8fafc;
-  margin-bottom: 8px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
 }
 
 .card p {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  line-height: 1.4;
-  max-width: 90%;
+  font-size: 1.05rem;
+  color: #cbd5f5;
+  max-width: 420px;
+  line-height: 1.6;
 }
 
-/* =========================
-   HOVER
-========================= */
+/* ===============================
+   VARIAÇÕES VISUAIS
+   =============================== */
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+.card.new {
+  border-color: #2563eb;
 }
 
-/* =========================
-   VARIAÇÕES
-========================= */
+.card.new::after {
+  content: "✍️";
+  position: absolute;
+  top: 32px;
+  right: 36px;
+  font-size: 2.2rem;
+}
 
-/* Registrar novo dia */
-.card.new:hover {
+.card.list {
   border-color: #22c55e;
 }
 
-.card.new:hover::before {
-  background: #22c55e;
+.card.list::after {
+  content: "📅";
+  position: absolute;
+  top: 32px;
+  right: 36px;
+  font-size: 2.2rem;
 }
 
-/* Lista de dias */
-.card.list:hover {
-  border-color: #38bdf8;
-}
-
-.card.list:hover::before {
-  background: #38bdf8;
-}
-
-/* =========================
-   LINKS
-========================= */
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* =========================
+/* ===============================
    RESPONSIVO
-========================= */
+   =============================== */
 
 @media (max-width: 900px) {
   .with-sidebar {
     margin-left: 0;
-    padding: 16px;
+    padding: 20px;
+    overflow: auto;
   }
 
   .actions-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .card {
-    padding: 22px;
-    min-height: 140px;
+    padding: 36px;
   }
 }

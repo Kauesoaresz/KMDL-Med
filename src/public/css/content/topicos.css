@@ -1,45 +1,150 @@
-/* =========================
-   TELA: TÓPICOS
-========================= */
+/* ===============================
+   KMed | Conteúdos — Tópicos
+   =============================== */
 
-/* ---------- HEADER ---------- */
+* {
+  box-sizing: border-box;
+}
+
+/* ===============================
+   FUNDO GERAL
+   =============================== */
+
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* OFFSET DA SIDEBAR */
+.with-sidebar {
+  margin-left: 78px;
+  padding: 24px;
+}
+
+/* ===============================
+   CONTAINER
+   =============================== */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===============================
+   TOPO / TABS
+   =============================== */
+
+.topbar {
+  margin-bottom: 22px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.tab {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #9aa1ad;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.18);
+}
+
+.tab.active {
+  color: #07110f;
+  background: #2ee59d;
+  border-color: #2ee59d;
+}
+
+/* ===============================
+   CARD PRINCIPAL
+   =============================== */
+
+.card {
+  background: linear-gradient(180deg, #121318, #0b0c10);
+  border-radius: 22px;
+  padding: 28px 30px;
+  border: 1px solid #1f2229;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+/* HEADER */
 .card h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+  color: #ffffff;
 }
 
 .card .sub {
-  margin: 4px 0 20px;
-  color: #9fb0cf;
-  font-size: 14px;
+  font-size: 0.9rem;
+  color: #9aa1ad;
+  margin-bottom: 20px;
 }
 
-/* ---------- FORM ADD ---------- */
+/* ===============================
+   ALERTAS
+   =============================== */
+
+.alert {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fecaca;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.ok {
+  background: rgba(46,229,157,0.12);
+  border: 1px solid rgba(46,229,157,0.35);
+  color: #b7f7dc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   FORMULÁRIO (GRID)
+   =============================== */
+
 .formGrid {
   display: grid;
-  grid-template-columns: 1.2fr 2fr auto;
+  grid-template-columns: 240px 1fr auto;
   gap: 12px;
   margin-bottom: 26px;
 }
 
 .formGrid select,
 .formGrid input {
-  height: 44px;
-  padding: 0 14px;
+  padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid #1f2a3a;
-  background: #0f1624;
-  color: #e6edf7;
-  font-size: 14px;
+  border: 1px solid #23262f;
+  background: #0e1015;
+  color: #ffffff;
+  font-size: 0.9rem;
 }
 
-.formGrid select option {
-  background: #0f1624;
+.formGrid select {
+  cursor: pointer;
 }
 
 .formGrid input::placeholder {
-  color: #6f83a8;
+  color: #6b7280;
 }
 
 .formGrid select:focus,
@@ -48,72 +153,127 @@
   border-color: #2ee59d;
 }
 
-/* ---------- BOTÃO ---------- */
 .formGrid button {
-  height: 44px;
-  padding: 0 20px;
+  padding: 12px 18px;
   border-radius: 12px;
+  border: none;
   background: #2ee59d;
   color: #07110f;
-  font-weight: 900;
-  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .formGrid button:hover {
-  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(46,229,157,0.35);
 }
 
-/* ---------- TABELA ---------- */
+/* ===============================
+   TABELA (LISTA)
+   =============================== */
+
 .table {
   display: flex;
   flex-direction: column;
-  border: 1px solid #1f2a3a;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.thead,
-.trow {
-  display: grid;
-  grid-template-columns: 1.4fr 2fr auto;
-  align-items: center;
-}
-
-.thead {
-  background: #0f1624;
-  color: #9fb0cf;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.thead div,
-.trow div {
-  padding: 14px 16px;
-}
-
-.trow {
-  background: #121826;
-  border-top: 1px solid #1f2a3a;
-  transition: background 0.15s ease;
-}
-
-.trow:hover {
-  background: #162033;
-}
-
-/* ---------- AÇÕES ---------- */
-.actions {
-  display: flex;
   gap: 10px;
 }
 
-.actions form {
-  margin: 0;
+/* CABEÇALHO */
+.thead {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9aa1ad;
+  text-transform: uppercase;
 }
 
-/* ---------- RESPONSIVO ---------- */
-@media (max-width: 700px) {
+/* LINHA */
+.trow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+
+  background: #0e1015;
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #23262f;
+
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.trow:hover {
+  background: #12151c;
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* TEXTO */
+.trow div {
+  font-size: 0.9rem;
+  color: #e5e7eb;
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* ===============================
+   AÇÕES
+   =============================== */
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btnSecondary {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9aa1ad;
+  text-decoration: none;
+  border: 1px solid #23262f;
+  transition: all 0.15s ease;
+}
+
+.btnSecondary:hover {
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* EXCLUIR */
+button.danger {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(239,68,68,0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239,68,68,0.35);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+button.danger:hover {
+  background: rgba(239,68,68,0.2);
+}
+
+/* ===============================
+   RESPONSIVO
+   =============================== */
+
+@media (max-width: 900px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 20px;
+  }
+
   .formGrid {
     grid-template-columns: 1fr;
   }
@@ -124,10 +284,10 @@
 
   .trow {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 10px;
   }
 
   .actions {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 }

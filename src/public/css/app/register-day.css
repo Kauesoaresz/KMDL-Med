@@ -1,52 +1,71 @@
 /* =========================
+   VARIÁVEIS
+========================= */
+:root {
+  --bg: #0b0b0d;
+  --card: #121214;
+  --border: #1f1f23;
+  --input: #0f0f12;
+  --text: #eaeaf0;
+  --muted: #a1a1aa;
+  --accent: #3b82f6;
+  --danger: #ef4444;
+}
+
+/* =========================
    BASE
 ========================= */
 .page {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
+  color: var(--text);
 }
 
 h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-  color: #111827;
+  color: #f4f4f5;
 }
+.btn-back {
+  color: #a1a1aa;
+}
+
 
 .btn-back {
-  display: inline-block;
-  margin-bottom: 20px;
-  color: #2563eb;
+  color: var(--muted);
   text-decoration: none;
-  font-weight: 500;
+  font-size: 14px;
 }
 
-.btn-back:hover {
-  text-decoration: underline;
+/* =========================
+   FUNDO GLOBAL
+========================= */
+body.page-bg {
+  background: radial-gradient(
+    circle at top,
+    #0f0f14,
+    #08080b 70%
+  );
+  min-height: 100vh;
 }
+
 
 /* =========================
    FORM
 ========================= */
 form {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  margin-top: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
 }
 
-label {
-  font-weight: 600;
-  color: #374151;
-}
-
 input[type="date"] {
-  margin-top: 6px;
-  margin-bottom: 20px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
 }
 
 /* =========================
@@ -59,102 +78,102 @@ input[type="date"] {
 }
 
 .bloco {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: #0f0f12;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 18px;
-}
-
-.bloco hr {
-  display: none;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
 }
 
 /* =========================
-   CAMPOS
+   INPUTS
 ========================= */
-.bloco select,
-.bloco input {
-  width: 100%;
-  padding: 10px 12px;
+.bloco input,
+.bloco select {
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  padding: 10px 12px;
   font-size: 14px;
-  background: #fff;
 }
 
-.bloco select:focus,
-.bloco input:focus {
+.bloco input::placeholder {
+  color: var(--muted);
+}
+
+.bloco input:focus,
+.bloco select:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: var(--accent);
 }
 
-/* grid */
-.bloco {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+/* =========================
+   SEARCH / DATALIST
+========================= */
+input[list]::-webkit-calendar-picker-indicator {
+  display: none !important;
 }
 
-/* spans */
-.bloco select[data-name="subject_id"] {
+datalist {
+  display: none;
+}
+
+/* DROPDOWN CUSTOM (Chrome/Edge) */
+input[list] {
+  position: relative;
+}
+
+/* =========================
+   TAMANHOS
+========================= */
+.subject-input,
+.topic-input,
+.subtopic-input {
   grid-column: span 2;
 }
 
-.bloco select[data-name="topic_id"] {
-  grid-column: span 2;
-}
-
-.bloco select[data-name="subtopic_id"] {
-  grid-column: span 2;
-}
-
-.bloco input[data-name="horas"],
-.bloco input[data-name="questoes"],
-.bloco input[data-name="acertos"],
-.bloco select[data-name="dificuldade"] {
+input[name$="[horas]"],
+input[name$="[questoes]"],
+input[name$="[acertos]"],
+select[name$="[dificuldade]"] {
   grid-column: span 1;
 }
 
 /* =========================
    BOTÕES
 ========================= */
-button {
-  padding: 10px 16px;
-  border-radius: 10px;
+.btn-remove {
+  grid-column: span 6;
+  justify-self: flex-end;
+  background: none;
   border: none;
-  font-weight: 600;
+  color: var(--danger);
   cursor: pointer;
-}
-
-button[type="submit"] {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-button[type="submit"]:hover {
-  background: #1d4ed8;
+  font-size: 13px;
 }
 
 button[type="button"] {
-  background: #e5e7eb;
-  color: #111827;
+  margin-top: 12px;
+  background: #1f1f23;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-button[type="button"]:hover {
-  background: #d1d5db;
-}
-
-/* remover bloco */
-.bloco > button {
-  grid-column: span 6;
-  justify-self: flex-end;
-  background: transparent;
-  color: #dc2626;
-  font-weight: 500;
-}
-
-.bloco > button:hover {
-  text-decoration: underline;
+.btn-primary {
+  margin-top: 24px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* =========================
@@ -164,10 +183,20 @@ button[type="button"]:hover {
   .bloco {
     grid-template-columns: 1fr;
   }
+}
 
-  .bloco select,
-  .bloco input,
-  .bloco button {
-    grid-column: span 1 !important;
-  }
+
+.with-sidebar {
+  background: transparent;
+}
+
+form {
+  background: linear-gradient(
+    180deg,
+    #121214,
+    #0d0d10
+  );
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.02);
 }

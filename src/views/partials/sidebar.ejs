@@ -17,20 +17,12 @@
       <span class="sidebar__tooltip">Dashboard</span>
     </a>
 
-    <!-- SIMULADOS (NOVO) -->
-    <a class="sidebar__item <%= (active === 'simulados') ? 'is-active' : '' %>"
-       href="/simulados" title="Simulados">
-      <span class="sidebar__icon">📝</span>
-      <span class="sidebar__label">Simulados</span>
-      <span class="sidebar__tooltip">Simulados</span>
-    </a>
-
-    <!-- CALENDÁRIO -->
-    <a class="sidebar__item <%= (active === 'calendario') ? 'is-active' : '' %>"
-       href="/calendario" title="Calendário">
-      <span class="sidebar__icon">📅</span>
-      <span class="sidebar__label">Calendário</span>
-      <span class="sidebar__tooltip">Calendário</span>
+    <!-- REGISTRAR O DIA -->
+    <a class="sidebar__item <%= (active === 'registrar') ? 'is-active' : '' %>"
+       href="/registrar" title="Registrar o Dia">
+      <span class="sidebar__icon">✍️</span>
+      <span class="sidebar__label">Registrar o Dia</span>
+      <span class="sidebar__tooltip">Registrar o Dia</span>
     </a>
 
     <!-- ESTATÍSTICAS -->
@@ -41,20 +33,28 @@
       <span class="sidebar__tooltip">Estatísticas</span>
     </a>
 
-    <!-- CONTEÚDOS -->
+    <!-- CALENDÁRIO -->
+    <a class="sidebar__item <%= (active === 'calendario') ? 'is-active' : '' %>"
+       href="/calendario" title="Calendário">
+      <span class="sidebar__icon">📅</span>
+      <span class="sidebar__label">Calendário</span>
+      <span class="sidebar__tooltip">Calendário</span>
+    </a>
+
+    <!-- SIMULADOS -->
+    <a class="sidebar__item <%= (active === 'simulados') ? 'is-active' : '' %>"
+       href="/simulados" title="Simulados">
+      <span class="sidebar__icon">📝</span>
+      <span class="sidebar__label">Simulados</span>
+      <span class="sidebar__tooltip">Simulados</span>
+    </a>
+
+    <!-- MATÉRIAS / TÓPICOS (ÚLTIMO) -->
     <a class="sidebar__item <%= (active === 'conteudos') ? 'is-active' : '' %>"
        href="/conteudos" title="Matérias / Tópicos">
       <span class="sidebar__icon">📚</span>
       <span class="sidebar__label">Matérias / Tópicos</span>
       <span class="sidebar__tooltip">Matérias / Tópicos</span>
-    </a>
-
-    <!-- REGISTRAR -->
-    <a class="sidebar__item <%= (active === 'registrar') ? 'is-active' : '' %>"
-       href="/registrar" title="Registrar o Dia">
-      <span class="sidebar__icon">✍️</span>
-      <span class="sidebar__label">Registrar o Dia</span>
-      <span class="sidebar__tooltip">Registrar o Dia</span>
     </a>
 
   </nav>

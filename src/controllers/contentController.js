@@ -188,16 +188,24 @@ exports.topicsUpdate = async (req, res) => {
 exports.topicsDelete = async (req, res) => {
   const userId = req.session.userId;
   const id = ensureInt(req.params.id);
-  const redirect_subject_id = ensureInt(req.body.redirect_subject_id);
 
-  await Topic.destroy({ where: { id, user_id: userId } });
+  try {
+    await Topic.destroy({
+      where: { id, user_id: userId }
+    });
 
-  const redirect = redirect_subject_id
-    ? `/conteudos/topicos?subject_id=${redirect_subject_id}`
-    : "/conteudos/topicos";
+    return res.redirect("/conteudos/topicos?ok=Tópico excluído");
+  } catch (err) {
+    if (err.name === "SequelizeForeignKeyConstraintError") {
+      return res.redirect(
+        "/conteudos/topicos?erro=Este tópico já foi usado em registros de estudo e não pode ser excluído"
+      );
+    }
 
-  return res.redirect(redirect);
+    return res.redirect("/conteudos/topicos?erro=Erro ao excluir tópico");
+  }
 };
+
 
 // =========================
 // SUBTOPICS (Assuntos)
@@ -305,15 +313,22 @@ exports.subtopicsUpdate = async (req, res) => {
 exports.subtopicsDelete = async (req, res) => {
   const userId = req.session.userId;
   const id = ensureInt(req.params.id);
-  const redirect_topic_id = ensureInt(req.body.redirect_topic_id);
 
-  await Subtopic.destroy({ where: { id, user_id: userId } });
+  try {
+    await Subtopic.destroy({
+      where: { id, user_id: userId }
+    });
 
-  const redirect = redirect_topic_id
-    ? `/conteudos/assuntos?topic_id=${redirect_topic_id}`
-    : "/conteudos/assuntos";
+    return res.redirect("/conteudos/assuntos?ok=Assunto excluído");
+  } catch (err) {
+    if (err.name === "SequelizeForeignKeyConstraintError") {
+      return res.redirect(
+        "/conteudos/assuntos?erro=Este assunto já foi usado em registros de estudo e não pode ser excluído"
+      );
+    }
 
-  return res.redirect(redirect);
+    return res.redirect("/conteudos/assuntos?erro=Erro ao excluir assunto");
+  }
 };
 
 // =========================

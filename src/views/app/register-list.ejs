@@ -51,26 +51,19 @@
               "bad";
           %>
             <tr>
-              <td data-label="Data">
-                <%= d.data %>
-              </td>
+              <td data-label="Data"><%= d.data %></td>
 
-              <td data-label="Horas">
-                <%= d.total_horas.toFixed(2) %>h
-              </td>
+              <td data-label="Horas"><%= d.total_horas.toFixed(2) %>h</td>
 
-              <td data-label="Questões">
-                <%= d.total_questoes %>
-              </td>
+              <td data-label="Questões"><%= d.total_questoes %></td>
 
-              <td data-label="Acertos">
-                <%= d.total_acertos %>
-              </td>
+              <td data-label="Acertos"><%= d.total_acertos %></td>
 
-              <td 
-                data-label="%" 
-                class="percent <%= percentClass %>">
-                <%= percent %>%
+              <!-- 🔥 CORRETO -->
+              <td data-label="%">
+                <span class="percent <%= percentClass %>">
+                  <%= percent %>%
+                </span>
               </td>
 
               <td data-label="Ações" class="actions">

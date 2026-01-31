@@ -1,155 +1,212 @@
-/* =========================
-   BASE
-========================= */
+/* ===============================
+   KMed | Dias Registrados
+   =============================== */
+
+.page-bg {
+  background: #0e0f12;
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.with-sidebar {
+  margin-left: 78px;
+  padding: 32px;
+}
+
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 24px;
+  background: #14161a;
+  border-radius: 18px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 45px rgba(0,0,0,.6);
+  border: 1px solid #1f2229;
 }
 
-h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-  color: #111827;
+/* ---------- Header ---------- */
+
+.page h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .btn-back {
   display: inline-block;
-  margin-bottom: 20px;
-  color: #2563eb;
+  margin-bottom: 24px;
+  color: #8bbcff;
   text-decoration: none;
-  font-weight: 500;
 }
 
-.btn-back:hover {
-  text-decoration: underline;
-}
+/* ---------- Tabela ---------- */
 
-/* =========================
-   TABELA
-========================= */
 table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  table-layout: fixed; /* 🔥 ISSO RESOLVE */
+  border-collapse: collapse;
+  background: #101216;
+  border-radius: 14px;
   overflow: hidden;
-  margin-top: 20px;
 }
 
-/* HEADER */
+/* LARGURA DAS COLUNAS (CRÍTICO) */
+thead th:nth-child(1),
+tbody td:nth-child(1) { width: 18%; }
+
+thead th:nth-child(2),
+tbody td:nth-child(2) { width: 14%; }
+
+thead th:nth-child(3),
+tbody td:nth-child(3) { width: 14%; }
+
+thead th:nth-child(4),
+tbody td:nth-child(4) { width: 14%; }
+
+thead th:nth-child(5),
+tbody td:nth-child(5) { width: 12%; }
+
+thead th:nth-child(6),
+tbody td:nth-child(6) { width: 28%; }
+
 thead {
-  background: #f9fafb;
+  background: #181b21;
 }
 
 thead th {
-  padding: 14px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+  padding: 14px;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #bfc6d1;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #232734;
 }
 
-/* BODY */
 tbody td {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #111827;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 14px;
+  font-size: .95rem;
+  color: #e5e7eb;
+  border-bottom: 1px solid #1f2330;
+  vertical-align: middle;
 }
 
-/* linha hover */
 tbody tr:hover {
-  background: #f9fafb;
+  background: #171a21;
 }
 
-/* última linha sem borda */
 tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* =========================
-   ESTADOS
-========================= */
-tbody tr.empty td {
+/* ---------- Percentual ---------- */
+
+td:nth-child(5) {
   text-align: center;
-  color: #6b7280;
-  padding: 24px;
 }
 
-/* =========================
-   PORCENTAGEM
-========================= */
-td.percent {
-  font-weight: 600;
-}
-
-td.percent.good {
-  color: #16a34a;
-}
-
-td.percent.medium {
-  color: #ca8a04;
-}
-
-td.percent.bad {
-  color: #dc2626;
-}
-
-/* =========================
-   AÇÕES
-========================= */
-td.actions {
-  display: flex;
-  gap: 12px;
+.percent {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 36px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: .9rem;
 }
 
-td.actions a {
-  color: #2563eb;
-  font-weight: 500;
+.percent.good {
+  background: rgba(34,197,94,.18);
+  color: #22c55e;
+}
+
+.percent.medium {
+  background: rgba(234,179,8,.25);
+  color: #facc15;
+}
+
+.percent.bad {
+  background: rgba(239,68,68,.25);
+  color: #ef4444;
+}
+
+/* ---------- Ações ---------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.actions a,
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: .85rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Editar */
+.actions a {
+  background: rgba(139,188,255,.16);
+  color: #8bbcff;
   text-decoration: none;
 }
 
-td.actions a:hover {
-  text-decoration: underline;
+.actions a:hover {
+  background: rgba(139,188,255,.32);
+  color: #fff;
 }
 
-td.actions form button {
-  background: transparent;
+/* Excluir */
+.actions form {
+  margin: 0;
+}
+
+.actions button {
+  background: rgba(239,68,68,.16);
   border: none;
-  color: #dc2626;
-  font-weight: 500;
+  color: #ef4444;
   cursor: pointer;
 }
 
-td.actions form button:hover {
-  text-decoration: underline;
+.actions button:hover {
+  background: rgba(239,68,68,.35);
+  color: #fff;
 }
 
-/* =========================
-   RESPONSIVO
-========================= */
+/* ---------- Responsivo ---------- */
+
 @media (max-width: 900px) {
-  table,
-  thead,
-  tbody,
-  th,
-  td,
-  tr {
-    display: block;
+  .with-sidebar {
+    margin-left: 0;
+    padding: 20px;
   }
 
-  thead {
+  table thead {
     display: none;
   }
 
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
   tbody tr {
-    border-bottom: 1px solid #e5e7eb;
-    padding: 12px;
+    background: #12141a;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    padding: 14px;
+    border: 1px solid #1f2229;
   }
 
   tbody td {
@@ -162,11 +219,11 @@ td.actions form button:hover {
   tbody td::before {
     content: attr(data-label);
     font-weight: 600;
-    color: #6b7280;
+    color: #9aa1ad;
   }
 
-  td.actions {
-    justify-content: flex-start;
-    margin-top: 8px;
+  .actions {
+    justify-content: flex-end;
+    margin-top: 12px;
   }
 }

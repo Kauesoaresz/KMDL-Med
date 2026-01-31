@@ -13,6 +13,7 @@ const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
 const calendarioRoutes = require("./routes/calendarioRoutes"); // 👈 NOVO
 const simuladosRoutes = require("./routes/simuladosRoutes");
+const apiRoutes = require("./routes/apiRoutes");
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use(contentRoutes);
 app.use(statisticsRoutes);
 app.use(calendarioRoutes); // 👈 CALENDÁRIO AQUI
 app.use("/simulados", simuladosRoutes);
+app.use(apiRoutes);
 
 
 

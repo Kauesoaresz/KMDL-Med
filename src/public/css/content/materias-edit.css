@@ -1,42 +1,108 @@
-/* =========================
-   TELA: EDITAR MATÉRIA
-========================= */
+/* ===============================
+   KMed | Conteúdos — Editar Matéria
+   =============================== */
 
-/* ---------- TOPBAR ---------- */
-.topbar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
+* {
+  box-sizing: border-box;
 }
 
-.topbar .btnSecondary {
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  border: 1px solid #263248;
-  background: transparent;
-  color: #e6edf7;
-  text-decoration: none;
+/* ===============================
+   FUNDO GERAL
+   =============================== */
+
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.topbar .btnSecondary:hover {
-  background: #1a2438;
+/* OFFSET DA SIDEBAR */
+.with-sidebar {
+  margin-left: 78px;
+  padding: 24px;
 }
 
-/* ---------- CARD ---------- */
-.card {
-  max-width: 520px;
+/* ===============================
+   CONTAINER
+   =============================== */
+
+.container {
+  max-width: 720px; /* edição é foco */
   margin: 0 auto;
 }
 
-.card h1 {
-  margin: 0 0 18px;
-  font-size: 22px;
-  font-weight: 800;
+/* ===============================
+   TOPBAR
+   =============================== */
+
+.topbar {
+  margin-bottom: 18px;
 }
 
-/* ---------- FORM ---------- */
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  text-decoration: none;
+  color: #9aa1ad;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+
+  transition: all 0.15s ease;
+}
+
+.btnSecondary:hover {
+  color: #ffffff;
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* ===============================
+   CARD
+   =============================== */
+
+.card {
+  background: linear-gradient(180deg, #121318, #0b0c10);
+  border-radius: 22px;
+  padding: 28px 30px;
+
+  border: 1px solid #1f2229;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+/* HEADER */
+.card h1 {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+/* ===============================
+   ALERTA
+   =============================== */
+
+.alert {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fecaca;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   FORMULÁRIO
+   =============================== */
+
 .formCol {
   display: flex;
   flex-direction: column;
@@ -44,23 +110,22 @@
 }
 
 .formCol label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #9fb0cf;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9aa1ad;
 }
 
 .formCol input {
-  height: 44px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid #1f2a3a;
-  background: #0f1624;
-  color: #e6edf7;
-  font-size: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #23262f;
+  background: #0e1015;
+  color: #ffffff;
+  font-size: 0.95rem;
 }
 
 .formCol input::placeholder {
-  color: #6f83a8;
+  color: #6b7280;
 }
 
 .formCol input:focus {
@@ -68,38 +133,47 @@
   border-color: #2ee59d;
 }
 
-/* ---------- BOTÃO ---------- */
+/* ===============================
+   BOTÃO
+   =============================== */
+
 .formCol button {
-  margin-top: 6px;
-  height: 46px;
+  margin-top: 10px;
+
+  padding: 14px;
   border-radius: 14px;
+  border: none;
+
   background: #2ee59d;
   color: #07110f;
-  font-weight: 900;
-  font-size: 14px;
-  border: none;
+
+  font-weight: 800;
+  font-size: 0.9rem;
+
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .formCol button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(46, 229, 157, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(46,229,157,0.35);
 }
 
-/* ---------- ALERTA ---------- */
-.alert {
-  margin-bottom: 14px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 107, 107, 0.12);
-  color: #ffb3b3;
-  font-size: 14px;
-}
+/* ===============================
+   RESPONSIVO
+   =============================== */
 
-/* ---------- RESPONSIVO ---------- */
-@media (max-width: 600px) {
-  .card {
+@media (max-width: 700px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .container {
     max-width: 100%;
+  }
+
+  .card {
+    padding: 24px 22px;
   }
 }

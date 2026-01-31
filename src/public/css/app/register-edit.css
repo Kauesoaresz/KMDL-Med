@@ -1,38 +1,69 @@
 /* =========================
-   BASE
+   VARIÁVEIS
 ========================= */
+:root {
+  --bg: #0b0b0d;
+  --card: #121214;
+  --card-2: #0f0f12;
+  --border: #1f1f23;
+  --input: #0f0f12;
+  --text: #eaeaf0;
+  --muted: #a1a1aa;
+  --accent: #3b82f6;
+  --danger: #ef4444;
+}
+
+/* =========================
+   FUNDO GLOBAL
+========================= */
+body.page-bg {
+  background: radial-gradient(circle at top, #0f0f14, #08080b 70%);
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.with-sidebar {
+  background: transparent;
+}
+
 .page {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
 }
 
+/* =========================
+   TÍTULO
+========================= */
 h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-  color: #111827;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
 }
 
 .btn-back {
   display: inline-block;
   margin-bottom: 20px;
-  color: #2563eb;
+  color: var(--muted);
   text-decoration: none;
-  font-weight: 500;
-}
-
-.btn-back:hover {
-  text-decoration: underline;
+  font-size: 14px;
 }
 
 /* =========================
    FORM
 ========================= */
 form {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: linear-gradient(180deg, #121214, #0d0d10);
+  border: 1px solid var(--border);
+  border-radius: 18px;
   padding: 24px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.02);
 }
 
 /* =========================
@@ -45,48 +76,48 @@ form {
 }
 
 .bloco {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--card-2);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 18px;
-
+  padding: 16px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .bloco hr {
-  display: none;
+  grid-column: span 6;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 8px 0;
 }
 
 /* =========================
-   CAMPOS
+   INPUTS / SELECTS
 ========================= */
-.bloco select,
-.bloco input {
-  width: 100%;
-  padding: 10px 12px;
+.bloco input,
+.bloco select {
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  padding: 10px 12px;
   font-size: 14px;
-  background: #ffffff;
 }
 
-.bloco select:focus,
-.bloco input:focus {
+.bloco input::placeholder {
+  color: var(--muted);
+}
+
+.bloco input:focus,
+.bloco select:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: var(--accent);
 }
 
-/* spans */
-.bloco select[data-name="subject_id"] {
-  grid-column: span 2;
-}
-
-.bloco select[data-name="topic_id"] {
-  grid-column: span 2;
-}
-
+/* larguras */
+.bloco select[data-name="subject_id"],
+.bloco select[data-name="topic_id"],
 .bloco select[data-name="subtopic_id"] {
   grid-column: span 2;
 }
@@ -99,47 +130,48 @@ form {
 }
 
 /* =========================
-   BOTÕES
+   BOTÃO REMOVER BLOCO
 ========================= */
-button {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* salvar */
-button[type="submit"] {
-  background: #16a34a;
-  color: #ffffff;
-}
-
-button[type="submit"]:hover {
-  background: #15803d;
-}
-
-/* adicionar bloco */
-button[type="button"] {
-  background: #e5e7eb;
-  color: #111827;
-}
-
-button[type="button"]:hover {
-  background: #d1d5db;
-}
-
-/* remover bloco */
 .bloco > button {
   grid-column: span 6;
   justify-self: flex-end;
-  background: transparent;
-  color: #dc2626;
-  font-weight: 500;
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .bloco > button:hover {
   text-decoration: underline;
+}
+
+/* =========================
+   BOTÕES DO FORM
+========================= */
+button[type="button"] {
+  margin-top: 12px;
+  background: #1f1f23;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  margin-top: 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  filter: brightness(1.1);
 }
 
 /* =========================
@@ -150,9 +182,8 @@ button[type="button"]:hover {
     grid-template-columns: 1fr;
   }
 
-  .bloco select,
   .bloco input,
-  .bloco button {
+  .bloco select {
     grid-column: span 1 !important;
   }
 }

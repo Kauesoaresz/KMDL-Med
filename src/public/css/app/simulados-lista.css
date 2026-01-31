@@ -1,188 +1,305 @@
-/* =========================
-   CONTAINER
-========================= */
+/* ===============================
+   KMed | Lista de Simulados
+   =============================== */
 
-.simulados-lista {
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #0b0c10 70%);
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.with-sidebar {
+  margin-left: 78px;
+  padding: 32px;
+}
+
+.page.simulados-lista {
   max-width: 1200px;
   margin: 0 auto;
+  background: linear-gradient(180deg, #14161a, #101216);
+  border-radius: 20px;
+  padding: 36px 32px 40px;
+  border: 1px solid #1f2229;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.65);
 }
 
-/* =========================
+/* ===============================
+   HEADER
+   =============================== */
+
+.kmed-header {
+  margin-bottom: 14px;
+}
+
+.kmed-header h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.kmed-header p {
+  font-size: 0.95rem;
+  color: #9aa1ad;
+}
+
+/* ===============================
+   BOTÃO VOLTAR
+   =============================== */
+
+.btn-voltar {
+  display: inline-block;
+  margin-bottom: 28px;
+  text-decoration: none;
+  color: #8bbcff;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(139, 188, 255, 0.12);
+  transition: all 0.2s;
+}
+
+.btn-voltar:hover {
+  background: rgba(139, 188, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ===============================
+   ESTADO VAZIO
+   =============================== */
+
+.vazio {
+  text-align: center;
+  margin-top: 60px;
+  color: #9aa1ad;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ===============================
    LISTA
-========================= */
+   =============================== */
 
 .lista-simulados {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
 }
 
-/* =========================
-   CARD
-========================= */
+/* ===============================
+   CARD DO SIMULADO
+   =============================== */
 
 .simulado-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 22px 24px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  background: #12141a;
+  border-radius: 18px;
+  padding: 22px 22px 24px;
+  border: 1px solid #1f2229;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Status lateral */
-.simulado-card.finalizado {
-  border-left: 6px solid #22c55e;
+.simulado-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.55);
 }
+
+/* STATUS */
 
 .simulado-card.andamento {
-  border-left: 6px solid #facc15;
+  border-left: 5px solid #facc15;
 }
 
-/* =========================
-   HEADER
-========================= */
+.simulado-card.finalizado {
+  border-left: 5px solid #22c55e;
+}
+
+/* ===============================
+   CABEÇALHO DO CARD
+   =============================== */
 
 .simulado-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .simulado-header strong {
-  font-size: 18px;
-  color: #020617;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-/* =========================
-   BADGES
-========================= */
+/* BADGES */
 
 .badge {
-  padding: 4px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 6px 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .badge-ok {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
 }
 
 .badge-warn {
-  background: #fef9c3;
-  color: #854d0e;
+  background: rgba(234, 179, 8, 0.25);
+  color: #facc15;
 }
 
-/* =========================
+/* ===============================
    INFO
-========================= */
+   =============================== */
 
 .simulado-info {
-  font-size: 14px;
-  color: #475569;
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #cbd5f5;
 }
 
-/* =========================
+.simulado-info strong {
+  color: #ffffff;
+}
+
+/* ===============================
    PARTES / DIAS
-========================= */
+   =============================== */
 
 .simulado-partes {
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #0f1116;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #1f2229;
 }
 
 .parte {
-  font-size: 14px;
-  color: #020617;
-  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #d1d5db;
 }
 
 .parte strong {
-  font-weight: 600;
+  color: #ffffff;
 }
+
+/* ÁREAS */
 
 .areas {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 6px;
 }
 
-/* =========================
-   AREAS
-========================= */
-
 .area {
-  background: #f1f5f9;
-  color: #020617;
+  background: #181b21;
+  border: 1px solid #232734;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid #e5e7eb;
+  font-size: 0.75rem;
+  color: #bfc6d1;
 }
 
-/* =========================
+/* ===============================
    AÇÕES
-========================= */
+   =============================== */
 
 .simulado-acoes {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
   flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 .simulado-acoes a,
 .simulado-acoes button {
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  text-decoration: none;
   border: none;
+  transition: all 0.2s ease;
 }
 
-/* =========================
-   BOTÕES
-========================= */
+/* BOTÕES */
 
 .btn-primario {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #ffffff;
-  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primario:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.45);
 }
 
 .btn-secundario {
-  background: #f1f5f9;
-  color: #020617;
-  border: 1px solid #e5e7eb;
-  text-decoration: none;
+  background: rgba(139, 188, 255, 0.15);
+  color: #8bbcff;
 }
 
-.btn-danger {
-  background: #dc2626;
+.btn-secundario:hover {
+  background: rgba(139, 188, 255, 0.3);
   color: #ffffff;
 }
 
-/* =========================
-   VOLTAR
-========================= */
-
-.btn-voltar {
-  display: inline-block;
-  margin-bottom: 20px;
-  font-size: 14px;
-  color: #2563eb;
-  text-decoration: none;
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
-/* =========================
-   VAZIO
-========================= */
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
+}
 
-.vazio {
-  margin-top: 40px;
-  font-size: 15px;
-  color: #64748b;
+/* ===============================
+   RESPONSIVO
+   =============================== */
+
+@media (max-width: 700px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .page.simulados-lista {
+    padding: 26px 22px 30px;
+  }
+
+  .kmed-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .lista-simulados {
+    grid-template-columns: 1fr;
+  }
+
+  .simulado-acoes {
+    flex-direction: column;
+  }
+
+  .simulado-acoes a,
+  .simulado-acoes button {
+    width: 100%;
+  }
 }
