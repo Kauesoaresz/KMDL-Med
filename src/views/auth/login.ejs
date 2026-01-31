@@ -2,33 +2,39 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KMDL Med | Login</title>
   <link rel="stylesheet" href="/public/css/auth/login.css" />
-
 </head>
-<body class="bg">
-  <div class="card">
-    <h1>KMed</h1>
-    <p class="sub">Entrar na plataforma</p>
 
-    <% if (erro) { %>
-      <div class="alert"><%= erro %></div>
-    <% } %>
+<body class="auth">
 
-    <form method="POST" action="/login" class="form">
-      <label>Email</label>
-      <input name="email" type="email" required />
+  <div class="auth__image"></div>
 
-      <label>Senha</label>
-      <input name="senha" type="password" required />
+  <div class="auth__content">
+    <div class="card">
+      <h1>KMDL Med</h1>
+      <p class="sub">Entrar na plataforma</p>
 
-      <button type="submit">Entrar</button>
-    </form>
+      <% if (erro) { %>
+        <div class="alert"><%= erro %></div>
+      <% } %>
 
-    <p class="link">
-      Não tem conta? <a href="/cadastrar">Criar agora</a>
-    </p>
+      <form method="POST" action="/login" class="form">
+        <label>Email</label>
+        <input name="email" type="email" required />
+
+        <label>Senha</label>
+        <input name="senha" type="password" required />
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <p class="link">
+        Não tem conta? <a href="/cadastrar">Criar agora</a>
+      </p>
+    </div>
   </div>
+
 </body>
 </html>

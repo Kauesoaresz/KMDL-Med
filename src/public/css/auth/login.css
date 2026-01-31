@@ -1,30 +1,72 @@
-/* ===============================
-   KMed | Login (Thematic & Premium)
-   =============================== */
+/* ======================================================
+   KMDL Med | Login — Premium, Fluido e Impactante
+   ====================================================== */
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 html, body {
   height: 100%;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #05060a;
 }
 
 /* ===============================
-   FUNDO
+   LAYOUT GERAL
    =============================== */
 
-.bg {
+.auth {
   min-height: 100vh;
+  display: flex;
+  padding: 32px;
+  gap: 32px;
+}
+
+/* ===============================
+   IMAGEM (ESQUERDA)
+   =============================== */
+
+.auth__image {
+  flex: 1.2;
+  border-radius: 28px;
+  overflow: hidden;
+
   background:
-    radial-gradient(circle at top, #1b1f2a, #08090c 70%);
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,0.25),
+      rgba(0,0,0,0.75)
+    ),
+    url("/public/img/os-guri-da-medicina.jpg") center / cover no-repeat;
+
+  position: relative;
+  animation: zoomSlow 20s ease-in-out infinite alternate;
+}
+
+/* vinheta elegante */
+.auth__image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 40%,
+    rgba(0,0,0,0.6)
+  );
+}
+
+/* ===============================
+   CONTEÚDO (DIREITA)
+   =============================== */
+
+.auth__content {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #eaeaea;
 }
 
 /* ===============================
@@ -34,32 +76,20 @@ html, body {
 .card {
   width: 100%;
   max-width: 420px;
-  padding: 42px 40px;
+  padding: 46px 44px;
 
-  background: linear-gradient(180deg, #121318, #0b0c10);
-  border-radius: 26px;
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(18px);
 
-  border: 1px solid #1f2229;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.08);
+
   box-shadow:
-    0 40px 90px rgba(0,0,0,0.8),
-    inset 0 0 0 1px rgba(255,255,255,0.02);
+    0 50px 120px rgba(0,0,0,0.85),
+    inset 0 0 0 1px rgba(255,255,255,0.03);
 
   text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* brilho sutil */
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at top,
-    rgba(37, 99, 235, 0.15),
-    transparent 60%
-  );
-  pointer-events: none;
+  animation: cardEnter 0.6s ease forwards;
 }
 
 /* ===============================
@@ -67,24 +97,27 @@ html, body {
    =============================== */
 
 .card h1 {
-  font-size: 2.6rem;
+  font-size: 2.7rem;
   font-weight: 900;
-  letter-spacing: 1px;
   color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 16px rgba(34,197,94,0.35),
+    0 0 32px rgba(34,197,94,0.15);
 }
 
 .card h1::after {
   content: "";
   display: block;
-  width: 48px;
+  width: 56px;
   height: 3px;
-  margin: 14px auto 0;
+  margin: 16px auto 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #2563eb, #22c55e);
+  background: linear-gradient(90deg, #22c55e, #16a34a);
 }
 
 .sub {
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 0.95rem;
   color: #9aa1ad;
 }
@@ -94,10 +127,10 @@ html, body {
    =============================== */
 
 .alert {
-  margin-top: 20px;
+  margin-top: 22px;
   padding: 12px 14px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.15);
+  border-radius: 12px;
+  background: rgba(239,68,68,0.15);
   border: 1px solid #ef4444;
   color: #f87171;
   font-size: 0.85rem;
@@ -108,7 +141,7 @@ html, body {
    =============================== */
 
 .form {
-  margin-top: 28px;
+  margin-top: 32px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -122,26 +155,24 @@ html, body {
 }
 
 .form input {
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
 
-  background: #0e1015;
+  background: #0b0e14;
   border: 1px solid #23262f;
 
   color: #eaeaea;
   font-size: 0.95rem;
 
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form input::placeholder {
-  color: #6b7280;
+  transition: all 0.2s ease;
 }
 
 .form input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 3px rgba(34,197,94,0.25),
+    0 0 18px rgba(34,197,94,0.25);
 }
 
 /* ===============================
@@ -149,26 +180,25 @@ html, body {
    =============================== */
 
 .form button {
-  margin-top: 10px;
-  padding: 14px;
+  margin-top: 16px;
+  padding: 15px;
 
-  border-radius: 14px;
+  border-radius: 16px;
   border: none;
 
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #22c55e, #15803d);
   color: #ffffff;
 
   font-size: 1rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
-
   cursor: pointer;
+
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.55);
+  box-shadow: 0 18px 40px rgba(34,197,94,0.55);
 }
 
 /* ===============================
@@ -176,13 +206,14 @@ html, body {
    =============================== */
 
 .link {
-  margin-top: 22px;
+  margin-top: 24px;
   font-size: 0.85rem;
   color: #9aa1ad;
+  text-align: center;
 }
 
 .link a {
-  color: #60a5fa;
+  color: #4ade80;
   font-weight: 600;
   text-decoration: none;
 }
@@ -192,15 +223,35 @@ html, body {
 }
 
 /* ===============================
+   ANIMAÇÕES
+   =============================== */
+
+@keyframes zoomSlow {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===============================
    RESPONSIVO
    =============================== */
 
-@media (max-width: 480px) {
-  .card {
-    padding: 34px 26px;
+@media (max-width: 900px) {
+  .auth {
+    flex-direction: column;
   }
 
-  .card h1 {
-    font-size: 2.2rem;
+  .auth__image {
+    height: 40vh;
   }
 }
