@@ -4,6 +4,9 @@ const Topic = require("./Topic");
 const Subtopic = require("./Subtopic");
 const StudyEntry = require("./StudyEntry");
 
+const Simulado = require("./Simulado");
+const SimuladoErro = require("./SimuladoErro");
+
 // User -> Subject/Topic/Subtopic/StudyEntry
 User.hasMany(Subject, { foreignKey: "user_id", as: "subjects" });
 Subject.belongsTo(User, { foreignKey: "user_id", as: "user" });
@@ -29,6 +32,19 @@ Subtopic.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 StudyEntry.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
 StudyEntry.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 StudyEntry.belongsTo(Subtopic, { foreignKey: "subtopic_id", as: "subtopic" });
+
+
+// 🔗 Associações dos simulados
+Simulado.hasMany(SimuladoErro, {
+  foreignKey: "simulado_id",
+  as: "erros"
+});
+
+SimuladoErro.belongsTo(Simulado, {
+  foreignKey: "simulado_id",
+  as: "simulado"
+});
+
 
 module.exports = {
   User,

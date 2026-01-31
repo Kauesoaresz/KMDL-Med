@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMed | Estatísticas de Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/estatisticas-simulados.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+<section class="page estatisticas-simulados">
+
+<h1>🧪 Estatísticas de Simulados</h1>
+<p class="sub">Desempenho real em prova</p>
+
+<!-- VISÃO GERAL -->
+<div class="cards">
+  <div class="card">
+    <span>Total de simulados</span>
+    <strong><%= totalSimulados %></strong>
+  </div>
+
+  <div class="card danger">
+    <span>Total de erros</span>
+    <strong><%= totalErros %></strong>
+  </div>
+</div>
+
+<!-- ERROS POR ÁREA -->
+<section class="block">
+  <h2>Erros por área</h2>
+
+  <% if (errosPorArea.length === 0) { %>
+    <p class="empty">Nenhum dado ainda.</p>
+  <% } else { %>
+    <% errosPorArea.forEach(a => { %>
+      <div class="row">
+        <span><%= a.area %></span>
+        <strong><%= a.erros %> erros</strong>
+      </div>
+    <% }) %>
+  <% } %>
+</section>
+
+<!-- DIA 1 x DIA 2 -->
+<section class="block">
+  <h2>Dia 1 x Dia 2</h2>
+
+  <% errosPorDia.forEach(d => { %>
+    <div class="row">
+      <span><%= d.dia === "DIA_1" ? "Dia 1" : "Dia 2" %></span>
+      <strong><%= d.erros %> erros</strong>
+    </div>
+  <% }) %>
+</section>
+
+</section>
+</main>
+
+</body>
+</html>

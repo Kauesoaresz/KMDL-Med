@@ -1,0 +1,33 @@
+.simulados-lista h1 {
+  margin-bottom: 16px;
+}
+
+.lista-simulados {
+  display: grid;
+  gap: 12px;
+}
+
+.simulado-card {
+  background: #020617;
+  border: 1px solid #1f2933;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.simulado-card strong {
+  color: #e5e7eb;
+  font-size: 1rem;
+}
+
+.simulado-card span {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.vazio {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMed | Novo Simulado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/simulados-novo.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "simulados",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+<section class="page simulados-novo">
+
+<h1>Novo Simulado</h1>
+
+<form method="POST" action="/simulados/novo" id="formSimulado">
+
+<div class="grid-top">
+
+<input type="text" name="nome" placeholder="ENEM 2024" required>
+
+<select name="dia" id="dia" required>
+  <option value="DIA_1">Dia 1</option>
+  <option value="DIA_2">Dia 2</option>
+</select>
+
+<select name="area" id="area" required></select>
+
+<input type="date" name="data_prova" required>
+
+<input type="number" name="tempo_minutos" placeholder="Tempo (min)" required>
+
+</div>
+
+<h2>Questões erradas</h2>
+<div id="gridQuestoes" class="grid-questoes"></div>
+
+<input type="hidden" name="erros" id="errosInput">
+
+<button type="submit">Salvar Simulado</button>
+
+</form>
+
+</section>
+</main>
+
+<script>
+const diaSelect = document.getElementById("dia");
+const areaSelect = document.getElementById("area");
+const grid = document.getElementById("gridQuestoes");
+const errosInput = document.getElementById("errosInput");
+
+/* =========================
+   ESTADO GLOBAL (CORRETO)
+========================= */
+const errosPorArea = {
+  LINGUAGENS: [],
+  HUMANAS: [],
+  NATUREZA: [],
+  MATEMATICA: []
+};
+
+/* =========================
+   ÁREAS POR DIA
+========================= */
+function renderAreas() {
+  areaSelect.innerHTML = "";
+
+  if (diaSelect.value === "DIA_1") {
+    areaSelect.innerHTML += `<option value="LINGUAGENS">Linguagens (1–45)</option>`;
+    areaSelect.innerHTML += `<option value="HUMANAS">Humanas (46–90)</option>`;
+  } else {
+    areaSelect.innerHTML += `<option value="NATUREZA">Natureza (91–135)</option>`;
+    areaSelect.innerHTML += `<option value="MATEMATICA">Matemática (136–180)</option>`;
+  }
+
+  renderQuestoes();
+}
+
+/* =========================
+   QUESTÕES POR ÁREA
+========================= */
+function renderQuestoes() {
+  grid.innerHTML = "";
+
+  const area = areaSelect.value;
+  let inicio, fim;
+
+  if (area === "LINGUAGENS") [inicio, fim] = [1, 45];
+  if (area === "HUMANAS") [inicio, fim] = [46, 90];
+  if (area === "NATUREZA") [inicio, fim] = [91, 135];
+  if (area === "MATEMATICA") [inicio, fim] = [136, 180];
+
+  for (let i = inicio; i <= fim; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = i;
+
+    // 🔁 restaura marcado
+    if (errosPorArea[area].includes(i)) {
+      btn.classList.add("erro");
+    }
+
+    btn.onclick = () => {
+      btn.classList.toggle("erro");
+
+      if (errosPorArea[area].includes(i)) {
+        errosPorArea[area] = errosPorArea[area].filter(q => q !== i);
+      } else {
+        errosPorArea[area].push(i);
+      }
+
+      atualizarHidden();
+    };
+
+    grid.appendChild(btn);
+  }
+}
+
+/* =========================
+   SERIALIZA ERROS
+========================= */
+function atualizarHidden() {
+  errosInput.value = JSON.stringify(errosPorArea);
+}
+
+diaSelect.addEventListener("change", renderAreas);
+areaSelect.addEventListener("change", renderQuestoes);
+
+renderAreas();
+</script>
+
+</body>
+</html>

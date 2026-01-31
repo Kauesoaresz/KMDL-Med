@@ -1,0 +1,106 @@
+/* =========================
+   SIMULADOS - HUB
+========================= */
+
+.simulados-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.kmed-header {
+  margin-bottom: 24px;
+}
+
+.kmed-header h1 {
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #f5f5f5;
+}
+
+.kmed-header p {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+/* HUB */
+
+.simulados-hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* CARD */
+
+.sim-card {
+  background: linear-gradient(180deg, #020617, #020617);
+  border: 1px solid #1f2933;
+  border-radius: 14px;
+  padding: 22px;
+  text-decoration: none;
+
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.sim-card:hover {
+  transform: translateY(-2px);
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+}
+
+/* CARD PRINCIPAL */
+
+.sim-card.primary {
+  border-color: #22c55e;
+  background: linear-gradient(180deg, #020617, #031a12);
+}
+
+.sim-card.primary:hover {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35);
+}
+
+/* ÍCONE */
+
+.sim-card-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* CONTEÚDO */
+
+.sim-card-content h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f5f5f5;
+}
+
+.sim-card-content p {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 600px) {
+  .sim-card {
+    flex-direction: column;
+  }
+
+  .sim-card-icon {
+    font-size: 1.6rem;
+  }
+}
+
+

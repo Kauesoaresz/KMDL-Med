@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMed | Meus Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/simulados-lista.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "simulados",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+<section class="page simulados-lista">
+
+<h1>Meus Simulados</h1>
+
+<% if (simulados.length === 0) { %>
+  <p class="vazio">Nenhum simulado cadastrado ainda.</p>
+<% } else { %>
+
+  <div class="lista-simulados">
+    <% simulados.forEach(s => { %>
+      <div class="simulado-card">
+        <strong><%= s.nome %></strong>
+
+        <span>
+          <%= s.dia === "DIA_1" ? "Dia 1" : "Dia 2" %> •
+          <%= s.area %>
+        </span>
+
+        <span>
+          <%= s.data_prova %> • <%= s.tempo_minutos %> min
+        </span>
+      </div>
+    <% }) %>
+  </div>
+
+<% } %>
+
+</section>
+</main>
+
+</body>
+</html>

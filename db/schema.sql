@@ -83,3 +83,48 @@ CREATE TABLE IF NOT EXISTS study_entries (
 );
 
 CREATE INDEX idx_entries_user_date ON study_entries(user_id, data);
+
+-- =========================
+-- TABELA: simulados
+-- =========================
+CREATE TABLE simulados (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  nome VARCHAR(255) NOT NULL,
+
+  dia ENUM('DIA_1', 'DIA_2') NOT NULL,
+  area ENUM('LINGUAGENS', 'HUMANAS', 'NATUREZA', 'MATEMATICA') NOT NULL,
+
+  data_prova DATE NOT NULL,
+  tempo_minutos INT NOT NULL,
+
+  status ENUM('EM_ANDAMENTO', 'FINALIZADO') DEFAULT 'EM_ANDAMENTO',
+
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+  CONSTRAINT fk_simulados_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+-- =========================
+-- TABELA: simulado_erros
+-- =========================
+CREATE TABLE simulado_erros (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  simulado_id INT NOT NULL,
+  area ENUM('LINGUAGENS', 'HUMANAS', 'NATUREZA', 'MATEMATICA') NOT NULL,
+  questao INT NOT NULL,
+  revisado BOOLEAN DEFAULT FALSE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_erros_simulado
+    FOREIGN KEY (simulado_id)
+    REFERENCES simulados(id)
+    ON DELETE CASCADE
+);

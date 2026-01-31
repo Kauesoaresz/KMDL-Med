@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMed | Estatísticas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/estatisticas-hub.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", { 
+  active: "estatisticas", 
+  userNome, 
+  userFoto 
+}) %>
+
+<main class="with-sidebar">
+  <section class="page estatisticas-hub">
+
+    <h1>📊 Estatísticas</h1>
+    <p class="sub">Escolha o que você quer analisar</p>
+
+    <div class="hub-grid">
+
+      <a href="/estatisticas/estudos" class="hub-card">
+        <h3>📚 Estudos</h3>
+        <p>Horas, questões, desempenho por matéria, tópico e assunto.</p>
+      </a>
+
+      <a href="/estatisticas/simulados" class="hub-card">
+        <h3>🧪 Simulados</h3>
+        <p>Erros por área, dia 1 x dia 2, evolução nos simulados.</p>
+      </a>
+
+    </div>
+
+  </section>
+</main>
+
+</body>
+</html>

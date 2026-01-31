@@ -17,7 +17,15 @@
       <span class="sidebar__tooltip">Dashboard</span>
     </a>
 
-    <!-- CALENDÁRIO (NOVO) -->
+    <!-- SIMULADOS (NOVO) -->
+    <a class="sidebar__item <%= (active === 'simulados') ? 'is-active' : '' %>"
+       href="/simulados" title="Simulados">
+      <span class="sidebar__icon">📝</span>
+      <span class="sidebar__label">Simulados</span>
+      <span class="sidebar__tooltip">Simulados</span>
+    </a>
+
+    <!-- CALENDÁRIO -->
     <a class="sidebar__item <%= (active === 'calendario') ? 'is-active' : '' %>"
        href="/calendario" title="Calendário">
       <span class="sidebar__icon">📅</span>

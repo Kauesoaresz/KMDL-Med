@@ -38,6 +38,15 @@ exports.geral = async (req, res) => {
   });
 };
 
+exports.hub = async (req, res) => {
+  res.render("app/estatisticas-hub", {
+    active: "estatisticas",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
+};
+
+
 // =========================
 // POR MATÉRIA
 // =========================
@@ -125,4 +134,74 @@ exports.porAssunto = async (req, res) => {
   }));
 
   res.json(assuntos);
+};
+
+const Simulado = require("../models/Simulado");
+const SimuladoErro = require("../models/SimuladoErro");
+
+/* =========================
+   ESTATÍSTICAS DE SIMULADOS
+========================= */
+exports.simulados = async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+
+  const userId = req.session.userId;
+
+  // total de simulados
+  const totalSimulados = await Simulado.count({
+    where: { user_id: userId }
+  });
+
+  // total de erros
+const totalErros = await SimuladoErro.count({
+  include: [{
+    model: Simulado,
+    as: "simulado",
+    where: { user_id: userId }
+  }]
+});
+
+// erros por área
+const errosPorArea = await Simulado.findAll({
+  where: { user_id: userId },
+  attributes: [
+    "area",
+    [sequelize.fn("COUNT", sequelize.col("erros.id")), "erros"]
+  ],
+  include: [{
+    model: SimuladoErro,
+    as: "erros",
+    attributes: []
+  }],
+  group: ["area"],
+  raw: true
+});
+
+// erros por dia
+const errosPorDia = await Simulado.findAll({
+  where: { user_id: userId },
+  attributes: [
+    "dia",
+    [sequelize.fn("COUNT", sequelize.col("erros.id")), "erros"]
+  ],
+  include: [{
+    model: SimuladoErro,
+    as: "erros",
+    attributes: []
+  }],
+  group: ["dia"],
+  raw: true
+});
+
+  res.render("app/estatisticas-simulados", {
+    active: "estatisticas",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto,
+    totalSimulados,
+    totalErros,
+    errosPorArea,
+    errosPorDia
+  });
 };

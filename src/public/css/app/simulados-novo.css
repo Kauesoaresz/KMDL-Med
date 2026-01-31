@@ -1,0 +1,51 @@
+.simulados-novo h1 {
+  margin-bottom: 16px;
+}
+
+.grid-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.grid-top input,
+.grid-top select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #1f2933;
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.grid-questoes {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.grid-questoes button {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #1f2933;
+  background: #020617;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.grid-questoes button.erro {
+  background: #7f1d1d;
+  color: #fff;
+  border-color: #b91c1c;
+}
+
+button[type="submit"] {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: #022c22;
+  font-weight: 600;
+  cursor: pointer;
+}
