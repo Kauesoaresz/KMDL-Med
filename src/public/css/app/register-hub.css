@@ -1,89 +1,167 @@
 /* =========================
    BASE
 ========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.page-bg {
+  background: #020617;
+}
+
+.with-sidebar {
+  margin-left: 88px;
+  padding: 24px;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
 .page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 32px 24px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
-h1 {
-  font-size: 30px;
-  margin-bottom: 6px;
-  color: #111827;
-}
+/* =========================
+   TÍTULO
+========================= */
 
-.page > p {
-  color: #6b7280;
-  margin-bottom: 32px;
+.page h1 {
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 22px;
 }
 
 /* =========================
    GRID DE AÇÕES
 ========================= */
+
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-top: 30px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
 /* =========================
-   CARD
+   CARD BASE
 ========================= */
+
 .card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  position: relative;
+
+  background: linear-gradient(
+    180deg,
+    #020617,
+    #020617cc
+  );
+
+  border: 1px solid #1f2933;
+  border-radius: 16px;
+
   padding: 28px;
-  transition: all 0.25s ease;
-  height: 100%;
+  min-height: 160px;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
+/* Linha lateral */
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 16px 0 0 16px;
+  background: transparent;
+  transition: background 0.18s ease;
+}
+
+/* =========================
+   TEXTO
+========================= */
+
 .card h2 {
-  font-size: 22px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
   margin-bottom: 8px;
-  color: #111827;
 }
 
 .card p {
-  color: #6b7280;
-  font-size: 15px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  max-width: 90%;
 }
 
 /* =========================
-   HOVER / INTERAÇÃO
+   HOVER
 ========================= */
+
 .card:hover {
-  transform: translateY(-4px);
-  border-color: #2563eb;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
+
+/* =========================
+   VARIAÇÕES
+========================= */
+
+/* Registrar novo dia */
+.card.new:hover {
+  border-color: #22c55e;
+}
+
+.card.new:hover::before {
+  background: #22c55e;
+}
+
+/* Lista de dias */
+.card.list:hover {
+  border-color: #38bdf8;
+}
+
+.card.list:hover::before {
+  background: #38bdf8;
+}
+
+/* =========================
+   LINKS
+========================= */
 
 a {
   text-decoration: none;
-}
-
-/* =========================
-   DESTAQUES VISUAIS
-========================= */
-.card.new {
-  border-left: 6px solid #2563eb;
-}
-
-.card.list {
-  border-left: 6px solid #16a34a;
+  color: inherit;
 }
 
 /* =========================
    RESPONSIVO
 ========================= */
-@media (max-width: 800px) {
+
+@media (max-width: 900px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 16px;
+  }
+
   .actions-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 22px;
+    min-height: 140px;
   }
 }

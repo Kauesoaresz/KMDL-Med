@@ -18,6 +18,12 @@ const SimuladoErro = sequelize.define(
     questao: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+
+    revisado: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   },
   {

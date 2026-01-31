@@ -1,25 +1,32 @@
 /* =========================
-   RESET ESSENCIAL
+   BASE GERAL
 ========================= */
 
-.page,
-.page * {
+* {
   box-sizing: border-box;
 }
 
-/* =========================
-   CONTAINER GERAL
-========================= */
+.page-bg {
+  background: #020617;
+}
 
-.page {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  overflow-x: hidden;
+.with-sidebar {
+  margin-left: 88px;
+  padding: 24px;
 }
 
 /* =========================
-   HEADER DA PÁGINA
+   CONTAINER PRINCIPAL
+========================= */
+
+.page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* =========================
+   HEADER
 ========================= */
 
 .kmed-header {
@@ -27,15 +34,15 @@
 }
 
 .kmed-header h1 {
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: 600;
-  color: #f5f5f5;
+  color: #f8fafc;
 }
 
 .kmed-header p {
-  margin-top: 4px;
-  color: #9ca3af;
   font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 4px;
 }
 
 /* =========================
@@ -43,20 +50,22 @@
 ========================= */
 
 .kmed-calendar-nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(180deg, #0b1220, #020617);
+
+  background: #020617;
   border: 1px solid #1f2933;
   border-radius: 10px;
-  padding: 10px 14px;
+
+  padding: 12px 16px;
   margin-bottom: 16px;
 }
 
 .kmed-calendar-nav a {
-  color: #9ca3af;
+  font-size: 0.8rem;
+  color: #94a3b8;
   text-decoration: none;
-  font-size: 0.85rem;
 }
 
 .kmed-calendar-nav a:hover {
@@ -64,29 +73,19 @@
 }
 
 .kmed-calendar-nav strong {
-  color: #f5f5f5;
+  text-align: center;
+  color: #f8fafc;
   font-size: 0.95rem;
-  text-transform: capitalize;
 }
 
 /* =========================
-   CALENDÁRIO
+   GRID DO CALENDÁRIO
 ========================= */
 
-.kmed-calendar {
-  background: #020617;
-  border: 1px solid #1f2933;
-  border-radius: 12px;
-  padding: 16px;
-  overflow: hidden;
-}
-
-/* GRID DOS DIAS */
 .kmed-calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  margin-bottom: 16px;
 }
 
 /* =========================
@@ -94,64 +93,67 @@
 ========================= */
 
 .kmed-cal-day {
-  height: 80px;
-  border-radius: 10px;
+  height: 70px;
+  border-radius: 8px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
 
+  background: #020617;
+  border: 1px solid #1f2933;
   color: #e5e7eb;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .kmed-cal-day span {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
+/* Hover */
 .kmed-cal-day:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4);
 }
 
 /* =========================
-   CORES POR HORAS (RUIM → ÓTIMO)
+   CORES POR DESEMPENHO
 ========================= */
 
-.kmed-cal-day.zero {
-  background: #020617;
-  color: #334155;
-}
+.kmed-cal-day.zero { background: #020617; color: #475569; }
 
-.kmed-cal-day.h1 { background: #7f1d1d; }
-.kmed-cal-day.h2 { background: #9a3412; }
-.kmed-cal-day.h3 { background: #ca8a04; }
-.kmed-cal-day.h4 { background: #a3a635; }
-.kmed-cal-day.h5 { background: #4d7c0f; }
-.kmed-cal-day.h6 { background: #15803d; }
-.kmed-cal-day.h7 { background: #166534; }
+.kmed-cal-day.h1 { background: #3f1d1d; }
+.kmed-cal-day.h2 { background: #5f2a1a; }
+.kmed-cal-day.h3 { background: #7c4a03; }
+.kmed-cal-day.h4 { background: #6b7020; }
+.kmed-cal-day.h5 { background: #365314; }
+.kmed-cal-day.h6 { background: #14532d; }
+.kmed-cal-day.h7 { background: #064e3b; }
 
 .kmed-cal-day.h8 {
   background: #022c22;
   color: #d1fae5;
   font-weight: 600;
-  box-shadow: inset 0 0 0 2px rgba(16, 185, 129, 0.35);
 }
 
 /* =========================
-   ESTADOS ESPECIAIS
+   ESTADOS
 ========================= */
 
 .kmed-cal-day.today {
-  box-shadow: inset 0 0 0 2px #e5e7eb;
+  outline: 2px solid #e5e7eb;
+  outline-offset: -2px;
 }
 
+.kmed-cal-day.future {
+  opacity: 0.45;
+  pointer-events: none;
+}
 
 .kmed-cal-day.perfect {
   position: relative;
@@ -162,7 +164,7 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #facc15;
 }
 
@@ -171,99 +173,86 @@
 ========================= */
 
 .kmed-calendar-legend {
+  margin-top: 14px;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.75rem;
-  color: #9ca3af;
+  gap: 10px;
+  font-size: 0.7rem;
+  color: #94a3b8;
 }
 
 .kmed-calendar-legend span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .kmed-calendar-legend i {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 3px;
 }
 
-/* =========================
-   CORES DA LEGENDA (FIX)
-========================= */
-
 .kmed-calendar-legend .zero { background: #020617; }
-.kmed-calendar-legend .h1 { background: #7f1d1d; }
-.kmed-calendar-legend .h2 { background: #9a3412; }
-.kmed-calendar-legend .h3 { background: #ca8a04; }
-.kmed-calendar-legend .h4 { background: #a3a635; }
-.kmed-calendar-legend .h5 { background: #4d7c0f; }
-.kmed-calendar-legend .h6 { background: #15803d; }
-.kmed-calendar-legend .h7 { background: #166534; }
+.kmed-calendar-legend .h1 { background: #3f1d1d; }
+.kmed-calendar-legend .h2 { background: #5f2a1a; }
+.kmed-calendar-legend .h3 { background: #7c4a03; }
+.kmed-calendar-legend .h4 { background: #6b7020; }
+.kmed-calendar-legend .h5 { background: #365314; }
+.kmed-calendar-legend .h6 { background: #14532d; }
+.kmed-calendar-legend .h7 { background: #064e3b; }
 .kmed-calendar-legend .h8 { background: #022c22; }
 
-
 /* =========================
-   RESUMO DO MÊS (COMPACTO)
+   RESUMO DO MÊS (NOVA VISÃO)
 ========================= */
 
 .kmed-month-summary {
-  margin-top: 14px;
+  margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  width: 100%;
+  grid-template-columns: repeat(3, auto);
+  gap: 24px;
+  align-items: center;
+
+  background: #020617;
+  border: 1px solid #1f2933;
+  border-radius: 10px;
+
+  padding: 12px 16px;
 }
 
-.kmed-month-summary > div {
-  background: linear-gradient(180deg, #020617, #020617cc);
-  border: 1px solid #1f2933;
-  border-radius: 8px;
-
-  padding: 10px 12px;
-  min-height: 56px;
-
+.kmed-month-summary div {
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .kmed-month-summary small {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #94a3b8;
-  margin-bottom: 2px;
 }
 
 .kmed-month-summary strong {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #22c55e;
-  line-height: 1.2;
 }
-
-
 
 /* =========================
    RESPONSIVO
 ========================= */
 
 @media (max-width: 900px) {
-  .kmed-calendar-grid {
-    gap: 6px;
+  .with-sidebar {
+    margin-left: 0;
+    padding: 16px;
   }
 
-  .kmed-cal-day {
-    height: 64px;
-    font-size: 0.7rem;
+  .kmed-calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .kmed-month-summary {
     grid-template-columns: 1fr;
+    gap: 8px;
   }
-}
-
-.with-sidebar {
-  margin-left: 88px; /* largura da sidebar */
 }
