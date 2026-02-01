@@ -6,42 +6,69 @@
   <title>KMed | Registrar Dia</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-<link rel="stylesheet" href="/public/css/app/register-hub.css" />
-
-
+  <link rel="stylesheet" href="/public/css/app/register-hub.css" />
 </head>
+
 <body class="page-bg">
 
   <%- include("../partials/sidebar", { active: "registrar", userNome }) %>
 
   <main class="with-sidebar">
-    <div class="page">
-      <h1>Registrar Dia</h1>
-      
+    <div class="page register-layout">
 
-      <div class="actions-grid">
+      <!-- ESQUERDA -->
+      <section class="register-actions">
+        <h1>Registrar Dia</h1>
 
-
-        <a href="/registrar/novo" style="flex:1; text-decoration:none;">
+        <a href="/registrar/novo" class="action-link">
           <div class="card new">
-
             <h2>Registrar novo dia</h2>
             <p>Cadastrar um novo dia de estudos</p>
           </div>
         </a>
 
-        <a href="/registrar/lista" style="flex:1; text-decoration:none;">
+        <a href="/registrar/lista" class="action-link">
           <div class="card list">
-
-
             <h2>Dias já registrados</h2>
             <p>Ver, editar ou excluir dias cadastrados</p>
           </div>
         </a>
+      </section>
 
-      </div>
+      <!-- DIREITA -->
+      <section class="register-visual">
+        <div class="image-frame">
+          <img id="rotatingImage" src="/public/img/registrar/med1.jpg" alt="Estudos Medicina">
+        </div>
+      </section>
+
     </div>
   </main>
+
+  <script>
+    const images = [
+      "/public/img/medicina1.jpg",
+      "/public/img/medicina2.jpg",
+      "/public/img/medicina3.jpg",
+      "/public/img/estudos1.png",
+      "/public/img/estudos2.png",
+      "/public/img/estudos3.png",
+      "/public/img/estudos4.jpg"
+    ];
+
+    let index = 0;
+    const img = document.getElementById("rotatingImage");
+
+    setInterval(() => {
+      img.classList.add("fade-out");
+
+      setTimeout(() => {
+        index = (index + 1) % images.length;
+        img.src = images[index];
+        img.classList.remove("fade-out");
+      }, 400);
+    }, 6000);
+  </script>
 
 </body>
 </html>

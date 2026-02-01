@@ -91,8 +91,14 @@ exports.listDays = async (req, res) => {
       "data",
       [sequelize.fn("SUM", sequelize.col("horas")), "total_horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "total_questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "total_acertos"]
+      [sequelize.fn("SUM", sequelize.col("acertos")), "total_acertos"],
+      [sequelize.fn("GROUP_CONCAT", sequelize.fn("DISTINCT", sequelize.col("subject.nome"))), "materias"]
     ],
+    include: [{
+      model: Subject,
+      as: "subject",
+      attributes: []
+    }],
     group: ["data"],
     order: [["data", "DESC"]],
     raw: true
@@ -102,7 +108,8 @@ exports.listDays = async (req, res) => {
     data: d.data,
     total_horas: Number(d.total_horas) || 0,
     total_questoes: Number(d.total_questoes) || 0,
-    total_acertos: Number(d.total_acertos) || 0
+    total_acertos: Number(d.total_acertos) || 0,
+    materias: d.materias ? d.materias.split(",") : []
   }));
 
   res.render("app/register-list", {
@@ -112,6 +119,7 @@ exports.listDays = async (req, res) => {
     userFoto: req.session.userFoto
   });
 };
+
 
 // =========================
 // EDITAR DIA

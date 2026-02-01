@@ -176,10 +176,15 @@ async function loadAssuntos(topicId, topicNome, subjectId, subjectNome) {
 
     detailList.innerHTML = "";
     assuntos.forEach(a => {
-      const el = document.createElement("div");
-      el.innerHTML = itemTemplate(a.nome, a);
-      detailList.appendChild(el.firstElementChild);
-    });
+  const nomeExibido = a.nome === "Geral"
+    ? "📌 Geral"
+    : a.nome;
+
+  const el = document.createElement("div");
+  el.innerHTML = itemTemplate(nomeExibido, a);
+  detailList.appendChild(el.firstElementChild);
+});
+
 
     bindBreadcrumb();
   } catch (err) {

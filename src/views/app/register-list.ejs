@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/register-list.css" />
 </head>
+
 <body class="page-bg">
 
   <%- include("../partials/sidebar", { 
@@ -49,17 +50,30 @@
               percent >= 85 ? "good" :
               percent >= 70 ? "medium" :
               "bad";
+
+            // 🔥 FORMATAÇÃO SEGURA DA DATA (SEM Date())
+            const [year, month, day] = d.data.split("-");
+            const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+            const mesLabel = meses[parseInt(month, 10) - 1];
           %>
+
             <tr>
-              <td data-label="Data"><%= d.data %></td>
+              <td data-label="Data">
+                <strong style="font-size:1rem">
+                  <%= `${day} ${mesLabel} ${year}` %>
+                </strong>
+
+                <% if (d.materias && d.materias.length) { %>
+                  <div style="font-size:.7rem;opacity:.6;margin-top:2px">
+                    <%= d.materias.join(", ") %>
+                  </div>
+                <% } %>
+              </td>
 
               <td data-label="Horas"><%= d.total_horas.toFixed(2) %>h</td>
-
               <td data-label="Questões"><%= d.total_questoes %></td>
-
               <td data-label="Acertos"><%= d.total_acertos %></td>
 
-              <!-- 🔥 CORRETO -->
               <td data-label="%">
                 <span class="percent <%= percentClass %>">
                   <%= percent %>%
@@ -77,6 +91,7 @@
                 </form>
               </td>
             </tr>
+
           <% }) %>
         </tbody>
       </table>
