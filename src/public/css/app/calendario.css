@@ -1,91 +1,90 @@
-/* =========================
-   BASE GERAL
-========================= */
+/* ===============================
+   KMDL Med | Calendário de Estudos
+=============================== */
 
 * {
   box-sizing: border-box;
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #020617, #020617);
-  color: #e5e7eb;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0e0f12;
+  min-height: 100vh;
+  color: #eaeaea;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .with-sidebar {
-  margin-left: 88px;
+  margin-left: 78px;
   padding: 24px;
 }
 
-/* =========================
-   CONTAINER PRINCIPAL
-========================= */
+/* ===============================
+   CONTAINER
+=============================== */
 
 .page {
-  width: 100%;
-  max-width: none;
-  margin: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #14161a;
+  border-radius: 18px;
+  padding: 24px 26px;
+  box-shadow: 0 20px 45px rgba(0,0,0,.6);
+  border: 1px solid #1f2229;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* =========================
+/* ===============================
    HEADER
-========================= */
-
-.kmed-header {
-  margin-bottom: 18px;
-}
+=============================== */
 
 .kmed-header h1 {
-  font-size: 1.75rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #f8fafc;
-  letter-spacing: 0.2px;
 }
 
 .kmed-header p {
-  font-size: 0.9rem;
-  color: #94a3b8;
-  margin-top: 4px;
+  font-size: .9rem;
+  color: #9aa1ad;
 }
 
-/* =========================
-   NAVEGAÇÃO DO MÊS
-========================= */
+/* ===============================
+   NAVEGAÇÃO
+=============================== */
 
 .kmed-calendar-nav {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
 
-  background: linear-gradient(180deg, #020617, #020617);
-  border: 1px solid #1f2933;
-  border-radius: 12px;
+  background: #101216;
+  border: 1px solid #1f2330;
+  border-radius: 14px;
 
-  padding: 12px 18px;
-  margin-bottom: 18px;
+  padding: 10px 16px;
 }
 
 .kmed-calendar-nav a {
-  font-size: 0.8rem;
-  color: #94a3b8;
+  font-size: .8rem;
+  color: #8bbcff;
   text-decoration: none;
-  transition: color 0.15s ease;
 }
 
 .kmed-calendar-nav a:hover {
-  color: #22c55e;
+  opacity: .75;
 }
 
 .kmed-calendar-nav strong {
   text-align: center;
-  color: #f8fafc;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
+  font-size: .95rem;
+  letter-spacing: .3px;
 }
 
-/* =========================
+/* ===============================
    GRID DO CALENDÁRIO
-========================= */
+=============================== */
 
 .kmed-calendar-grid {
   display: grid;
@@ -93,48 +92,50 @@
   gap: 10px;
 }
 
-/* =========================
+/* ===============================
    DIA
-========================= */
+=============================== */
 
 .kmed-cal-day {
-  height: 72px;
-  border-radius: 10px;
+  height: 88px; /* 🔥 CONTROLE ABSOLUTO DO TAMANHO */
+  border-radius: 14px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: .9rem;
+  font-weight: 600;
 
-  background: linear-gradient(180deg, #020617, #020617);
-  border: 1px solid #1f2933;
+  background: #101216;
+  border: 1px solid #1f2330;
   color: #e5e7eb;
   text-decoration: none;
 
-  transition: all 0.15s ease;
   position: relative;
+  transition: all .15s ease;
 }
 
-.kmed-cal-day span {
-  opacity: 0.9;
-}
-
-/* Hover */
 .kmed-cal-day:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
 }
 
-/* =========================
-   CORES POR DESEMPENHO
-========================= */
-
-.kmed-cal-day.zero {
-  background: #020617;
-  color: #475569;
+.kmed-cal-day.future {
+  opacity: .35;
+  pointer-events: none;
 }
+
+.kmed-cal-day.today {
+  outline: 2px solid #8bbcff;
+  outline-offset: -2px;
+}
+
+/* ===============================
+   CORES POR HORAS
+=============================== */
+
+.kmed-cal-day.zero { background: #0f1116; color: #6b7280; }
 
 .kmed-cal-day.h1 { background: #3f1d1d; }
 .kmed-cal-day.h2 { background: #5f2a1a; }
@@ -147,43 +148,45 @@
 .kmed-cal-day.h8 {
   background: linear-gradient(180deg, #022c22, #022c22);
   color: #d1fae5;
-  font-weight: 600;
 }
 
-/* =========================
-   ESTADOS
-========================= */
+/* ===============================
+   RECOMPENSAS VISUAIS
+=============================== */
 
-.kmed-cal-day.today {
-  outline: 2px solid #e5e7eb;
-  outline-offset: -2px;
-}
-
-.kmed-cal-day.future {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.kmed-cal-day.perfect::after {
+.kmed-cal-day.h6::after {
   content: "★";
+}
+
+.kmed-cal-day.h7::after {
+  content: "★★";
+  letter-spacing: 1px;
+}
+
+.kmed-cal-day.h8::after {
+  content: "🏆";
+  font-size: 1rem;
+}
+
+.kmed-cal-day.h6::after,
+.kmed-cal-day.h7::after,
+.kmed-cal-day.h8::after {
   position: absolute;
   top: 6px;
-  right: 6px;
-  font-size: 0.65rem;
+  right: 8px;
   color: #facc15;
 }
 
-/* =========================
+/* ===============================
    LEGENDA
-========================= */
+=============================== */
 
 .kmed-calendar-legend {
-  margin-top: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  font-size: 0.7rem;
-  color: #94a3b8;
+  font-size: .7rem;
+  color: #9aa1ad;
 }
 
 .kmed-calendar-legend span {
@@ -195,10 +198,10 @@
 .kmed-calendar-legend i {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
-.kmed-calendar-legend .zero { background: #020617; }
+.kmed-calendar-legend .zero { background: #0f1116; }
 .kmed-calendar-legend .h1 { background: #3f1d1d; }
 .kmed-calendar-legend .h2 { background: #5f2a1a; }
 .kmed-calendar-legend .h3 { background: #7c4a03; }
@@ -208,43 +211,76 @@
 .kmed-calendar-legend .h7 { background: #064e3b; }
 .kmed-calendar-legend .h8 { background: #022c22; }
 
-/* =========================
-   RESUMO DO MÊS
-========================= */
+/* ===============================
+   RESUMO DO MÊS (ESTATÍSTICAS)
+=============================== */
 
 .kmed-month-summary {
-  margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 28px;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 
-  background: linear-gradient(180deg, #020617, #020617);
-  border: 1px solid #1f2933;
-  border-radius: 12px;
+  background: linear-gradient(180deg, #101216, #0d0f14);
+  border: 1px solid #1f2330;
+  border-radius: 16px;
 
-  padding: 14px 18px;
+  padding: 18px 22px;
+  margin-top: 8px;
 }
 
-.kmed-month-summary div {
+/* Card individual */
+.kmed-month-summary > div {
+  background: #0f1116;
+  border: 1px solid #1f2229;
+  border-radius: 14px;
+
+  padding: 14px 16px;
+
   display: flex;
   flex-direction: column;
+  gap: 6px;
+
+  position: relative;
 }
 
+/* Label */
 .kmed-month-summary small {
-  font-size: 0.65rem;
-  color: #94a3b8;
+  font-size: 0.7rem;
+  letter-spacing: .04em;
+  color: #9aa1ad;
+  text-transform: uppercase;
 }
 
+/* Valor */
 .kmed-month-summary strong {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   color: #22c55e;
 }
 
-/* =========================
+/* Destaque visual sutil */
+.kmed-month-summary > div::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(34,197,94,0.08);
+}
+
+/* ===============================
    RESPONSIVO
-========================= */
+=============================== */
+
+@media (max-width: 900px) {
+  .kmed-month-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===============================
+   RESPONSIVO
+=============================== */
 
 @media (max-width: 900px) {
   .with-sidebar {
@@ -256,8 +292,11 @@
     grid-template-columns: repeat(4, 1fr);
   }
 
+  .kmed-cal-day {
+    height: 78px;
+  }
+
   .kmed-month-summary {
     grid-template-columns: 1fr;
-    gap: 10px;
   }
 }

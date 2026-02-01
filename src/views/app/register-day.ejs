@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Registrar Novo Dia</title>
+  <title>KMDL Med | Registrar Novo Dia</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/register-day.css" />
@@ -18,14 +18,16 @@
     <a href="/registrar" class="btn-back">← Voltar</a>
 
     <form method="POST" action="/registrar/novo" id="form-dia">
+
       <label>Data</label><br>
       <input type="date" name="data" value="<%= hoje %>" required>
 
       <div id="blocos"></div>
 
-      <button type="button" onclick="addBloco()">+</button>
+      <button type="button" class="btn-add" onclick="addBloco()">+ Adicionar bloco</button>
+
       <br><br>
-      <button type="submit" class="btn-primary" id="btn-salvar">Salvar dia</button>
+      <button type="submit" class="btn-primary">Salvar dia</button>
     </form>
   </div>
 </main>
@@ -34,183 +36,94 @@
 const subjects = <%- JSON.stringify(subjects) %>;
 let blocoIndex = 0;
 
-/* ===============================
-   HELPERS
-================================ */
-
-function openList(input) {
-  input.disabled = false;
-  input.focus();
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-  input.click();
-}
-
-function autoSelect(input, list, hidden) {
-  const value = input.value.toLowerCase().trim();
-
-  const matches = [...list.querySelectorAll("option")]
-    .filter(o => o.value.toLowerCase().startsWith(value));
-
-  if (matches.length === 1) {
-    input.value = matches[0].value;
-    hidden.value = matches[0].dataset.id;
-    return true;
-  }
-
-  return false;
-}
-
-/* ===============================
-   BLOCO
-================================ */
-
 function addBloco() {
   const idx = blocoIndex++;
+
   const bloco = document.createElement("div");
   bloco.className = "bloco";
 
   bloco.innerHTML = `
     <button type="button" class="btn-remove" onclick="this.closest('.bloco').remove()">🗑</button>
 
-    <input list="subjects-${idx}" placeholder="Disciplina" class="subject-input" required>
-    <datalist id="subjects-${idx}">
-      ${subjects.map(s => `<option data-id="${s.id}" value="${s.nome}"></option>`).join("")}
-    </datalist>
-    <input type="hidden" name="blocos[${idx}][subject_id]">
-
-    <input list="topics-${idx}" placeholder="Tópico" class="topic-input" disabled required>
-    <datalist id="topics-${idx}"></datalist>
-    <input type="hidden" name="blocos[${idx}][topic_id]">
-
-    <input list="subtopics-${idx}" placeholder="Assunto (opcional)" class="subtopic-input" disabled>
-    <datalist id="subtopics-${idx}"></datalist>
-    <input type="hidden" name="blocos[${idx}][subtopic_id]">
-
-    <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required>
-    <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
-    <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
-
-    <select name="blocos[${idx}][dificuldade]">
-      <option value="FACIL">Fácil</option>
-      <option value="MEDIA" selected>Média</option>
-      <option value="DIFICIL">Difícil</option>
+    <select name="blocos[${idx}][subject_id]" class="subject-select" required>
+      <option value="">Selecione a disciplina</option>
+      ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
     </select>
+
+    <select name="blocos[${idx}][topic_id]" class="topic-select" disabled required>
+      <option value="">Selecione o tópico</option>
+    </select>
+
+    <select name="blocos[${idx}][subtopic_id]" class="subtopic-select" disabled>
+      <option value="">Assunto (opcional)</option>
+    </select>
+
+    <div class="linha-numeros">
+      <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required>
+      <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
+      <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
+
+      <select name="blocos[${idx}][dificuldade]">
+        <option value="FACIL">Fácil</option>
+        <option value="MEDIA" selected>Média</option>
+        <option value="DIFICIL">Difícil</option>
+      </select>
+    </div>
   `;
 
-  const subjectInput = bloco.querySelector(".subject-input");
-  const topicInput = bloco.querySelector(".topic-input");
-  const subInput = bloco.querySelector(".subtopic-input");
-
-  const horas = bloco.querySelector('input[name$="[horas]"]');
-  const questoes = bloco.querySelector('input[name$="[questoes]"]');
-  const acertos = bloco.querySelector('input[name$="[acertos]"]');
-  const dificuldade = bloco.querySelector("select");
-
-  const subjectHidden = bloco.querySelector(`input[name="blocos[${idx}][subject_id]"]`);
-  const topicHidden = bloco.querySelector(`input[name="blocos[${idx}][topic_id]"]`);
-  const subHidden = bloco.querySelector(`input[name="blocos[${idx}][subtopic_id]"]`);
-
-  const subjectsList = bloco.querySelector(`#subjects-${idx}`);
-  const topicsList = bloco.querySelector(`#topics-${idx}`);
-  const subtopicsList = bloco.querySelector(`#subtopics-${idx}`);
+  const subjectSelect = bloco.querySelector(".subject-select");
+  const topicSelect = bloco.querySelector(".topic-select");
+  const subSelect = bloco.querySelector(".subtopic-select");
 
   /* ===============================
-     DISCIPLINA
+     DISCIPLINA → TÓPICOS
   ================================ */
+  subjectSelect.addEventListener("change", async () => {
+    const subjectId = subjectSelect.value;
 
-  subjectInput.addEventListener("keydown", async e => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
+    topicSelect.innerHTML = `<option>Carregando...</option>`;
+    topicSelect.disabled = true;
+    subSelect.innerHTML = `<option value="">Assunto (opcional)</option>`;
+    subSelect.disabled = true;
 
-    if (!autoSelect(subjectInput, subjectsList, subjectHidden)) return;
+    if (!subjectId) return;
 
-    topicInput.disabled = false;
-    topicsList.innerHTML = "";
-
-    const res = await fetch(`/api/subjects/${subjectHidden.value}/topics`);
+    const res = await fetch(`/api/subjects/${subjectId}/topics`);
     const topics = await res.json();
 
+    topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
     topics.forEach(t => {
-      topicsList.innerHTML += `<option data-id="${t.id}" value="${t.nome}"></option>`;
+      topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
     });
 
-    openList(topicInput);
+    topicSelect.disabled = false;
   });
 
   /* ===============================
-     TÓPICO
+     TÓPICO → ASSUNTOS
   ================================ */
+  topicSelect.addEventListener("change", async () => {
+    const topicId = topicSelect.value;
 
-  topicInput.addEventListener("keydown", async e => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
+    subSelect.innerHTML = `<option>Carregando...</option>`;
+    subSelect.disabled = true;
 
-    if (!autoSelect(topicInput, topicsList, topicHidden)) return;
+    if (!topicId) return;
 
-    subInput.disabled = false;
-    subtopicsList.innerHTML = "";
-
-    const res = await fetch(`/api/topics/${topicHidden.value}/subtopics`);
+    const res = await fetch(`/api/topics/${topicId}/subtopics`);
     const subs = await res.json();
 
-    if (!subs.length) {
-      horas.focus();
-      return;
-    }
+    subSelect.innerHTML = `<option value="">Assunto (opcional)</option>`;
 
-    subs.forEach(s => {
-      subtopicsList.innerHTML += `<option data-id="${s.id}" value="${s.nome}"></option>`;
-    });
-
-    openList(subInput);
-  });
-
-  /* ===============================
-     ASSUNTO
-  ================================ */
-
-  subInput.addEventListener("keydown", e => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-
-    autoSelect(subInput, subtopicsList, subHidden);
-    horas.focus();
-  });
-
-  /* ===============================
-     FLUXO NUMÉRICO
-  ================================ */
-
-  horas.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      questoes.focus();
-    }
-  });
-
-  questoes.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      acertos.focus();
-    }
-  });
-
-  acertos.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      dificuldade.focus();
-    }
-  });
-
-  dificuldade.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      document.getElementById("form-dia").requestSubmit();
+    if (subs.length) {
+      subs.forEach(s => {
+        subSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
+      });
+      subSelect.disabled = false;
     }
   });
 
   document.getElementById("blocos").appendChild(bloco);
-  openList(subjectInput);
 }
 
 addBloco();

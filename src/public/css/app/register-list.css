@@ -1,11 +1,33 @@
 /* ===============================
-   KMed | Dias Registrados
-   =============================== */
+   KMed | Dias Registrados (BRABO)
+=============================== */
+
+:root {
+  --bg: #0e0f12;
+  --card: #14161a;
+  --card-soft: #101216;
+  --border: #1f2229;
+  --border-soft: #232734;
+
+  --text: #eaeaea;
+  --muted: #9aa1ad;
+
+  --blue: #8bbcff;
+  --blue-strong: #4f9cff;
+
+  --green: #22c55e;
+  --yellow: #facc15;
+  --red: #ef4444;
+}
+
+/* ===============================
+   BASE
+=============================== */
 
 .page-bg {
-  background: #0e0f12;
+  background: radial-gradient(circle at top, #12141a, #0b0c10 70%);
   min-height: 100vh;
-  color: #eaeaea;
+  color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
 }
 
@@ -17,78 +39,97 @@
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  background: #14161a;
-  border-radius: 18px;
-  padding: 32px 28px;
-  box-shadow: 0 20px 45px rgba(0,0,0,.6);
-  border: 1px solid #1f2229;
+  background: linear-gradient(180deg, #16181e, #111318);
+  border-radius: 20px;
+  padding: 34px 30px;
+  box-shadow:
+    0 25px 55px rgba(0,0,0,.65),
+    inset 0 1px 0 rgba(255,255,255,.03);
+  border: 1px solid var(--border);
 }
 
-/* ---------- Header ---------- */
+/* ===============================
+   HEADER
+=============================== */
 
 .page h1 {
-  font-size: 1.9rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   margin-bottom: 6px;
+  letter-spacing: -.02em;
 }
 
 .btn-back {
   display: inline-block;
-  margin-bottom: 24px;
-  color: #8bbcff;
+  margin-bottom: 26px;
+  color: var(--blue);
   text-decoration: none;
+  font-weight: 500;
+  transition: opacity .2s;
 }
 
-/* ---------- Tabela ---------- */
+.btn-back:hover {
+  opacity: .8;
+}
+
+/* ===============================
+   TABELA
+=============================== */
 
 table {
   width: 100%;
-  table-layout: fixed; /* 🔥 ISSO RESOLVE */
+  table-layout: fixed;
   border-collapse: collapse;
-  background: #101216;
-  border-radius: 14px;
+  background: var(--card-soft);
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid var(--border);
 }
 
-/* LARGURA DAS COLUNAS (CRÍTICO) */
+/* ===== LARGURA DAS COLUNAS (6 COLUNAS) ===== */
+
 thead th:nth-child(1),
-tbody td:nth-child(1) { width: 18%; }
+tbody td:nth-child(1) { width: 22%; } /* Data */
 
 thead th:nth-child(2),
-tbody td:nth-child(2) { width: 14%; }
+tbody td:nth-child(2) { width: 14%; } /* Horas */
 
 thead th:nth-child(3),
-tbody td:nth-child(3) { width: 14%; }
+tbody td:nth-child(3) { width: 14%; } /* Questões */
 
 thead th:nth-child(4),
-tbody td:nth-child(4) { width: 14%; }
+tbody td:nth-child(4) { width: 14%; } /* Acertos */
 
 thead th:nth-child(5),
-tbody td:nth-child(5) { width: 12%; }
+tbody td:nth-child(5) { width: 12%; } /* % */
 
 thead th:nth-child(6),
-tbody td:nth-child(6) { width: 28%; }
+tbody td:nth-child(6) { width: 24%; } /* Ações */
 
 thead {
-  background: #181b21;
+  background: linear-gradient(180deg, #1b1e25, #171a20);
 }
 
 thead th {
-  padding: 14px;
-  font-size: .8rem;
+  padding: 14px 16px;
+  font-size: .72rem;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  color: #bfc6d1;
+  letter-spacing: .08em;
+  color: #c6cbd6;
   text-align: left;
-  border-bottom: 1px solid #232734;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 tbody td {
-  padding: 16px 14px;
+  padding: 18px 16px;
   font-size: .95rem;
   color: #e5e7eb;
   border-bottom: 1px solid #1f2330;
   vertical-align: middle;
+}
+
+tbody tr {
+  transition: background .15s;
 }
 
 tbody tr:hover {
@@ -99,7 +140,24 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* ---------- Percentual ---------- */
+/* ===============================
+   DATA (BONITA)
+=============================== */
+
+td[data-label="Data"] strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+td[data-label="Data"] div {
+  font-size: .75rem;
+  opacity: .65;
+  margin-top: 2px;
+}
+
+/* ===============================
+   PERCENTUAL
+=============================== */
 
 td:nth-child(5) {
   text-align: center;
@@ -109,29 +167,32 @@ td:nth-child(5) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 84px;
+  min-width: 86px;
   height: 36px;
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: .9rem;
+  letter-spacing: .02em;
 }
 
 .percent.good {
   background: rgba(34,197,94,.18);
-  color: #22c55e;
+  color: var(--green);
 }
 
 .percent.medium {
-  background: rgba(234,179,8,.25);
-  color: #facc15;
+  background: rgba(234,179,8,.22);
+  color: var(--yellow);
 }
 
 .percent.bad {
-  background: rgba(239,68,68,.25);
-  color: #ef4444;
+  background: rgba(239,68,68,.22);
+  color: var(--red);
 }
 
-/* ---------- Ações ---------- */
+/* ===============================
+   AÇÕES
+=============================== */
 
 .actions {
   display: flex;
@@ -146,22 +207,24 @@ td:nth-child(5) {
   gap: 6px;
   height: 36px;
   padding: 0 14px;
-  border-radius: 10px;
-  font-size: .85rem;
+  border-radius: 12px;
+  font-size: .82rem;
   line-height: 1;
   white-space: nowrap;
+  transition: background .2s, color .2s, transform .1s;
 }
 
 /* Editar */
 .actions a {
-  background: rgba(139,188,255,.16);
-  color: #8bbcff;
+  background: rgba(139,188,255,.14);
+  color: var(--blue);
   text-decoration: none;
 }
 
 .actions a:hover {
-  background: rgba(139,188,255,.32);
+  background: rgba(139,188,255,.3);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 /* Excluir */
@@ -170,18 +233,31 @@ td:nth-child(5) {
 }
 
 .actions button {
-  background: rgba(239,68,68,.16);
+  background: rgba(239,68,68,.14);
   border: none;
-  color: #ef4444;
+  color: var(--red);
   cursor: pointer;
 }
 
 .actions button:hover {
   background: rgba(239,68,68,.35);
   color: #fff;
+  transform: translateY(-1px);
 }
 
-/* ---------- Responsivo ---------- */
+/* ===============================
+   EMPTY
+=============================== */
+
+tr.empty td {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--muted);
+}
+
+/* ===============================
+   RESPONSIVO
+=============================== */
 
 @media (max-width: 900px) {
   .with-sidebar {
@@ -203,10 +279,10 @@ td:nth-child(5) {
 
   tbody tr {
     background: #12141a;
-    margin-bottom: 16px;
-    border-radius: 14px;
-    padding: 14px;
-    border: 1px solid #1f2229;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
   }
 
   tbody td {
@@ -214,16 +290,17 @@ td:nth-child(5) {
     padding: 6px 0;
     display: flex;
     justify-content: space-between;
+    gap: 16px;
   }
 
   tbody td::before {
     content: attr(data-label);
     font-weight: 600;
-    color: #9aa1ad;
+    color: var(--muted);
   }
 
   .actions {
     justify-content: flex-end;
-    margin-top: 12px;
+    margin-top: 14px;
   }
 }

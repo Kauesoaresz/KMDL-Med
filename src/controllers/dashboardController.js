@@ -30,7 +30,7 @@ exports.dashboard = async (req, res) => {
   const userId = req.session.userId;
   const userNome = req.session.userNome;
   const userFoto = req.session.userFoto; // ✅ ESSENCIAL
-  const periodo = req.query.periodo || "hoje";
+  const periodo = req.query.periodo || "total";
 
   const hoje = todayISO();
 
@@ -112,15 +112,24 @@ exports.dashboard = async (req, res) => {
   ========================= */
   let dias = 0;
 
-  if (diasPeriodo) {
-    const diasRaw = await StudyEntry.findAll({
-      where: wherePeriodo,
-      attributes: ["data"],
-      group: ["data"],
-      raw: true
-    });
-    dias = diasRaw.length;
-  }
+if (periodo === "total") {
+  const diasRaw = await StudyEntry.findAll({
+    where: { user_id: userId },
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
+  });
+  dias = diasRaw.length;
+} else {
+  const diasRaw = await StudyEntry.findAll({
+    where: wherePeriodo,
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
+  });
+  dias = diasRaw.length;
+}
+
 
   /* =========================
      EVOLUÇÃO (30 DIAS)

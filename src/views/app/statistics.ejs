@@ -28,50 +28,53 @@
       <!-- TEMPO DE ESTUDO -->
       <section class="stats-cards">
         <div class="stat-card orange">
-          <div class="stat-title">Essa Semana</div>
-          <div class="stat-value"><%= geral.horas %>h</div>
-          <div class="stat-sub">Últimos 7 dias</div>
-        </div>
+  <div class="stat-title">Essa Semana</div>
+  <div class="stat-value"><%= semana.horas %>h</div>
+  <div class="stat-sub">Últimos 7 dias</div>
+</div>
 
-        <div class="stat-card purple">
-          <div class="stat-title">Esse Mês</div>
-          <div class="stat-value"><%= geral.horas %>h</div>
-          <div class="stat-sub">Últimos 30 dias</div>
-        </div>
+<div class="stat-card purple">
+  <div class="stat-title">Esse Mês</div>
+  <div class="stat-value"><%= mes.horas %>h</div>
+  <div class="stat-sub">Últimos 30 dias</div>
+</div>
 
-        <div class="stat-card blue">
-          <div class="stat-title">Total Geral</div>
-          <div class="stat-value"><%= geral.horas %>h</div>
-          <div class="stat-sub">Desde o início</div>
-        </div>
+<div class="stat-card blue">
+  <div class="stat-title">Total Geral</div>
+  <div class="stat-value"><%= total.horas %>h</div>
+  <div class="stat-sub">Desde o início</div>
+</div>
+
       </section>
 
       <!-- QUESTÕES -->
-      <section class="stats-block">
-        <h2>Relatório de Questões & Desempenho</h2>
+      <!-- QUESTÕES -->
+<section class="stats-block">
+  <h2>Relatório de Questões & Desempenho</h2>
 
-        <div class="stats-mini-cards">
-          <div class="mini-card">
-            <span>Questões</span>
-            <strong><%= geral.questoes %></strong>
-          </div>
+  <div class="stats-mini-cards">
+    <div class="mini-card">
+      <span>Questões</span>
+      <strong><%= total.questoes %></strong>
+    </div>
 
-          <div class="mini-card success">
-            <span>Acertos</span>
-            <strong><%= geral.acertos %></strong>
-          </div>
+    <div class="mini-card success">
+      <span>Acertos</span>
+      <strong><%= total.acertos %></strong>
+    </div>
 
-          <div class="mini-card danger">
-            <span>Erros</span>
-            <strong><%= geral.erros %></strong>
-          </div>
+    <div class="mini-card danger">
+      <span>Erros</span>
+      <strong><%= total.erros %></strong>
+    </div>
 
-          <div class="mini-card warning">
-            <span>Aproveitamento</span>
-            <strong><%= geral.aproveitamento %>%</strong>
-          </div>
-        </div>
-      </section>
+    <div class="mini-card warning">
+      <span>Aproveitamento</span>
+      <strong><%= total.aproveitamento %>%</strong>
+    </div>
+  </div>
+</section>
+
 
       <!-- FILTRO -->
       <div class="period-filter">

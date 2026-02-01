@@ -1,6 +1,6 @@
 /* ===============================
-   KMed | Registrar Dia (Cards Fullscreen)
-   =============================== */
+   KMed | Registrar Hub (Vertical Images)
+=============================== */
 
 * {
   box-sizing: border-box;
@@ -12,70 +12,62 @@ html, body {
 
 .page-bg {
   background: radial-gradient(circle at top, #14161a, #08090c 75%);
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   color: #e5e7eb;
-  overflow: hidden; /* 🔑 SEM SCROLL */
+  overflow: hidden;
 }
 
 /* ===============================
-   LAYOUT COM SIDEBAR
-   =============================== */
+   LAYOUT BASE
+=============================== */
 
 .with-sidebar {
   margin-left: 78px;
   height: 100vh;
   padding: 32px;
-
-  display: flex;
-  flex-direction: column;
 }
 
-/* ===============================
-   TÍTULO
-   =============================== */
-
-.page h1 {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: #ffffff;
-  margin-bottom: 32px;
-}
-
-/* ===============================
-   GRID PRINCIPAL
-   =============================== */
-
-.actions-grid {
-  flex: 1; /* ocupa o resto da tela */
-
+.page.register-layout {
+  height: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
   align-items: stretch;
 }
 
 /* ===============================
-   CARD (BOTÕES GRANDES)
-   =============================== */
+   COLUNA ESQUERDA (AÇÕES)
+=============================== */
 
-.card {
-  position: relative;
-  border-radius: 28px;
-  padding: 56px;
-
-  background: linear-gradient(145deg, #14161c, #0e0f14);
-  border: 1px solid #23262f;
-
+.register-actions {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 16px;
+}
+
+.register-actions h1 {
+  font-size: 2.3rem;
+  font-weight: 900;
+  margin-bottom: 36px;
+}
+
+.action-link {
+  text-decoration: none;
+}
+
+.card {
+  position: relative;
+  border-radius: 26px;
+  padding: 48px;
+  margin-bottom: 28px;
+
+  background: linear-gradient(145deg, #14161c, #0e0f14);
+  border: 1px solid #23262f;
 
   transition: all 0.25s ease;
   overflow: hidden;
 }
 
-/* brilho suave */
 .card::before {
   content: "";
   position: absolute;
@@ -95,29 +87,21 @@ html, body {
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 30px 70px rgba(0,0,0,.8);
 }
 
-/* ===============================
-   TEXTO
-   =============================== */
-
 .card h2 {
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 900;
-  color: #ffffff;
+  color: #fff;
 }
 
 .card p {
+  margin-top: 10px;
   font-size: 1.05rem;
   color: #cbd5f5;
-  max-width: 420px;
   line-height: 1.6;
 }
-
-/* ===============================
-   VARIAÇÕES VISUAIS
-   =============================== */
 
 .card.new {
   border-color: #2563eb;
@@ -126,8 +110,8 @@ html, body {
 .card.new::after {
   content: "✍️";
   position: absolute;
-  top: 32px;
-  right: 36px;
+  top: 28px;
+  right: 32px;
   font-size: 2.2rem;
 }
 
@@ -138,14 +122,62 @@ html, body {
 .card.list::after {
   content: "📅";
   position: absolute;
-  top: 32px;
-  right: 36px;
+  top: 28px;
+  right: 32px;
   font-size: 2.2rem;
 }
 
 /* ===============================
+   COLUNA DIREITA (IMAGENS)
+=============================== */
+
+.register-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-frame {
+  width: 100%;
+  height: 100%;
+  max-height: 720px;
+
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.8),
+    inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.15),
+    rgba(0,0,0,.55)
+  );
+  pointer-events: none;
+}
+
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity .4s ease;
+}
+
+.image-frame img.fade-out {
+  opacity: 0;
+}
+
+/* ===============================
    RESPONSIVO
-   =============================== */
+=============================== */
 
 @media (max-width: 900px) {
   .with-sidebar {
@@ -154,12 +186,15 @@ html, body {
     overflow: auto;
   }
 
-  .actions-grid {
+  .page.register-layout {
     grid-template-columns: 1fr;
-    gap: 24px;
   }
 
-  .card {
-    padding: 36px;
+  .register-visual {
+    display: none;
+  }
+
+  .register-actions {
+    justify-content: flex-start;
   }
 }

@@ -38,33 +38,44 @@ function getDateLimit(period) {
 // =========================
 exports.geral = async (req, res) => {
   const userId = req.session.userId;
-  const period = req.query.period || "all";
-  const dateLimit = getDateLimit(period);
 
-  const where = { user_id: userId };
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
+  async function calcByPeriod(dateLimit) {
+    const where = { user_id: userId };
+
+    if (dateLimit) {
+      where.data = { [Op.gte]: dateLimit };
+    }
+
+    const [row] = await StudyEntry.findAll({
+      where,
+      attributes: [
+        [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
+        [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
+        [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
+      ],
+      raw: true
+    });
+
+    return calcStats(row || {});
   }
 
-  const [row] = await StudyEntry.findAll({
-    where,
-    attributes: [
-      [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
-    ],
-    raw: true
-  });
+  const semana = await calcByPeriod(getDateLimit("7"));
+  const mes = await calcByPeriod(getDateLimit("30"));
+  const total = await calcByPeriod(null);
 
   res.render("app/statistics", {
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
-    geral: calcStats(row),
-    materias: [],
+
+    semana,
+    mes,
+    total,
+
     nivel: "geral"
   });
 };
+
 
 // =========================
 // HUB
@@ -191,10 +202,11 @@ exports.porAssunto = async (req, res) => {
   });
 
   const assuntos = rows.map(r => ({
-    id: r.subtopic.id,
-    nome: r.subtopic.nome,
-    ...calcStats(r)
-  }));
+  id: r.subtopic?.id || null,
+  nome: r.subtopic?.nome || "Geral",
+  ...calcStats(r)
+}));
+
 
   res.json(assuntos);
 };

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Editar Dia</title>
+  <title>KMDL Med | Editar Dia</title>
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/app/register-day.css" />
+  <link rel="stylesheet" href="/public/css/app/register-edit.css" />
 </head>
 
 <body class="page-bg">
@@ -15,13 +15,18 @@
 
 <main class="with-sidebar">
   <div class="page">
-    <h1>Editar dia <%= data %></h1>
+    <h1>Editar dia</h1>
     <a href="/registrar" class="btn-back">← Voltar</a>
 
     <form method="POST" action="/registrar/editar/<%= data %>" id="form-dia">
+
+      <label>Data</label>
+      <input type="date" name="data" value="<%= data %>" required>
+
       <div id="blocos"></div>
 
-      <button type="button" onclick="addBloco()">+ Adicionar bloco</button>
+      <button type="button" class="btn-add" onclick="addBloco()">+ Adicionar bloco</button>
+
       <br><br>
       <button type="submit" class="btn-primary">Salvar alterações</button>
     </form>
@@ -40,108 +45,104 @@ function addBloco(entry = null) {
   bloco.className = "bloco";
 
   bloco.innerHTML = `
-    <button type="button" class="btn-remove" onclick="this.closest('.bloco').remove()">🗑 Remover</button>
+    <button type="button" class="btn-remove" onclick="this.closest('.bloco').remove()">🗑</button>
 
-    <input list="subjects-${idx}" placeholder="Disciplina" class="subject-input" required value="${entry?.subject_nome || ""}">
-    <datalist id="subjects-${idx}">
-      ${subjects.map(s => `<option data-id="${s.id}" value="${s.nome}"></option>`).join("")}
-    </datalist>
-    <input type="hidden" name="blocos[${idx}][subject_id]">
-
-    <input list="topics-${idx}" placeholder="Tópico" class="topic-input" required disabled value="${entry?.topic_nome || ""}">
-    <datalist id="topics-${idx}"></datalist>
-    <input type="hidden" name="blocos[${idx}][topic_id]">
-
-    <input list="subtopics-${idx}" placeholder="Assunto (opcional)" class="subtopic-input" disabled value="${entry?.subtopic_nome || ""}">
-    <datalist id="subtopics-${idx}"></datalist>
-    <input type="hidden" name="blocos[${idx}][subtopic_id]">
-
-    <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required value="${entry?.horas || ""}">
-    <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ""}">
-    <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ""}">
-
-    <select name="blocos[${idx}][dificuldade]">
-      <option value="FACIL" ${entry?.dificuldade === "FACIL" ? "selected" : ""}>Fácil</option>
-      <option value="MEDIA" ${!entry || entry?.dificuldade === "MEDIA" ? "selected" : ""}>Média</option>
-      <option value="DIFICIL" ${entry?.dificuldade === "DIFICIL" ? "selected" : ""}>Difícil</option>
+    <select name="blocos[${idx}][subject_id]" class="subject-select" required>
+      <option value="">Selecione a disciplina</option>
+      ${subjects.map(s => `
+        <option value="${s.id}" ${entry && entry.subject_id === s.id ? "selected" : ""}>
+          ${s.nome}
+        </option>
+      `).join("")}
     </select>
+
+    <select name="blocos[${idx}][topic_id]" class="topic-select" disabled required>
+      <option value="">Selecione o tópico</option>
+    </select>
+
+    <select name="blocos[${idx}][subtopic_id]" class="subtopic-select" disabled>
+      <option value="">🧷 Geral</option>
+    </select>
+
+    <div class="linha-numeros">
+      <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required value="${entry?.horas || ""}">
+      <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ""}">
+      <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ""}">
+
+      <select name="blocos[${idx}][dificuldade]">
+        <option value="FACIL" ${entry?.dificuldade === "FACIL" ? "selected" : ""}>Fácil</option>
+        <option value="MEDIA" ${!entry || entry?.dificuldade === "MEDIA" ? "selected" : ""}>Média</option>
+        <option value="DIFICIL" ${entry?.dificuldade === "DIFICIL" ? "selected" : ""}>Difícil</option>
+      </select>
+    </div>
   `;
+
+  const subjectSelect = bloco.querySelector(".subject-select");
+  const topicSelect = bloco.querySelector(".topic-select");
+  const subSelect = bloco.querySelector(".subtopic-select");
+
+  // DISCIPLINA → TÓPICOS
+  subjectSelect.addEventListener("change", async () => {
+    const subjectId = subjectSelect.value;
+
+    topicSelect.innerHTML = `<option>Carregando...</option>`;
+    topicSelect.disabled = true;
+    subSelect.innerHTML = `<option value="">🧷 Geral</option>`;
+    subSelect.disabled = true;
+
+    if (!subjectId) return;
+
+    const res = await fetch(`/api/subjects/${subjectId}/topics`);
+    const topics = await res.json();
+
+    topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
+    topics.forEach(t => {
+      topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+    });
+
+    topicSelect.disabled = false;
+
+    if (entry?.topic_id) {
+      topicSelect.value = entry.topic_id;
+      topicSelect.dispatchEvent(new Event("change"));
+    }
+  });
+
+  // TÓPICO → ASSUNTOS
+  topicSelect.addEventListener("change", async () => {
+    const topicId = topicSelect.value;
+
+    subSelect.innerHTML = `<option>Carregando...</option>`;
+    subSelect.disabled = true;
+
+    if (!topicId) return;
+
+    const res = await fetch(`/api/topics/${topicId}/subtopics`);
+    const subs = await res.json();
+
+    subSelect.innerHTML = `<option value="">🧷 Geral</option>`;
+
+    if (subs.length) {
+      subs.forEach(s => {
+        subSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
+      });
+      subSelect.disabled = false;
+
+      if (entry?.subtopic_id) {
+        subSelect.value = entry.subtopic_id;
+      }
+    } else {
+      subSelect.disabled = true;
+    }
+  });
 
   document.getElementById("blocos").appendChild(bloco);
 
-  // reaproveita exatamente a MESMA lógica da tela normal
-  initBloco(bloco, idx, entry);
-}
-
-/* === LÓGICA COMPARTILHADA === */
-function initBloco(bloco, idx, entry) {
-  const subjectInput = bloco.querySelector(".subject-input");
-  const topicInput = bloco.querySelector(".topic-input");
-  const subInput = bloco.querySelector(".subtopic-input");
-
-  const subjectHidden = bloco.querySelector(`[name="blocos[${idx}][subject_id]"]`);
-  const topicHidden = bloco.querySelector(`[name="blocos[${idx}][topic_id]"]`);
-  const subHidden = bloco.querySelector(`[name="blocos[${idx}][subtopic_id]"]`);
-
-  const topicsList = bloco.querySelector(`#topics-${idx}`);
-  const subtopicsList = bloco.querySelector(`#subtopics-${idx}`);
-
-  subjectInput.addEventListener("change", async () => {
-    const opt = [...document.querySelectorAll(`#subjects-${idx} option`)]
-      .find(o => o.value === subjectInput.value);
-    if (!opt) return;
-
-    subjectHidden.value = opt.dataset.id;
-
-    topicInput.disabled = false;
-    topicInput.focus();
-    topicsList.innerHTML = "";
-    subInput.disabled = true;
-
-    const res = await fetch(`/api/subjects/${opt.dataset.id}/topics`);
-    const topics = await res.json();
-
-    topics.forEach(t => {
-      topicsList.innerHTML += `<option data-id="${t.id}" value="${t.nome}"></option>`;
-    });
-  });
-
-  topicInput.addEventListener("change", async () => {
-    const opt = [...topicsList.querySelectorAll("option")]
-      .find(o => o.value === topicInput.value);
-    if (!opt) return;
-
-    topicHidden.value = opt.dataset.id;
-
-    subInput.disabled = false;
-    subInput.focus();
-    subtopicsList.innerHTML = "";
-
-    const res = await fetch(`/api/topics/${opt.dataset.id}/subtopics`);
-    const subs = await res.json();
-
-    subs.forEach(s => {
-      subtopicsList.innerHTML += `<option data-id="${s.id}" value="${s.nome}"></option>`;
-    });
-  });
-
-  subInput.addEventListener("change", () => {
-    const opt = [...subtopicsList.querySelectorAll("option")]
-      .find(o => o.value === subInput.value);
-    if (opt) subHidden.value = opt.dataset.id;
-  });
-
-  // se estiver editando, carrega cadeia automaticamente
-  if (entry) {
-    subjectHidden.value = entry.subject_id;
-    topicHidden.value = entry.topic_id;
-    subHidden.value = entry.subtopic_id || "";
-    topicInput.disabled = false;
-    subInput.disabled = !entry.subtopic_id;
+  if (entry?.subject_id) {
+    subjectSelect.dispatchEvent(new Event("change"));
   }
 }
 
-/* carrega entradas existentes */
 entries.forEach(e => addBloco(e));
 </script>
 

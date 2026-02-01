@@ -4,7 +4,7 @@
 :root {
   --bg: #0b0b0d;
   --card: #121214;
-  --card-2: #0f0f12;
+  --card-soft: #0f0f12;
   --border: #1f1f23;
   --input: #0f0f12;
   --text: #eaeaf0;
@@ -17,32 +17,23 @@
    FUNDO GLOBAL
 ========================= */
 body.page-bg {
-  background: radial-gradient(circle at top, #0f0f14, #08080b 70%);
+  background: radial-gradient(circle at top, #0f0f16, #08080b 70%);
   min-height: 100vh;
-  color: var(--text);
 }
 
 /* =========================
-   LAYOUT
+   CONTAINER
 ========================= */
-.with-sidebar {
-  background: transparent;
-}
-
 .page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
+  color: var(--text);
 }
 
-/* =========================
-   TÍTULO
-========================= */
 h1 {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text);
+  margin-bottom: 8px;
+  color: #f4f4f5;
 }
 
 .btn-back {
@@ -53,6 +44,10 @@ h1 {
   font-size: 14px;
 }
 
+.btn-back:hover {
+  color: #d4d4d8;
+}
+
 /* =========================
    FORM
 ========================= */
@@ -60,36 +55,56 @@ form {
   background: linear-gradient(180deg, #121214, #0d0d10);
   border: 1px solid var(--border);
   border-radius: 18px;
-  padding: 24px;
+  padding: 28px;
   box-shadow:
     0 20px 40px rgba(0,0,0,0.6),
     inset 0 1px 0 rgba(255,255,255,0.02);
 }
 
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+input[type="date"] {
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
 /* =========================
-   BLOCOS
+   LISTA DE BLOCOS
 ========================= */
 #blocos {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
+/* =========================
+   BLOCO
+========================= */
 .bloco {
-  background: var(--card-2);
+  background: var(--card-soft);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 18px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
+  gap: 12px;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.bloco hr {
-  grid-column: span 6;
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0 0 8px 0;
+.bloco:hover {
+  border-color: #2a2a31;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 }
 
 /* =========================
@@ -100,7 +115,7 @@ form {
   background: var(--input);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 12px;
   font-size: 14px;
 }
@@ -113,65 +128,86 @@ form {
 .bloco select:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.35);
 }
 
-/* larguras */
-.bloco select[data-name="subject_id"],
-.bloco select[data-name="topic_id"],
-.bloco select[data-name="subtopic_id"] {
+/* =========================
+   TAMANHOS E POSIÇÃO
+========================= */
+.subject-select {
   grid-column: span 2;
 }
 
-.bloco input[data-name="horas"],
-.bloco input[data-name="questoes"],
-.bloco input[data-name="acertos"],
-.bloco select[data-name="dificuldade"] {
-  grid-column: span 1;
+.topic-select {
+  grid-column: span 2;
+}
+
+.subtopic-select {
+  grid-column: span 2;
+}
+
+/* Linha inferior (numéricos) */
+.linha-numeros {
+  grid-column: span 6;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
 /* =========================
-   BOTÃO REMOVER BLOCO
+   BOTÃO REMOVER
 ========================= */
-.bloco > button {
-  grid-column: span 6;
-  justify-self: flex-end;
+.btn-remove {
+  position: absolute;
+  top: 10px;
+  right: 12px;
   background: none;
   border: none;
   color: var(--danger);
-  cursor: pointer;
   font-size: 13px;
+  cursor: pointer;
+  opacity: 0.8;
 }
 
-.bloco > button:hover {
-  text-decoration: underline;
+.btn-remove:hover {
+  opacity: 1;
 }
 
 /* =========================
-   BOTÕES DO FORM
+   BOTÃO ADICIONAR
 ========================= */
-button[type="button"] {
-  margin-top: 12px;
-  background: #1f1f23;
+.btn-add {
+  background: #1a1a20;
   color: var(--text);
-  border: 1px solid var(--border);
-  padding: 8px 14px;
-  border-radius: 10px;
+  border: 1px dashed var(--border);
+  padding: 10px 16px;
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 14px;
 }
 
-button[type="submit"] {
-  margin-top: 24px;
+.btn-add:hover {
+  border-color: var(--accent);
+  color: white;
+}
+
+/* =========================
+   BOTÃO SALVAR
+========================= */
+.btn-primary {
+  margin-top: 28px;
   background: var(--accent);
-  color: #fff;
+  color: white;
   border: none;
-  padding: 12px 20px;
-  border-radius: 12px;
+  padding: 14px 24px;
+  border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
+  font-size: 15px;
 }
 
-button[type="submit"]:hover {
-  filter: brightness(1.1);
+.btn-primary:hover {
+  filter: brightness(1.05);
 }
 
 /* =========================
@@ -182,8 +218,19 @@ button[type="submit"]:hover {
     grid-template-columns: 1fr;
   }
 
-  .bloco input,
-  .bloco select {
-    grid-column: span 1 !important;
+  .linha-numeros {
+    grid-template-columns: 1fr;
   }
+
+  .btn-remove {
+    top: 8px;
+    right: 8px;
+  }
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.with-sidebar {
+  background: transparent;
 }
