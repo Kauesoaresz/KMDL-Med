@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMDL Med | Questões Erradas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/simulados-erros.css" />
+</head>
+<body class="page-bg">
+
+  <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
+
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- HEADER -->
+      <div class="header">
+        <h1>❌ Questões Erradas</h1>
+        <p class="subtitle">
+          Use essa tela para revisar erros pendentes e fechar lacunas reais.
+        </p>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filtros">
+        <form method="GET" action="/simulados/erros">
+
+          <select name="area">
+            <option value="">Todas as áreas</option>
+            <option value="linguagens">Linguagens</option>
+            <option value="humanas">Humanas</option>
+            <option value="naturezas">Naturezas</option>
+            <option value="matematica">Matemática</option>
+          </select>
+
+          <select name="motivo">
+            <option value="">Todos os motivos</option>
+            <option value="falta_conteudo">Falta de conteúdo</option>
+            <option value="lacuna">Lacuna</option>
+            <option value="falta_atencao">Falta de atenção</option>
+          </select>
+
+          <select name="status">
+            <option value="">Todas</option>
+            <option value="pendentes">Pendentes</option>
+            <option value="revisadas">Revisadas</option>
+          </select>
+
+          <button type="submit" class="btn small">Filtrar</button>
+        </form>
+      </div>
+
+      <!-- LISTA -->
+      <div class="erros-lista">
+
+        <% if (erros.length === 0) { %>
+          <p class="empty">
+            Nenhuma questão encontrada com os filtros selecionados.
+          </p>
+        <% } %>
+
+        <% erros.forEach(erro => { %>
+          <div class="erro-card <%= erro.revisada ? "revisada" : "" %>">
+
+            <div class="erro-info">
+              <strong>
+                <%= erro.area.toUpperCase() %> — Questão <%= erro.numero_questao %>
+              </strong>
+
+              <span class="motivo">
+                <%= erro.motivo.replace("_", " ") %>
+              </span>
+
+              <span class="simulado">
+                Simulado: <%= erro.bloco.simulado.nome %>
+              </span>
+            </div>
+
+            <div class="erro-actions">
+              <% if (!erro.revisada) { %>
+                <form
+                  action="/simulados/erro/<%= erro.id %>/revisar"
+                  method="POST"
+                >
+                  <button class="btn small primary">
+                    Marcar como revisada
+                  </button>
+                </form>
+              <% } else { %>
+                <span class="ok">✔ Revisada</span>
+              <% } %>
+            </div>
+
+          </div>
+        <% }) %>
+
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

@@ -4,9 +4,12 @@ const Topic = require("./Topic");
 const Subtopic = require("./Subtopic");
 const StudyEntry = require("./StudyEntry");
 
+/* ==========================
+   SIMULADOS
+========================== */
 const Simulado = require("./Simulado");
-const SimuladoParte = require("./SimuladoParte");
-const SimuladoErro = require("./SimuladoErro");
+const SimuladoBloco = require("./SimuladoBloco");
+const SimuladoQuestaoErro = require("./SimuladoQuestaoErro");
 
 // ==========================
 // USUÁRIO
@@ -37,28 +40,33 @@ StudyEntry.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 StudyEntry.belongsTo(Subtopic, { foreignKey: "subtopic_id", as: "subtopic" });
 
 // ==========================
-// SIMULADOS (PARTE IMPORTANTE)
+// SIMULADOS
 // ==========================
-Simulado.hasMany(SimuladoParte, {
+
+// Simulado pertence a um usuário
+User.hasMany(Simulado, { foreignKey: "user_id", as: "simulados" });
+Simulado.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+// Simulado → Blocos
+Simulado.hasMany(SimuladoBloco, {
   foreignKey: "simulado_id",
-  as: "partes",
-  onDelete: "CASCADE"
+  as: "blocos",
+  onDelete: "CASCADE",
+});
+SimuladoBloco.belongsTo(Simulado, {
+  foreignKey: "simulado_id",
+  as: "simulado",
 });
 
-SimuladoParte.belongsTo(Simulado, {
-  foreignKey: "simulado_id",
-  as: "simulado"
-});
-
-SimuladoParte.hasMany(SimuladoErro, {
-  foreignKey: "simulado_parte_id",
+// Bloco → Questões erradas
+SimuladoBloco.hasMany(SimuladoQuestaoErro, {
+  foreignKey: "simulado_bloco_id",
   as: "erros",
-  onDelete: "CASCADE"
+  onDelete: "CASCADE",
 });
-
-SimuladoErro.belongsTo(SimuladoParte, {
-  foreignKey: "simulado_parte_id",
-  as: "parte"
+SimuladoQuestaoErro.belongsTo(SimuladoBloco, {
+  foreignKey: "simulado_bloco_id",
+  as: "bloco",
 });
 
 module.exports = {
@@ -68,6 +76,6 @@ module.exports = {
   Subtopic,
   StudyEntry,
   Simulado,
-  SimuladoParte,
-  SimuladoErro
+  SimuladoBloco,
+  SimuladoQuestaoErro,
 };

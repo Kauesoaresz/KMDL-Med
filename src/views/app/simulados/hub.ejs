@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMDL Med | Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/simulados-hub.css" />
+</head>
+<body class="page-bg">
+
+  <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
+
+
+  <main class="main-content">
+    <div class="container">
+
+      <div class="header">
+        <h1>📘 Simulados</h1>
+        <p class="subtitle">
+          Gerencie seus simulados, revise erros e acompanhe sua evolução.
+        </p>
+      </div>
+
+      <div class="hub-grid">
+
+        <!-- LISTA DE SIMULADOS -->
+        <a href="/simulados/lista" class="hub-card">
+          <div class="icon">📝</div>
+          <h3>Meus Simulados</h3>
+          <p>
+            Crie simulados, continue simulados em andamento e veja resultados.
+          </p>
+        </a>
+
+        <!-- QUESTÕES ERRADAS -->
+        <a href="/simulados/erros" class="hub-card">
+          <div class="icon">❌</div>
+          <h3>Questões Erradas</h3>
+          <p>
+            Veja todos os erros, filtre por área e marque revisões.
+          </p>
+        </a>
+
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

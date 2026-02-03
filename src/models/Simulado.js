@@ -1,40 +1,44 @@
-const { DataTypes } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-const Simulado = sequelize.define(
-  "Simulado",
+class Simulado extends Model {}
+
+Simulado.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
 
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
 
     nome: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-
-    tipo: {
-      type: DataTypes.ENUM("ENEM", "PROPRIO", "OUTRO"),
       allowNull: false,
-      defaultValue: "ENEM"
     },
 
     status: {
-      type: DataTypes.ENUM("EM_ANDAMENTO", "FINALIZADO"),
+      type: DataTypes.ENUM("em_andamento", "finalizado"),
       allowNull: false,
-      defaultValue: "EM_ANDAMENTO"
-    }
+      defaultValue: "em_andamento",
+    },
+
+    finished_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
+    sequelize,
+    modelName: "Simulado",
     tableName: "simulados",
-    underscored: true
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 

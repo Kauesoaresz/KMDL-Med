@@ -15,7 +15,5 @@ router.get("/estatisticas/materias", auth, stats.porMateria);
 router.get("/estatisticas/materias/:subjectId/topicos", auth, stats.porTopico);
 router.get("/estatisticas/topicos/:topicId/assuntos", auth, stats.porAssunto);
 
-// SIMULADOS
-router.get("/estatisticas/simulados", auth, stats.simulados);
 
 module.exports = router;

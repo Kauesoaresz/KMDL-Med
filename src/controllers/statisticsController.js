@@ -2,9 +2,6 @@ const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
 const { Op } = require("sequelize");
 
-const Simulado = require("../models/Simulado");
-const SimuladoParte = require("../models/SimuladoParte");
-const SimuladoErro = require("../models/SimuladoErro");
 
 // =========================
 // UTILS

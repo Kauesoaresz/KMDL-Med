@@ -1,0 +1,348 @@
+/* =====================================
+   SIMULADOS — DETALHES
+   Dark premium + verde & azul
+===================================== */
+
+:root {
+  --green-accent: #3ddc97;
+  --blue-accent: #4da3ff;
+
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --text-muted: #bdbdbd;
+}
+
+/* ===============================
+   FUNDO
+================================ */
+.page-bg {
+  background: radial-gradient(
+    circle at top,
+    #141a18 0%,
+    #0f1312 45%,
+    #0b0e0d 100%
+  );
+  min-height: 100vh;
+  color: #eaeaea;
+}
+
+/* ===============================
+   MAIN
+================================ */
+.main-content {
+  margin-left: 90px;
+  padding: 48px 40px;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding: 32px 20px;
+  }
+}
+
+/* ===============================
+   CONTAINER
+================================ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status.em_andamento {
+  background: rgba(77, 163, 255, 0.15);
+  color: var(--blue-accent);
+}
+
+.status.finalizado {
+  background: rgba(61, 220, 151, 0.15);
+  color: var(--green-accent);
+}
+
+/* ===============================
+   BOTÕES
+================================ */
+.btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid var(--border-soft);
+  background: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  text-decoration: none;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.btn.small {
+  padding: 7px 14px;
+  font-size: 0.8rem;
+}
+
+.btn.primary {
+  background: linear-gradient(
+    135deg,
+    var(--blue-accent),
+    var(--green-accent)
+  );
+  color: #0b0e0d;
+  border: none;
+  font-weight: 600;
+}
+
+.btn.danger {
+  background: rgba(220, 70, 70, 0.15);
+  color: #ff9b9b;
+  border: 1px solid rgba(220, 70, 70, 0.35);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn.primary:hover {
+  box-shadow: 0 8px 22px rgba(61, 220, 151, 0.35);
+}
+
+/* ===============================
+   RESUMO
+================================ */
+.resumo {
+  margin-bottom: 36px;
+}
+
+.resumo h2 {
+  font-size: 1.5rem;
+  margin-bottom: 18px;
+}
+
+.resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.resumo-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+}
+
+.resumo-card h4 {
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.resumo-card p {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.resumo-card span {
+  font-size: 0.9rem;
+  color: var(--green-accent);
+}
+
+/* ===============================
+   BLOCOS
+================================ */
+.blocos h2 {
+  font-size: 1.6rem;
+  margin-bottom: 18px;
+}
+
+.bloco-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+/* header do bloco */
+.bloco-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+}
+
+/* ações bloco */
+.bloco-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   ERROS
+================================ */
+.erros {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-soft);
+}
+
+.erros h4 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+/* erro item */
+.erro {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.erro.revisada {
+  border-left: 4px solid var(--green-accent);
+  opacity: 0.85;
+}
+
+.erro:not(.revisada) {
+  border-left: 4px solid var(--blue-accent);
+}
+
+.erro-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   ADD BLOCO
+================================ */
+.add-bloco {
+  margin-bottom: 28px;
+}
+
+/* ===============================
+   FORM ADD BLOCO
+================================ */
+.form-bloco {
+  margin-top: 40px;
+}
+
+.form-bloco h2 {
+  font-size: 1.5rem;
+  margin-bottom: 18px;
+}
+
+.form-bloco form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.form-bloco .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+input,
+select {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-soft);
+  color: #ffffff;
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.18);
+}
+
+/* ===============================
+   ERROS DINÂMICOS
+================================ */
+.erros-dinamicos h4 {
+  margin-bottom: 10px;
+}
+
+.erro-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* ===============================
+   EMPTY
+================================ */
+.empty {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* ===============================
+   RESPONSIVO
+================================ */
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 1.9rem;
+  }
+
+  .resumo-card p {
+    font-size: 1.2rem;
+  }
+
+  .bloco-card {
+    padding: 18px;
+  }
+}

@@ -11,9 +11,9 @@ const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
-const calendarioRoutes = require("./routes/calendarioRoutes"); // 👈 NOVO
-const simuladosRoutes = require("./routes/simuladosRoutes");
+const calendarioRoutes = require("./routes/calendarioRoutes");
 const apiRoutes = require("./routes/apiRoutes");
+const simuladoRoutes = require("./routes/simuladoRoutes"); // 👈 SIMULADOS
 
 const app = express();
 
@@ -35,7 +35,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "kmed_secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true }
+    cookie: { httpOnly: true },
   })
 );
 
@@ -51,11 +51,9 @@ app.use(authRoutes);
 app.use(appRoutes);
 app.use(contentRoutes);
 app.use(statisticsRoutes);
-app.use(calendarioRoutes); // 👈 CALENDÁRIO AQUI
-app.use("/simulados", simuladosRoutes);
+app.use(calendarioRoutes);
+app.use(simuladoRoutes); // 👈 SIMULADOS AQUI
 app.use(apiRoutes);
-
-
 
 // =========================
 // SERVER
@@ -66,8 +64,9 @@ const PORT = process.env.PORT || 3000;
   try {
     await sequelize.authenticate();
     console.log("✅ Conectado no MySQL com Sequelize");
+
     app.listen(PORT, () =>
-      console.log(`🚀 KMed rodando em http://localhost:${PORT}`)
+      console.log(`🚀 KMDL Med rodando em http://localhost:${PORT}`)
     );
   } catch (err) {
     console.error("❌ Erro ao conectar no banco:", err.message);

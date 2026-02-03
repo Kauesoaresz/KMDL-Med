@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMDL Med | Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/simulados-lista.css" />
+</head>
+<body class="page-bg">
+
+  <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
+
+
+  <main class="main-content">
+    <div class="container">
+
+      <!-- HEADER -->
+      <div class="header">
+        <h1>📘 Simulados</h1>
+
+        <form action="/simulados" method="POST" class="novo-simulado-form">
+          <input
+            type="text"
+            name="nome"
+            placeholder="Nome do simulado (ex: ENEM 2023)"
+            required
+          />
+          <button type="submit">Criar simulado</button>
+        </form>
+      </div>
+
+      <!-- MENSAGENS -->
+      <% if (error) { %>
+        <div class="alert error"><%= error %></div>
+      <% } %>
+
+      <% if (ok) { %>
+        <div class="alert success"><%= ok %></div>
+      <% } %>
+
+      <!-- LISTA -->
+      <div class="simulados-lista">
+
+        <% if (simulados.length === 0) { %>
+          <p class="empty">
+            Nenhum simulado criado ainda. Crie seu primeiro simulado 👆
+          </p>
+        <% } %>
+
+        <% simulados.forEach(simulado => { %>
+          <div class="simulado-card <%= simulado.status %>">
+
+            <div class="info">
+              <h3><%= simulado.nome %></h3>
+
+              <span class="status <%= simulado.status %>">
+                <%= simulado.status === "finalizado" ? "Finalizado" : "Em andamento" %>
+              </span>
+            </div>
+
+            <div class="meta">
+              <span>Criado em: <%= new Date(simulado.created_at).toLocaleDateString("pt-BR") %></span>
+
+              <% if (simulado.finished_at) { %>
+                <span>Finalizado em: <%= new Date(simulado.finished_at).toLocaleDateString("pt-BR") %></span>
+              <% } %>
+            </div>
+
+            <div class="actions">
+              <a href="/simulados/<%= simulado.id %>" class="btn">
+                Abrir simulado
+              </a>
+            </div>
+
+          </div>
+        <% }) %>
+
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
