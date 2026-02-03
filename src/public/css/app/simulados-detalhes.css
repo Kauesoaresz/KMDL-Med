@@ -346,3 +346,30 @@ select:focus {
     padding: 18px;
   }
 }
+
+.erros-container {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.erro-row {
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+}
+
+.erro-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.lacuna-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+

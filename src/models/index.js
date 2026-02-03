@@ -69,6 +69,25 @@ SimuladoQuestaoErro.belongsTo(SimuladoBloco, {
   as: "bloco",
 });
 
+// ==========================
+// LIGAÇÃO ERROS → CONTEÚDOS
+// ==========================
+SimuladoQuestaoErro.belongsTo(Subject, {
+  foreignKey: "subject_id",
+  as: "subject",
+});
+
+SimuladoQuestaoErro.belongsTo(Topic, {
+  foreignKey: "topic_id",
+  as: "topic",
+});
+
+SimuladoQuestaoErro.belongsTo(Subtopic, {
+  foreignKey: "subtopic_id",
+  as: "subtopic",
+});
+
+
 module.exports = {
   User,
   Subject,

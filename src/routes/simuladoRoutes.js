@@ -48,4 +48,19 @@ router.get("/simulados/erro/:erroId/editar", auth, simuladoController.editarErro
 router.post("/simulados/erro/:erroId/editar", auth, simuladoController.editarErroSalvar);
 router.post("/simulados/erro/:erroId/excluir", auth, simuladoController.excluirErro);
 
+// =========================
+// EXCLUIR SIMULADO
+// =========================
+router.post("/simulados/:id/excluir", auth, simuladoController.excluirSimulado);
+
+// =========================
+// ADICIONAR ERRO DIRETO NO BLOCO
+// =========================
+router.post(
+  "/simulados/bloco/:blocoId/erro",
+  auth,
+  simuladoController.adicionarErroNoBloco
+);
+
+
 module.exports = router;

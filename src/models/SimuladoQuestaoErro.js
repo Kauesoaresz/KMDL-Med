@@ -40,6 +40,22 @@ SimuladoQuestaoErro.init(
       allowNull: false,
     },
 
+    // 🔥 NOVOS CAMPOS (LACUNA)
+    subject_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    topic_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    subtopic_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
     revisada: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
