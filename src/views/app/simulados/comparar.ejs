@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>KMDL Med | Comparar Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/simulados-comparar.css">
+
+</head>
+
+<body class="page-bg">
+
+<%- include("../../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+<section class="page">
+
+<h1>⚖️ Comparar Simulados</h1>
+
+<form method="POST">
+  <select name="simuladoA" required>
+    <option value="">Simulado A</option>
+    <% simulados.forEach(s => { %>
+      <option value="<%= s.id %>"><%= s.nome %></option>
+    <% }) %>
+  </select>
+
+  <select name="simuladoB" required>
+    <option value="">Simulado B</option>
+    <% simulados.forEach(s => { %>
+      <option value="<%= s.id %>"><%= s.nome %></option>
+    <% }) %>
+  </select>
+
+  <button type="submit">Comparar</button>
+</form>
+
+<% if (resultado) { %>
+
+<hr>
+
+<h2>📊 Visão Geral</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th></th>
+    <th><%= resultado.A.nome %></th>
+    <th><%= resultado.B.nome %></th>
+  </tr>
+  <tr>
+    <td>Questões</td>
+    <td><%= resultado.A.totalQ %></td>
+    <td><%= resultado.B.totalQ %></td>
+  </tr>
+  <tr>
+    <td>Acertos</td>
+    <td><%= resultado.A.totalA %></td>
+    <td><%= resultado.B.totalA %></td>
+  </tr>
+  <tr>
+    <td>%</td>
+    <td><%= resultado.A.percentual %>%</td>
+    <td><%= resultado.B.percentual %>%</td>
+  </tr>
+  <tr>
+    <td>Δ Geral</td>
+    <td colspan="2">
+      <% if (resultado.deltaGeral > 0) { %>
+        +<%= resultado.deltaGeral %>%
+      <% } else if (resultado.deltaGeral < 0) { %>
+        <%= resultado.deltaGeral %>%
+      <% } else { %>
+        —
+      <% } %>
+    </td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>📚 Por Área</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Área</th>
+    <th><%= resultado.A.nome %></th>
+    <th><%= resultado.B.nome %></th>
+    <th>Δ</th>
+  </tr>
+
+  <% Object.keys(resultado.A.areas).forEach(area => { %>
+    <tr>
+      <td><%= area.toUpperCase() %></td>
+      <td>
+        <%= resultado.A.areas[area].acertos %> /
+        <%= resultado.A.areas[area].questoes %>
+      </td>
+      <td>
+        <%= resultado.B.areas[area].acertos %> /
+        <%= resultado.B.areas[area].questoes %>
+      </td>
+      <td>
+        <% const d = resultado.deltaAreas[area]; %>
+        <% if (d > 0) { %>
+          +<%= d %>%
+        <% } else if (d < 0) { %>
+          <%= d %>%
+        <% } else { %>
+          —
+        <% } %>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+
+<hr>
+
+<h2>🧠 Diagnóstico</h2>
+
+<p>
+  <% if (resultado.deltaGeral > 0) { %>
+    Você evoluiu <strong><%= resultado.deltaGeral %>%</strong> em relação ao simulado anterior.
+    Mantenha o que funcionou.
+  <% } else if (resultado.deltaGeral < 0) { %>
+    Houve uma queda de <strong><%= Math.abs(resultado.deltaGeral) %>%</strong>.
+    Revise lacunas e gestão de tempo.
+  <% } else { %>
+    Seu desempenho se manteve estável.
+  <% } %>
+</p>
+
+<% } %>
+
+</section>
+</main>
+
+</body>
+</html>

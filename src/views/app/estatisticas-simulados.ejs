@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMDL Med | Estatísticas de Simulados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/simulados-estatisticas.css" />
+
+  <!-- CSS será feito depois -->
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+  <section class="page">
+
+    <!-- ================= HEADER ================= -->
+    <header>
+      <h1>📝 Estatísticas de Simulados</h1>
+      <p>
+        Análise real de desempenho, evolução e lacunas com base nos seus simulados finalizados.
+      </p>
+    </header>
+
+    <hr>
+
+    <!-- ================= VISÃO GERAL ================= -->
+    <section>
+      <h2>📊 Visão Geral</h2>
+
+      <ul>
+        <li>Total de simulados: <strong><%= totalSimulados %></strong></li>
+        <li>Total de questões: <strong><%= totalQuestoes %></strong></li>
+        <li>Total de acertos: <strong><%= totalAcertos %></strong></li>
+        <li>Aproveitamento geral: <strong><%= aproveitamento %>%</strong></li>
+        <li>Média de acertos por simulado: <strong><%= mediaAcertos %></strong></li>
+      </ul>
+    </section>
+
+    <hr>
+
+    <!-- ================= POR ÁREA ================= -->
+    <section>
+      <h2>📚 Desempenho por Área</h2>
+
+      <table border="1" cellpadding="8">
+        <thead>
+          <tr>
+            <th>Área</th>
+            <th>Questões</th>
+            <th>Acertos</th>
+            <th>Erros</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% Object.entries(porArea).forEach(([area, dados]) => { %>
+            <tr>
+              <td><%= area.toUpperCase() %></td>
+              <td><%= dados.questoes %></td>
+              <td><%= dados.acertos %></td>
+              <td><%= dados.erros %></td>
+              <td><%= dados.percentual %>%</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <p>
+        Área mais forte:
+        <strong>
+          <%= areaMaisForte?.nome?.toUpperCase() || "—" %>
+          (<%= areaMaisForte?.percentual || 0 %>%)
+        </strong>
+      </p>
+
+      <p>
+        Área mais fraca:
+        <strong>
+          <%= areaMaisFraca?.nome?.toUpperCase() || "—" %>
+          (<%= areaMaisFraca?.percentual || 0 %>%)
+        </strong>
+      </p>
+    </section>
+
+    <hr>
+
+    <!-- ================= ERROS ================= -->
+    <section>
+      <h2>❌ Erros</h2>
+
+      <ul>
+        <li>Total de erros: <strong><%= errosTotal %></strong></li>
+        <li>Erros revisados: <strong><%= errosRevisados %></strong></li>
+        <li>Erros pendentes: <strong><%= errosPendentes %></strong></li>
+      </ul>
+
+      <h3>Por motivo</h3>
+      <ul>
+        <li>Falta de conteúdo: <strong><%= errosPorMotivo.falta_conteudo %></strong></li>
+        <li>Falta de atenção: <strong><%= errosPorMotivo.falta_atencao %></strong></li>
+        <li>Lacuna: <strong><%= errosPorMotivo.lacuna %></strong></li>
+      </ul>
+
+      <p>
+        Motivo dominante:
+        <strong>
+          <%= motivoDominante ? motivoDominante.replace("_", " ") : "—" %>
+        </strong>
+      </p>
+    </section>
+
+    <hr>
+
+    <!-- ================= LACUNAS ================= -->
+    <section>
+      <h2>🧠 Lacunas de Conteúdo (O que estudar agora)</h2>
+
+      <h3>📘 Matérias</h3>
+      <% if (lacunas.materias.length === 0) { %>
+        <p>Nenhuma lacuna registrada.</p>
+      <% } else { %>
+        <ol>
+          <% lacunas.materias.forEach(l => { %>
+            <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <% }) %>
+        </ol>
+      <% } %>
+
+      <h3>📗 Tópicos</h3>
+      <% if (lacunas.topicos.length === 0) { %>
+        <p>Nenhuma lacuna registrada.</p>
+      <% } else { %>
+        <ol>
+          <% lacunas.topicos.forEach(l => { %>
+            <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <% }) %>
+        </ol>
+      <% } %>
+
+      <h3>📙 Assuntos</h3>
+      <% if (lacunas.assuntos.length === 0) { %>
+        <p>Nenhuma lacuna registrada.</p>
+      <% } else { %>
+        <ol>
+          <% lacunas.assuntos.forEach(l => { %>
+            <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <% }) %>
+        </ol>
+      <% } %>
+    </section>
+
+    <hr>
+
+    <!-- ================= EVOLUÇÃO ================= -->
+    <section>
+      <h2>📈 Evolução por Simulado</h2>
+
+      <% if (evolucao.length === 0) { %>
+        <p>Nenhum simulado finalizado ainda.</p>
+      <% } else { %>
+        <table border="1" cellpadding="8">
+          <thead>
+            <tr>
+              <th>Simulado</th>
+              <th>Data</th>
+              <th>Questões</th>
+              <th>Acertos</th>
+              <th>%</th>
+              <th>Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% evolucao.forEach(e => { %>
+              <tr>
+                <td><%= e.nome %></td>
+                <td><%= e.data.split("-").reverse().join("/") %></td>
+                <td><%= e.questoes %></td>
+                <td><%= e.acertos %></td>
+                <td><%= e.percentual %>%</td>
+                <td>
+                  <% if (e.delta > 0) { %>
+                    +<%= e.delta %>%
+                  <% } else if (e.delta < 0) { %>
+                    <%= e.delta %>%
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+
+  </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+/* =========================
+   BASE
+========================= */
+.page-bg {
+  background: #0f1115;
+  color: #eaeaf0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.with-sidebar {
+  padding: 24px;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================
+   HEADER
+========================= */
+header {
+  margin-bottom: 24px;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+header p {
+  color: #9aa0a6;
+  max-width: 720px;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+section {
+  margin-bottom: 36px;
+}
+
+section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+section h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #cfd3ff;
+}
+
+/* =========================
+   DIVISOR
+========================= */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #2a2f4a,
+    transparent
+  );
+  margin: 32px 0;
+}
+
+/* =========================
+   LISTAS
+========================= */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #1c2033;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+ul li strong {
+  color: #7aa2ff;
+}
+
+/* =========================
+   TABLES
+========================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #141826;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+thead {
+  background: #1b2040;
+}
+
+thead th {
+  padding: 14px;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cfd3ff;
+}
+
+tbody td {
+  padding: 12px 14px;
+  border-top: 1px solid #1c2033;
+  font-size: 0.95rem;
+}
+
+tbody tr:hover {
+  background: rgba(122, 162, 255, 0.08);
+}
+
+/* =========================
+   ÁREAS (FORTE / FRACA)
+========================= */
+section p strong {
+  color: #7aa2ff;
+}
+
+section p {
+  margin-top: 10px;
+}
+
+/* =========================
+   ERROS
+========================= */
+section ul li span {
+  color: #9aa0a6;
+}
+
+section ul li em {
+  font-style: normal;
+  color: #ff6b6b;
+}
+
+/* =========================
+   LACUNAS
+========================= */
+ol {
+  padding-left: 18px;
+}
+
+ol li {
+  padding: 6px 0;
+  color: #eaeaf0;
+}
+
+ol li strong {
+  color: #ffb86b;
+}
+
+/* =========================
+   EVOLUÇÃO
+========================= */
+tbody td:last-child {
+  font-weight: 600;
+}
+
+tbody td:last-child:has(:not(:empty)) {
+  text-align: center;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  thead {
+    display: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  tbody tr {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: #141826;
+    padding: 12px;
+  }
+
+  tbody td {
+    border: none;
+    padding: 6px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    color: #9aa0a6;
+    font-size: 0.8rem;
+  }
+}
