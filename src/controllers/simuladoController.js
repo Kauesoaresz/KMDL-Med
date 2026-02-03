@@ -255,6 +255,45 @@ exports.marcarErroRevisado = async (req, res) => {
 };
 
 /* =========================
+   DESFAZER REVISÃO DE ERRO
+========================= */
+exports.desfazerErroRevisado = async (req, res) => {
+  const userId = req.session.userId;
+  const { erroId } = req.params;
+
+  try {
+    const erro = await SimuladoQuestaoErro.findOne({
+      where: { id: erroId },
+      include: [
+        {
+          model: SimuladoBloco,
+          as: "bloco",
+          include: [
+            {
+              model: Simulado,
+              as: "simulado",
+              where: { user_id: userId },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!erro) return res.redirect("/simulados/lista");
+
+    erro.revisada = false;
+    erro.data_revisao = null;
+    await erro.save();
+
+    res.redirect("back");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/simulados/lista");
+  }
+};
+
+
+/* =========================
    FINALIZAR SIMULADO
 ========================= */
 exports.finalizarSimulado = async (req, res) => {
@@ -312,6 +351,20 @@ exports.listarErros = async (req, res) => {
             },
           ],
         },
+
+        // 🔥 ISSO É O QUE FALTAVA
+        {
+          model: require("../models").Subject,
+          as: "subject",
+        },
+        {
+          model: require("../models").Topic,
+          as: "topic",
+        },
+        {
+          model: require("../models").Subtopic,
+          as: "subtopic",
+        },
       ],
       order: [["created_at", "DESC"]],
     });
@@ -332,6 +385,7 @@ exports.listarErros = async (req, res) => {
     });
   }
 };
+
 
 exports.excluirBloco = async (req, res) => {
   const userId = req.session.userId;

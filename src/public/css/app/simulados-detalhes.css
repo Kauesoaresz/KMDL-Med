@@ -1,375 +1,301 @@
-/* =====================================
-   SIMULADOS — DETALHES
-   Dark premium + verde & azul
-===================================== */
+/* =====================================================
+   KMDL Med | Simulado - Detalhes (Clean Premium)
+===================================================== */
 
-:root {
-  --green-accent: #3ddc97;
-  --blue-accent: #4da3ff;
-
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --text-muted: #bdbdbd;
+* {
+  box-sizing: border-box;
 }
 
-/* ===============================
-   FUNDO
-================================ */
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ================= BACKGROUND ================= */
 .page-bg {
-  background: radial-gradient(
-    circle at top,
-    #141a18 0%,
-    #0f1312 45%,
-    #0b0e0d 100%
-  );
+  background: radial-gradient(circle at top, #0e1412 0%, #050707 65%);
   min-height: 100vh;
-  color: #eaeaea;
+  color: #e6f2ec;
 }
 
-/* ===============================
-   MAIN
-================================ */
+/* ================= MAIN ================= */
 .main-content {
   margin-left: 90px;
-  padding: 48px 40px;
+  padding: 36px 32px;
 }
 
-@media (max-width: 900px) {
-  .main-content {
-    margin-left: 0;
-    padding: 32px 20px;
-  }
-}
-
-/* ===============================
-   CONTAINER
-================================ */
 .container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ===============================
-   HEADER
-================================ */
+/* ================= HEADER ================= */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
 
 .header h1 {
-  font-size: 2.3rem;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #eafff4;
 }
 
 .status {
-  display: inline-block;
   margin-top: 6px;
-  padding: 6px 14px;
+  display: inline-block;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.status.em_andamento {
-  background: rgba(77, 163, 255, 0.15);
-  color: var(--blue-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .status.finalizado {
-  background: rgba(61, 220, 151, 0.15);
-  color: var(--green-accent);
+  background: rgba(26, 255, 140, 0.15);
+  color: #9fffd0;
 }
 
-/* ===============================
-   BOTÕES
-================================ */
+.status.em_andamento {
+  background: rgba(43, 220, 255, 0.15);
+  color: #9fdcff;
+}
+
+/* ================= BOTÕES ================= */
 .btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border: 1px solid var(--border-soft);
-  background: rgba(0, 0, 0, 0.4);
-  color: #ffffff;
-  text-decoration: none;
-
-  transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
-}
-
-.btn.small {
-  padding: 7px 14px;
-  font-size: 0.8rem;
-}
-
-.btn.primary {
-  background: linear-gradient(
-    135deg,
-    var(--blue-accent),
-    var(--green-accent)
-  );
-  color: #0b0e0d;
   border: none;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.8rem;
   font-weight: 600;
-}
-
-.btn.danger {
-  background: rgba(220, 70, 70, 0.15);
-  color: #ff9b9b;
-  border: 1px solid rgba(220, 70, 70, 0.35);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0b1311;
+  color: #c9efe1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.2s ease, border 0.2s ease;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  background: #0f1a17;
+}
+
+.btn.small {
+  padding: 7px 12px;
+  font-size: 0.75rem;
+}
+
+.btn.primary {
+  background: rgba(26, 255, 140, 0.12);
+  color: #9fffd0;
+  border-color: rgba(26, 255, 140, 0.35);
 }
 
 .btn.primary:hover {
-  box-shadow: 0 8px 22px rgba(61, 220, 151, 0.35);
+  background: rgba(26, 255, 140, 0.2);
 }
 
-/* ===============================
-   RESUMO
-================================ */
+.btn.danger {
+  background: rgba(255, 92, 92, 0.12);
+  color: #ffb0b0;
+  border-color: rgba(255, 92, 92, 0.35);
+}
+
+.btn.danger:hover {
+  background: rgba(255, 92, 92, 0.2);
+}
+
+/* ================= RESUMO ================= */
 .resumo {
-  margin-bottom: 36px;
+  margin-bottom: 40px;
 }
 
 .resumo h2 {
-  font-size: 1.5rem;
-  margin-bottom: 18px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 16px;
 }
 
 .resumo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .resumo-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 16px;
+  background: #0b1311;
+  border-radius: 14px;
   padding: 18px;
+  border: 1px solid rgba(43, 220, 255, 0.15);
   text-align: center;
 }
 
 .resumo-card h4 {
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  color: var(--text-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.6px;
+  color: #9fdcff;
   margin-bottom: 6px;
 }
 
 .resumo-card p {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 700;
+  margin: 4px 0;
 }
 
 .resumo-card span {
-  font-size: 0.9rem;
-  color: var(--green-accent);
+  font-size: 0.75rem;
+  color: #9fbdb2;
 }
 
-/* ===============================
-   BLOCOS
-================================ */
+/* ================= BLOCOS ================= */
 .blocos h2 {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin-bottom: 18px;
 }
 
 .bloco-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 20px;
+  background: #0b1311;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 24px;
 }
 
-/* header do bloco */
+/* HEADER BLOCO */
 .bloco-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-  font-size: 0.95rem;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.7fr 0.8fr;
+  gap: 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #c9efe1;
+  margin-bottom: 12px;
 }
 
-/* ações bloco */
+.bloco-header strong {
+  color: #1aff8c;
+}
+
+/* AÇÕES BLOCO */
 .bloco-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-/* ===============================
-   ERROS
-================================ */
-.erros {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border-soft);
-}
-
-.erros h4 {
-  font-size: 1rem;
-  margin-bottom: 10px;
-}
-
-/* erro item */
-.erro {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.erro.revisada {
-  border-left: 4px solid var(--green-accent);
-  opacity: 0.85;
-}
-
-.erro:not(.revisada) {
-  border-left: 4px solid var(--blue-accent);
-}
-
-.erro-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
-/* ===============================
-   ADD BLOCO
-================================ */
-.add-bloco {
-  margin-bottom: 28px;
+/* ================= ERROS ================= */
+.erros h4 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: #ffb0b0;
 }
 
-/* ===============================
-   FORM ADD BLOCO
-================================ */
+.erro {
+  background: #050a08;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border-left: 4px solid #ff5c5c;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.erro.revisada {
+  border-left-color: #1aff8c;
+  opacity: 0.75;
+}
+
+.erro span {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* ================= FORM ADD ERRO ================= */
+.form-add-erro {
+  background: #050a08;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(43, 220, 255, 0.2);
+}
+
+.form-add-erro input,
+.form-add-erro select {
+  background: #050a08;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: #eafff4;
+  font-size: 0.8rem;
+}
+
+/* ================= ADD BLOCO ================= */
 .form-bloco {
-  margin-top: 40px;
+  margin-top: 50px;
+  background: #0b1311;
+  border-radius: 18px;
+  padding: 26px;
+  border: 1px solid rgba(43, 220, 255, 0.2);
 }
 
 .form-bloco h2 {
   font-size: 1.5rem;
+  font-weight: 800;
   margin-bottom: 18px;
 }
 
-.form-bloco form {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 18px;
-  padding: 24px;
+.form-bloco h3 {
+  margin: 16px 0 10px;
+  font-size: 1.05rem;
 }
 
 .form-bloco .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
-  margin-bottom: 20px;
 }
 
-input,
-select {
-  height: 44px;
-  padding: 0 12px;
+.form-bloco input,
+.form-bloco select {
+  background: #050a08;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--border-soft);
-  color: #ffffff;
-  outline: none;
+  padding: 11px;
+  color: #eafff4;
+  font-size: 0.85rem;
 }
 
-input:focus,
-select:focus {
-  border-color: var(--blue-accent);
-  box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.18);
-}
-
-/* ===============================
-   ERROS DINÂMICOS
-================================ */
-.erros-dinamicos h4 {
-  margin-bottom: 10px;
-}
-
+/* ================= ERRO ROW ================= */
 .erro-row {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 10px;
+  background: #050a08;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 92, 92, 0.25);
   margin-bottom: 10px;
-}
-
-/* ===============================
-   EMPTY
-================================ */
-.empty {
-  color: var(--text-muted);
-  opacity: 0.8;
-}
-
-/* ===============================
-   RESPONSIVO
-================================ */
-@media (max-width: 600px) {
-  .header h1 {
-    font-size: 1.9rem;
-  }
-
-  .resumo-card p {
-    font-size: 1.2rem;
-  }
-
-  .bloco-card {
-    padding: 18px;
-  }
-}
-
-.erros-container {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.erro-row {
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.04);
 }
 
 .erro-row-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 8px;
-  align-items: center;
+  grid-template-columns: 1fr 1.4fr auto;
+  gap: 10px;
 }
 
-.lacuna-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
+/* ================= RESPONSIVO ================= */
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+  }
 
+  .bloco-header {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

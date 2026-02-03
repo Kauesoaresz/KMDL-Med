@@ -1,50 +1,28 @@
-/* =====================================
-   SIMULADOS — QUESTÕES ERRADAS
-   Dark premium + verde & azul
-===================================== */
+/* ===============================
+   KMDL Med | Questões Erradas
+   Dark UI • Verde + Azul • Premium
+================================ */
 
-:root {
-  --green-accent: #3ddc97;
-  --blue-accent: #4da3ff;
-
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --text-muted: #bdbdbd;
+/* RESET LOCAL */
+* {
+  box-sizing: border-box;
 }
 
-/* ===============================
-   FUNDO
-================================ */
+/* BACKGROUND GERAL */
 .page-bg {
-  background: radial-gradient(
-    circle at top,
-    #141a18 0%,
-    #0f1312 45%,
-    #0b0e0d 100%
-  );
+  background: radial-gradient(circle at top, #0e1411 0%, #050707 60%);
   min-height: 100vh;
-  color: #eaeaea;
+  color: #e6f2ec;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ===============================
-   MAIN
-================================ */
+/* MAIN */
 .main-content {
-  margin-left: 90px;
-  padding: 48px 40px;
-  transition: margin-left 0.3s ease;
+  margin-left: 90px; /* sidebar fechada */
+  padding: 40px 32px;
 }
 
-@media (max-width: 900px) {
-  .main-content {
-    margin-left: 0;
-    padding: 32px 20px;
-  }
-}
-
-/* ===============================
-   CONTAINER
-================================ */
+/* CONTAINER */
 .container {
   max-width: 1100px;
   margin: 0 auto;
@@ -58,175 +36,199 @@
 }
 
 .header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 8px;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #eafff4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h1::after {
+  content: "";
+  height: 4px;
+  width: 70px;
+  background: linear-gradient(90deg, #1aff8c, #2bdcff);
+  border-radius: 2px;
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: #b5b5b5;
-  max-width: 520px;
-  line-height: 1.6;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #9fbdb2;
 }
 
 /* ===============================
    FILTROS
 ================================ */
 .filtros {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--border-soft);
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-bottom: 26px;
+  background: linear-gradient(
+    160deg,
+    #0d1714,
+    #091311
+  );
+  border: 1px solid rgba(30, 255, 170, 0.15);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
 }
 
 .filtros form {
   display: flex;
-  gap: 14px;
   flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
 }
 
 .filtros select {
-  height: 40px;
-  padding: 0 12px;
+  background: #050a08;
+  border: 1px solid rgba(43, 220, 255, 0.25);
   border-radius: 10px;
-  min-width: 180px;
-
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--border-soft);
-  color: #ffffff;
+  padding: 10px 14px;
+  color: #eafff4;
+  font-size: 0.9rem;
   outline: none;
+  transition: all 0.25s ease;
+}
 
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+.filtros select:hover {
+  border-color: #2bdcff;
 }
 
 .filtros select:focus {
-  border-color: var(--blue-accent);
-  box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.18);
+  border-color: #1aff8c;
+  box-shadow: 0 0 0 2px rgba(26, 255, 140, 0.15);
 }
 
-/* ===============================
-   BOTÕES
-================================ */
+/* BOTÃO FILTRAR */
 .btn {
-  padding: 8px 16px;
+  background: linear-gradient(135deg, #1aff8c, #2bdcff);
+  color: #02110a;
+  border: none;
   border-radius: 10px;
-  font-size: 0.85rem;
+  padding: 10px 18px;
+  font-weight: 700;
   cursor: pointer;
-  border: 1px solid var(--border-soft);
-  background: rgba(0, 0, 0, 0.4);
-  color: #ffffff;
-
-  transition:
-    background 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn.small {
-  padding: 8px 14px;
-}
-
-.btn.primary {
-  background: linear-gradient(
-    135deg,
-    var(--blue-accent),
-    var(--green-accent)
-  );
-  color: #0b0e0d;
-  font-weight: 600;
-  border: none;
+  font-size: 0.85rem;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-}
-
-.btn.primary:hover {
-  box-shadow: 0 8px 22px rgba(61, 220, 151, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(43, 220, 255, 0.35);
 }
 
 /* ===============================
-   LISTA
+   LISTA DE ERROS
 ================================ */
 .erros-lista {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* ===============================
-   EMPTY
-================================ */
+/* EMPTY */
 .empty {
-  padding: 24px;
   text-align: center;
-  color: var(--text-muted);
+  padding: 40px 20px;
   font-size: 0.95rem;
-  opacity: 0.85;
+  color: #88a89d;
 }
 
 /* ===============================
-   CARD ERRO
+   CARD DE ERRO
 ================================ */
 .erro-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 18px;
+  background: linear-gradient(
+    160deg,
+    #0b1311,
+    #060b0a
+  );
+  border-radius: 16px;
   padding: 20px 22px;
-
+  border: 1px solid rgba(255, 80, 80, 0.25);
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 18px;
-  flex-wrap: wrap;
-
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+  position: relative;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease;
 }
 
 .erro-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* BARRA LATERAL */
+.erro-card::before {
+  content: "";
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #ff5c5c, #ff2d2d);
+  border-radius: 16px 0 0 16px;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* CARD REVISADO */
+.erro-card.revisada {
+  border-color: rgba(26, 255, 140, 0.3);
+  background: linear-gradient(160deg, #08130e, #050a08);
+}
+
+.erro-card.revisada::before {
+  background: linear-gradient(180deg, #1aff8c, #0ccf6f);
 }
 
 /* ===============================
-   INFO
+   INFO DO ERRO
 ================================ */
-.erro-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.95rem;
-}
-
 .erro-info strong {
-  color: #ffffff;
-  font-weight: 600;
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: #eafff4;
 }
 
-/* ===============================
-   TAGS
-================================ */
 .motivo {
   display: inline-block;
-  width: fit-content;
+  margin-top: 6px;
+  font-size: 0.8rem;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  background: rgba(255, 80, 80, 0.15);
+  color: #ffb0b0;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
-  color: #eaeaea;
 }
 
-.simulado {
+.erro-card.revisada .motivo {
+  background: rgba(26, 255, 140, 0.15);
+  color: #9fffd0;
+}
+
+/* LACUNA */
+.lacuna-info {
+  display: block;
+  margin-top: 8px;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #9fbdb2;
+}
+
+/* SIMULADO */
+.simulado {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: #7faea1;
 }
 
 /* ===============================
@@ -234,40 +236,50 @@
 ================================ */
 .erro-actions {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
 }
 
-/* ===============================
-   REVISADA
-================================ */
-.erro-card.revisada {
-  border-left: 4px solid var(--green-accent);
-  opacity: 0.85;
+.btn.primary {
+  background: linear-gradient(135deg, #1aff8c, #1fd9a3);
+  color: #02110a;
 }
 
-.ok {
-  color: var(--green-accent);
-  font-weight: 600;
-  font-size: 0.9rem;
+.btn.danger {
+  background: linear-gradient(135deg, #ff5c5c, #ff2d2d);
+  color: #fff;
 }
 
-/* ===============================
-   STATUS PENDENTE
-================================ */
-.erro-card:not(.revisada) {
-  border-left: 4px solid var(--blue-accent);
+.btn.primary:hover {
+  box-shadow: 0 6px 20px rgba(26, 255, 140, 0.45);
+}
+
+.btn.danger:hover {
+  box-shadow: 0 6px 20px rgba(255, 60, 60, 0.45);
 }
 
 /* ===============================
    RESPONSIVO
 ================================ */
-@media (max-width: 600px) {
-  .header h1 {
-    font-size: 1.9rem;
+@media (max-width: 900px) {
+  .erro-card {
+    flex-direction: column;
   }
 
-  .erro-card {
-    padding: 18px;
+  .erro-actions {
+    width: 100%;
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    margin-left: 0;
+    padding: 28px 20px;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
   }
 }

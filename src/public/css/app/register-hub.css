@@ -169,7 +169,9 @@ html, body {
   height: 100%;
   object-fit: cover;
   transition: opacity .4s ease;
+  opacity: 1;
 }
+
 
 .image-frame img.fade-out {
   opacity: 0;
@@ -196,5 +198,116 @@ html, body {
 
   .register-actions {
     justify-content: flex-start;
+  }
+}
+
+/* ===============================
+   SLIDER DE IMAGENS (HUB)
+=============================== */
+
+.image-frame {
+  width: 100%;
+  height: 100%;
+  max-height: 720px;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.8),
+    inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+.image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.15),
+    rgba(0,0,0,.55)
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.image-slider {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  transition: transform 0.6s ease;
+  cursor: grab;
+}
+
+.image-slider:active {
+  cursor: grabbing;
+}
+
+.image-slider img {
+  min-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ===============================
+   SETAS DO SLIDER (DISCRETAS)
+=============================== */
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
+  background: rgba(10, 12, 16, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  z-index: 3;
+}
+
+/* posições */
+.slider-arrow.left {
+  left: 18px;
+}
+
+.slider-arrow.right {
+  right: 18px;
+}
+
+/* aparece no hover */
+.image-frame:hover .slider-arrow {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* hover da seta */
+.slider-arrow:hover {
+  background: rgba(26, 255, 140, 0.25);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* mobile: sempre visível um pouco */
+@media (max-width: 900px) {
+  .slider-arrow {
+    opacity: 0.6;
+    pointer-events: auto;
   }
 }

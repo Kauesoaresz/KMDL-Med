@@ -12,7 +12,6 @@
 
   <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
-
   <main class="main-content">
     <div class="container">
 
@@ -74,25 +73,46 @@
                 <%= erro.motivo.replace("_", " ") %>
               </span>
 
+              <% if (erro.motivo === "lacuna") { %>
+                <small class="lacuna-info">
+                  Matéria: <%= erro.subject ? erro.subject.nome : "—" %>
+                  <% if (erro.topic) { %>
+                    | Tópico: <%= erro.topic.nome %>
+                  <% } %>
+                  <% if (erro.subtopic) { %>
+                    | Assunto: <%= erro.subtopic.nome %>
+                  <% } %>
+                </small>
+              <% } %>
+
               <span class="simulado">
                 Simulado: <%= erro.bloco.simulado.nome %>
               </span>
             </div>
 
-            <div class="erro-actions">
-              <% if (!erro.revisada) { %>
-                <form
-                  action="/simulados/erro/<%= erro.id %>/revisar"
-                  method="POST"
-                >
-                  <button class="btn small primary">
-                    Marcar como revisada
-                  </button>
-                </form>
-              <% } else { %>
-                <span class="ok">✔ Revisada</span>
-              <% } %>
-            </div>
+           <div class="erro-actions">
+  <% if (!erro.revisada) { %>
+    <form
+      action="/simulados/erro/<%= erro.id %>/revisar"
+      method="POST"
+    >
+      <button class="btn small primary">
+        Marcar como revisada
+      </button>
+    </form>
+  <% } else { %>
+    <form
+      action="/simulados/erro/<%= erro.id %>/desfazer"
+      method="POST"
+      onsubmit="return confirm('Deseja desfazer a revisão desta questão?')"
+    >
+      <button class="btn small danger">
+        Desfazer revisão
+      </button>
+    </form>
+  <% } %>
+</div>
+
 
           </div>
         <% }) %>

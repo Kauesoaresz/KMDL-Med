@@ -62,5 +62,13 @@ router.post(
   simuladoController.adicionarErroNoBloco
 );
 
+router.post(
+  "/simulados/erro/:erroId/desfazer",
+  auth,
+  simuladoController.desfazerErroRevisado
+);
+
+
+
 
 module.exports = router;
