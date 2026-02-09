@@ -1,6 +1,8 @@
 const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
 const { Op } = require("sequelize");
+const { SimuladoQuestaoErro } = require("../models");
+
 
 
 // =========================
@@ -20,31 +22,63 @@ function calcStats(row) {
 
 function getDateLimit(period) {
   const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
-  // SEMANA ATUAL (segunda → hoje)
-  if (period === "7") {
-    const day = now.getDay(); // 0 = domingo
-    const diff = day === 0 ? 6 : day - 1;
-
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    return startOfWeek;
+  // SEMANA ATUAL (domingo → hoje)
+  if (period === "week") {
+    const start = new Date(now);
+    start.setDate(now.getDate() - now.getDay()); // domingo
+    return start;
   }
 
   // MÊS ATUAL (dia 1 → hoje)
-  if (period === "30") {
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    return startOfMonth;
+  if (period === "month") {
+    return new Date(now.getFullYear(), now.getMonth(), 1);
   }
 
   // TOTAL
   return null;
 }
 
+
+// =========================
+// ERROS DE CONTEÚDO (HELPER)
+// =========================
+async function buscarErrosConteudo({ level, id, dateLimit }) {
+  const where = {};
+
+  if (dateLimit) {
+    where.created_at = { [Op.gte]: dateLimit };
+  }
+
+  if (level === "materia") where.subject_id = id;
+  if (level === "topico") where.topic_id = id;
+  if (level === "assunto") where.subtopic_id = id;
+
+  const rows = await SimuladoQuestaoErro.findAll({
+    where,
+    attributes: [
+      "motivo",
+      [sequelize.fn("COUNT", sequelize.col("id")), "total"]
+    ],
+    group: ["motivo"],
+    raw: true
+  });
+
+  const base = {
+    total: 0,
+    falta_conteudo: 0,
+    lacuna: 0,
+    falta_atencao: 0
+  };
+
+  rows.forEach(r => {
+    base.total += Number(r.total);
+    base[r.motivo] = Number(r.total);
+  });
+
+  return base;
+}
 
 // =========================
 // VISÃO GERAL
@@ -72,9 +106,10 @@ exports.geral = async (req, res) => {
     return calcStats(row || {});
   }
 
-  const semana = await calcByPeriod(getDateLimit("7"));
-  const mes = await calcByPeriod(getDateLimit("30"));
-  const total = await calcByPeriod(null);
+  const semana = await calcByPeriod(getDateLimit("week"));
+const mes = await calcByPeriod(getDateLimit("month"));
+const total = await calcByPeriod(null);
+
 
   res.render("app/statistics", {
     active: "estatisticas",
@@ -132,13 +167,25 @@ exports.porMateria = async (req, res) => {
     nest: true
   });
 
-  const materias = rows.map(r => ({
+  const materias = [];
+
+for (const r of rows) {
+  const erros = await buscarErrosConteudo({
+    level: "materia",
+    id: r.subject.id,
+    dateLimit
+  });
+
+  materias.push({
     id: r.subject.id,
     nome: r.subject.nome,
-    ...calcStats(r)
-  }));
+    ...calcStats(r),
+    erros_conteudo: erros
+  });
+}
 
-  res.json(materias);
+res.json(materias);
+
 };
 
 // =========================
@@ -173,13 +220,25 @@ exports.porTopico = async (req, res) => {
     nest: true
   });
 
-  const topicos = rows.map(r => ({
+  const topicos = [];
+
+for (const r of rows) {
+  const erros = await buscarErrosConteudo({
+    level: "topico",
+    id: r.topic.id,
+    dateLimit
+  });
+
+  topicos.push({
     id: r.topic.id,
     nome: r.topic.nome,
-    ...calcStats(r)
-  }));
+    ...calcStats(r),
+    erros_conteudo: erros
+  });
+}
 
-  res.json(topicos);
+res.json(topicos);
+
 };
 
 // =========================
@@ -214,14 +273,29 @@ exports.porAssunto = async (req, res) => {
     nest: true
   });
 
-  const assuntos = rows.map(r => ({
-  id: r.subtopic?.id || null,
-  nome: r.subtopic?.nome || "Geral",
-  ...calcStats(r)
-}));
+  const assuntos = [];
 
+for (const r of rows) {
+  const subId = r.subtopic?.id || null;
 
-  res.json(assuntos);
+  const erros = subId
+    ? await buscarErrosConteudo({
+        level: "assunto",
+        id: subId,
+        dateLimit
+      })
+    : { total: 0, falta_conteudo: 0, lacuna: 0, falta_atencao: 0 };
+
+  assuntos.push({
+    id: subId,
+    nome: r.subtopic?.nome || "Geral",
+    ...calcStats(r),
+    erros_conteudo: erros
+  });
+}
+
+res.json(assuntos);
+
 };
 
 exports.materiasDashboard = async (req, res) => {

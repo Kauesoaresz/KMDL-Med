@@ -275,3 +275,118 @@ ol li strong {
     font-size: 1.7rem;
   }
 }
+
+
+/* =========================
+   LACUNAS PRIORITÁRIAS — GRID LIMPO
+========================= */
+
+.lacunas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.lacuna-col h3 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9aa1ad;
+  margin-bottom: 14px;
+}
+
+/* lista */
+.lacunas-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lacunas-lista li {
+  background: #0b0c10;
+  border: 1px solid #1f2229;
+  border-radius: 12px;
+  padding: 12px 14px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
+
+.lacunas-lista li span {
+  font-weight: 600;
+}
+
+.lacunas-lista li strong {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #9aa1ad;
+}
+
+/* vazio */
+.lacuna-col p {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* responsivo */
+@media (max-width: 900px) {
+  .lacunas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lacunas-lista li strong {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #ef4444; /* vermelho limpo */
+  background: rgba(239, 68, 68, 0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* =========================
+   SCROLL CONTROLADO NAS LACUNAS
+========================= */
+
+.lacuna-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* altura máxima da lista */
+.lacunas-lista {
+  max-height: 260px; /* ajuste fino aqui */
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* scrollbar bonita */
+.lacunas-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lacunas-lista::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lacunas-lista::-webkit-scrollbar-thumb {
+  background: #1f2229;
+  border-radius: 999px;
+}
+
+.lacunas-lista::-webkit-scrollbar-thumb:hover {
+  background: #2a2e36;
+}

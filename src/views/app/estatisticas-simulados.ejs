@@ -132,42 +132,60 @@
   <hr>
 
   <!-- ================= LACUNAS ================= -->
-  <section>
-    <h2>🧠 Lacunas Prioritárias (O que estudar agora)</h2>
+  <section class="lacunas-grid">
 
+  <div class="lacuna-col">
     <h3>📘 Matérias</h3>
+
     <% if (lacunas.materias.length === 0) { %>
       <p>Nenhuma lacuna registrada.</p>
     <% } else { %>
-      <ol>
+      <ul class="lacunas-lista">
         <% lacunas.materias.forEach(l => { %>
-          <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <li>
+            <span><%= l.nome %></span>
+            <strong><%= l.total %></strong>
+          </li>
         <% }) %>
-      </ol>
+      </ul>
     <% } %>
+  </div>
 
+  <div class="lacuna-col">
     <h3>📗 Tópicos</h3>
+
     <% if (lacunas.topicos.length === 0) { %>
       <p>Nenhuma lacuna registrada.</p>
     <% } else { %>
-      <ol>
+      <ul class="lacunas-lista">
         <% lacunas.topicos.forEach(l => { %>
-          <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <li>
+            <span><%= l.nome %></span>
+            <strong><%= l.total %></strong>
+          </li>
         <% }) %>
-      </ol>
+      </ul>
     <% } %>
+  </div>
 
+  <div class="lacuna-col">
     <h3>📙 Assuntos</h3>
+
     <% if (lacunas.assuntos.length === 0) { %>
       <p>Nenhuma lacuna registrada.</p>
     <% } else { %>
-      <ol>
+      <ul class="lacunas-lista">
         <% lacunas.assuntos.forEach(l => { %>
-          <li><%= l.nome %> — <strong><%= l.total %></strong> erros</li>
+          <li>
+            <span><%= l.nome %></span>
+            <strong><%= l.total %></strong>
+          </li>
         <% }) %>
-      </ol>
+      </ul>
     <% } %>
-  </section>
+  </div>
+
+</section>
 
   <hr>
 
