@@ -7,7 +7,6 @@
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/simulados-comparar.css">
-
 </head>
 
 <body class="page-bg">
@@ -21,121 +20,158 @@
 <main class="with-sidebar">
 <section class="page">
 
-<h1>⚖️ Comparar Simulados</h1>
+  <h1>⚖️ Comparar Simulados</h1>
 
-<form method="POST">
-  <select name="simuladoA" required>
-    <option value="">Simulado A</option>
-    <% simulados.forEach(s => { %>
-      <option value="<%= s.id %>"><%= s.nome %></option>
-    <% }) %>
-  </select>
+  <!-- ================= FORM ================= -->
+  <form method="POST">
+    <select name="simuladoA" required>
+      <option value="">Simulado A</option>
+      <% simulados.forEach(s => { %>
+        <option value="<%= s.id %>">
+          <%= s.nome %>
+          <% if (s.status === "finalizado") { %>
+            — 🟢 Finalizado
+          <% } else { %>
+            — 🟡 Em andamento
+          <% } %>
+        </option>
+      <% }) %>
+    </select>
 
-  <select name="simuladoB" required>
-    <option value="">Simulado B</option>
-    <% simulados.forEach(s => { %>
-      <option value="<%= s.id %>"><%= s.nome %></option>
-    <% }) %>
-  </select>
+    <select name="simuladoB" required>
+      <option value="">Simulado B</option>
+      <% simulados.forEach(s => { %>
+        <option value="<%= s.id %>">
+          <%= s.nome %>
+          <% if (s.status === "finalizado") { %>
+            — 🟢 Finalizado
+          <% } else { %>
+            — 🟡 Em andamento
+          <% } %>
+        </option>
+      <% }) %>
+    </select>
 
-  <button type="submit">Comparar</button>
-</form>
+    <button type="submit">Comparar</button>
+  </form>
 
-<% if (resultado) { %>
+  <% if (resultado) { %>
 
-<hr>
+  <hr>
 
-<h2>📊 Visão Geral</h2>
+  <!-- ================= VISÃO GERAL ================= -->
+  <h2>📊 Visão Geral</h2>
 
-<table border="1" cellpadding="8">
-  <tr>
-    <th></th>
-    <th><%= resultado.A.nome %></th>
-    <th><%= resultado.B.nome %></th>
-  </tr>
-  <tr>
-    <td>Questões</td>
-    <td><%= resultado.A.totalQ %></td>
-    <td><%= resultado.B.totalQ %></td>
-  </tr>
-  <tr>
-    <td>Acertos</td>
-    <td><%= resultado.A.totalA %></td>
-    <td><%= resultado.B.totalA %></td>
-  </tr>
-  <tr>
-    <td>%</td>
-    <td><%= resultado.A.percentual %>%</td>
-    <td><%= resultado.B.percentual %>%</td>
-  </tr>
-  <tr>
-    <td>Δ Geral</td>
-    <td colspan="2">
-      <% if (resultado.deltaGeral > 0) { %>
-        +<%= resultado.deltaGeral %>%
-      <% } else if (resultado.deltaGeral < 0) { %>
-        <%= resultado.deltaGeral %>%
-      <% } else { %>
-        —
-      <% } %>
-    </td>
-  </tr>
-</table>
-
-<hr>
-
-<h2>📚 Por Área</h2>
-
-<table border="1" cellpadding="8">
-  <tr>
-    <th>Área</th>
-    <th><%= resultado.A.nome %></th>
-    <th><%= resultado.B.nome %></th>
-    <th>Δ</th>
-  </tr>
-
-  <% Object.keys(resultado.A.areas).forEach(area => { %>
+  <table>
     <tr>
-      <td><%= area.toUpperCase() %></td>
-      <td>
-        <%= resultado.A.areas[area].acertos %> /
-        <%= resultado.A.areas[area].questoes %>
-      </td>
-      <td>
-        <%= resultado.B.areas[area].acertos %> /
-        <%= resultado.B.areas[area].questoes %>
-      </td>
-      <td>
-        <% const d = resultado.deltaAreas[area]; %>
-        <% if (d > 0) { %>
-          +<%= d %>%
-        <% } else if (d < 0) { %>
-          <%= d %>%
+      <th></th>
+      <th>
+        <%= resultado.A.nome %><br>
+        <small>
+          <%= resultado.A.status === "finalizado"
+            ? "🟢 Finalizado"
+            : "🟡 Em andamento" %>
+        </small>
+      </th>
+      <th>
+        <%= resultado.B.nome %><br>
+        <small>
+          <%= resultado.B.status === "finalizado"
+            ? "🟢 Finalizado"
+            : "🟡 Em andamento" %>
+        </small>
+      </th>
+    </tr>
+
+    <tr>
+      <td>Questões</td>
+      <td><%= resultado.A.totalQ %></td>
+      <td><%= resultado.B.totalQ %></td>
+    </tr>
+
+    <tr>
+      <td>Acertos</td>
+      <td><%= resultado.A.totalA %></td>
+      <td><%= resultado.B.totalA %></td>
+    </tr>
+
+    <tr>
+      <td>Aproveitamento</td>
+      <td><%= resultado.A.percentual %>%</td>
+      <td><%= resultado.B.percentual %>%</td>
+    </tr>
+
+    <tr>
+      <td>Δ Geral</td>
+      <td colspan="2">
+        <% if (resultado.deltaGeral > 0) { %>
+          +<%= resultado.deltaGeral %>%
+        <% } else if (resultado.deltaGeral < 0) { %>
+          <%= resultado.deltaGeral %>%
         <% } else { %>
           —
         <% } %>
       </td>
     </tr>
-  <% }) %>
-</table>
+  </table>
 
-<hr>
+  <hr>
 
-<h2>🧠 Diagnóstico</h2>
+  <!-- ================= POR ÁREA ================= -->
+  <h2>📚 Desempenho por Área</h2>
 
-<p>
-  <% if (resultado.deltaGeral > 0) { %>
-    Você evoluiu <strong><%= resultado.deltaGeral %>%</strong> em relação ao simulado anterior.
-    Mantenha o que funcionou.
-  <% } else if (resultado.deltaGeral < 0) { %>
-    Houve uma queda de <strong><%= Math.abs(resultado.deltaGeral) %>%</strong>.
-    Revise lacunas e gestão de tempo.
-  <% } else { %>
-    Seu desempenho se manteve estável.
+  <table>
+    <tr>
+      <th>Área</th>
+      <th><%= resultado.A.nome %></th>
+      <th><%= resultado.B.nome %></th>
+      <th>Δ</th>
+    </tr>
+
+    <% Object.keys(resultado.A.areas).forEach(area => { %>
+      <tr>
+        <td><%= area.toUpperCase() %></td>
+        <td>
+          <%= resultado.A.areas[area].acertos %> /
+          <%= resultado.A.areas[area].questoes %>
+        </td>
+        <td>
+          <%= resultado.B.areas[area].acertos %> /
+          <%= resultado.B.areas[area].questoes %>
+        </td>
+        <td>
+          <% const d = resultado.deltaAreas[area]; %>
+          <% if (d > 0) { %>
+            +<%= d %>%
+          <% } else if (d < 0) { %>
+            <%= d %>%
+          <% } else { %>
+            —
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+
+  <hr>
+
+  <!-- ================= DIAGNÓSTICO ================= -->
+  <h2>🧠 Diagnóstico</h2>
+
+  <p>
+    <% if (resultado.deltaGeral > 0) { %>
+      Você evoluiu <strong><%= resultado.deltaGeral %>%</strong>
+      em relação ao simulado comparado.
+      Continue reforçando o que funcionou.
+    <% } else if (resultado.deltaGeral < 0) { %>
+      Houve uma queda de <strong><%= Math.abs(resultado.deltaGeral) %>%</strong>.
+      Foque em revisão de lacunas e ajuste de estratégia.
+    <% } else { %>
+      Seu desempenho se manteve estável entre os simulados.
+    <% } %>
+  </p>
+
   <% } %>
-</p>
-
-<% } %>
 
 </section>
 </main>

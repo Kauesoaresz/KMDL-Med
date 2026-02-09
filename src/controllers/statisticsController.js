@@ -19,16 +19,32 @@ function calcStats(row) {
 }
 
 function getDateLimit(period) {
+  const now = new Date();
+
+  // SEMANA ATUAL (segunda → hoje)
   if (period === "7") {
-    return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const day = now.getDay(); // 0 = domingo
+    const diff = day === 0 ? 6 : day - 1;
+
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - diff);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    return startOfWeek;
   }
 
+  // MÊS ATUAL (dia 1 → hoje)
   if (period === "30") {
-    return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    return startOfMonth;
   }
 
-  return null; // all
+  // TOTAL
+  return null;
 }
+
 
 // =========================
 // VISÃO GERAL
@@ -207,6 +223,17 @@ exports.porAssunto = async (req, res) => {
 
   res.json(assuntos);
 };
+
+exports.materiasDashboard = async (req, res) => {
+  res.render("app/estatisticas-conteudo", {
+    active: "estatisticas",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
+};
+
+
+
 
 // =========================
 // ESTATÍSTICAS DE SIMULADOS

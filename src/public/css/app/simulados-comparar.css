@@ -1,196 +1,234 @@
 /* =========================
-   BASE
+   BASE GERAL
 ========================= */
+
+* {
+  box-sizing: border-box;
+}
+
 .page-bg {
-  background: #0f1115;
-  color: #eaeaf0;
+  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  color: #e5e7eb;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .with-sidebar {
-  padding: 24px;
+  margin-left: 78px;
+  padding: 20px;
+  min-height: 100vh;
 }
+
+/* =========================
+   CONTAINER PRINCIPAL
+========================= */
 
 .page {
   max-width: 1200px;
   margin: 0 auto;
+
+  background: linear-gradient(180deg, #121318, #0b0c10);
+  border-radius: 26px;
+  padding: 28px 36px;
+
+  border: 1px solid #1f2229;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
 }
 
 /* =========================
-   TÍTULOS
+   HEADER
 ========================= */
+
 h1 {
-  font-size: 2.2rem;
-  margin-bottom: 16px;
-}
-
-h2 {
-  font-size: 1.6rem;
-  margin: 28px 0 12px;
-}
-
-h3 {
-  margin-top: 20px;
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 20px;
 }
 
 /* =========================
-   FORM
+   FORMULÁRIO DE COMPARAÇÃO
 ========================= */
+
 form {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 select {
-  background: #141826;
-  color: #eaeaf0;
-  border: 1px solid #2a2f4a;
-  border-radius: 10px;
-  padding: 10px 12px;
+  flex: 1;
   min-width: 220px;
+
+  background: #0b0c10;
+  border: 1px solid #1f2229;
+  border-radius: 14px;
+  padding: 12px 14px;
+
+  font-size: 0.85rem;
+  color: #e5e7eb;
+}
+
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
 }
 
 button {
-  background: linear-gradient(135deg, #5f7cff, #7aa2ff);
-  color: #0f1115;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-weight: 700;
+  border-radius: 999px;
+  padding: 12px 26px;
+
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #ffffff;
+
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:hover {
-  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.35);
 }
 
 /* =========================
-   DIVISOR
+   TÍTULOS DE SEÇÃO
 ========================= */
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 28px 0 16px;
+}
+
+/* =========================
+   TABELAS
+========================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0b0c10;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #1f2229;
+}
+
+th {
+  background: #14161c;
+  padding: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9aa1ad;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 14px;
+  font-size: 0.8rem;
+  text-align: center;
+  border-top: 1px solid #1f2229;
+}
+
+tr:hover {
+  background: #14161c;
+}
+
+td:first-child {
+  text-align: left;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+/* =========================
+   COLUNAS A vs B
+========================= */
+
+th:nth-child(2),
+td:nth-child(2) {
+  background: rgba(34, 197, 94, 0.05);
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+/* =========================
+   DELTAS
+========================= */
+
+td:last-child {
+  font-weight: 900;
+}
+
+td[colspan="2"] {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+td[colspan="2"]:not(:empty) {
+  color: #e5e7eb;
+}
+
+/* =========================
+   TEXTO DE DIAGNÓSTICO
+========================= */
+
+p {
+  margin-top: 18px;
+  background: linear-gradient(180deg, #14161c, #0e0f14);
+  border: 1px solid #1f2229;
+  border-left: 4px solid #3b82f6;
+  border-radius: 18px;
+
+  padding: 18px 20px;
+  font-size: 0.9rem;
+  color: #cbd5f5;
+  line-height: 1.6;
+}
+
+/* =========================
+   DIVISORES
+========================= */
+
 hr {
   border: none;
   height: 1px;
   background: linear-gradient(
     to right,
     transparent,
-    #2a2f4a,
+    #1f2229,
     transparent
   );
   margin: 36px 0;
 }
 
 /* =========================
-   TABLES
-========================= */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #141826;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-top: 12px;
-}
-
-thead {
-  background: #1b2040;
-}
-
-th {
-  padding: 14px;
-  text-align: left;
-  font-size: 0.9rem;
-  color: #cfd3ff;
-}
-
-td {
-  padding: 14px;
-  border-top: 1px solid #1c2033;
-  font-size: 0.95rem;
-}
-
-tr:hover td {
-  background: rgba(122, 162, 255, 0.08);
-}
-
-/* =========================
-   DESTAQUES
-========================= */
-td strong {
-  color: #7aa2ff;
-}
-
-td:last-child {
-  font-weight: 700;
-  text-align: center;
-}
-
-/* =========================
-   DELTA COLORS
-========================= */
-.delta-pos {
-  color: #4ade80; /* verde */
-}
-
-.delta-neg {
-  color: #ff6b6b; /* vermelho */
-}
-
-.delta-zero {
-  color: #9aa0a6;
-}
-
-/* =========================
-   DIAGNÓSTICO
-========================= */
-section p {
-  max-width: 720px;
-  color: #cfd3ff;
-  line-height: 1.5;
-}
-
-section p strong {
-  color: #7aa2ff;
-}
-
-/* =========================
    RESPONSIVO
 ========================= */
-@media (max-width: 768px) {
+
+@media (max-width: 900px) {
+  .with-sidebar {
+    margin-left: 0;
+  }
+
+  form {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 22px 20px;
+  }
+
   h1 {
-    font-size: 1.8rem;
-  }
-
-  table,
-  tbody,
-  tr,
-  td,
-  th {
-    display: block;
-    width: 100%;
-  }
-
-  thead {
-    display: none;
-  }
-
-  tr {
-    margin-bottom: 16px;
-    border-radius: 14px;
-    overflow: hidden;
-  }
-
-  td {
-    border: none;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 12px;
-  }
-
-  td::before {
-    content: attr(data-label);
-    color: #9aa0a6;
-    font-size: 0.8rem;
+    font-size: 1.7rem;
   }
 }

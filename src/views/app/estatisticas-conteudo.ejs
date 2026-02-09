@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMDL Med | Estatísticas de Conteúdo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/estatisticas-conteudo.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+  <section class="page estatisticas-conteudo">
+
+    <!-- ================= TOPO ================= -->
+    <header class="conteudo-header">
+      <div>
+        <h1>📊 Estatísticas de Conteúdo</h1>
+        <p class="sub">
+          Análise profunda de matérias, tópicos e assuntos com foco em decisão de estudo.
+        </p>
+      </div>
+    </header>
+
+    <!-- ================= RESUMO GERAL ================= -->
+    <section class="conteudo-resumo">
+      <div class="resumo-card">
+        <span>Horas estudadas</span>
+        <strong id="resumo-horas">—</strong>
+      </div>
+
+      <div class="resumo-card">
+        <span>Questões feitas</span>
+        <strong id="resumo-questoes">—</strong>
+      </div>
+
+      <div class="resumo-card">
+        <span>Acertos</span>
+        <strong id="resumo-acertos">—</strong>
+      </div>
+
+      <div class="resumo-card">
+        <span>Erros</span>
+        <strong id="resumo-erros">—</strong>
+      </div>
+
+      <div class="resumo-card destaque">
+        <span>Aproveitamento</span>
+        <strong id="resumo-aproveitamento">—%</strong>
+      </div>
+    </section>
+
+    <!-- ================= CONTROLES ================= -->
+    <section class="conteudo-controles">
+
+      <div class="controle-periodo">
+        <button class="periodo-btn" data-period="7">7 dias</button>
+        <button class="periodo-btn" data-period="30">30 dias</button>
+        <button class="periodo-btn active" data-period="all">Total</button>
+      </div>
+    </section>
+
+    <!-- ================= CORPO ================= -->
+    <section class="conteudo-corpo">
+
+      <!-- ===== LISTA PRINCIPAL ===== -->
+      <div class="conteudo-lista">
+        <h2 id="lista-titulo">Matérias</h2>
+
+        <div id="lista-itens" class="lista-itens">
+          <div class="placeholder">
+            Selecione um tipo acima para visualizar os dados.
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAINEL DE DETALHES ===== -->
+      <div class="conteudo-detalhes">
+        <h2 id="detalhe-titulo">Detalhes</h2>
+
+        <div id="detalhe-conteudo" class="detalhe-conteudo">
+          <div class="placeholder">
+            Clique em um item para ver a análise completa.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= DIAGNÓSTICO ================= -->
+    <section class="conteudo-diagnostico">
+      <h2>🧠 Diagnóstico Inteligente</h2>
+
+      <div id="diagnostico-box" class="diagnostico-box">
+        <p class="placeholder">
+          O diagnóstico aparecerá aqui com base nos dados selecionados.
+        </p>
+      </div>
+    </section>
+
+  </section>
+</main>
+
+<script src="/public/js/app/estatisticas-conteudo.js"></script>
+</body>
+</html>

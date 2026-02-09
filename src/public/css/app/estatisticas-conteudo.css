@@ -1,0 +1,327 @@
+/* =========================
+   BASE
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.page-bg {
+  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  color: #e5e7eb;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.with-sidebar {
+  margin-left: 78px;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.page.estatisticas-conteudo {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #121318, #0b0c10);
+  border-radius: 26px;
+  padding: 26px 32px;
+  border: 1px solid #1f2229;
+  box-shadow: 0 35px 80px rgba(0,0,0,0.65);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.conteudo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 26px;
+}
+
+.conteudo-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.conteudo-header .sub {
+  margin-top: 4px;
+  font-size: 0.95rem;
+  color: #9aa1ad;
+}
+
+/* =========================
+   RESUMO GERAL
+========================= */
+
+.conteudo-resumo {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.resumo-card {
+  background: linear-gradient(180deg, #151821, #0d1016);
+  border-radius: 18px;
+  padding: 16px 18px;
+  border: 1px solid #23262f;
+}
+
+.resumo-card span {
+  font-size: 0.75rem;
+  color: #9aa1ad;
+}
+
+.resumo-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.resumo-card.destaque {
+  background: linear-gradient(180deg, #1b2333, #0e1320);
+  border-color: #2563eb;
+}
+
+.resumo-card.destaque strong {
+  color: #60a5fa;
+}
+
+/* =========================
+   CONTROLES
+========================= */
+
+.conteudo-controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.controle-tipo,
+.controle-periodo {
+  display: flex;
+  gap: 10px;
+}
+
+.tipo-btn,
+.periodo-btn {
+  background: #0b0c10;
+  border: 1px solid #1f2229;
+  color: #cbd5f5;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tipo-btn:hover,
+.periodo-btn:hover {
+  background: #14161c;
+}
+
+.tipo-btn.active,
+.periodo-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+/* =========================
+   CORPO
+========================= */
+
+.conteudo-corpo {
+  display: grid;
+  grid-template-columns: 1.1fr 1.4fr;
+  gap: 22px;
+}
+
+/* =========================
+   LISTA
+========================= */
+
+.conteudo-lista,
+.conteudo-detalhes {
+  background: linear-gradient(180deg, #14161c, #0e0f14);
+  border-radius: 22px;
+  border: 1px solid #23262f;
+  padding: 20px 22px;
+}
+
+.conteudo-lista h2,
+.conteudo-detalhes h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #f8fafc;
+}
+
+.lista-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-conteudo {
+  background: #0b0c10;
+  border: 1px solid #1f2229;
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.item-conteudo:hover {
+  background: #14161c;
+}
+
+.item-conteudo.active {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #111827, #0b1220);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.item-header strong {
+  font-size: 0.95rem;
+  color: #f8fafc;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #1f2937;
+  color: #93c5fd;
+}
+
+.item-sub {
+  font-size: 0.8rem;
+  color: #9aa1ad;
+}
+
+/* =========================
+   DETALHES
+========================= */
+
+.detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.detalhe-card {
+  background: #0b0c10;
+  border-radius: 14px;
+  border: 1px solid #1f2229;
+  padding: 14px 16px;
+}
+
+.detalhe-card span {
+  font-size: 0.7rem;
+  color: #9aa1ad;
+}
+
+.detalhe-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.detalhe-card.destaque {
+  grid-column: span 3;
+  background: linear-gradient(180deg, #1b2333, #0e1320);
+  border-color: #2563eb;
+}
+
+.detalhe-card.destaque strong {
+  color: #60a5fa;
+}
+
+/* =========================
+   DIAGNÓSTICO
+========================= */
+
+.conteudo-diagnostico {
+  margin-top: 28px;
+  background: linear-gradient(180deg, #14161c, #0e0f14);
+  border-radius: 22px;
+  border: 1px solid #23262f;
+  padding: 20px 22px;
+}
+
+.conteudo-diagnostico h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.diagnostico-box {
+  background: #0b0c10;
+  border-radius: 16px;
+  border: 1px solid #1f2229;
+  padding: 16px 18px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.diagnostico-box p {
+  margin-bottom: 6px;
+}
+
+/* =========================
+   PLACEHOLDER
+========================= */
+
+.placeholder {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 1100px) {
+  .conteudo-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .conteudo-corpo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .page.estatisticas-conteudo {
+    padding: 22px 20px;
+  }
+
+  .conteudo-header h1 {
+    font-size: 1.6rem;
+  }
+}

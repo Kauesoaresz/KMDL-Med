@@ -7,9 +7,9 @@ const {
   Subtopic
 } = require("../models");
 
-// =========================
-// UTILS
-// =========================
+/* =========================
+   UTILS
+========================= */
 function percent(acertos, questoes) {
   return questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
 }
@@ -20,21 +20,18 @@ function sortDesc(obj) {
     .map(([nome, total]) => ({ nome, total }));
 }
 
-// =========================
-// ESTATÍSTICAS DE SIMULADOS
-// =========================
+/* =========================
+   ESTATÍSTICAS DE SIMULADOS
+========================= */
 exports.dashboard = async (req, res) => {
   const userId = req.session.userId;
   if (!userId) return res.redirect("/login");
 
-  // =========================
-  // BUSCA BASE
-  // =========================
+  /* =========================
+     BUSCA BASE (SEM FILTRO DE STATUS)
+  ========================= */
   const simulados = await Simulado.findAll({
-    where: {
-      user_id: userId,
-      status: "finalizado"
-    },
+    where: { user_id: userId },
     include: [{
       model: SimuladoBloco,
       as: "blocos",
@@ -51,9 +48,20 @@ exports.dashboard = async (req, res) => {
     order: [["data_realizacao", "ASC"]]
   });
 
-  // =========================
-  // BASE GERAL
-  // =========================
+  /* =========================
+     CONTADORES DE STATUS
+  ========================= */
+  let simuladosEmAndamento = 0;
+  let simuladosFinalizados = 0;
+
+  simulados.forEach(s => {
+    if (s.status === "finalizado") simuladosFinalizados++;
+    else simuladosEmAndamento++;
+  });
+
+  /* =========================
+     BASE GERAL
+  ========================= */
   let totalSimulados = simulados.length;
   let totalQuestoes = 0;
   let totalAcertos = 0;
@@ -81,10 +89,10 @@ exports.dashboard = async (req, res) => {
 
   const evolucao = [];
 
-  // =========================
-  // PROCESSAMENTO
-  // =========================
-  simulados.forEach((simulado, index) => {
+  /* =========================
+     PROCESSAMENTO
+  ========================= */
+  simulados.forEach(simulado => {
     let questoesSim = 0;
     let acertosSim = 0;
 
@@ -123,30 +131,38 @@ exports.dashboard = async (req, res) => {
       });
     });
 
-    const pct = percent(acertosSim, questoesSim);
-    const anterior = evolucao[index - 1];
+    /* =========================
+       EVOLUÇÃO (SÓ SE TIVER QUESTÕES)
+    ========================= */
+    if (questoesSim > 0) {
+      const pct = percent(acertosSim, questoesSim);
+      const anterior = evolucao[evolucao.length - 1];
 
-    evolucao.push({
-      nome: simulado.nome,
-      data: simulado.data_realizacao,
-      questoes: questoesSim,
-      acertos: acertosSim,
-      percentual: pct,
-      delta: anterior ? pct - anterior.percentual : 0
-    });
+      evolucao.push({
+        nome: simulado.nome,
+        data: simulado.data_realizacao,
+        questoes: questoesSim,
+        acertos: acertosSim,
+        percentual: pct,
+        delta: anterior ? pct - anterior.percentual : 0,
+        status: simulado.status
+      });
+    }
   });
 
-  // =========================
-  // FINALIZAÇÕES
-  // =========================
+  /* =========================
+     FINALIZAÇÕES
+  ========================= */
   Object.values(porArea).forEach(a => {
     a.percentual = percent(a.acertos, a.questoes);
   });
 
   const aproveitamento = percent(totalAcertos, totalQuestoes);
-  const mediaAcertos = totalSimulados > 0
-    ? Math.round(totalAcertos / totalSimulados)
-    : 0;
+
+  const mediaAcertos =
+    simuladosFinalizados > 0
+      ? Math.round(totalAcertos / simuladosFinalizados)
+      : 0;
 
   const areaMaisFraca = Object.entries(porArea)
     .sort((a, b) => a[1].percentual - b[1].percentual)[0];
@@ -157,15 +173,18 @@ exports.dashboard = async (req, res) => {
   const motivoDominante = Object.entries(errosPorMotivo)
     .sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
-  // =========================
-  // RENDER
-  // =========================
+  /* =========================
+     RENDER
+  ========================= */
   res.render("app/estatisticas-simulados", {
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
 
     totalSimulados,
+    simuladosEmAndamento,
+    simuladosFinalizados,
+
     totalQuestoes,
     totalAcertos,
     aproveitamento,

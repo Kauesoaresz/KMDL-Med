@@ -8,11 +8,11 @@ const {
 ========================= */
 exports.form = async (req, res) => {
   const userId = req.session.userId;
+  if (!userId) return res.redirect("/login");
 
   const simulados = await Simulado.findAll({
     where: {
-      user_id: userId,
-      status: "finalizado"
+      user_id: userId
     },
     order: [["data_realizacao", "DESC"]]
   });
@@ -41,8 +41,7 @@ exports.comparar = async (req, res) => {
     const simulado = await Simulado.findOne({
       where: {
         id,
-        user_id: userId,
-        status: "finalizado"
+        user_id: userId
       },
       include: [{
         model: SimuladoBloco,
@@ -77,6 +76,7 @@ exports.comparar = async (req, res) => {
       id: simulado.id,
       nome: simulado.nome,
       data: simulado.data_realizacao,
+      status: simulado.status, // ✅
       totalQ,
       totalA,
       percentual,
@@ -91,9 +91,9 @@ exports.comparar = async (req, res) => {
     return res.redirect("/estatisticas/simulados/comparar");
   }
 
-  // =========================
-  // DELTAS
-  // =========================
+  /* =========================
+     DELTAS
+  ========================= */
   const deltaGeral = B.percentual - A.percentual;
   const deltaAreas = {};
 
