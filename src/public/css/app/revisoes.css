@@ -1,0 +1,237 @@
+/* =========================
+   BASE
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+.page-bg {
+  background: radial-gradient(circle at top, #141620, #07080b 75%);
+  color: #e5e7eb;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.with-sidebar {
+  margin-left: 78px;
+  padding: 28px;
+  min-height: 100vh;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #12131a, #0b0c11);
+  border-radius: 28px;
+  padding: 34px;
+  border: 1px solid #1f2229;
+  box-shadow:
+    0 40px 90px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* =========================
+   HEADER
+========================= */
+.page h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-back {
+  display: inline-block;
+  margin-bottom: 28px;
+  font-size: .85rem;
+  color: #9aa1ad;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+.btn-back:hover {
+  color: #ffffff;
+}
+
+/* =========================
+   TABELA MODERNA
+========================= */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 14px;
+}
+
+thead th {
+  text-align: left;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #6b7280;
+  font-weight: 700;
+  padding: 0 14px;
+}
+
+tbody tr {
+  background: linear-gradient(180deg, #161821, #0f1117);
+  border-radius: 20px;
+  transition: all .2s ease;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.02);
+}
+
+tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 35px rgba(0,0,0,.5);
+}
+
+tbody td {
+  padding: 18px 14px;
+  font-size: .9rem;
+  border-top: 1px solid #1f2229;
+  border-bottom: 1px solid #1f2229;
+}
+
+tbody tr td:first-child {
+  border-left: 1px solid #1f2229;
+  border-radius: 20px 0 0 20px;
+}
+
+tbody tr td:last-child {
+  border-right: 1px solid #1f2229;
+  border-radius: 0 20px 20px 0;
+}
+
+/* =========================
+   MATÉRIA / TÓPICO
+========================= */
+td strong {
+  font-weight: 800;
+  font-size: .95rem;
+  color: #f8fafc;
+}
+
+td span.subtopic {
+  display: block;
+  font-size: .75rem;
+  color: #6b7280;
+  margin-top: 3px;
+}
+
+/* =========================
+   PERCENTUAL
+========================= */
+.percent {
+  font-weight: 700;
+  font-size: .85rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.percent.good {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.percent.medium {
+  background: rgba(234,179,8,.15);
+  color: #facc15;
+}
+
+.percent.bad {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
+
+/* =========================
+   PRIORIDADE BADGE
+========================= */
+.badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.badge.alta {
+  background: linear-gradient(180deg, #7f1d1d, #450a0a);
+  color: #fecaca;
+  box-shadow: 0 0 12px rgba(239,68,68,.4);
+}
+
+.badge.media {
+  background: linear-gradient(180deg, #78350f, #422006);
+  color: #fde68a;
+}
+
+.badge.baixa {
+  background: linear-gradient(180deg, #052e16, #022c22);
+  color: #bbf7d0;
+}
+
+/* =========================
+   DIAS SEM ESTUDAR
+========================= */
+td[data-label="Dias"] {
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty td {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: .9rem;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 1000px) {
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    margin-bottom: 18px;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  tbody td {
+    border: none;
+    padding: 8px 0;
+    font-size: .85rem;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: .65rem;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+
+  .with-sidebar {
+    margin-left: 0;
+    padding: 18px;
+  }
+}

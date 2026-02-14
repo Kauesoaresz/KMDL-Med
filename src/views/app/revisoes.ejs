@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KMed | Revisões</title>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/revisoes.css" />
+</head>
+
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { 
+    active: "revisoes", 
+    userNome 
+  }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+
+      <h1>Revisões Prioritárias</h1>
+      <a href="/dashboard" class="btn-back">← Voltar</a>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Matéria</th>
+            <th>Tópico</th>
+            <th>Dias sem estudar</th>
+            <th>% Erro</th>
+            <th>Erros Pendentes</th>
+            <th>Prioridade</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (revisoes.length === 0) { %>
+            <tr class="empty">
+              <td colspan="6">Nenhuma revisão necessária 🎉</td>
+            </tr>
+          <% } %>
+
+          <% revisoes.forEach(r => { 
+
+            const prioridadeClass =
+              r.score >= 15 ? "alta" :
+              r.score >= 8 ? "media" :
+              "baixa";
+
+          %>
+
+            <tr>
+              <td data-label="Matéria">
+                <strong><%= r.subject %></strong>
+              </td>
+
+              <td data-label="Tópico">
+                <%= r.topic %>
+              </td>
+
+              <td data-label="Dias">
+                <%= r.diasSemEstudar %> dias
+              </td>
+
+              <td data-label="% Erro">
+                <span class="percent <%= r.erroPercentual >= 40 ? "bad" : r.erroPercentual >= 20 ? "medium" : "good" %>">
+                  <%= r.erroPercentual %>%
+                </span>
+              </td>
+
+              <td data-label="Erros Pendentes">
+                <%= r.errosPendentes %>
+              </td>
+
+              <td data-label="Prioridade">
+                <span class="badge <%= prioridadeClass %>">
+                  <% if (prioridadeClass === "alta") { %>
+                    🔥 Alta
+                  <% } else if (prioridadeClass === "media") { %>
+                    ⚠️ Média
+                  <% } else { %>
+                    🧊 Baixa
+                  <% } %>
+                </span>
+              </td>
+            </tr>
+
+          <% }) %>
+        </tbody>
+      </table>
+
+    </div>
+  </main>
+
+</body>
+</html>

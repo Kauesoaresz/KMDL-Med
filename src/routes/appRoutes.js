@@ -4,6 +4,7 @@ const auth = require("../middlewares/auth");
 const study = require("../controllers/studyController");
 const dashboard = require("../controllers/dashboardController");
 const profile = require("../controllers/profileController");
+const reviewController = require("../controllers/reviewController");
 
 const { uploadProfile } = require("../config/upload");
 
@@ -35,5 +36,8 @@ router.get("/registrar/lista", auth, study.listDays);
 router.get("/registrar/editar/:data", auth, study.editPage);
 router.post("/registrar/editar/:data", auth, study.editSave);
 router.post("/registrar/excluir/:data", auth, study.deleteDay);
+
+
+router.get("/revisoes", auth, reviewController.index);
 
 module.exports = router;
