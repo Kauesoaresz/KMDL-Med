@@ -16,6 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `provas`
+--
+
+DROP TABLE IF EXISTS `provas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `provas` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `valor_inscricao` float DEFAULT NULL,
+  `pago` tinyint(1) NOT NULL DEFAULT '0',
+  `data_prova_1` date NOT NULL,
+  `data_prova_2` date DEFAULT NULL,
+  `local` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacoes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `provas_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `simulado_blocos`
 --
 
@@ -33,9 +59,9 @@ CREATE TABLE `simulado_blocos` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_bloco_simulado` (`simulado_id`),
-  CONSTRAINT `fk_bloco_simulado` FOREIGN KEY (`simulado_id`) REFERENCES `simulados` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `simulado_id` (`simulado_id`),
+  CONSTRAINT `simulado_blocos_ibfk_1` FOREIGN KEY (`simulado_id`) REFERENCES `simulados` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,8 +76,8 @@ CREATE TABLE `simulado_questao_erros` (
   `simulado_bloco_id` int NOT NULL,
   `area` enum('linguagens','humanas','naturezas','matematica') COLLATE utf8mb4_unicode_ci NOT NULL,
   `numero_questao` int NOT NULL,
-  `motivo` enum('falta_conteudo','lacuna','falta_atencao') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `revisada` tinyint(1) DEFAULT '0',
+  `motivo` enum('falta_conteudo','lacuna','falta_atencao') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `revisada` tinyint(1) NOT NULL DEFAULT '0',
   `data_revisao` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -59,9 +85,15 @@ CREATE TABLE `simulado_questao_erros` (
   `topic_id` int DEFAULT NULL,
   `subtopic_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_erro_bloco` (`simulado_bloco_id`),
-  CONSTRAINT `fk_erro_bloco` FOREIGN KEY (`simulado_bloco_id`) REFERENCES `simulado_blocos` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `simulado_bloco_id` (`simulado_bloco_id`),
+  KEY `subject_id` (`subject_id`),
+  KEY `topic_id` (`topic_id`),
+  KEY `subtopic_id` (`subtopic_id`),
+  CONSTRAINT `simulado_questao_erros_ibfk_33` FOREIGN KEY (`simulado_bloco_id`) REFERENCES `simulado_blocos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `simulado_questao_erros_ibfk_34` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `simulado_questao_erros_ibfk_35` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `simulado_questao_erros_ibfk_36` FOREIGN KEY (`subtopic_id`) REFERENCES `subtopics` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,11 +111,11 @@ CREATE TABLE `simulados` (
   `finished_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  `data_realizacao` date DEFAULT NULL,
+  `data_realizacao` date NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_simulados_user` (`user_id`),
-  CONSTRAINT `fk_simulados_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `simulados_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,18 +136,18 @@ CREATE TABLE `study_entries` (
   `questoes` int NOT NULL DEFAULT '0',
   `acertos` int NOT NULL DEFAULT '0',
   `dificuldade` enum('MUITO_FACIL','FACIL','MEDIA','DIFICIL','MUITO_DIFICIL') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'MEDIA',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_entries_subject` (`subject_id`),
-  KEY `fk_entries_topic` (`topic_id`),
-  KEY `fk_entries_subtopic` (`subtopic_id`),
   KEY `idx_entries_user_date` (`user_id`,`data`),
-  CONSTRAINT `fk_entries_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_entries_subtopic` FOREIGN KEY (`subtopic_id`) REFERENCES `subtopics` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_entries_topic` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_entries_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `subject_id` (`subject_id`),
+  KEY `topic_id` (`topic_id`),
+  KEY `subtopic_id` (`subtopic_id`),
+  CONSTRAINT `study_entries_ibfk_33` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `study_entries_ibfk_34` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `study_entries_ibfk_35` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `study_entries_ibfk_36` FOREIGN KEY (`subtopic_id`) REFERENCES `subtopics` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=198 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,11 +161,11 @@ CREATE TABLE `subjects` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `nome` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_subject_user_nome` (`user_id`,`nome`),
-  CONSTRAINT `fk_subjects_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `subjects_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -149,13 +181,13 @@ CREATE TABLE `subtopics` (
   `user_id` int NOT NULL,
   `topic_id` int NOT NULL,
   `nome` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_subtopic_user_topic_nome` (`user_id`,`topic_id`,`nome`),
-  KEY `fk_subtopics_topic` (`topic_id`),
-  CONSTRAINT `fk_subtopics_topic` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_subtopics_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  KEY `topic_id` (`topic_id`),
+  CONSTRAINT `subtopics_ibfk_17` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `subtopics_ibfk_18` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=338 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -171,13 +203,13 @@ CREATE TABLE `topics` (
   `user_id` int NOT NULL,
   `subject_id` int NOT NULL,
   `nome` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_topic_user_subject_nome` (`user_id`,`subject_id`,`nome`),
-  KEY `fk_topics_subject` (`subject_id`),
-  CONSTRAINT `fk_topics_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_topics_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  KEY `subject_id` (`subject_id`),
+  CONSTRAINT `topics_ibfk_17` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `topics_ibfk_18` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -193,11 +225,20 @@ CREATE TABLE `users` (
   `nome` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   `senha_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   `foto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `email_2` (`email`),
+  UNIQUE KEY `email_3` (`email`),
+  UNIQUE KEY `email_4` (`email`),
+  UNIQUE KEY `email_5` (`email`),
+  UNIQUE KEY `email_6` (`email`),
+  UNIQUE KEY `email_7` (`email`),
+  UNIQUE KEY `email_8` (`email`),
+  UNIQUE KEY `email_9` (`email`),
+  UNIQUE KEY `email_10` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -210,4 +251,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-03  3:38:12
+-- Dump completed on 2026-02-14  0:35:03
