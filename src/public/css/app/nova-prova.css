@@ -1,0 +1,150 @@
+/* =====================================
+   NOVA PROVA - KMDL MED
+   Layout alinhado e elegante
+===================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+.page-bg {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  min-height: 100vh;
+}
+
+.with-sidebar {
+  padding: 40px;
+}
+
+.page {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* ================= HEADER ================= */
+
+.page h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 30px;
+}
+
+/* ================= FORM ================= */
+
+.form-prova {
+  background: #1e293b;
+  padding: 35px;
+  border-radius: 16px;
+  border: 1px solid #334155;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Grupo padrão */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Labels */
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+/* Inputs, Select e Textarea padronizados */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background-color: #0f172a;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+/* Textarea ajustada */
+.form-group textarea {
+  min-height: 100px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+/* Focus elegante */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* Select personalizado */
+.form-group select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Checkbox melhor alinhado */
+.form-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #22c55e;
+  margin-right: 8px;
+}
+
+.form-group label input[type="checkbox"] {
+  vertical-align: middle;
+}
+
+/* Grupo checkbox alinhado horizontal */
+.form-group:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* ================= BOTÃO ================= */
+
+.btn-primary {
+  margin-top: 10px;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+  transition: 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* ================= RESPONSIVO ================= */
+
+@media (max-width: 768px) {
+  .with-sidebar {
+    padding: 20px;
+  }
+
+  .form-prova {
+    padding: 25px;
+  }
+}

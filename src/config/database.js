@@ -9,8 +9,17 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
     dialect: "mysql",
-    logging: false
+    logging: false,
+
+    timezone: "-03:00", // 🇧🇷 Brasil
+
+    dialectOptions: {
+      dateStrings: true,
+      typeCast: true
+    }
   }
 );
+
+
 
 module.exports = sequelize;

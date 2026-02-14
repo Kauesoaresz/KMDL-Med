@@ -11,6 +11,11 @@ const Simulado = require("./Simulado");
 const SimuladoBloco = require("./SimuladoBloco");
 const SimuladoQuestaoErro = require("./SimuladoQuestaoErro");
 
+/* ==========================
+   PROVAS
+========================== */
+const Prova = require("./Prova");
+
 // ==========================
 // USUÁRIO
 // ==========================
@@ -87,6 +92,19 @@ SimuladoQuestaoErro.belongsTo(Subtopic, {
   as: "subtopic",
 });
 
+// ==========================
+// PROVAS
+// ==========================
+
+// Prova pertence a um usuário
+User.hasMany(Prova, {
+  foreignKey: "user_id",
+  as: "provas",
+});
+Prova.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user",
+});
 
 module.exports = {
   User,
@@ -97,4 +115,5 @@ module.exports = {
   Simulado,
   SimuladoBloco,
   SimuladoQuestaoErro,
+  Prova,
 };

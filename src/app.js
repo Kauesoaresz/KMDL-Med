@@ -14,10 +14,11 @@ const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
-const simuladoStatsRoutes = require("./routes/simuladoStatsRoutes"); // 🔥 ESTATÍSTICAS DE SIMULADOS
+const simuladoStatsRoutes = require("./routes/simuladoStatsRoutes");
 const calendarioRoutes = require("./routes/calendarioRoutes");
 const apiRoutes = require("./routes/apiRoutes");
-const simuladoRoutes = require("./routes/simuladoRoutes"); // SIMULADOS (CRUD)
+const simuladoRoutes = require("./routes/simuladoRoutes");
+const provaRoutes = require("./routes/provaRoutes");
 
 const app = express();
 
@@ -33,7 +34,6 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ⚠️ SESSÃO SEMPRE ANTES DAS ROTAS
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "kmed_secret",
@@ -57,17 +57,14 @@ app.use(authRoutes);
 app.use(appRoutes);
 app.use(contentRoutes);
 
-// 📊 ESTATÍSTICAS
-app.use(statisticsRoutes);        // estudos + hub
-app.use(simuladoStatsRoutes);     // 🔥 /estatisticas/simulados
+app.use(statisticsRoutes);
+app.use(simuladoStatsRoutes);
 
-// 📅 CALENDÁRIO
 app.use(calendarioRoutes);
 
-// 📝 SIMULADOS (CRUD)
 app.use(simuladoRoutes);
+app.use(provaRoutes);
 
-// 🔌 APIs
 app.use(apiRoutes);
 
 // =========================
@@ -79,6 +76,11 @@ const PORT = process.env.PORT || 3000;
   try {
     await sequelize.authenticate();
     console.log("✅ Conectado no MySQL com Sequelize");
+
+    // 🔥 ESSA LINHA CRIA A TABELA PROVAS
+    await sequelize.sync({ alter: true });
+
+    console.log("📦 Tabelas sincronizadas");
 
     app.listen(PORT, () => {
       console.log(`🚀 KMDL Med rodando em http://localhost:${PORT}`);
