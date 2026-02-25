@@ -21,13 +21,11 @@
   <main class="with-sidebar">
     <div class="page">
 
-      <!-- HEADER -->
       <div class="kmed-header">
         <h1>Calendário de Estudos</h1>
         <p>Veja sua constância de estudos mês a mês.</p>
       </div>
 
-      <!-- NAVEGAÇÃO -->
       <div class="kmed-calendar-nav">
         <a href="/calendario?ano=<%= anoAnterior %>&mes=<%= mesAnterior %>">
           ⬅ Mês anterior
@@ -40,7 +38,6 @@
         </a>
       </div>
 
-      <!-- CALENDÁRIO -->
       <div class="kmed-calendar-grid">
   <% diasMes.forEach(d => { %>
 
@@ -61,8 +58,11 @@
 </div>
 
 
-        <!-- LEGENDA -->
         <div class="kmed-calendar-legend">
+          <span><i class="h12"></i> 12h</span>
+          <span><i class="h11"></i> 11h</span>
+          <span><i class="h10"></i> 10h</span>
+          <span><i class="h9"></i> 9h</span>
           <span><i class="h8"></i> 8h+</span>
           <span><i class="h7"></i> 7h</span>
           <span><i class="h6"></i> 6h</span>
@@ -76,7 +76,6 @@
 
       </div>
 
-      <!-- RESUMO -->
       <div class="kmed-month-summary">
         <div>
           <small>Total de horas</small>

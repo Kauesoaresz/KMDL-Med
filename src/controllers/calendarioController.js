@@ -57,8 +57,13 @@ exports.calendario = async (req, res) => {
       if (info.horas > 0) diasEstudados++;
       totalHorasMes += info.horas;
 
+      // --- LÓGICA DE CORES ATUALIZADA ---
       let cor = "zero";
-      if (horasInt >= 8) cor = "h8";
+      if (horasInt >= 12) cor = "h12";
+      else if (horasInt === 11) cor = "h11";
+      else if (horasInt === 10) cor = "h10";
+      else if (horasInt === 9) cor = "h9";
+      else if (horasInt === 8) cor = "h8";
       else if (horasInt === 7) cor = "h7";
       else if (horasInt === 6) cor = "h6";
       else if (horasInt === 5) cor = "h5";

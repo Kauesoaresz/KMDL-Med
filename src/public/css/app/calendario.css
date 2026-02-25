@@ -300,3 +300,121 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===============================
+    PROGRESSÃO DE CORES KMED
+=============================== */
+
+/* 9h - Ciano Vibrante (A evolução natural após o verde de 8h) */
+.kmed-cal-day.h9, .kmed-calendar-legend .h9 {
+    background: linear-gradient(135deg, #0d9488, #0ea5e9);
+    color: #fff;
+    border: 1px solid #38bdf8;
+}
+
+/* 10h - Azul Cobalto (Foco Profundo) */
+.kmed-cal-day.h10, .kmed-calendar-legend .h10 {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: #fff;
+    border: 1px solid #60a5fa;
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+/* 11h - Azul Noite / Galáxia (O limite do dia) */
+.kmed-cal-day.h11, .kmed-calendar-legend .h11 {
+    background: linear-gradient(135deg, #1e1b4b, #4338ca);
+    color: #fff;
+    border: 1px solid #818cf8;
+}
+
+/* 12h - "The Void" / Eclipse (O ápice com animação de brilho) */
+.kmed-cal-day.h12, .kmed-calendar-legend .h12 {
+    background: #020617; /* Fundo quase preto para destacar o brilho */
+    background-image: linear-gradient(45deg, #1e1b4b, #312e81, #1e1b4b);
+    background-size: 200% 200%;
+    animation: shine 3s linear infinite;
+    color: #fff;
+    border: 1px solid #6366f1;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+@keyframes shine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Limpa qualquer posicionamento anterior e fixa no topo direito */
+.kmed-cal-day::after {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.85rem;
+    pointer-events: none; /* Evita que o emoji atrapalhe o clique */
+}
+
+/* ===============================
+    RECOMPENSAS DE ELITE (9h - 12h)
+=============================== */
+
+/* 9h - Troféu de Prata com Brilho */
+.kmed-cal-day.h9::after { 
+    content: "🥈"; 
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+
+/* 10h - Coroa Real Escarlate/Ouro */
+.kmed-cal-day.h10::after { 
+    content: "👑"; 
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.4));
+}
+
+/* 11h - Troféu de Ouro Duplo (Elite) */
+.kmed-cal-day.h11::after { 
+    content: "🏆🏆"; 
+    font-size: 0.9rem;
+    letter-spacing: -2px;
+    filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.5));
+}
+
+/* 12h - Coroa de Diamante (Mestre Absoluto) */
+.kmed-cal-day.h12::after { 
+    content: "👑✨"; 
+    font-size: 1.1rem;
+    letter-spacing: -4px;
+    animation: bounce 2s infinite;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+}
+
+/* Ajuste Global de Posicionamento para Destaque */
+.kmed-cal-day.h9::after,
+.kmed-cal-day.h10::after,
+.kmed-cal-day.h11::after,
+.kmed-cal-day.h12::after,
+.kmed-cal-day.h6::after,
+.kmed-cal-day.h7::after,
+.kmed-cal-day.h8::after {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Animação sutil para o nível máximo (12h) */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* Mantém o número centralizado */
+.kmed-cal-day span {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
