@@ -78,7 +78,7 @@ const PORT = process.env.PORT || 3000;
     console.log("✅ Conectado no MySQL com Sequelize");
 
     // 🔥 ESSA LINHA CRIA A TABELA PROVAS
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
 
     console.log("📦 Tabelas sincronizadas");
 
