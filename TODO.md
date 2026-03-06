@@ -1,40 +1,24 @@
-# TODO: Responsividade Total - KMed
+# TODO - Fix Sidebar Overlap Issue in Simulados Lista
 
-## ✅ COMPLETADOS
-- [x] 1. CSS Global Responsivo (`global-responsive.css`)
-- [x] 2. Sidebar responsiva com hamburger menu
-- [x] 3. Login responsivo completo
-- [x] 4. Dashboard responsivo completo
-- [x] 5. Profile responsivo completo
-- [x] 6. Calendário responsivo completo
-- [x] 7. Provas responsivo completo
-- [x] 8. Estatísticas responsivo completo
+## Task - COMPLETED ✅
+Fix the sidebar overlap issue on the "simulados lista" page where the sidebar overlaps the screen content.
 
-## 📋 ARQUIVOS ATUALIZADOS
-- `src/public/css/components/global-responsive.css` (novo)
-- `src/public/css/components/sidebar.css`
-- `src/views/partials/sidebar.ejs` (JS do hamburger)
-- `src/public/css/auth/login.css`
-- `src/public/css/app/dashboard.css`
-- `src/public/css/app/profile.css`
-- `src/public/css/app/calendario.css`
-- `src/public/css/app/provas.css`
-- `src/public/css/app/statistics.css`
+## Changes Made
+1. **Information Gathered**: 
+   - The issue was in `src/views/app/simulados/lista.ejs`
+   - Uses `<main class="with-sidebar">` but container didn't have proper left spacing
+   - Sidebar has `position: fixed` with `width: 260px`
+   - The `.with-sidebar` class in `global-responsive.css` has margin-left but wasn't properly offsetting content
 
-## 📱 BREAKPOINTS UTILIZADOS
-- Desktop Large: 1400px, 1200px
-- Tablet: 1024px, 900px, 768px
-- Mobile: 600px, 480px
+2. **Fix Applied to `src/public/css/app/simulados-lista.css`**:
+   - Added `--sidebar-width: 260px` variable to `:root` block
+   - Added `padding: 0 24px` to `.container` for left/right spacing
+   - Added media query for desktop (min-width: 901px):
+     - Sets `margin-left: 0 !important` to override conflicting global styles
+     - Sets `padding-left: calc(var(--sidebar-width) + 24px)` to properly offset content from sidebar
 
-## 🎯 RECURSOS IMPLEMENTADOS
-- Menu hamburger para mobile/tablet
-- Overlay para fechar menu
-- Grid responsivos
-- Tipografia adaptativa
-- Inputs e botões responsivos
-- Cards adaptativos
-- Modais responsivos
-- Orientação paisagem suportada
-- Suporte a touch (44px mínimo)
-- Preferencia reduced-motion
+3. **Result**:
+   - Content is now properly offset from the fixed sidebar on desktop
+   - Mobile/tablet view remains unchanged (sidebar is hidden by default)
+   - No horizontal scrolling should occur
 

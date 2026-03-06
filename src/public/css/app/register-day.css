@@ -233,6 +233,7 @@ input[type="date"] {
   .with-sidebar {
     margin-left: 0;
     padding: 16px;
+    padding-top: 80px; /* Espaço para o hamburger */
   }
   
   .page {
@@ -267,6 +268,7 @@ input[type="date"] {
 @media (max-width: 600px) {
   .with-sidebar {
     padding: 12px;
+    padding-top: 76px;
   }
   
   .page {
@@ -343,8 +345,8 @@ input[type="date"] {
 }
 
 /* =========================
-   SIDEBAR
+   RESPONSIVO - COMPLEMENTAR
 ========================= */
-.with-sidebar {
-  background: transparent;
-}
+
+/* A responsividade principal do with-sidebar está em global-responsive.css */
+/* Aqui adicionamos ajustes específicos para esta página se necessário */
