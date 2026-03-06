@@ -3,6 +3,7 @@ const Subject = require("./Subject");
 const Topic = require("./Topic");
 const Subtopic = require("./Subtopic");
 const StudyEntry = require("./StudyEntry");
+const ReviewHistory = require("./ReviewHistory");
 
 /* ==========================
    SIMULADOS
@@ -106,12 +107,26 @@ Prova.belongsTo(User, {
   as: "user",
 });
 
+// ==========================
+// REVIEW HISTORY
+// ==========================
+
+User.hasMany(ReviewHistory, { foreignKey: "user_id", as: "reviewHistory" });
+ReviewHistory.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+Subject.hasMany(ReviewHistory, { foreignKey: "subject_id", as: "reviews" });
+ReviewHistory.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
+
+Topic.hasMany(ReviewHistory, { foreignKey: "topic_id", as: "reviews" });
+ReviewHistory.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
+
 module.exports = {
   User,
   Subject,
   Topic,
   Subtopic,
   StudyEntry,
+  ReviewHistory,
   Simulado,
   SimuladoBloco,
   SimuladoQuestaoErro,

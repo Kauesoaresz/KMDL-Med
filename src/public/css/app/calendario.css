@@ -14,7 +14,7 @@
 }
 
 .with-sidebar {
-  margin-left: 78px;
+  margin-left: 260px;
   padding: 24px;
 }
 
@@ -270,34 +270,151 @@
 
 /* ===============================
    RESPONSIVO
-=============================== */
+   =============================== */
 
-@media (max-width: 900px) {
-  .kmed-month-summary {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ===============================
-   RESPONSIVO
-=============================== */
-
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .with-sidebar {
     margin-left: 0;
-    padding: 16px;
+    padding: 20px;
+  }
+
+  .page {
+    padding: 20px;
   }
 
   .kmed-calendar-grid {
-    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
   }
 
   .kmed-cal-day {
     height: 78px;
   }
+}
+
+@media (max-width: 768px) {
+  .with-sidebar {
+    padding: 16px;
+  }
+
+  .page {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .kmed-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .kmed-calendar-nav {
+    grid-template-columns: auto 1fr auto;
+    padding: 8px 12px;
+  }
+
+  .kmed-calendar-nav strong {
+    font-size: 0.85rem;
+  }
+
+  .kmed-calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .kmed-cal-day {
+    height: 60px;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
 
   .kmed-month-summary {
     grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .kmed-month-summary > div {
+    padding: 12px;
+  }
+
+  .kmed-month-summary strong {
+    font-size: 1.1rem;
+  }
+
+  .kmed-calendar-legend {
+    gap: 8px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .with-sidebar {
+    padding: 12px;
+  }
+
+  .page {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .kmed-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .kmed-header p {
+    font-size: 0.8rem;
+  }
+
+  .kmed-calendar-nav {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .kmed-calendar-nav a {
+    order: -1;
+  }
+
+  .kmed-calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .kmed-cal-day {
+    height: 45px;
+    font-size: 0.7rem;
+    border-radius: 8px;
+  }
+
+  .kmed-cal-day::after {
+    top: 3px;
+    right: 4px;
+    font-size: 0.65rem;
+  }
+
+  .kmed-month-summary {
+    padding: 12px;
+  }
+
+  .kmed-month-summary small {
+    font-size: 0.6rem;
+  }
+
+  .kmed-month-summary strong {
+    font-size: 1rem;
+  }
+
+  .kmed-calendar-legend {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .kmed-cal-day {
+    height: 40px;
+    font-size: 0.65rem;
+  }
+
+  .kmed-header h1 {
+    font-size: 1.2rem;
   }
 }
 

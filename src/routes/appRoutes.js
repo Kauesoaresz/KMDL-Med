@@ -39,5 +39,10 @@ router.post("/registrar/excluir/:data", auth, study.deleteDay);
 
 
 router.get("/revisoes", auth, reviewController.index);
+router.post("/revisoes/registrar", auth, reviewController.registrarRevisao);
+router.get("/revisoes/hoje", auth, reviewController.listarRevisoesHoje);
+router.get("/revisoes/historico/:subjectId/:topicId", auth, reviewController.historicoRevisao);
+router.get("/revisoes/erros/:subjectId/:topicId", auth, reviewController.obterErrosTopico);
+router.post("/revisoes/erros/revisar", auth, reviewController.marcarErrosRevisados);
 
 module.exports = router;

@@ -19,7 +19,7 @@
 
 /* OFFSET SIDEBAR */
 .with-sidebar {
-  margin-left: 78px;
+  margin-left: 260px;
   padding: 24px;
 }
 
@@ -266,30 +266,196 @@
    RESPONSIVO
    =============================== */
 
-@media (max-width: 1100px) {
+/* Tablet Landscape */
+@media (max-width: 1200px) {
   .dashboard-cards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 700px) {
+/* Tablet Portrait */
+@media (max-width: 900px) {
   .with-sidebar {
     margin-left: 0;
     padding: 20px;
   }
 
+  .page {
+    padding: 20px;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .card.kpi {
+    padding: 20px;
+  }
+
+  .card.kpi .value {
+    font-size: 1.75rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .with-sidebar {
+    padding: 16px;
+  }
+
+  .page {
+    gap: 20px;
+  }
+
   .welcome-card {
     flex-direction: column;
     align-items: flex-start;
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .welcome-text h1 {
+    font-size: 1.6rem;
+  }
+
+  .welcome-text p {
+    font-size: 0.9rem;
+  }
+
+  .streak-box {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 14px 18px;
+  }
+
+  .dashboard-filter {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .filter-btn {
+    padding: 8px 14px;
+    font-size: 0.75rem;
   }
 
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
 
+  .card.kpi {
+    padding: 18px;
+  }
+
+  .card.kpi h3 {
+    font-size: 0.75rem;
+  }
+
+  .card.kpi .value {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-section {
+    padding: 20px;
+  }
+
+  .dashboard-section h2 {
+    font-size: 1.15rem;
+  }
+
   .dashboard-action {
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     text-align: center;
+    padding: 24px;
+  }
+
+  .dashboard-action p {
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Mobile Small */
+@media (max-width: 480px) {
+  .with-sidebar {
+    padding: 12px;
+  }
+
+  .page {
+    gap: 16px;
+  }
+
+  .welcome-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .welcome-text h1 {
+    font-size: 1.4rem;
+  }
+
+  .streak-box {
+    padding: 12px 14px;
+  }
+
+  .streak-fire {
+    font-size: 1.3rem;
+  }
+
+  .streak-box strong {
+    font-size: 0.9rem;
+  }
+
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+
+  .card.kpi {
+    padding: 16px;
+  }
+
+  .card.kpi .value {
+    font-size: 1.35rem;
+  }
+
+  .card.kpi .extra {
+    top: 14px;
+    right: 14px;
+    font-size: 0.7rem;
+  }
+
+  .dashboard-section {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .dashboard-action {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .btn-primary {
+    padding: 12px 18px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .welcome-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .streak-box {
+    width: auto;
+    flex-direction: column;
   }
 }

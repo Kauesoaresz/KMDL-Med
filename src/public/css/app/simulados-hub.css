@@ -20,19 +20,21 @@
   );
   min-height: 100vh;
   color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ===============================
-   MAIN
+   OFFSET DA SIDEBAR - CORRIGIDO
 ================================ */
-.main-content {
-  margin-left: 90px;
+.with-sidebar {
+  margin-left: 260px;
   padding: 48px 40px;
-  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  background: transparent;
 }
 
 @media (max-width: 900px) {
-  .main-content {
+  .with-sidebar {
     margin-left: 0;
     padding: 32px 20px;
   }

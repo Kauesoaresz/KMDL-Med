@@ -1,0 +1,98 @@
+<%
+const prioridadeClass = locals.review.priority === 'alta' ? 'alta' : locals.review.priority === 'media' ? 'media' : 'baixa';
+const statusClass = locals.review.status === 'atrasada' ? 'atrasada' : locals.review.status === 'hoje' ? 'hoje' : 'em-dia';
+const review = locals.review;
+%>
+
+<div class="review-card" 
+     data-materia="<%= review.subjectId %>" 
+     data-prioridade="<%= review.priority %>" 
+     data-status="<%= review.status %>">
+  
+  <div class="card-header">
+    <div class="subject-name"><%= review.subject %></div>
+    <div class="status-badge <%= statusClass %>">
+      <% if (review.status === 'atrasada') { %>
+        ⚠️ Atrasada
+      <% } else if (review.status === 'hoje') { %>
+        📅 Hoje
+      <% } else { %>
+        ✓ Em dia
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card-topic">
+    <%= review.topic %>
+  </div>
+
+  <div class="card-stats">
+    <div class="stat">
+      <span class="stat-label">Dias sem estudar</span>
+      <span class="stat-value"><%= review.diasSemEstudar %></span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">% Erro</span>
+      <span class="stat-value <%= parseFloat(review.erroPercentual) >= 40 ? 'bad' : parseFloat(review.erroPercentual) >= 20 ? 'medium' : 'good' %>">
+        <%= review.erroPercentual %>%
+      </span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Erros pendentes</span>
+      <span class="stat-value <%= review.errosPendentes > 0 ? 'has-errors' : '' %>">
+        <%= review.errosPendentes %>
+      </span>
+    </div>
+  </div>
+
+  <div class="card-revisao-info">
+    <% if (review.ultimaRevisao) { %>
+      <div class="revisao-date">
+        <span class="label">Última revisão:</span>
+        <span class="value"><%= new Date(review.ultimaRevisao).toLocaleDateString('pt-BR') %></span>
+      </div>
+    <% } else { %>
+      <div class="revisao-date">
+        <span class="label">Última revisão:</span>
+        <span class="value never">Nunca</span>
+      </div>
+    <% } %>
+    
+    <% if (review.proximaRevisao) { %>
+      <div class="revisao-date">
+        <span class="label">Próxima revisão:</span>
+        <span class="value"><%= new Date(review.proximaRevisao).toLocaleDateString('pt-BR') %></span>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="card-priority">
+    <span class="priority-label">Prioridade:</span>
+    <span class="priority-badge <%= prioridadeClass %>">
+      <% if (prioridadeClass === 'alta') { %>
+        🔥 Alta
+      <% } else if (prioridadeClass === 'media') { %>
+        ⚠️ Média
+      <% } else { %>
+        🧊 Baixa
+      <% } %>
+    </span>
+  </div>
+
+  <div class="card-actions">
+    <button class="btn btn-primary btn-sm" onclick="openRegistrarRevisao('<%= review.subjectId %>', '<%= review.topicId %>', '<%= review.subject %>', '<%= review.topic %>')">
+      📝 Revisar
+    </button>
+    
+    <% if (review.errosPendentes > 0) { %>
+      <button class="btn btn-secondary btn-sm" onclick="openVerErros('<%= review.subjectId %>', '<%= review.topicId %>')">
+        ⚠️ Ver Erros (<%= review.errosPendentes %>)
+      </button>
+    <% } %>
+    
+    <button class="btn btn-ghost btn-sm" onclick="openHistorico('<%= review.subjectId %>', '<%= review.topicId %>')">
+      📜 Histórico
+    </button>
+  </div>
+</div>
+

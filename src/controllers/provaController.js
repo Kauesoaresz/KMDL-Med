@@ -17,8 +17,8 @@ async function listar(req, res) {
     res.render("app/provas/lista", {
       provas,
       active: "provas",
-      userNome: req.session.user?.nome || "Usuário",
-      userFoto: req.session.user?.foto || null,
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto || null,
     });
 
   } catch (err) {
@@ -79,8 +79,8 @@ async function editarForm(req, res) {
   res.render("app/provas/editar", {
     prova,
     active: "provas",
-    userNome: req.session.user?.nome,
-    userFoto: req.session.user?.foto,
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto || null,
   });
 }
 

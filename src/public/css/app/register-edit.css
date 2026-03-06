@@ -213,9 +213,35 @@ input[type="date"] {
 /* =========================
    RESPONSIVO
 ========================= */
+@media (max-width: 1200px) {
+  .bloco {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .linha-numeros {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .subject-select,
+  .topic-select,
+  .subtopic-select {
+    grid-column: span 1;
+  }
+}
+
 @media (max-width: 900px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .page {
+    padding: 20px 16px;
+  }
+  
   .bloco {
     grid-template-columns: 1fr;
+    padding: 16px;
   }
 
   .linha-numeros {
@@ -225,6 +251,88 @@ input[type="date"] {
   .btn-remove {
     top: 8px;
     right: 8px;
+  }
+  
+  form {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .with-sidebar {
+    padding: 12px;
+  }
+  
+  .page {
+    padding: 16px 12px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  form {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  
+  .bloco {
+    padding: 14px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  
+  .bloco input,
+  .bloco select {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .linha-numeros {
+    gap: 10px;
+  }
+  
+  label {
+    font-size: 12px;
+  }
+  
+  .btn-add {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 12px 10px;
+  }
+  
+  h1 {
+    font-size: 1.3rem;
+  }
+  
+  .btn-back {
+    font-size: 13px;
+  }
+  
+  form {
+    padding: 14px;
+  }
+  
+  .bloco {
+    padding: 12px;
+  }
+  
+  .bloco input,
+  .bloco select {
+    padding: 8px 10px;
+    font-size: 12px;
   }
 }
 

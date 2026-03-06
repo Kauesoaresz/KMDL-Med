@@ -1,114 +1,83 @@
-<aside class="sidebar" aria-label="Menu lateral">
+<!-- HAMBURGER MOBILE -->
+<button class="hamburger" id="hamburger" aria-label="Abrir Menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
-  <div class="sidebar__brand">
-    <a class="sidebar__brandLink" href="/dashboard" title="KMed">
-      <div class="sidebar__logo">
-  <img 
-    src="/public/img/Logo sistema.png" 
-    alt="KMed"
-    class="sidebar__logoImg"
-  >
-</div>
+<!-- OVERLAY (FUNDO ESCURO) -->
+<div class="overlay" id="overlay"></div>
 
-      <div class="sidebar__brandText">KMDL Med</div>
+<aside class="sidebar" id="sidebar">
+
+  <!-- LOGO -->
+  <div class="sidebar-brand">
+    <a href="/dashboard">
+      <img src="/public/img/Logo sistema.png" class="logo">
+      <span>KMDL Med</span>
     </a>
   </div>
 
-  <nav class="sidebar__nav">
+  <!-- MENU -->
+  <nav class="sidebar-menu">
 
-    <!-- DASHBOARD -->
-    <a class="sidebar__item <%= (active === 'dashboard') ? 'is-active' : '' %>"
-       href="/dashboard" title="Dashboard">
-      <span class="sidebar__icon">🏠</span>
-      <span class="sidebar__label">Dashboard</span>
-      <span class="sidebar__tooltip">Dashboard</span>
+    <a href="/dashboard" class="item <%= active === 'dashboard' ? 'active' : '' %>">
+      <span>🏠</span>
+      <p>Dashboard</p>
     </a>
 
-    <!-- REGISTRAR O DIA -->
-    <a class="sidebar__item <%= (active === 'registrar') ? 'is-active' : '' %>"
-       href="/registrar" title="Registrar o Dia">
-      <span class="sidebar__icon">✍️</span>
-      <span class="sidebar__label">Registrar o Dia</span>
-      <span class="sidebar__tooltip">Registrar o Dia</span>
+    <a href="/registrar" class="item <%= active === 'registrar' ? 'active' : '' %>">
+      <span>✍️</span>
+      <p>Registrar</p>
     </a>
 
-    <!-- REVISÕES -->
-<a class="sidebar__item <%= (active === 'revisoes') ? 'is-active' : '' %>"
-   href="/revisoes" title="Revisões">
-  <span class="sidebar__icon">🔥</span>
-  <span class="sidebar__label">Revisões</span>
-  <span class="sidebar__tooltip">Revisões</span>
-</a>
-
-
-    <!-- ESTATÍSTICAS -->
-    <a class="sidebar__item <%= (active === 'estatisticas') ? 'is-active' : '' %>"
-       href="/estatisticas" title="Estatísticas">
-      <span class="sidebar__icon">📊</span>
-      <span class="sidebar__label">Estatísticas</span>
-      <span class="sidebar__tooltip">Estatísticas</span>
+    <a href="/revisoes" class="item <%= active === 'revisoes' ? 'active' : '' %>">
+      <span>🔥</span>
+      <p>Revisões</p>
     </a>
 
-    <!-- CALENDÁRIO -->
-    <a class="sidebar__item <%= (active === 'calendario') ? 'is-active' : '' %>"
-       href="/calendario" title="Calendário">
-      <span class="sidebar__icon">📅</span>
-      <span class="sidebar__label">Calendário</span>
-      <span class="sidebar__tooltip">Calendário</span>
+    <a href="/estatisticas" class="item <%= active === 'estatisticas' ? 'active' : '' %>">
+      <span>📊</span>
+      <p>Estatísticas</p>
     </a>
 
-    <!-- SIMULADOS -->
-<a class="sidebar__item <%= (active === 'simulados') ? 'is-active' : '' %>"
-   href="/simulados" title="Simulados">
-  <span class="sidebar__icon">📘</span>
-  <span class="sidebar__label">Simulados</span>
-  <span class="sidebar__tooltip">Simulados</span>
-</a>
+    <a href="/calendario" class="item <%= active === 'calendario' ? 'active' : '' %>">
+      <span>📅</span>
+      <p>Calendário</p>
+    </a>
 
-<!-- PROVAS -->
-<a class="sidebar__item <%= (active === 'provas') ? 'is-active' : '' %>"
-   href="/provas" title="Provas">
-  <span class="sidebar__icon">🎯</span>
-  <span class="sidebar__label">Provas</span>
-  <span class="sidebar__tooltip">Provas</span>
-</a>
+    <a href="/simulados" class="item <%= active === 'simulados' ? 'active' : '' %>">
+      <span>📘</span>
+      <p>Simulados</p>
+    </a>
 
+    <a href="/provas" class="item <%= active === 'provas' ? 'active' : '' %>">
+      <span>🎯</span>
+      <p>Provas</p>
+    </a>
 
-
-    <!-- MATÉRIAS / TÓPICOS (ÚLTIMO) -->
-    <a class="sidebar__item <%= (active === 'conteudos') ? 'is-active' : '' %>"
-       href="/conteudos" title="Matérias / Tópicos">
-      <span class="sidebar__icon">📚</span>
-      <span class="sidebar__label">Matérias / Tópicos</span>
-      <span class="sidebar__tooltip">Matérias / Tópicos</span>
+    <a href="/conteudos" class="item <%= active === 'conteudos' ? 'active' : '' %>">
+      <span>📚</span>
+      <p>Conteúdos</p>
     </a>
 
   </nav>
 
-  <div class="sidebar__footer">
+  <!-- FOOTER -->
+  <div class="sidebar-footer">
 
-    <!-- PERFIL -->
-    <a class="sidebar__item sidebar__profile <%= (active === 'perfil') ? 'is-active' : '' %>"
-       href="/perfil" title="Meu Perfil">
-
-      <span class="sidebar__icon sidebar__avatar">
-        <img 
-          src="<%= userFoto || '/public/img/avatar-default.png' %>" 
-          alt="Foto do usuário"
-        >
-      </span>
-
-      <span class="sidebar__label"><%= userNome || 'Usuário' %></span>
-      <span class="sidebar__tooltip">Meu perfil</span>
+    <a href="/perfil" class="item profile">
+      <img src="<%= userFoto || '/public/img/avatar-default.png' %>">
+      <p><%= userNome || 'Usuário' %></p>
     </a>
 
-    <!-- LOGOUT -->
-    <a class="sidebar__item sidebar__logout" href="/logout" title="Sair">
-      <span class="sidebar__icon">🚪</span>
-      <span class="sidebar__label">Sair</span>
-      <span class="sidebar__tooltip">Sair</span>
+    <a href="/logout" class="item logout">
+      <span>🚪</span>
+      <p>Sair</p>
     </a>
 
   </div>
 
 </aside>
+
+<script src="/public/js/app/sidebar.js"></script>

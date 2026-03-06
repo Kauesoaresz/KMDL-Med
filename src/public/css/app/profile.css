@@ -1,5 +1,5 @@
 /* ===============================
-   KMed | Perfil do Usuário (Premium)
+   KMed | Perfil do Usuário - Responsivo
    =============================== */
 
 * {
@@ -14,21 +14,6 @@ html, body {
   background: radial-gradient(circle at top, #14161a, #08090c 75%);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #eaeaea;
-  overflow: hidden; /* 🔥 sem scroll no desktop */
-}
-
-/* ===============================
-   LAYOUT COM SIDEBAR
-   =============================== */
-
-.with-sidebar {
-  margin-left: 78px;
-  height: 100vh;
-  padding: 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* ===============================
@@ -38,6 +23,7 @@ html, body {
 .profile-page {
   width: 100%;
   max-width: 520px;
+  margin: 0 auto;
 }
 
 /* ===============================
@@ -134,9 +120,10 @@ html, body {
   border: 1px solid #23262f;
   border-radius: 12px;
 
-  padding: 12px 14px;
+  padding: 14px 16px;
   color: #eaeaea;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  width: 100%;
 
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -169,6 +156,7 @@ html, body {
 
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
 }
 
 .btn:hover {
@@ -177,22 +165,95 @@ html, body {
 }
 
 /* ===============================
-   RESPONSIVO (LIBERA SCROLL)
+   RESPONSIVO - TABLET
    =============================== */
 
 @media (max-width: 900px) {
-  .with-sidebar {
-    margin-left: 0;
-    padding: 20px;
-    overflow: auto;
-    align-items: flex-start;
-  }
-
   .profile-page {
     max-width: 100%;
   }
 
   .profile-card {
     padding: 28px 24px;
+  }
+
+  .avatar img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-page h1 {
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+  }
+}
+
+/* ===============================
+   RESPONSIVO - MOBILE
+   =============================== */
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .avatar {
+    margin-bottom: 8px;
+  }
+
+  .avatar img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-card input {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+  }
+
+  .btn {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  .profile-page h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+
+  .alert {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ===============================
+   RESPONSIVO - PEQUENO
+   =============================== */
+
+@media (max-width: 400px) {
+  .profile-card {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .avatar img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .profile-card label {
+    font-size: 0.8rem;
+  }
+
+  .profile-card input {
+    padding: 12px;
+  }
+
+  .btn {
+    padding: 12px;
+    margin-top: 16px;
   }
 }

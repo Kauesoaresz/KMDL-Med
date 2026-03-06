@@ -22,7 +22,7 @@ html, body {
 =============================== */
 
 .with-sidebar {
-  margin-left: 78px;
+  margin-left: 260px;
   height: 100vh;
   padding: 32px;
 }
@@ -181,6 +181,24 @@ html, body {
    RESPONSIVO
 =============================== */
 
+@media (max-width: 1200px) {
+  .page.register-layout {
+    gap: 32px;
+  }
+  
+  .card {
+    padding: 36px;
+  }
+  
+  .card h2 {
+    font-size: 1.6rem;
+  }
+  
+  .card p {
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 900px) {
   .with-sidebar {
     margin-left: 0;
@@ -190,6 +208,7 @@ html, body {
 
   .page.register-layout {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .register-visual {
@@ -198,6 +217,92 @@ html, body {
 
   .register-actions {
     justify-content: flex-start;
+  }
+  
+  .register-actions h1 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+  }
+  
+  .card {
+    padding: 28px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+  }
+  
+  .card h2 {
+    font-size: 1.4rem;
+  }
+  
+  .card p {
+    font-size: 0.9rem;
+  }
+  
+  .card.new::after,
+  .card.list::after {
+    top: 20px;
+    right: 20px;
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .with-sidebar {
+    padding: 16px;
+  }
+  
+  .register-actions h1 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .card {
+    padding: 20px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+  
+  .card h2 {
+    font-size: 1.2rem;
+  }
+  
+  .card p {
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+  
+  .card.new::after,
+  .card.list::after {
+    top: 16px;
+    right: 16px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .with-sidebar {
+    padding: 12px;
+  }
+  
+  .register-actions h1 {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  
+  .card h2 {
+    font-size: 1.1rem;
+  }
+  
+  .card.new::after,
+  .card.list::after {
+    top: 12px;
+    right: 12px;
+    font-size: 1.3rem;
   }
 }
 

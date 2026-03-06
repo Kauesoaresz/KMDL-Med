@@ -3,7 +3,9 @@
    FUNDO DARK (SEM BRANCO)
 ================================ */
 
-/* Fundo geral da página */
+/* ================================
+   FUNDO GERAL DA PÁGINA
+================================ */
 .page-bg {
   background: radial-gradient(
     circle at top,
@@ -12,18 +14,29 @@
     #080b12 100%
   );
   min-height: 100vh;
+  color: #eaeaea;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Garante que o main não fique branco */
+/* OFFSET DA SIDEBAR - CORRIGIDO */
 .with-sidebar {
+  margin-left: 260px;
+  padding: 42px 52px;
+  min-height: 100vh;
   background: transparent;
+}
+
+@media (max-width: 900px) {
+  .with-sidebar {
+    margin-left: 0;
+    padding: 30px 22px;
+  }
 }
 
 /* ================================
    CONTAINER PRINCIPAL
 ================================ */
 .estatisticas-hub {
-  padding: 42px 52px;
   max-width: 1250px;
   margin: 0 auto;
 }
@@ -156,10 +169,6 @@
    RESPONSIVO
 ================================ */
 @media (max-width: 768px) {
-  .estatisticas-hub {
-    padding: 30px 22px;
-  }
-
   .estatisticas-hub h1 {
     font-size: 1.9rem;
   }

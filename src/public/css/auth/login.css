@@ -176,6 +176,40 @@ html, body {
 }
 
 /* ===============================
+   WRAPPER DE SENHA (OLHO)
+   =============================== */
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.password-wrapper .toggle-password {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9aa1ad;
+  font-size: 1.1rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.password-wrapper .toggle-password:hover {
+  color: #4ade80;
+}
+
+/* ===============================
    BOTÃO
    =============================== */
 
@@ -242,16 +276,167 @@ html, body {
   }
 }
 
-/* ===============================
+/* =====================================================
    RESPONSIVO
-   =============================== */
+   ===================================================== */
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+  .auth {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .card {
+    padding: 36px 32px;
+  }
+
+  .card h1 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
   .auth {
     flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+    justify-content: center;
+    min-height: 100vh;
   }
 
   .auth__image {
-    height: 40vh;
+    height: 30vh;
+    min-height: 200px;
+    flex: none;
+  }
+
+  .auth__content {
+    flex: none;
+    width: 100%;
+  }
+
+  .card {
+    padding: 28px 24px;
+    max-width: 100%;
+  }
+
+  .card h1 {
+    font-size: 1.8rem;
+  }
+
+  .card h1::after {
+    width: 40px;
+    height: 2px;
+    margin: 12px auto 0;
+  }
+
+  .sub {
+    font-size: 0.85rem;
+  }
+
+  .form {
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .form label {
+    font-size: 0.75rem;
+  }
+
+  .form input {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  .form button {
+    padding: 14px;
+    font-size: 0.95rem;
+    margin-top: 12px;
+  }
+
+  .link {
+    margin-top: 20px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth {
+    padding: 12px;
+  }
+
+  .auth__image {
+    height: 25vh;
+    min-height: 160px;
+    border-radius: 18px;
+  }
+
+  .card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .card h1 {
+    font-size: 1.6rem;
+  }
+
+  .sub {
+    font-size: 0.8rem;
+    margin-top: 10px;
+  }
+
+  .form {
+    margin-top: 20px;
+  }
+
+  .form input {
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+
+  .form button {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .alert {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .link {
+    margin-top: 18px;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .auth {
+    flex-direction: row;
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .auth__image {
+    height: auto;
+    flex: 1;
+    min-height: auto;
+  }
+
+  .card {
+    padding: 20px;
+    max-width: 350px;
+  }
+
+  .card h1 {
+    font-size: 1.5rem;
+  }
+
+  .form {
+    margin-top: 16px;
+    gap: 10px;
+  }
+
+  .form input {
+    padding: 10px 12px;
   }
 }
