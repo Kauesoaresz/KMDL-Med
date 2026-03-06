@@ -12,115 +12,248 @@
 
   <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
-  <main class="main-content">
+  <main class="with-sidebar">
     <div class="container">
 
       <!-- HEADER -->
       <div class="header">
-        <h1>❌ Questões Erradas</h1>
-        <p class="subtitle">
-          Use essa tela para revisar erros pendentes e fechar lacunas reais.
-        </p>
+        <div>
+          <h1>❌ Questões Erradas</h1>
+          <p class="subtitle">
+            Organize seus erros por matéria para estudar de forma direcionada.
+          </p>
+        </div>
+        
+        <!-- CONTADORES RÁPIDOS -->
+        <div class="quick-stats">
+          <%
+            const pendentes = erros.filter(e => !e.revisada).length;
+            const revisadas = erros.filter(e => e.revisada).length;
+          %>
+          <div class="stat-badge pendentes">
+            <span class="count"><%= pendentes %></span>
+            <span class="label">Pendentes</span>
+          </div>
+          <div class="stat-badge revisadas">
+            <span class="count"><%= revisadas %></span>
+            <span class="label">Revisadas</span>
+          </div>
+        </div>
       </div>
 
-      <!-- FILTROS -->
+      <!-- FILTROS CLÁSSICOS -->
       <div class="filtros">
-        <form method="GET" action="/simulados/erros">
+        <form method="GET" action="/simulados/erros" class="filtros-form">
+          <div class="filtros-grid">
+            <select name="area">
+              <option value="">Todas as áreas</option>
+              <option value="linguagens">Linguagens</option>
+              <option value="humanas">Humanas</option>
+              <option value="naturezas">Naturezas</option>
+              <option value="matematica">Matemática</option>
+            </select>
 
-          <select name="area">
-            <option value="">Todas as áreas</option>
-            <option value="linguagens">Linguagens</option>
-            <option value="humanas">Humanas</option>
-            <option value="naturezas">Naturezas</option>
-            <option value="matematica">Matemática</option>
-          </select>
+            <select name="motivo">
+              <option value="">Todos os motivos</option>
+              <option value="falta_conteudo">Falta de conteúdo</option>
+              <option value="lacuna">Lacuna</option>
+              <option value="falta_atencao">Falta de atenção</option>
+            </select>
 
-          <select name="motivo">
-            <option value="">Todos os motivos</option>
-            <option value="falta_conteudo">Falta de conteúdo</option>
-            <option value="lacuna">Lacuna</option>
-            <option value="falta_atencao">Falta de atenção</option>
-          </select>
-
-          <select name="status">
-            <option value="">Todas</option>
-            <option value="pendentes">Pendentes</option>
-            <option value="revisadas">Revisadas</option>
-          </select>
-
-          <button type="submit" class="btn small">Filtrar</button>
+            <select name="status">
+              <option value="">Todas</option>
+              <option value="pendentes">Pendentes</option>
+              <option value="revisadas">Revisadas</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">
+            <span>🔍</span> Filtrar
+          </button>
         </form>
       </div>
 
-      <!-- LISTA -->
-      <div class="erros-lista">
+      <!-- ÁREAS COM ABAS -->
+      <% 
+        // Agrupar erros por área
+        const areasValidas = ['linguagens', 'humanas', 'naturezas', 'matematica'];
+        const errosPorArea = {};
+        
+        areasValidas.forEach(area => {
+          errosPorArea[area] = erros.filter(e => e.area === area);
+        });
+      %>
 
-        <% if (erros.length === 0) { %>
-          <p class="empty">
-            Nenhuma questão encontrada com os filtros selecionados.
-          </p>
-        <% } %>
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <% areasValidas.forEach((area, index) => { 
+            const count = errosPorArea[area].length;
+            if (count > 0) {
+          %>
+            <button 
+              class="tab-btn <%= index === 0 ? 'active' : '' %>" 
+              data-tab="area-<%= area %>"
+              data-count="<%= count %>"
+            >
+              <span class="area-name"><%= area.charAt(0).toUpperCase() + area.slice(1) %></span>
+              <span class="area-count"><%= count %></span>
+            </button>
+          <% }}) %>
+        </div>
 
-        <% erros.forEach(erro => { %>
-          <div class="erro-card <%= erro.revisada ? "revisada" : "" %>">
-
-            <div class="erro-info">
-              <strong>
-                <%= erro.area.toUpperCase() %> — Questão <%= erro.numero_questao %>
-              </strong>
-
-              <span class="motivo">
-                <%= erro.motivo.replace("_", " ") %>
-              </span>
-
-              <% if (erro.motivo === "lacuna") { %>
-                <small class="lacuna-info">
-                  Matéria: <%= erro.subject ? erro.subject.nome : "—" %>
-                  <% if (erro.topic) { %>
-                    | Tópico: <%= erro.topic.nome %>
-                  <% } %>
-                  <% if (erro.subtopic) { %>
-                    | Assunto: <%= erro.subtopic.nome %>
-                  <% } %>
-                </small>
+        <div class="tabs-content">
+          <% areasValidas.forEach((area, index) => { 
+            const areaErros = errosPorArea[area];
+            if (areaErros.length > 0) {
+              // Agrupar erros por matéria (subject)
+              const errosPorSubject = {};
+              areaErros.forEach(erro => {
+                const subjectId = erro.subject_id || 'sem-materia';
+                const subjectNome = erro.subject ? erro.subject.nome : 'Sem matéria';
+                if (!errosPorSubject[subjectId]) {
+                  errosPorSubject[subjectId] = {
+                    nome: subjectNome,
+                    erros: []
+                  };
+                }
+                errosPorSubject[subjectId].erros.push(erro);
+              });
+          %>
+            <div id="area-<%= area %>" class="tab-panel <%= index === 0 ? 'active' : '' %>">
+              
+              <% if (Object.keys(errosPorSubject).length > 0) { %>
+                <div class="materias-grid">
+                  <% Object.keys(errosPorSubject).forEach(subjectId => { 
+                    const subjectData = errosPorSubject[subjectId];
+                    const pendentesCount = subjectData.erros.filter(e => !e.revisada).length;
+                  %>
+                    <div class="materia-card">
+                      <div class="materia-header" onclick="toggleMateria(this)">
+                        <div class="materia-info">
+                          <span class="materia-nome"><%= subjectData.nome %></span>
+                          <span class="materia-stats">
+                            <%= subjectData.erros.length %> questões
+                            <% if (pendentesCount > 0) { %>
+                              • <strong><%= pendentesCount %> pendentes</strong>
+                            <% } %>
+                          </span>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                      </div>
+                      
+                      <div class="materia-errors">
+                        <% subjectData.erros.forEach(erro => { %>
+                          <div class="erro-card <%= erro.revisada ? 'revisada' : '' %>">
+                            <div class="erro-main">
+                              <div class="erro-header">
+                                <span class="questao-num">Q<%= erro.numero_questao %></span>
+                                <span class="erro-motivo <%= erro.motivo %>">
+                                  <%= erro.motivo.replace('_', ' ') %>
+                                </span>
+                                <% if (erro.topic) { %>
+                                  <span class="erro-topico">📚 <%= erro.topic.nome %></span>
+                                <% } %>
+                              </div>
+                              
+                              <% if (erro.motivo === 'lacuna' && erro.subject) { %>
+                                <div class="erro-lacuna">
+                                  <small>
+                                    <%= erro.subject.nome %>
+                                    <% if (erro.topic) { %> → <%= erro.topic.nome %><% } %>
+                                    <% if (erro.subtopic) { %> → <%= erro.subtopic.nome %><% } %>
+                                  </small>
+                                </div>
+                              <% } %>
+                              
+                              <div class="erro-simulado">
+                                📝 <%= erro.bloco.simulado.nome %>
+                              </div>
+                            </div>
+                            
+                            <div class="erro-actions">
+                              <% if (!erro.revisada) { %>
+                                <form action="/simulados/erro/<%= erro.id %>/revisar" method="POST">
+                                  <button class="btn-action revisar" title="Marcar como revisada">
+                                    ✓
+                                  </button>
+                                </form>
+                              <% } else { %>
+                                <form 
+                                  action="/simulados/erro/<%= erro.id %>/desfazer" 
+                                  method="POST"
+                                  onsubmit="return confirm('Desfazer revisão?')"
+                                >
+                                  <button class="btn-action undo" title="Desfazer revisão">
+                                    ↩
+                                  </button>
+                                </form>
+                              <% } %>
+                            </div>
+                          </div>
+                        <% }) %>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <p class="empty">Nenhum erro nesta área.</p>
               <% } %>
-
-              <span class="simulado">
-                Simulado: <%= erro.bloco.simulado.nome %>
-              </span>
             </div>
-
-           <div class="erro-actions">
-  <% if (!erro.revisada) { %>
-    <form
-      action="/simulados/erro/<%= erro.id %>/revisar"
-      method="POST"
-    >
-      <button class="btn small primary">
-        Marcar como revisada
-      </button>
-    </form>
-  <% } else { %>
-    <form
-      action="/simulados/erro/<%= erro.id %>/desfazer"
-      method="POST"
-      onsubmit="return confirm('Deseja desfazer a revisão desta questão?')"
-    >
-      <button class="btn small danger">
-        Desfazer revisão
-      </button>
-    </form>
-  <% } %>
-</div>
-
-
-          </div>
-        <% }) %>
-
+          <% }}) %>
+        </div>
       </div>
+
+      <% if (erros.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <h3>Nenhum erro encontrado</h3>
+          <p>Continue estudando! Seus erros aparecerão aqui para revisão.</p>
+        </div>
+      <% } %>
 
     </div>
   </main>
 
+  <script>
+    // ================= TROCA DE ABAS =================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active from all tabs
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        
+        // Activate clicked tab
+        btn.classList.add('active');
+        const panelId = btn.dataset.tab;
+        document.getElementById(panelId).classList.add('active');
+      });
+    });
+
+    // ================= TOGGLE MATÉRIA (ACCORDION) =================
+    function toggleMateria(header) {
+      const card = header.closest('.materia-card');
+      const content = card.querySelector('.materia-errors');
+      const icon = header.querySelector('.toggle-icon');
+      
+      if (card.classList.contains('expanded')) {
+        card.classList.remove('expanded');
+        content.style.maxHeight = '0';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        card.classList.add('expanded');
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+      }
+    }
+
+    // ================= ABRIR PRIMEIRA MATÉRIA AUTOMATICAMENTE =================
+    document.addEventListener('DOMContentLoaded', () => {
+      const primeiraMateria = document.querySelector('.materia-card');
+      if (primeiraMateria) {
+        // Não expandir automaticamente para manter a página mais limpa
+      }
+    });
+  </script>
+
 </body>
 </html>
+

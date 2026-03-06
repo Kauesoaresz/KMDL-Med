@@ -12,7 +12,7 @@
 
 <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
-<main class="main-content">
+<main class="with-sidebar">
 <div class="container">
 
 <!-- HEADER -->
@@ -20,16 +20,33 @@
   <div>
     <h1><%= simulado.nome %></h1>
     <span class="status <%= simulado.status %>">
-      <%= simulado.status === "finalizado" ? "Finalizado" : "Em andamento" %>
+      <%= simulado.status === "finalizado" ? "✓ Finalizado" : (simulado.status === "revisao" ? "✎ Modo Revisão" : "Em andamento") %>
     </span>
   </div>
 
-  <% if (simulado.status === "em_andamento") { %>
-    <form action="/simulados/<%= simulado.id %>/finalizar" method="POST">
-      <button class="btn danger">Finalizar simulado</button>
-    </form>
-  <% } %>
+  <div class="header-actions">
+    <% if (simulado.status === "em_andamento") { %>
+      <form action="/simulados/<%= simulado.id %>/finalizar" method="POST">
+        <button class="btn danger">Finalizar simulado</button>
+      </form>
+    <% } else if (simulado.status === "finalizado") { %>
+      <form action="/simulados/<%= simulado.id %>/revisao" method="POST">
+        <button class="btn warning">✎ Entrar em revisão</button>
+      </form>
+    <% } else if (simulado.status === "revisao") { %>
+      <form action="/simulados/<%= simulado.id %>/revisao" method="POST">
+        <button class="btn primary">✓ Finalizar revisão</button>
+      </form>
+    <% } %>
+  </div>
 </div>
+
+<% if (simulado.status === "revisao") { %>
+  <div class="revisao-banner">
+    <span class="icon">⚠️</span>
+    <span>Você está em <strong>modo revisão</strong>. Pode editar blocos e erros. As estatísticas serão recalculadas automaticamente.</span>
+  </div>
+<% } %>
 
 <!-- ================= RESUMO ================= -->
 <%
@@ -92,7 +109,7 @@
         <span><%= bloco.data_realizacao.split("-").reverse().join("/") %></span>
       </div>
 
-      <% if (simulado.status === "em_andamento") { %>
+      <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
 
         <!-- AÇÕES DO BLOCO -->
         <div class="bloco-actions">
@@ -123,19 +140,21 @@
           onsubmit="return salvarErro(event, <%= bloco.id %>)"
         >
 
-          <input
-            type="number"
-            name="numero_questao"
-            placeholder="Nº da questão"
-            required
-          />
+          <div class="form-erro-grid">
+            <input
+              type="number"
+              name="numero_questao"
+              placeholder="Nº da questão"
+              required
+            />
 
-          <select name="motivo" onchange="onMotivoChange(this)" required>
-            <option value="">Motivo</option>
-            <option value="falta_conteudo">Falta de conteúdo</option>
-            <option value="falta_atencao">Falta de atenção</option>
-            <option value="lacuna">Lacuna</option>
-          </select>
+            <select name="motivo" onchange="onMotivoChange(this)" required>
+              <option value="">Motivo</option>
+              <option value="falta_conteudo">Falta de conteúdo</option>
+              <option value="falta_atencao">Falta de atenção</option>
+              <option value="lacuna">Lacuna</option>
+            </select>
+          </div>
 
           <!-- CAMPOS DE LACUNA -->
           <div class="lacuna-fields" style="display:none;">
@@ -155,8 +174,8 @@
             </select>
           </div>
 
-          <div style="margin-top:6px;">
-            <button class="btn primary small">Salvar erro</button>
+          <div class="form-erro-actions">
+            <button type="submit" class="btn primary small">Salvar erro</button>
             <button
               type="button"
               class="btn danger small"
@@ -177,7 +196,7 @@
 
           <% bloco.erros.forEach(erro => { %>
             <div class="erro <%= erro.revisada ? "revisada" : "" %>">
-              <span>
+              <span class="erro-info">
   Questão <strong><%= erro.numero_questao %></strong>
   — <%= erro.motivo.replace("_", " ") %>
 
@@ -203,7 +222,7 @@
                   </form>
                 <% } %>
 
-                <% if (simulado.status === "em_andamento") { %>
+                <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
                   <a href="/simulados/erro/<%= erro.id %>/editar" class="btn small">✏️ Editar</a>
 
                   <form
@@ -468,9 +487,6 @@ form.addEventListener("submit", async (e) => {
 });
 </script>
 
-
-
-
-
 </body>
 </html>
+

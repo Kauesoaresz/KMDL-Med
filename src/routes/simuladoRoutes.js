@@ -33,6 +33,7 @@ router.post("/simulados", auth, simuladoController.criarSimulado);
 router.get("/simulados/:id", auth, simuladoController.detalhesSimulado);
 router.post("/simulados/:id/bloco", auth, simuladoController.adicionarBloco);
 router.post("/simulados/:id/finalizar", auth, simuladoController.finalizarSimulado);
+router.post("/simulados/:id/revisao", auth, simuladoController.toggleRevisao);
 
 // =========================
 // BLOCO

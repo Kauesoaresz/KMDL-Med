@@ -27,7 +27,7 @@ Simulado.init(
     },
 
     status: {
-      type: DataTypes.ENUM("em_andamento", "finalizado"),
+      type: DataTypes.ENUM("em_andamento", "finalizado", "revisao"),
       allowNull: false,
       defaultValue: "em_andamento",
     },

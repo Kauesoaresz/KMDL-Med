@@ -19,9 +19,15 @@ body {
 }
 
 /* ================= MAIN ================= */
-.main-content {
-  margin-left: 90px;
+.with-sidebar {
+  margin-left: 78px;
   padding: 36px 32px;
+  min-height: 100vh;
+  transition: margin-left 0.22s ease;
+}
+
+.sidebar:hover ~ .with-sidebar {
+  margin-left: 260px;
 }
 
 .container {
@@ -35,6 +41,8 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .header h1 {
@@ -61,6 +69,71 @@ body {
 .status.em_andamento {
   background: rgba(43, 220, 255, 0.15);
   color: #9fdcff;
+}
+
+.status.revisao {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffd54f;
+  animation: pulse-revisao 2s infinite;
+}
+
+@keyframes pulse-revisao {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.3); }
+  50% { box-shadow: 0 0 8px 2px rgba(255, 193, 7, 0.2); }
+}
+
+/* ================= HEADER ACTIONS ================= */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn.warning {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd54f;
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+.btn.warning:hover {
+  background: rgba(255, 193, 7, 0.25);
+}
+
+/* ================= REVISION BANNER ================= */
+.revisao-banner {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.revisao-banner .icon {
+  font-size: 1.2rem;
+}
+
+.revisao-banner span {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+}
+
+.revisao-banner strong {
+  color: #ffd54f;
 }
 
 /* ================= BOTÕES ================= */
@@ -205,8 +278,10 @@ body {
   border-left: 4px solid #ff5c5c;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 14px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .erro.revisada {
@@ -214,9 +289,17 @@ body {
   opacity: 0.75;
 }
 
-.erro span {
+.erro-info {
   font-size: 0.8rem;
   line-height: 1.4;
+  flex: 1;
+  min-width: 200px;
+}
+
+.erro-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 /* ================= FORM ADD ERRO ================= */
@@ -225,6 +308,19 @@ body {
   border-radius: 12px;
   padding: 14px;
   border: 1px solid rgba(43, 220, 255, 0.2);
+  margin-top: 12px;
+}
+
+.form-erro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 10px;
+}
+
+.form-erro-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .form-add-erro input,
@@ -235,6 +331,20 @@ body {
   padding: 9px 10px;
   color: #eafff4;
   font-size: 0.8rem;
+  width: 100%;
+}
+
+/* ================= LACUNA FIELDS ================= */
+.lacuna-fields {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.lacuna-fields select {
+  flex: 1;
+  min-width: 120px;
 }
 
 /* ================= ADD BLOCO ================= */
@@ -271,6 +381,7 @@ body {
   padding: 11px;
   color: #eafff4;
   font-size: 0.85rem;
+  width: 100%;
 }
 
 /* ================= ERRO ROW ================= */
@@ -290,7 +401,11 @@ body {
 
 /* ================= RESPONSIVO ================= */
 @media (max-width: 900px) {
-  .main-content {
+  .with-sidebar {
+    margin-left: 0;
+  }
+
+  .sidebar:hover ~ .with-sidebar {
     margin-left: 0;
   }
 
@@ -298,4 +413,32 @@ body {
     grid-template-columns: 1fr;
     gap: 6px;
   }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lacuna-fields {
+    flex-direction: column;
+  }
+
+  .erro-row-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-erro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .erro {
+    flex-direction: column;
+  }
+
+  .erro-actions {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
 }
+

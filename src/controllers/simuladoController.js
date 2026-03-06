@@ -158,8 +158,8 @@ exports.adicionarBloco = async (req, res) => {
       where: { id, user_id: userId },
     });
 
-    if (!simulado || simulado.status === "finalizado") {
-      return res.status(403).json({ error: "Simulado inválido ou finalizado." });
+    if (!simulado || (simulado.status !== "em_andamento" && simulado.status !== "revisao")) {
+      return res.status(403).json({ error: "Simulado inválido ou já finalizado." });
     }
 
     // 🔒 SOMA TOTAL DA ÁREA
@@ -604,8 +604,8 @@ exports.adicionarErroNoBloco = async (req, res) => {
       }]
     });
 
-    if (!bloco || bloco.simulado.status === "finalizado") {
-      return res.status(403).json({ error: "Bloco inválido." });
+    if (!bloco || (bloco.simulado.status !== "em_andamento" && bloco.simulado.status !== "revisao")) {
+      return res.status(403).json({ error: "Bloco inválido ou simulado já fechado." });
     }
 
     // 🔒 lacuna exige matéria + tópico
@@ -643,5 +643,42 @@ exports.adicionarErroNoBloco = async (req, res) => {
   } catch (err) {
     console.error("ERRO adicionarErroNoBloco:", err);
     return res.status(500).json({ error: "Erro interno." });
+  }
+};
+
+/* =========================
+   ENTRAR/SAIR MODO REVISÃO
+========================= */
+exports.toggleRevisao = async (req, res) => {
+  const userId = req.session.userId;
+  const { id } = req.params;
+
+  try {
+    const simulado = await Simulado.findOne({
+      where: { id, user_id: userId },
+    });
+
+    if (!simulado) {
+      return res.redirect("/simulados/lista");
+    }
+
+    // Só permite revisão se estiver finalizado
+    if (simulado.status !== "finalizado" && simulado.status !== "revisao") {
+      return res.redirect(`/simulados/${id}`);
+    }
+
+    // Alterna o status
+    if (simulado.status === "finalizado") {
+      simulado.status = "revisao";
+    } else {
+      simulado.status = "finalizado";
+    }
+
+    await simulado.save();
+
+    res.redirect(`/simulados/${id}`);
+  } catch (err) {
+    console.error("ERRO toggleRevisao:", err);
+    res.redirect("/simulados/lista");
   }
 };
