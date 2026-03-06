@@ -20,7 +20,9 @@ body {
 }
 
 /* ---------- LAYOUT COM SIDEBAR ---------- */
-/* margin-left now controlled by global-responsive.css */
+.with-sidebar {
+  margin-left: 260px;
+}
 
 /* ---------- CONTAINER ---------- */
 .container {

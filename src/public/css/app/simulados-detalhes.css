@@ -19,11 +19,15 @@ body {
 }
 
 /* ================= MAIN ================= */
-/* margin-left now controlled by global-responsive.css */
 .with-sidebar {
+  margin-left: 260px;
   padding: 36px 32px;
   min-height: 100vh;
   transition: margin-left 0.22s ease;
+}
+
+.sidebar:hover ~ .with-sidebar {
+  margin-left: 260px;
 }
 
 .container {

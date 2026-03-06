@@ -17,10 +17,9 @@
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* OFFSET SIDEBAR - Removido margin-left fixo */
-/* O espaçamento é controlado automaticamente pelo global-responsive.css */
+/* OFFSET SIDEBAR */
 .with-sidebar {
-  /* margin-left agora é controlado pelo global-responsive.css */
+  margin-left: 260px;
   padding: 24px;
 }
 

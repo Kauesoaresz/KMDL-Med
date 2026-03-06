@@ -5,6 +5,7 @@ const study = require("../controllers/studyController");
 const dashboard = require("../controllers/dashboardController");
 const profile = require("../controllers/profileController");
 const reviewController = require("../controllers/reviewController");
+const reportController = require("../controllers/reportController");
 
 const { uploadProfile } = require("../config/upload");
 
@@ -44,5 +45,11 @@ router.get("/revisoes/hoje", auth, reviewController.listarRevisoesHoje);
 router.get("/revisoes/historico/:subjectId/:topicId", auth, reviewController.historicoRevisao);
 router.get("/revisoes/erros/:subjectId/:topicId", auth, reviewController.obterErrosTopico);
 router.post("/revisoes/erros/revisar", auth, reviewController.marcarErrosRevisados);
+
+// =========================
+// RELATÓRIO PDF
+// =========================
+router.get("/relatorio", auth, reportController.index);
+router.get("/relatorio/gerar/:periodo", auth, reportController.gerarRelatorio);
 
 module.exports = router;

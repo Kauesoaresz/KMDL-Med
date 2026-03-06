@@ -22,7 +22,7 @@ html, body {
 =============================== */
 
 .with-sidebar {
-  /* margin-left now controlled by global-responsive.css */
+  margin-left: 260px;
   height: 100vh;
   padding: 32px;
 }
