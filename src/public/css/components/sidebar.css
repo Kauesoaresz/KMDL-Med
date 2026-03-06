@@ -335,7 +335,7 @@
 }
 
 /* =====================================================
-   DESKTOP - SIDEBAR SEMPRE VISÍVEL
+   DESKTOP - SIDEBAR COLAPSADO POR PADRÃO COM HOVER
    ===================================================== */
 
 @media (min-width: 901px) {
@@ -345,9 +345,112 @@
 
   .sidebar {
     transform: translateX(0);
+    width: var(--sidebar-width-collapsed);
+    /* Transição suave para expandir/recolher */
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.3s ease;
+    overflow: visible;
+  }
+
+  /* Ao fazer hover no sidebar, expandir */
+  .sidebar:hover {
+    width: var(--sidebar-width);
   }
 
   .overlay {
     display: none;
+  }
+
+  /* OCULTAR APENAS OS TEXTOS - ÍCONES PERMANECEM VISÍVEIS */
+  
+  /* Itens do menu - configuração base */
+  .sidebar-menu .item,
+  .sidebar-footer .item {
+    justify-content: center;
+    padding: 14px 8px;
+    gap: 0;
+  }
+
+  /* Ícones sempre visíveis */
+  .sidebar-menu .item span,
+  .sidebar-footer .item span {
+    width: 28px;
+    min-width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Textos ocultos no estado colapsado */
+  .sidebar-menu .item p,
+  .sidebar-footer .item p {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+  }
+
+  /* Mostrar texto quando expandido */
+  .sidebar:hover .sidebar-menu .item p,
+  .sidebar:hover .sidebar-footer .item p {
+    width: auto;
+    opacity: 1;
+  }
+
+  /* Logo/Brand - manter visível no colapsado */
+  .sidebar-brand {
+    padding: 24px 8px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .sidebar-brand a {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .sidebar-brand .logo {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .sidebar-brand span {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+  }
+
+  .sidebar:hover .sidebar-brand span {
+    width: auto;
+    opacity: 1;
+  }
+
+  /* Perfil no footer - manter imagem visível */
+  .sidebar-footer .profile {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .sidebar-footer .profile p {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+  }
+
+  .sidebar:hover .sidebar-footer .profile p {
+    width: auto;
+    opacity: 1;
   }
 }

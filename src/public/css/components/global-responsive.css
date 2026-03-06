@@ -19,6 +19,7 @@
 
   /* Sidebar - Desktop sempre expandido */
   --sidebar-width: 260px;
+  --sidebar-width-collapsed: 72px;
 
   /* Espaçamentos responsivos */
   --spacing-xs: 8px;
@@ -193,13 +194,19 @@ body {
    ===================================================== */
 
 .with-sidebar {
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
+  margin-left: var(--sidebar-width-collapsed);
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Desktop - sidebar sempre visível */
+/* Desktop - sidebar colapsado por padrão, expande no hover */
 @media (min-width: 901px) {
   .with-sidebar {
+    margin-left: var(--sidebar-width-collapsed);
+  }
+  
+  /* Quando o sidebar expandir, o conteúdo também se ajusta */
+  .sidebar:hover ~ .with-sidebar,
+  body:has(.sidebar:hover) .with-sidebar {
     margin-left: var(--sidebar-width);
   }
 }

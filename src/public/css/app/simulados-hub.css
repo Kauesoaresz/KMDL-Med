@@ -27,7 +27,7 @@
    OFFSET DA SIDEBAR - CORRIGIDO
 ================================ */
 .with-sidebar {
-  margin-left: 260px;
+  /* margin-left now controlled by global-responsive.css */
   padding: 48px 40px;
   min-height: 100vh;
   background: transparent;

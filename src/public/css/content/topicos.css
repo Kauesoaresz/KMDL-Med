@@ -19,7 +19,7 @@
 
 /* OFFSET DA SIDEBAR */
 .with-sidebar {
-  margin-left: 260px;
+  /* margin-left now controlled by global-responsive.css */
   padding: 24px;
 }
 
