@@ -288,7 +288,7 @@ exports.dashboard = async (req, res) => {
   }
 
   /* =========================
-     SIMULADOS (ÚLTIMO + MÉDIA)
+     SIMULADOS (ÚLTIMO + MÉDIA + DETALHES POR ÁREA)
   ========================= */
   const simuladosRaw = await Simulado.findAll({
     where: { user_id: userId, status: "finalizado" },
@@ -300,13 +300,14 @@ exports.dashboard = async (req, res) => {
   // Calcular média das notas dos simulados
   let mediaSimulados = 0;
   let ultimoSimulado = null;
+  let ultimoSimuladoBlocos = [];
   
   if (simuladosRaw.length > 0) {
-    // Buscar blocos para calcular nota
+    // Buscar blocos para calcular nota (corrigido: total_questoes)
     const simuladoIds = simuladosRaw.map(s => s.id);
     const blocos = await SimuladoBloco.findAll({
       where: { simulado_id: { [Op.in]: simuladoIds } },
-      attributes: ["simulado_id", "acertos", "questoes"],
+      attributes: ["simulado_id", "area", "acertos", "total_questoes", "tempo_minutos"],
       raw: true
     });
 
@@ -314,11 +315,13 @@ exports.dashboard = async (req, res) => {
     const notasSimulados = simuladosRaw.map(sim => {
       const blocosSimulado = blocos.filter(b => b.simulado_id === sim.id);
       const totalAcertos = blocosSimulado.reduce((sum, b) => sum + (b.acertos || 0), 0);
-      const totalQuestoes = blocosSimulado.reduce((sum, b) => sum + (b.questoes || 0), 0);
+      const totalQuestoes = blocosSimulado.reduce((sum, b) => sum + (b.total_questoes || 0), 0);
+      const tempoTotal = blocosSimulado.reduce((sum, b) => sum + (b.tempo_minutos || 0), 0);
       return {
         nota: totalQuestoes > 0 ? Math.round((totalAcertos / totalQuestoes) * 100) : 0,
         acertos: totalAcertos,
-        questoes: totalQuestoes
+        questoes: totalQuestoes,
+        tempo: tempoTotal
       };
     });
 
@@ -330,8 +333,38 @@ exports.dashboard = async (req, res) => {
       data: simuladosRaw[0].data_realizacao,
       nota: notasSimulados[0].nota,
       acertos: notasSimulados[0].acertos,
-      questoes: notasSimulados[0].questoes
+      questoes: notasSimulados[0].questoes,
+      tempo: notasSimulados[0].tempo
     };
+
+    // Buscar detalhes por área do último simulado
+    const blocosUltimo = blocos.filter(b => b.simulado_id === simuladosRaw[0].id);
+    
+    // Mapeamento de áreas para nomes amigáveis
+    const areaNomes = {
+      'linguagens': 'Linguagens',
+      'humanas': 'Humanas',
+      'naturezas': 'Naturesas',
+      'matematica': 'Matemática'
+    };
+
+    // Cores para cada área
+    const areaCores = {
+      'linguagens': '#a78bfa',
+      'humanas': '#f0c75e',
+      'naturezas': '#4da3ff',
+      'matematica': '#2ee59d'
+    };
+
+    ultimoSimuladoBlocos = blocosUltimo.map(bloco => ({
+      area: areaNomes[bloco.area] || bloco.area,
+      areaKey: bloco.area,
+      cor: areaCores[bloco.area] || '#6b7280',
+      acertos: bloco.acertos || 0,
+      totalQuestoes: bloco.total_questoes || 0,
+      nota: bloco.total_questoes > 0 ? Math.round((bloco.acertos / bloco.total_questoes) * 100) : 0,
+      tempo: bloco.tempo_minutos || 0
+    }));
   }
 
   /* =========================
@@ -376,8 +409,10 @@ exports.dashboard = async (req, res) => {
   const diasSemanaRaw = await StudyEntry.findAll({
     where: { user_id: userId },
     attributes: [
-      [fn("DAYOFWEEK", col("data")), "dia"]
+      [fn("DAYOFWEEK", col("data")), "dia"],
+      [fn("SUM", col("horas")), "horas"]
     ],
+    group: [fn("DAYOFWEEK", col("data"))],
     raw: true
   });
 
@@ -385,7 +420,7 @@ exports.dashboard = async (req, res) => {
   const horasPorDia = [0, 0, 0, 0, 0, 0, 0];
   diasSemanaRaw.forEach(d => {
     const dia = parseInt(d.dia) - 1; // MySQL: 1=domingo, 7=sábado
-    horasPorDia[dia]++;
+    horasPorDia[dia] = Number(d.horas) || 0;
   });
 
   const diasSemanaLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -546,6 +581,7 @@ exports.dashboard = async (req, res) => {
     revisoesPendentes,
     diasCalendario,
     ultimoSimulado,
+    ultimoSimuladoBlocos,
     mediaSimulados,
     porMateria,
     horasPorDia,

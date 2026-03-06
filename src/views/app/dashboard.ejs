@@ -208,10 +208,44 @@
                   <span class="stat-value"><%= ultimoSimulado.questoes %></span>
                   <span class="stat-label">Questões</span>
                 </div>
+                <div class="stat-item">
+                  <span class="stat-value">
+                    <% 
+                      const horas = Math.floor(ultimoSimulado.tempo / 60);
+                      const minutos = ultimoSimulado.tempo % 60;
+                    %>
+                    <%= horas > 0 ? horas + 'h ' + minutos + 'm' : minutos + 'm' %>
+                  </span>
+                  <span class="stat-label">Tempo</span>
+                </div>
               </div>
               <div class="simulado-bar">
                 <div class="simulado-bar-fill <%= ultimoSimulado.nota >= 70 ? 'alta' : ultimoSimulado.nota >= 50 ? 'media' : 'baixa' %>" style="width: <%= ultimoSimulado.nota %>%"></div>
               </div>
+              
+              <!-- Breakdown por Área -->
+              <% if (ultimoSimuladoBlocos && ultimoSimuladoBlocos.length > 0) { %>
+                <div class="simulado-areas">
+                  <span class="areas-title">Por Área:</span>
+                  <div class="areas-grid">
+                    <% ultimoSimuladoBlocos.forEach(bloco => { %>
+                      <div class="area-item">
+                        <div class="area-header">
+                          <span class="area-nome" style="color: <%= bloco.cor %>"><%= bloco.area %></span>
+                          <span class="area-nota <%= bloco.nota >= 70 ? 'alta' : bloco.nota >= 50 ? 'media' : 'baixa' %>"><%= bloco.nota %>%</span>
+                        </div>
+                        <div class="area-bar">
+                          <div class="area-bar-fill" style="width: <%= bloco.nota %>%; background: <%= bloco.cor %>"></div>
+                        </div>
+                        <div class="area-details">
+                          <span><%= bloco.acertos %>/<%= bloco.totalQuestoes %> acertos</span>
+                          <span><%= bloco.tempo > 0 ? (bloco.tempo >= 60 ? Math.floor(bloco.tempo/60) + 'h' + (bloco.tempo%60) + 'm' : bloco.tempo + 'm') : '-' %></span>
+                        </div>
+                      </div>
+                    <% }) %>
+                  </div>
+                </div>
+              <% } %>
             </div>
             <div class="simulado-media">
               <span>Média geral: <strong><%= mediaSimulados %>%</strong></span>
