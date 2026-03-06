@@ -7,6 +7,8 @@ const {
   Subtopic
 } = require("../models");
 
+const { Op } = require("sequelize");
+
 /* =========================
    UTILS
 ========================= */
@@ -20,6 +22,22 @@ function sortDesc(obj) {
     .map(([nome, total]) => ({ nome, total }));
 }
 
+function getDateLimit(periodo) {
+  const now = new Date();
+  switch (periodo) {
+    case "30":
+      return new Date(now.setDate(now.getDate() - 30));
+    case "90":
+      return new Date(now.setDate(now.getDate() - 90));
+    case "180":
+      return new Date(now.setMonth(now.getMonth() - 6));
+    case "365":
+      return new Date(now.setFullYear(now.getFullYear() - 1));
+    default:
+      return null; // Total (sem filtro)
+  }
+}
+
 /* =========================
    ESTATÍSTICAS DE SIMULADOS
 ========================= */
@@ -27,11 +45,16 @@ exports.dashboard = async (req, res) => {
   const userId = req.session.userId;
   if (!userId) return res.redirect("/login");
 
+  const periodo = req.query.periodo || "total";
+  const dateLimit = getDateLimit(periodo);
+
   /* =========================
-     BUSCA BASE (SEM FILTRO DE STATUS)
+     BUSCA BASE (COM FILTRO DE PERÍODO)
   ========================= */
+  const whereSimulado = { user_id: userId };
+  
   const simulados = await Simulado.findAll({
-    where: { user_id: userId },
+    where: whereSimulado,
     include: [{
       model: SimuladoBloco,
       as: "blocos",
@@ -90,11 +113,17 @@ exports.dashboard = async (req, res) => {
   const evolucao = [];
 
   /* =========================
-     PROCESSAMENTO
+     PROCESSAMENTO (COM FILTRO DE PERÍODO)
   ========================= */
   simulados.forEach(simulado => {
     let questoesSim = 0;
     let acertosSim = 0;
+
+    // Filtrar por data_realizacao se houver limite de período
+    const dataSimulado = new Date(simulado.data_realizacao);
+    const dentroPeriodo = !dateLimit || dataSimulado >= dateLimit;
+
+    if (!dentroPeriodo) return;
 
     simulado.blocos.forEach(bloco => {
       totalQuestoes += bloco.total_questoes;
@@ -116,17 +145,24 @@ exports.dashboard = async (req, res) => {
         errosPorMotivo[erro.motivo]++;
 
         if (erro.motivo === "lacuna") {
-          if (erro.subject)
-            lacunasPorMateria[erro.subject.nome] =
-              (lacunasPorMateria[erro.subject.nome] || 0) + 1;
 
-          if (erro.topic)
-            lacunasPorTopico[erro.topic.nome] =
-              (lacunasPorTopico[erro.topic.nome] || 0) + 1;
+          if (erro.subject) {
+            const materia = erro.subject.nome;
+            lacunasPorMateria[materia] =
+              (lacunasPorMateria[materia] || 0) + 1;
+          }
 
-          if (erro.subtopic)
-            lacunasPorAssunto[erro.subtopic.nome] =
-              (lacunasPorAssunto[erro.subtopic.nome] || 0) + 1;
+          if (erro.topic) {
+            const topico = erro.topic.nome;
+            lacunasPorTopico[topico] =
+              (lacunasPorTopico[topico] || 0) + 1;
+          }
+
+          if (erro.subtopic) {
+            const assunto = erro.subtopic.nome;
+            lacunasPorAssunto[assunto] =
+              (lacunasPorAssunto[assunto] || 0) + 1;
+          }
         }
       });
     });
@@ -174,12 +210,13 @@ exports.dashboard = async (req, res) => {
     .sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
   /* =========================
-     RENDER
+     RENDER (TODOS OS REGISTROS - SEM LIMITE)
   ========================= */
   res.render("app/estatisticas-simulados", {
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
+    periodo,
 
     totalSimulados,
     simuladosEmAndamento,
@@ -210,9 +247,9 @@ exports.dashboard = async (req, res) => {
     motivoDominante,
 
     lacunas: {
-      materias: sortDesc(lacunasPorMateria).slice(0, 5),
-      topicos: sortDesc(lacunasPorTopico).slice(0, 5),
-      assuntos: sortDesc(lacunasPorAssunto).slice(0, 5)
+      materias: sortDesc(lacunasPorMateria),
+      topicos: sortDesc(lacunasPorTopico),
+      assuntos: sortDesc(lacunasPorAssunto)
     },
 
     evolucao

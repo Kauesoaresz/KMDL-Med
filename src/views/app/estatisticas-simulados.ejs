@@ -29,6 +29,20 @@
     </p>
   </header>
 
+  <!-- ================= FILTRO DE PERÍODO ================= -->
+  <section>
+    <form method="GET" action="/estatisticas/simulados">
+      <label for="periodo"><strong>Filtrar por período:</strong></label>
+      <select name="periodo" id="periodo" onchange="this.form.submit()">
+        <option value="total" <%= periodo === 'total' ? 'selected' : '' %>>Total (todos)</option>
+        <option value="30" <%= periodo === '30' ? 'selected' : '' %>>Últimos 30 dias</option>
+        <option value="90" <%= periodo === '90' ? 'selected' : '' %>>Últimos 90 dias</option>
+        <option value="180" <%= periodo === '180' ? 'selected' : '' %>>Últimos 6 meses</option>
+        <option value="365" <%= periodo === '365' ? 'selected' : '' %>>Último ano</option>
+      </select>
+    </form>
+  </section>
+
   <hr>
 
   <!-- ================= STATUS ================= -->
