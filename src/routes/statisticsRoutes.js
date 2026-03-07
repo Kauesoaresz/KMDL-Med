@@ -11,6 +11,13 @@ router.get("/estatisticas", auth, stats.hub);
 // ESTUDOS - Página principal de estatísticas
 router.get("/estatisticas/estudos", auth, stats.geral);
 
+// CONTEÚDO - Estatísticas por matéria/tópico/assunto
+router.get("/estatisticas/conteudo", auth, stats.conteudo);
+router.get("/estatisticas/conteudo/dashboard", auth, stats.conteudo);
+
+// DETALHES - Ver detalhes de uma matéria específica
+router.get("/estatisticas/conteudo/:id", auth, stats.detalhesMateria);
+
 // SIMULADOS – COMPARAÇÃO
 router.get("/estatisticas/simulados/comparar", auth, compare.form);
 router.post("/estatisticas/simulados/comparar", auth, compare.comparar);

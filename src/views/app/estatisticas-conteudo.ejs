@@ -2,11 +2,12 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>KMDL Med | Estatísticas de Conteúdo</title>
+  <title>KMed | Estatísticas de Conteúdo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/estatisticas-conteudo.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body class="page-bg">
@@ -18,97 +19,492 @@
 }) %>
 
 <main class="with-sidebar">
-  <section class="page estatisticas-conteudo">
+  <div class="page conteudo-page">
 
-    <!-- ================= TOPO ================= -->
+    <!-- HEADER -->
     <header class="conteudo-header">
-      <div>
-        <h1>📊 Estatísticas de Conteúdo</h1>
-        <p class="sub">
-          Análise profunda de matérias, tópicos e assuntos com foco em decisão de estudo.
-        </p>
+      <div class="header-content">
+        <h1>📚 Estatísticas de Conteúdo</h1>
+        <p class="sub">Análise profunda para otimizar sua preparação</p>
+      </div>
+      
+      <!-- FILTRO DE PERÍODO -->
+      <div class="period-filter">
+        <a href="/estatisticas/conteudo?period=week" class="filter-btn <%= period === 'week' ? 'active' : '' %>">
+          <span class="filter-icon">📅</span> Essa Semana
+        </a>
+        <a href="/estatisticas/conteudo?period=month" class="filter-btn <%= period === 'month' ? 'active' : '' %>">
+          <span class="filter-icon">🗓️</span> Esse Mês
+        </a>
+        <a href="/estatisticas/conteudo?period=all" class="filter-btn <%= period === 'all' ? 'active' : '' %>">
+          <span class="filter-icon">∞</span> Total
+        </a>
       </div>
     </header>
 
-    <!-- ================= RESUMO GERAL ================= -->
-    <section class="conteudo-resumo">
-      <div class="resumo-card">
-        <span>Horas estudadas</span>
-        <strong id="resumo-horas">—</strong>
-      </div>
-
-      <div class="resumo-card">
-        <span>Questões feitas</span>
-        <strong id="resumo-questoes">—</strong>
-      </div>
-
-      <div class="resumo-card">
-        <span>Acertos</span>
-        <strong id="resumo-acertos">—</strong>
-      </div>
-
-      <div class="resumo-card">
-        <span>Erros</span>
-        <strong id="resumo-erros">—</strong>
-      </div>
-
-      <div class="resumo-card destaque">
-        <span>Aproveitamento</span>
-        <strong id="resumo-aproveitamento">—%</strong>
-      </div>
-    </section>
-
-    <!-- ================= CONTROLES ================= -->
-    <section class="conteudo-controles">
-
-      <div class="controle-periodo">
-        <button class="periodo-btn" data-period="7">7 dias</button>
-        <button class="periodo-btn" data-period="30">30 dias</button>
-        <button class="periodo-btn active" data-period="all">Total</button>
-      </div>
-    </section>
-
-    <!-- ================= CORPO ================= -->
-    <section class="conteudo-corpo">
-
-      <!-- ===== LISTA PRINCIPAL ===== -->
-      <div class="conteudo-lista">
-        <h2 id="lista-titulo">Matérias</h2>
-
-        <div id="lista-itens" class="lista-itens">
-          <div class="placeholder">
-            Selecione um tipo acima para visualizar os dados.
+    <!-- LINHA 1: CARDS PRINCIPAIS -->
+    <section class="stats-cards-grid">
+      <!-- Card Horas -->
+      <div class="stat-card main-card tempo">
+        <div class="card-icon">⏱️</div>
+        <div class="card-content">
+          <span class="card-label">Horas Estudadas</span>
+          <div class="card-value"><%= stats.horas.toFixed(1) %>h</div>
+          <div class="card-sub">
+            <% if (period === 'week') { %>
+              Essa semana
+            <% } else if (period === 'month') { %>
+              Esse mês
+            <% } else { %>
+              Total geral
+            <% } %>
           </div>
+        </div>
+        <div class="card-badge">
+          <%= total.horas.toFixed(1) %>h total
         </div>
       </div>
 
-      <!-- ===== PAINEL DE DETALHES ===== -->
-      <div class="conteudo-detalhes">
-        <h2 id="detalhe-titulo">Detalhes</h2>
-
-        <div id="detalhe-conteudo" class="detalhe-conteudo">
-          <div class="placeholder">
-            Clique em um item para ver a análise completa.
+      <!-- Card Questões -->
+      <div class="stat-card main-card questoes">
+        <div class="card-icon">📝</div>
+        <div class="card-content">
+          <span class="card-label">Questões Resolvidas</span>
+          <div class="card-value"><%= stats.questoes %></div>
+          <div class="card-sub">
+<span class="acertos-text">✓ <%= stats.acertos %> acertos</span>
+            <span class="erros-text">✗ <%= stats.erros %> erros</span>
           </div>
+        </div>
+        <div class="card-badge warning">
+          <%= stats.aproveitamento %>% aproveitamento
         </div>
       </div>
 
-    </section>
+      <!-- Card Matérias -->
+      <div class="stat-card main-card materias">
+        <div class="card-icon">📚</div>
+        <div class="card-content">
+          <span class="card-label">Matérias Ativas</span>
+          <div class="card-value"><%= materias.length %></div>
+          <div class="card-sub">
+            <span>Com estudo no período</span>
+          </div>
+        </div>
+        <div class="card-badge">
+          <%= totalTopics %> tópicos estudados
+        </div>
+      </div>
 
-    <!-- ================= DIAGNÓSTICO ================= -->
-    <section class="conteudo-diagnostico">
-      <h2>🧠 Diagnóstico Inteligente</h2>
-
-      <div id="diagnostico-box" class="diagnostico-box">
-        <p class="placeholder">
-          O diagnóstico aparecerá aqui com base nos dados selecionados.
-        </p>
+      <!-- Card Média -->
+      <div class="stat-card main-card media">
+        <div class="card-icon">🎯</div>
+        <div class="card-content">
+          <span class="card-label">Média Geral</span>
+          <div class="card-value"><%= stats.aproveitamento %>%</div>
+          <div class="card-sub">
+            <% if (stats.aproveitamento >= 70) { %>
+              <span class="good-text">Ótimo desempenho! 🎉</span>
+            <% } else if (stats.aproveitamento >= 50) { %>
+              <span class="medium-text">Pode melhorar 💪</span>
+            <% } else { %>
+              <span class="bad-text">Precisa focar mais 🎯</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="card-badge success">
+          <%= mediaGeral %>% média total
+        </div>
       </div>
     </section>
 
-  </section>
+    <!-- LINHA 2: RANKINGS -->
+    <section class="rankings-section">
+      <div class="ranking-card melhores">
+        <div class="ranking-header">
+          <h2>🏆 Top 5 - Melhores</h2>
+          <span class="ranking-sub">Maior aproveitamento</span>
+        </div>
+        <div class="ranking-list">
+          <% rankingMelhores.slice(0, 5).forEach((item, index) => { %>
+            <div class="ranking-item">
+              <span class="ranking-posicao <%= index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '' %>">
+                <%= index + 1 %>
+              </span>
+              <div class="ranking-info">
+                <span class="ranking-nome"><%= item.nome %></span>
+                <span class="ranking-detalhes"><%= item.questoes %> questões</span>
+              </div>
+              <span class="ranking-percent <%= item.aproveitamento >= 70 ? 'good' : item.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                <%= item.aproveitamento %>%
+              </span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="ranking-card perhatian">
+        <div class="ranking-header">
+          <h2>⚠️ Precisa de Atenção</h2>
+          <span class="ranking-sub">Menor aproveitamento</span>
+        </div>
+        <div class="ranking-list">
+          <% rankingAtencao.slice(0, 5).forEach((item, index) => { %>
+            <div class="ranking-item">
+              <span class="ranking-posicao attention">
+                <%= index + 1 %>
+              </span>
+              <div class="ranking-info">
+                <span class="ranking-nome"><%= item.nome %></span>
+                <span class="ranking-detalhes"><%= item.questoes %> questões</span>
+              </div>
+              <span class="ranking-percent bad">
+                <%= item.aproveitamento %>%
+              </span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="ranking-card mais-estudados">
+        <div class="ranking-header">
+          <h2>🔥 Mais Estudados</h2>
+          <span class="ranking-sub">Por horas</span>
+        </div>
+        <div class="ranking-list">
+          <% rankingHoras.slice(0, 5).forEach((item, index) => { %>
+            <div class="ranking-item">
+              <span class="ranking-posicao <%= index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '' %>">
+                <%= index + 1 %>
+              </span>
+              <div class="ranking-info">
+                <span class="ranking-nome"><%= item.nome %></span>
+                <span class="ranking-detalhes"><%= item.questoes %> questões</span>
+              </div>
+              <span class="ranking-horas">
+                <%= item.horas.toFixed(1) %>h
+              </span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="ranking-card mais-questoes">
+        <div class="ranking-header">
+          <h2>📝 Mais Questões</h2>
+          <span class="ranking-sub">Por volume</span>
+        </div>
+        <div class="ranking-list">
+          <% rankingQuestoes.slice(0, 5).forEach((item, index) => { %>
+            <div class="ranking-item">
+              <span class="ranking-posicao <%= index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '' %>">
+                <%= index + 1 %>
+              </span>
+              <div class="ranking-info">
+                <span class="ranking-nome"><%= item.nome %></span>
+                <span class="ranking-detalhes"><%= item.acertos %> acertos</span>
+              </div>
+              <span class="ranking-questoes">
+                <%= item.questoes %>
+              </span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINHA 3: GRÁFICOS -->
+    <section class="charts-grid">
+      <!-- Distribuição por Matéria -->
+      <div class="chart-card distribuicao">
+        <div class="chart-header">
+          <h2>📊 Distribuição por Matéria</h2>
+          <span class="chart-sub">Horas por matéria</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="distribuicaoChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Evolução por Matéria -->
+      <div class="chart-card evolucao-materia">
+        <div class="chart-header">
+          <h2>📈 Evolução por Matéria</h2>
+          <span class="chart-sub">Últimos 30 dias</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="evolucaoMateriaChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINHA 4: MATÉRIAS DETALHADAS -->
+    <section class="materias-section">
+      <h2 class="section-title">📚 Matérias - Detalhamento</h2>
+      
+      <div class="materias-grid">
+        <% materias.forEach(function(materia) { %>
+          <div class="materia-card" data-id="<%= materia.id %>">
+            <div class="materia-header">
+              <h3><%= materia.nome %></h3>
+              <span class="materia-percent <%= materia.aproveitamento >= 70 ? 'good' : materia.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                <%= materia.aproveitamento %>%
+              </span>
+            </div>
+            
+            <div class="materia-stats">
+              <div class="materia-stat">
+                <span class="stat-icon">⏱️</span>
+                <div class="stat-info">
+                  <span class="stat-value"><%= materia.horas.toFixed(1) %>h</span>
+                  <span class="stat-label">Horas</span>
+                </div>
+              </div>
+              <div class="materia-stat">
+                <span class="stat-icon">📝</span>
+                <div class="stat-info">
+                  <span class="stat-value"><%= materia.questoes %></span>
+                  <span class="stat-label">Questões</span>
+                </div>
+              </div>
+              <div class="materia-stat">
+                <span class="stat-icon">✓</span>
+                <div class="stat-info">
+                  <span class="stat-value good"><%= materia.acertos %></span>
+                  <span class="stat-label">Acertos</span>
+                </div>
+              </div>
+              <div class="materia-stat">
+                <span class="stat-icon">✗</span>
+                <div class="stat-info">
+                  <span class="stat-value bad"><%= materia.erros %></span>
+                  <span class="stat-label">Erros</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de progresso -->
+            <div class="materia-progress">
+              <div class="progress-bar">
+                <div class="progress-fill <%= materia.aproveitamento >= 70 ? 'good' : materia.aproveitamento >= 50 ? 'medium' : 'bad' %>" 
+                     style="width: <%= materia.aproveitamento %>%"></div>
+              </div>
+              <span class="progress-text"><%= materia.aproveitamento %>%</span>
+            </div>
+
+            <!-- Informações extras -->
+            <div class="materia-extra">
+              <span class="extra-item">
+                📅 <%= materia.dias_estudados %> dias estudados
+              </span>
+              <span class="extra-item">
+                🕐 <%= materia.ultimo_study ? new Date(materia.ultimo_study).toLocaleDateString('pt-BR') : 'Nunca' %>
+              </span>
+            </div>
+
+            <!-- Tópicos -->
+            <div class="materia-topicos">
+              <h4>Tópicos (<%= materia.topicos ? materia.topicos.length : 0 %>)</h4>
+              <% if (materia.topicos && materia.topicos.length > 0) { %>
+                <div class="topicos-list">
+                  <% materia.topicos.slice(0, 3).forEach(function(topico) { %>
+                    <div class="topico-item" data-id="<%= topico.id %>">
+                      <span class="topico-nome"><%= topico.nome %></span>
+                      <span class="topico-percent <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                        <%= topico.aproveitamento %>%
+                      </span>
+                    </div>
+                  <% }); %>
+                  <% if (materia.topicos.length > 3) { %>
+                    <div class="topicos-more">+ <%= materia.topicos.length - 3 %> tópicos</div>
+                  <% } %>
+                </div>
+              <% } else { %>
+                <p class="no-topicos">Nenhum tópico estudado</p>
+              <% } %>
+            </div>
+
+            <!-- Botão Ver Detalhes -->
+<a href="/estatisticas/conteudo/<%= materia.id %>" class="btn-ver-detalhes">
+              📊 Ver Detalhes Completos
+            </a>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- LINHA 5: ESTATÍSTICAS GERAIS -->
+    <section class="stats-gerais">
+      <div class="stats-block geral-block">
+        <h2>📋 Resumo por Matéria</h2>
+        <div class="geral-materia-grid">
+          <% materias.forEach(function(materia) { %>
+            <div class="geral-materia-item">
+              <div class="geral-materia-header">
+                <span class="geral-materia-nome"><%= materia.nome %></span>
+                <span class="geral-materia-percent <%= materia.aproveitamento >= 70 ? 'good' : materia.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                  <%= materia.aproveitamento %>%
+                </span>
+              </div>
+              <div class="geral-materia-bars">
+                <div class="geral-bar">
+                  <div class="geral-bar-fill good" style="width: <%= materia.perc_horas %>%"></div>
+                </div>
+                <span class="geral-bar-label"><%= materia.horas.toFixed(1) %>h</span>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINHA 6: TABELA COMPLETA -->
+    <section class="tabela-section">
+      <div class="tabela-card">
+        <div class="tabela-header">
+          <h2>📊 Tabela Completa</h2>
+          <span class="tabela-sub">Todos os dados por matéria</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Matéria</th>
+                <th>Horas</th>
+                <th>Questões</th>
+                <th>Acertos</th>
+                <th>Erros</th>
+                <th>Aproveitamento</th>
+                <th>Dias</th>
+                <th>Último</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% materias.forEach(function(materia) { %>
+                <tr>
+                  <td class="materia-name"><%= materia.nome %></td>
+                  <td><%= materia.horas.toFixed(1) %>h</td>
+                  <td><%= materia.questoes %></td>
+                  <td class="good"><%= materia.acertos %></td>
+                  <td class="bad"><%= materia.erros %></td>
+                  <td>
+                    <span class="table-percent <%= materia.aproveitamento >= 70 ? 'good' : materia.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                      <%= materia.aproveitamento %>%
+                    </span>
+                  </td>
+                  <td><%= materia.dias_estudados %></td>
+                  <td><%= materia.ultimo_study ? new Date(materia.ultimo_study).toLocaleDateString('pt-BR') : '-' %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
 </main>
 
-<script src="/public/js/app/estatisticas-conteudo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Dados do servidor
+  const materiasData = <%- JSON.stringify(materias || []) %>;
+  const evolucaoData = <%- JSON.stringify(evolucao || []) %>;
+  const currentPeriod = "<%= period %>";
+
+  // Cores
+  const colors = {
+    blue: 'rgba(59, 130, 246, 0.8)',
+    green: 'rgba(34, 197, 94, 0.8)',
+    yellow: 'rgba(250, 204, 21, 0.8)',
+    red: 'rgba(239, 68, 68, 0.8)',
+    purple: 'rgba(139, 92, 246, 0.8)',
+    orange: 'rgba(249, 115, 22, 0.8)',
+    pink: 'rgba(236, 72, 153, 0.8)',
+    teal: 'rgba(20, 184, 166, 0.8)'
+  };
+
+  const colorKeys = Object.keys(colors);
+  const bgColors = materiasData.map((_, i) => colors[colorKeys[i % colorKeys.length]]);
+
+  // Gráfico de Distribuição
+  const ctxDistribuicao = document.getElementById('distribuicaoChart');
+  if (ctxDistribuicao) {
+    new Chart(ctxDistribuicao, {
+      type: 'doughnut',
+      data: {
+        labels: materiasData.map(m => m.nome),
+        datasets: [{
+          data: materiasData.map(m => m.horas),
+          backgroundColor: bgColors,
+          borderColor: '#1a1d26',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              color: '#9ca3af',
+              padding: 12,
+              font: { size: 11 }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de Evolução por Matéria
+  const ctxEvolucaoMateria = document.getElementById('evolucaoMateriaChart');
+  if (ctxEvolucaoMateria) {
+    const top5 = [...materiasData].sort((a, b) => b.questoes - a.questoes).slice(0, 5);
+    
+    new Chart(ctxEvolucaoMateria, {
+      type: 'bar',
+      data: {
+        labels: top5.map(m => m.nome),
+        datasets: [
+          {
+            label: 'Acertos',
+            data: top5.map(m => m.acertos),
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            borderRadius: 6
+          },
+          {
+            label: 'Erros',
+            data: top5.map(m => m.erros),
+            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#9ca3af' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#9ca3af' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#e5e7eb' }
+          }
+        }
+      }
+    });
+  }
+</script>
 </body>
 </html>
+

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMed | <%= materia.nome %> - Detalhes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/estatisticas-conteudo.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+  <div class="page conteudo-page">
+
+    <!-- HEADER -->
+    <header class="conteudo-header">
+      <div class="header-content">
+        <a href="/estatisticas/conteudo/dashboard" class="btn-voltar">← Voltar</a>
+        <h1>📚 <%= materia.nome %></h1>
+        <p class="sub">Análise completa da matéria</p>
+      </div>
+      
+      <!-- FILTRO DE PERÍODO -->
+      <div class="period-filter">
+        <a href="/estatisticas/conteudo/<%= materia.id %>?period=week" class="filter-btn <%= period === 'week' ? 'active' : '' %>">
+          <span class="filter-icon">📅</span> Essa Semana
+        </a>
+        <a href="/estatisticas/conteudo/<%= materia.id %>?period=month" class="filter-btn <%= period === 'month' ? 'active' : '' %>">
+          <span class="filter-icon">🗓️</span> Esse Mês
+        </a>
+        <a href="/estatisticas/conteudo/<%= materia.id %>?period=all" class="filter-btn <%= period === 'all' ? 'active' : '' %>">
+          <span class="filter-icon">∞</span> Total
+        </a>
+      </div>
+    </header>
+
+    <!-- LINHA 1: CARDS DA MATÉRIA -->
+    <section class="stats-cards-grid">
+      <!-- Card Horas -->
+      <div class="stat-card main-card tempo">
+        <div class="card-icon">⏱️</div>
+        <div class="card-content">
+          <span class="card-label">Horas Estudadas</span>
+          <div class="card-value"><%= materia.horas.toFixed(1) %>h</div>
+          <div class="card-sub">
+            <% if (period === 'week') { %>
+              Essa semana
+            <% } else if (period === 'month') { %>
+              Esse mês
+            <% } else { %>
+              Total geral
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Questões -->
+      <div class="stat-card main-card questoes">
+        <div class="card-icon">📝</div>
+        <div class="card-content">
+          <span class="card-label">Questões Resolvidas</span>
+          <div class="card-value"><%= materia.questoes %></div>
+          <div class="card-sub">
+            <span class="acertos-text">✓ <%= materia.acertos %> acertos</span>
+            <span class="erros-text">✗ <%= materia.erros %> erros</span>
+          </div>
+        </div>
+        <div class="card-badge warning">
+          <%= materia.aproveitamento %>%>
+        </div>
+      </div>
+
+      <!-- Card Dias -->
+      <div class="stat-card main-card materias">
+        <div class="card-icon">📅</div>
+        <div class="card-content">
+          <span class="card-label">Dias Estudados</span>
+          <div class="card-value"><%= materia.dias_estudados %></div>
+          <div class="card-sub">
+            <span>Dias com registro</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Média -->
+      <div class="stat-card main-card media">
+        <div class="card-icon">🎯</div>
+        <div class="card-content">
+          <span class="card-label">Aproveitamento</span>
+          <div class="card-value"><%= materia.aproveitamento %>%></div>
+          <div class="card-sub">
+            <% if (materia.aproveitamento >= 70) { %>
+              <span class="good-text">Ótimo desempenho! 🎉</span>
+            <% } else if (materia.aproveitamento >= 50) { %>
+              <span class="medium-text">Pode melhorar 💪</span>
+            <% } else { %>
+              <span class="bad-text">Precisa focar mais 🎯</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="card-badge success">
+          <%= materia.ultimo_study ? new Date(materia.ultimo_study).toLocaleDateString('pt-BR') : 'Nunca estudado' %>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINHA 2: TÓPICOS -->
+    <section class="materias-section">
+      <h2 class="section-title">📋 Todos os Tópicos (<%= materia.topicos.length %>)</h2>
+      
+      <div class="topicos-detalhes-grid">
+        <% if (materia.topicos.length === 0) { %>
+          <div class="empty-state">
+            <p>Nenhum tópico estudado nesta matéria ainda.</p>
+          </div>
+        <% } %>
+        
+        <% materia.topicos.forEach(function(topico) { %>
+          <div class="topico-card">
+            <div class="topico-header">
+              <h3><%= topico.nome %></h3>
+              <span class="topico-percent <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                <%= topico.aproveitamento %>%>
+              </span>
+            </div>
+
+            <div class="topico-stats">
+              <div class="topico-stat">
+                <span class="stat-icon">⏱️</span>
+                <div class="stat-info">
+                  <span class="stat-value"><%= topico.horas.toFixed(1) %>h</span>
+                  <span class="stat-label">Horas</span>
+                </div>
+              </div>
+              <div class="topico-stat">
+                <span class="stat-icon">📝</span>
+                <div class="stat-info">
+                  <span class="stat-value"><%= topico.questoes %></span>
+                  <span class="stat-label">Questões</span>
+                </div>
+              </div>
+              <div class="topico-stat">
+                <span class="stat-icon">✓</span>
+                <div class="stat-info">
+                  <span class="stat-value good"><%= topico.acertos %></span>
+                  <span class="stat-label">Acertos</span>
+                </div>
+              </div>
+              <div class="topico-stat">
+                <span class="stat-icon">✗</span>
+                <div class="stat-info">
+                  <span class="stat-value bad"><%= topico.erros %></span>
+                  <span class="stat-label">Erros</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de progresso -->
+            <div class="topico-progress">
+              <div class="progress-bar">
+                <div class="progress-fill <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>" 
+                     style="width: <%= topico.aproveitamento %>%"></div>
+              </div>
+            </div>
+
+            <!-- Assuntos do Tópico -->
+            <% if (topico.assuntos && topico.assuntos.length > 0) { %>
+              <div class="topico-assuntos">
+                <h4>📝 Assuntos (<%= topico.assuntos.length %>)</h4>
+                <div class="assuntos-list">
+                  <% topico.assuntos.forEach(function(assunto) { %>
+                    <div class="assunto-item">
+                      <div class="assunto-info">
+                        <span class="assunto-nome"><%= assunto.nome %></span>
+                      </div>
+                      <div class="assunto-stats">
+                        <span class="assunto-horas"><%= assunto.horas.toFixed(1) %>h</span>
+                        <span class="assunto-questoes"><%= assunto.questoes %> questões</span>
+                        <span class="assunto-percent <%= assunto.aproveitamento >= 70 ? 'good' : assunto.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                          <%= assunto.aproveitamento %>%>
+                        </span>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- LINHA 3: TABELA COMPLETA -->
+    <section class="tabela-section">
+      <div class="tabela-card">
+        <div class="tabela-header">
+          <h2>📊 Tabela Completa</h2>
+          <span class="tabela-sub">Todos os dados por tópico e assunto</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Nome</th>
+                <th>Horas</th>
+                <th>Questões</th>
+                <th>Acertos</th>
+                <th>Erros</th>
+                <th>Aproveitamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% materia.topicos.forEach(function(topico) { %>
+                <tr class="row-topico">
+                  <td><span class="tipo-badge topico">Tópico</span></td>
+                  <td class="materia-name"><%= topico.nome %></td>
+                  <td><%= topico.horas.toFixed(1) %>h</td>
+                  <td><%= topico.questoes %></td>
+                  <td class="good"><%= topico.acertos %></td>
+                  <td class="bad"><%= topico.erros %></td>
+                  <td>
+                    <span class="table-percent <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                      <%= topico.aproveitamento %>%>
+                    </span>
+                  </td>
+                </tr>
+                <% if (topico.assuntos) { %>
+                  <% topico.assuntos.forEach(function(assunto) { %>
+                    <tr class="row-assunto">
+                      <td><span class="tipo-badge assunto">Assunto</span></td>
+                      <td class="assunto-name"><%= assunto.nome %></td>
+                      <td><%= assunto.horas.toFixed(1) %>h</td>
+                      <td><%= assunto.questoes %></td>
+                      <td class="good"><%= assunto.acertos %></td>
+                      <td class="bad"><%= assunto.erros %></td>
+                      <td>
+                        <span class="table-percent <%= assunto.aproveitamento >= 70 ? 'good' : assunto.aproveitamento >= 50 ? 'medium' : 'bad' %>">
+                          <%= assunto.aproveitamento %>%>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } %>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+</body>
+</html>
+

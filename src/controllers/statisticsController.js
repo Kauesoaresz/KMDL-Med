@@ -388,6 +388,182 @@ async function calcConquistas(userId) {
 }
 
 // =========================
+// ESTATÍSTICAS POR MATÉRIA
+// =========================
+async function calcEstatisticasConteudo(userId, period) {
+  const dateLimit = getDateLimit(period);
+  const where = { user_id: userId };
+  const whereAll = { user_id: userId };
+
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  // Buscar todas as matérias do usuário
+  const subjects = await Subject.findAll({
+    where: { user_id: userId },
+    order: [["nome", "ASC"]],
+    raw: true
+  });
+
+  const materias = [];
+  let totalTopics = 0;
+
+  // Para cada matéria, buscar estatísticas
+  for (const subject of subjects) {
+    const subjectWhere = { ...where, subject_id: subject.id };
+    const subjectWhereAll = { ...whereAll, subject_id: subject.id };
+
+    // Estatísticas da matéria
+    const [stats] = await StudyEntry.findAll({
+      where: subjectWhere,
+      attributes: [
+        [fn("SUM", col("horas")), "horas"],
+        [fn("SUM", col("questoes")), "questoes"],
+        [fn("SUM", col("acertos")), "acertos"]
+      ],
+      raw: true
+    });
+
+    const horas = Number(stats?.horas) || 0;
+    const questoes = Number(stats?.questoes) || 0;
+    const acertos = Number(stats?.acertos) || 0;
+    const erros = questoes - acertos;
+    const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
+
+    // Dias estudados nessa matéria
+    const diasRaw = await StudyEntry.findAll({
+      where: subjectWhere,
+      attributes: ["data"],
+      group: ["data"],
+      raw: true
+    });
+    const dias_estudados = diasRaw.length;
+
+    // Último estudo
+    const ultimoStudy = await StudyEntry.findOne({
+      where: subjectWhere,
+      attributes: ["data"],
+      order: [["data", "DESC"]],
+      raw: true
+    });
+
+    // Só adicionar se tiver estudo no período
+    if (horas > 0 || questoes > 0) {
+      // Buscar tópicos dessa matéria
+      const topics = await Topic.findAll({
+        where: { subject_id: subject.id },
+        order: [["nome", "ASC"]],
+        raw: true
+      });
+
+      const topicos = [];
+      let topicsCount = 0;
+
+      for (const topic of topics) {
+        const topicWhere = { ...where, topic_id: topic.id };
+
+        const [topicStats] = await StudyEntry.findAll({
+          where: topicWhere,
+          attributes: [
+            [fn("SUM", col("horas")), "horas"],
+            [fn("SUM", col("questoes")), "questoes"],
+            [fn("SUM", col("acertos")), "acertos"]
+          ],
+          raw: true
+        });
+
+        const topicHoras = Number(topicStats?.horas) || 0;
+        const topicQuestoes = Number(topicStats?.questoes) || 0;
+        const topicAcertos = Number(topicStats?.acertos) || 0;
+        const topicAproveitamento = topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
+
+        if (topicHoras > 0 || topicQuestoes > 0) {
+          topicos.push({
+            id: topic.id,
+            nome: topic.nome,
+            horas: topicHoras,
+            questoes: topicQuestoes,
+            acertos: topicAcertos,
+            erros: topicQuestoes - topicAcertos,
+            aproveitamento: topicAproveitamento
+          });
+          topicsCount++;
+        }
+      }
+
+      totalTopics += topicsCount;
+
+      materias.push({
+        id: subject.id,
+        nome: subject.nome,
+        horas,
+        questoes,
+        acertos,
+        erros,
+        aproveitamento,
+        dias_estudados,
+        ultimo_study: ultimoStudy?.data || null,
+        topicos,
+        perc_horas: 0 // será calculado depois
+      });
+    }
+  }
+
+  // Calcular total de horas para percentuais
+  const totalHoras = materias.reduce((sum, m) => sum + m.horas, 0);
+  materias.forEach(m => {
+    m.perc_horas = totalHoras > 0 ? Math.round((m.horas / totalHoras) * 100) : 0;
+  });
+
+  // Rankings
+  const rankingMelhores = [...materias].sort((a, b) => b.aproveitamento - a.aproveitamento);
+  const rankingAtencao = [...materias].sort((a, b) => a.aproveitamento - b.aproveitamento);
+  const rankingHoras = [...materias].sort((a, b) => b.horas - a.horas);
+  const rankingQuestoes = [...materias].sort((a, b) => b.questoes - a.questoes);
+
+  // Média geral
+  const mediaGeral = materias.length > 0
+    ? Math.round(materias.reduce((sum, m) => sum + m.aproveitamento, 0) / materias.length)
+    : 0;
+
+  return { materias, totalTopics, rankingMelhores, rankingAtencao, rankingHoras, rankingQuestoes, mediaGeral };
+}
+
+// =========================
+// EVOLUÇÃO POR MATÉRIA (ÚLTIMOS 30 DIAS)
+// =========================
+async function calcEvolucaoPorMateria(userId, days = 30) {
+  const inicio = daysAgoISO(days - 1);
+  const hoje = todayISO();
+
+  const evolucaoRaw = await StudyEntry.findAll({
+    where: {
+      user_id: userId,
+      data: { [Op.between]: [inicio, hoje] }
+    },
+    attributes: [
+      "data",
+      "subject_id",
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]
+    ],
+    group: ["data", "subject_id"],
+    order: [["data", "ASC"]],
+    raw: true
+  });
+
+  return evolucaoRaw.map(d => ({
+    data: d.data,
+    subject_id: d.subject_id,
+    horas: Number(d.horas) || 0,
+    questoes: Number(d.questoes) || 0,
+    acertos: Number(d.acertos) || 0
+  }));
+}
+
+// =========================
 // PÁGINA PRINCIPAL
 // =========================
 exports.geral = async (req, res) => {
@@ -487,6 +663,68 @@ exports.geral = async (req, res) => {
 };
 
 // =========================
+// ESTATÍSTICAS DE CONTEÚDO
+// =========================
+exports.conteudo = async (req, res) => {
+  const userId = req.session.userId;
+
+  // Período atual (padrão: total)
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  // Stats por período
+  const statsPeriodo = await calcByPeriod(userId, dateLimit);
+
+  // Stats totais
+  const statsTotal = await calcByPeriod(userId, null);
+
+  // Estatísticas de conteúdo
+  const conteudo = await calcEstatisticasConteudo(userId, period);
+
+  // Evolução por matéria
+  const evolucao = await calcEvolucaoPorMateria(userId, 30);
+
+  res.render("app/estatisticas-conteudo", {
+    active: "estatisticas",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto,
+
+    // Período atual
+    period,
+
+    // Stats do período
+    stats: {
+      horas: statsPeriodo.horas,
+      questoes: statsPeriodo.questoes,
+      acertos: statsPeriodo.acertos,
+      erros: statsPeriodo.erros,
+      aproveitamento: statsPeriodo.aproveitamento
+    },
+
+    // Stats totais
+    total: {
+      horas: statsTotal.horas,
+      questoes: statsTotal.questoes,
+      acertos: statsTotal.acertos,
+      erros: statsTotal.erros,
+      aproveitamento: statsTotal.aproveitamento
+    },
+
+    // Matérias e rankings
+    materias: conteudo.materias,
+    totalTopics: conteudo.totalTopics,
+    mediaGeral: conteudo.mediaGeral,
+    rankingMelhores: conteudo.rankingMelhores,
+    rankingAtencao: conteudo.rankingAtencao,
+    rankingHoras: conteudo.rankingHoras,
+    rankingQuestoes: conteudo.rankingQuestoes,
+
+    // Evolução
+    evolucao
+  });
+};
+
+// =========================
 // HUB
 // =========================
 exports.hub = async (req, res) => {
@@ -496,4 +734,164 @@ exports.hub = async (req, res) => {
     userFoto: req.session.userFoto
   });
 };
+
+// =========================
+// DETALHES DE MATÉRIA ESPECÍFICA
+// =========================
+exports.detalhesMateria = async (req, res) => {
+  const userId = req.session.userId;
+  const subjectId = req.params.id;
+  const period = req.query.period || "all";
+  const dateLimit = getDateLimit(period);
+
+  // Buscar a matéria
+  const materia = await Subject.findOne({
+    where: { id: subjectId, user_id: userId },
+    raw: true
+  });
+
+  if (!materia) {
+    return res.redirect("/estatisticas/conteudo/dashboard");
+  }
+
+  const where = { user_id: userId, subject_id: subjectId };
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  // Estatísticas da matéria
+  const [stats] = await StudyEntry.findAll({
+    where,
+    attributes: [
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]
+    ],
+    raw: true
+  });
+
+  const horas = Number(stats?.horas) || 0;
+  const questoes = Number(stats?.questoes) || 0;
+  const acertos = Number(stats?.acertos) || 0;
+  const erros = questoes - acertos;
+  const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
+
+  // Dias estudados
+  const diasRaw = await StudyEntry.findAll({
+    where,
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
+  });
+  const dias_estudados = diasRaw.length;
+
+  // Último estudo
+  const ultimoStudy = await StudyEntry.findOne({
+    where,
+    attributes: ["data"],
+    order: [["data", "DESC"]],
+    raw: true
+  });
+
+  // Buscar TODOS os tópicos da matéria
+  const topics = await Topic.findAll({
+    where: { subject_id: subjectId },
+    order: [["nome", "ASC"]],
+    raw: true
+  });
+
+  const topicos = [];
+  let totalTopicsCount = 0;
+
+  for (const topic of topics) {
+    const topicWhere = { ...where, topic_id: topic.id };
+
+    const [topicStats] = await StudyEntry.findAll({
+      where: topicWhere,
+      attributes: [
+        [fn("SUM", col("horas")), "horas"],
+        [fn("SUM", col("questoes")), "questoes"],
+        [fn("SUM", col("acertos")), "acertos"]
+      ],
+      raw: true
+    });
+
+    const topicHoras = Number(topicStats?.horas) || 0;
+    const topicQuestoes = Number(topicStats?.questoes) || 0;
+    const topicAcertos = Number(topicStats?.acertos) || 0;
+    const topicAproveitamento = topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
+
+    // Buscar assuntos do tópico
+    const subtopics = await Subtopic.findAll({
+      where: { topic_id: topic.id },
+      order: [["nome", "ASC"]],
+      raw: true
+    });
+
+    const assuntos = [];
+    for (const subtopic of subtopics) {
+      const subtopicWhere = { ...where, subtopic_id: subtopic.id };
+
+      const [subtopicStats] = await StudyEntry.findAll({
+        where: subtopicWhere,
+        attributes: [
+          [fn("SUM", col("horas")), "horas"],
+          [fn("SUM", col("questoes")), "questoes"],
+          [fn("SUM", col("acertos")), "acertos"]
+        ],
+        raw: true
+      });
+
+      const subHoras = Number(subtopicStats?.horas) || 0;
+      const subQuestoes = Number(subtopicStats?.questoes) || 0;
+      const subAcertos = Number(subtopicStats?.acertos) || 0;
+      const subAproveitamento = subQuestoes > 0 ? Math.round((subAcertos / subQuestoes) * 100) : 0;
+
+      if (subHoras > 0 || subQuestoes > 0) {
+        assuntos.push({
+          id: subtopic.id,
+          nome: subtopic.nome,
+          horas: subHoras,
+          questoes: subQuestoes,
+          acertos: subAcertos,
+          erros: subQuestoes - subAcertos,
+          aproveitamento: subAproveitamento
+        });
+      }
+    }
+
+    if (topicHoras > 0 || topicQuestoes > 0) {
+      topicos.push({
+        id: topic.id,
+        nome: topic.nome,
+        horas: topicHoras,
+        questoes: topicQuestoes,
+        acertos: topicAcertos,
+        erros: topicQuestoes - topicAcertos,
+        aproveitamento: topicAproveitamento,
+        assuntos
+      });
+      totalTopicsCount++;
+    }
+  }
+
+  res.render("app/estatisticas-conteudo-detalhes", {
+    active: "estatisticas",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto,
+    materia: {
+      ...materia,
+      horas,
+      questoes,
+      acertos,
+      erros,
+      aproveitamento,
+      dias_estudados,
+      ultimo_study: ultimoStudy?.data || null,
+      topicos
+    },
+    period
+  });
+};
+
 
