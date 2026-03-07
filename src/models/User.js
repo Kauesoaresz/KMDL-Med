@@ -8,7 +8,8 @@ const User = sequelize.define(
     nome: { type: DataTypes.STRING(80), allowNull: false },
     email: { type: DataTypes.STRING(120), allowNull: false, unique: true },
     senha_hash: { type: DataTypes.STRING(255), allowNull: false },
-    foto: { type: DataTypes.STRING(255), allowNull: true }
+    foto: { type: DataTypes.STRING(255), allowNull: true },
+    bio: { type: DataTypes.STRING(500), allowNull: true }
   },
   {
     tableName: "users",
