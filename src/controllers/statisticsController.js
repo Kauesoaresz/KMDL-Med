@@ -569,8 +569,8 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
 exports.geral = async (req, res) => {
   const userId = req.session.userId;
 
-  // Período atual (padrão: semana)
-  const period = req.query.period || "week";
+  // Período atual (padrão: total)
+  const period = req.query.period || "all";
   const dateLimit = getDateLimit(period);
 
   // Stats por período
