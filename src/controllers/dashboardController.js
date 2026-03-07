@@ -1,6 +1,53 @@
-const { StudyEntry, Subject, Topic, Simulado, SimuladoBloco, ReviewHistory } = require("../models");
+const { StudyEntry, Subject, Topic, Simulado, SimuladoBloco, ReviewHistory, StudyGoal } = require("../models");
 const { Op, fn, col } = require("sequelize");
 const sequelize = require("../config/database");
+
+/* =========================
+   HELPER: Atualizar progresso de meta
+========================= */
+async function atualizarProgressoMeta(goal) {
+  const hoje = todayISO();
+  
+  // Buscar todos os estudos a partir da data de início
+  const estudos = await StudyEntry.findAll({
+    where: {
+      user_id: goal.user_id,
+      data: { [Op.gte]: goal.data_inicio }
+    },
+    attributes: [
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"]
+    ],
+    raw: true
+  });
+
+  const horasConcluidas = Number(estudos[0]?.horas) || 0;
+  const questoesConcluidas = Number(estudos[0]?.questoes) || 0;
+
+  // Atualizar o registro da meta
+  goal.horas_concluidas = horasConcluidas;
+  goal.questoes_concluidas = questoesConcluidas;
+
+  // Verificar se a meta foi concluída
+  const horasConcluidasMeta = horasConcluidas >= goal.meta_horas;
+  const questoesConcluidasMeta = goal.meta_questoes > 0 
+    ? questoesConcluidas >= goal.meta_questoes 
+    : true;
+
+  // Se passaram da data limite e não concluiu
+  if (hoje > goal.data_limite && (!horasConcluidasMeta || !questoesConcluidasMeta)) {
+    goal.status = "vencida";
+  }
+
+  // Se completou todas as metas
+  if (horasConcluidasMeta && questoesConcluidasMeta && goal.status === "ativa") {
+    goal.status = "concluida";
+    goal.data_conclusao = hoje;
+  }
+
+  await goal.save();
+  return goal;
+}
 
 /* =========================
    HELPERS DE DATA (CALENDÁRIO REAL)
@@ -121,22 +168,40 @@ exports.dashboard = async (req, res) => {
     raw: true
   });
 
+  // Criar conjunto para busca rápida
+  const diasEstudadosSet = new Set(diasEstudadosRaw.map(d => d.data));
+
   let streakAtual = 0;
   let streakSemana = [];
 
   const hojeDate = parseLocalDate(hoje);
 
-  for (let i = 0; i < 7; i++) {
+  // Calcular streak atual (dias consecutivos até hoje)
+  // Começa por hoje e vai para trás
+  for (let i = 0; i < 365; i++) {
     const d = new Date(hojeDate);
     d.setDate(d.getDate() - i);
     const iso = d.toISOString().slice(0, 10);
 
-    const estudou = diasEstudadosRaw.some(e => e.data === iso);
-    streakSemana.unshift(estudou);
-
-    if (i === streakAtual && estudou) {
+    if (diasEstudadosSet.has(iso)) {
       streakAtual++;
+    } else {
+      // Se não estudou hoje, verifica se foi ontem para continuar o streak
+      if (i === 0) {
+        // Hoje não estudou ainda, mas pode ter estudado ontem
+        continue;
+      }
+      // Quebrou a sequência
+      break;
     }
+  }
+
+  // streakSemana: últimos 7 dias (de 6 dias atrás até hoje)
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(hojeDate);
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    streakSemana.push(diasEstudadosSet.has(iso));
   }
 
   /* =========================
@@ -560,6 +625,42 @@ exports.dashboard = async (req, res) => {
   }
 
   /* =========================
+     METAS PRINCIPAIS (para dashboard)
+  ========================= */
+  const metasPrincipaisRaw = await StudyGoal.findAll({
+    where: {
+      user_id: userId,
+      eh_principal: true,
+      status: "ativa"
+    },
+    order: [["data_limite", "ASC"]],
+    limit: 4
+  });
+
+  const metasPrincipais = await Promise.all(
+    metasPrincipaisRaw.map(async (meta) => {
+      const atualizada = await atualizarProgressoMeta(meta);
+      return {
+        id: atualizada.id,
+        nome: atualizada.nome,
+        meta_horas: Number(atualizada.meta_horas),
+        meta_questoes: atualizada.meta_questoes,
+        horas_concluidas: Number(atualizada.horas_concluidas),
+        questoes_concluidas: atualizada.questoes_concluidas,
+        data_limite: atualizada.data_limite,
+        data_limite_formatada: new Date(atualizada.data_limite).toLocaleDateString("pt-BR"),
+        progresso_horas: Math.min(Math.round((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) * 100), 100),
+        progresso_questoes: atualizada.meta_questoes > 0 
+          ? Math.min(Math.round((atualizada.questoes_concluidas / atualizada.meta_questoes) * 100), 100)
+          : 100,
+        progresso_total: atualizada.meta_questoes > 0
+          ? Math.min(Math.round(((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) + (atualizada.questoes_concluidas / atualizada.meta_questoes)) / 2 * 100), 100)
+          : Math.min(Math.round((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) * 100), 100)
+      };
+    })
+  );
+
+  /* =========================
      RENDER
   ========================= */
   res.render("app/dashboard", {
@@ -592,6 +693,7 @@ exports.dashboard = async (req, res) => {
     conquistas,
     conquistasProgresso,
     horasTotal,
-    questoesTotal
+    questoesTotal,
+    metasPrincipais
   });
 };

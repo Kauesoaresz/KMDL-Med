@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KMed | Minhas Metas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/app/metas.css" />
+</head>
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "metas", userNome, userFoto }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+
+      <!-- Header -->
+      <section class="metas-header">
+        <div class="header-text">
+          <h1>📋 Histórico de Metas</h1>
+          <p>Acompanhe todas as suas metas de estudo</p>
+        </div>
+        <a href="/dashboard" class="back-btn">
+          ← Voltar ao Dashboard
+        </a>
+      </section>
+
+      <!-- Stats -->
+      <section class="metas-stats">
+        <div class="stat-card concluidas">
+          <span class="stat-icon">✅</span>
+          <div class="stat-info">
+            <span class="stat-value"><%= stats.totalConcluidas %></span>
+            <span class="stat-label">Concluídas</span>
+          </div>
+        </div>
+        <div class="stat-card vencidas">
+          <span class="stat-icon">⏰</span>
+          <div class="stat-info">
+            <span class="stat-value"><%= stats.totalVencidas %></span>
+            <span class="stat-label">Vencidas</span>
+          </div>
+        </div>
+        <div class="stat-card no-prazo">
+          <span class="stat-icon">🎯</span>
+          <div class="stat-info">
+            <span class="stat-value"><%= stats.dentroDoPrazo %></span>
+            <span class="stat-label">No Prazo</span>
+          </div>
+        </div>
+        <div class="stat-card fora-prazo">
+          <span class="stat-icon">⚠️</span>
+          <div class="stat-info">
+            <span class="stat-value"><%= stats.foraDoPrazo %></span>
+            <span class="stat-label">Fora do Prazo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lista de Metas -->
+      <section class="metas-lista">
+        <% if (metas && metas.length > 0) { %>
+          <% metas.forEach(meta => { %>
+            <div class="meta-card <%= meta.status %>">
+              <div class="meta-card-header">
+                <div class="meta-titulo">
+                  <span class="meta-nome"><%= meta.nome %></span>
+                  <span class="meta-status <%= meta.status %>">
+                    <% if (meta.status === 'concluida') { %>
+                      <%= meta.dentro_do_prazo ? '✅ Concluída' : '⚠️ Fora do prazo' %>
+                    <% } else { %>
+                      ⏰ Vencida
+                    <% } %>
+                  </span>
+                </div>
+                <button class="meta-delete-btn" onclick="deletarMeta(<%= meta.id %>)" title="Excluir meta">
+                  🗑️
+                </button>
+              </div>
+
+              <div class="meta-dates">
+                <div class="date-item">
+                  <span class="date-label">Criada em</span>
+                  <span class="date-value"><%= meta.data_inicio %></span>
+                </div>
+                <div class="date-item">
+                  <span class="date-label">Prazo</span>
+                  <span class="date-value"><%= meta.data_limite %></span>
+                </div>
+                <% if (meta.data_conclusao) { %>
+                  <div class="date-item">
+                    <span class="date-label">Concluída em</span>
+                    <span class="date-value concluida"><%= meta.data_conclusao %></span>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="meta-progressos">
+                <div class="progress-item">
+                  <div class="progress-header">
+                    <span class="progress-label">Horas</span>
+                    <span class="progress-values"><%= meta.horas_concluidas %>h / <%= meta.meta_horas %>h</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: <%= meta.progresso_horas %>%"></div>
+                  </div>
+                </div>
+                <% if (meta.meta_questoes > 0) { %>
+                  <div class="progress-item">
+                    <div class="progress-header">
+                      <span class="progress-label">Questões</span>
+                      <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: <%= meta.progresso_questoes %>%"></div>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="meta-footer">
+                <% if (meta.data_conclusao) { %>
+                  <span class="meta-tempo">
+                    ⏱️ Tempo para concluir: <%= meta.dias_para_conclusao %> dias
+                  </span>
+                <% } else { %>
+                  <span class="meta-tempo">
+                    ⏱️ Prazo total: <%= meta.dias_totais %> dias
+                  </span>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty-state">
+            <span class="empty-icon">📋</span>
+            <h2>Nenhuma meta encontrada</h2>
+            <p>Você ainda não criou nenhuma meta ou todas estão ativas.</p>
+            <a href="/dashboard" class="btn-primary">
+              Criar primeira meta
+            </a>
+          </div>
+        <% } %>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    async function deletarMeta(id) {
+      if (!confirm('Tem certeza que deseja excluir esta meta?')) return;
+      
+      try {
+        const response = await fetch(`/api/metas/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          location.reload();
+        } else {
+          alert('Erro ao excluir meta');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao excluir meta');
+      }
+    }
+  </script>
+
+</body>
+</html>
+

@@ -19,6 +19,7 @@ const calendarioRoutes = require("./routes/calendarioRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 const simuladoRoutes = require("./routes/simuladoRoutes");
 const provaRoutes = require("./routes/provaRoutes");
+const goalRoutes = require("./routes/goalRoutes");
 
 const app = express();
 
@@ -64,6 +65,8 @@ app.use(calendarioRoutes);
 
 app.use(simuladoRoutes);
 app.use(provaRoutes);
+
+app.use(goalRoutes);
 
 app.use(apiRoutes);
 

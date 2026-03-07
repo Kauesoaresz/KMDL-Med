@@ -185,7 +185,7 @@
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 18px;
 }
 
@@ -1079,5 +1079,150 @@
     width: auto;
     flex-direction: column;
   }
+}
+
+/* ================================
+   METAS SECTION (Dashboard)
+   ================================ */
+
+.metas-section {
+  margin-bottom: 0;
+}
+
+.metas-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-criar-meta {
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2ee59d, #22c55e);
+  border: none;
+  color: #07110f;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-criar-meta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 229, 157, 0.3);
+}
+
+.metas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.meta-card-dashboard {
+  background: linear-gradient(180deg, #1a1d24, #14161a);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #2a2e38;
+  transition: all 0.2s ease;
+}
+
+.meta-card-dashboard:hover {
+  border-color: #2ee59d;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46, 229, 157, 0.15);
+}
+
+.meta-card-dashboard .meta-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.meta-card-dashboard .meta-nome {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.meta-card-dashboard .meta-prazo {
+  font-size: 0.75rem;
+  color: #9aa1ad;
+  white-space: nowrap;
+}
+
+.meta-card-dashboard .meta-progressos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.meta-card-dashboard .progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-card-dashboard .progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meta-card-dashboard .progress-label {
+  font-size: 0.75rem;
+  color: #9aa1ad;
+  font-weight: 600;
+}
+
+.meta-card-dashboard .progress-values {
+  font-size: 0.8rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.meta-card-dashboard .progress-bar {
+  height: 6px;
+  background: #1f2229;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meta-card-dashboard .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2ee59d, #22c55e);
+  border-radius: 999px;
+}
+
+.meta-card-dashboard .meta-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.meta-card-dashboard .meta-progresso-total {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2ee59d;
+}
+
+.metas-empty {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(180deg, #1a1d24, #14161a);
+  border-radius: 16px;
+  border: 1px dashed #2a2e38;
+}
+
+.metas-empty p {
+  color: #9aa1ad;
+  margin: 0;
+}
+
+.metas-hint {
+  font-size: 0.85rem;
+  color: #6b7280 !important;
+  margin-top: 8px !important;
 }
 

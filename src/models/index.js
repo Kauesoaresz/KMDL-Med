@@ -4,6 +4,7 @@ const Topic = require("./Topic");
 const Subtopic = require("./Subtopic");
 const StudyEntry = require("./StudyEntry");
 const ReviewHistory = require("./ReviewHistory");
+const StudyGoal = require("./StudyGoal");
 
 /* ==========================
    SIMULADOS
@@ -120,6 +121,12 @@ ReviewHistory.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
 Topic.hasMany(ReviewHistory, { foreignKey: "topic_id", as: "reviews" });
 ReviewHistory.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 
+// ==========================
+// STUDY GOALS (METAS)
+// ==========================
+User.hasMany(StudyGoal, { foreignKey: "user_id", as: "goals" });
+StudyGoal.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 module.exports = {
   User,
   Subject,
@@ -127,6 +134,7 @@ module.exports = {
   Subtopic,
   StudyEntry,
   ReviewHistory,
+  StudyGoal,
   Simulado,
   SimuladoBloco,
   SimuladoQuestaoErro,

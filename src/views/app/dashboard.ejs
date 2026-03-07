@@ -107,20 +107,6 @@
           <span class="label">Dias estudados</span>
         </div>
 
-        <!-- Meta Diária -->
-        <div class="card meta-card">
-          <div class="meta-header">
-            <h3>🎯 Meta Diária</h3>
-            <span class="meta-percent"><%= metaPercentual %>%</span>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: <%= metaPercentual %>%"></div>
-            </div>
-          </div>
-          <p class="meta-text"><%= horasHoje %>h de <%= metaDiaria %>h hoje</p>
-        </div>
-
       </section>
 
       <!-- =========================
@@ -145,6 +131,66 @@
           </div>
         </section>
       <% } %>
+
+      <!-- =========================
+           METAS PRINCIPAIS
+      ========================== -->
+      <section class="dashboard-section metas-section">
+        <div class="section-header">
+          <h2>🎯 Minhas Metas</h2>
+          <div class="metas-actions">
+            <button class="btn-criar-meta" onclick="abrirModalMeta()">
+              + Nova Meta
+            </button>
+            <a href="/metas" class="section-link">Ver histórico →</a>
+          </div>
+        </div>
+        
+        <% if (metasPrincipais && metasPrincipais.length > 0) { %>
+          <div class="metas-grid">
+            <% metasPrincipais.forEach(meta => { %>
+              <div class="meta-card-dashboard">
+                <div class="meta-card-header">
+                  <span class="meta-nome"><%= meta.nome %></span>
+                  <span class="meta-prazo">⏰ <%= meta.data_limite_formatada %></span>
+                </div>
+                
+                <div class="meta-progressos">
+                  <div class="progress-item">
+                    <div class="progress-header">
+                      <span class="progress-label">Horas</span>
+                      <span class="progress-values"><%= meta.horas_concluidas %>h / <%= meta.meta_horas %>h</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: <%= meta.progresso_horas %>%"></div>
+                    </div>
+                  </div>
+                  <% if (meta.meta_questoes > 0) { %>
+                    <div class="progress-item">
+                      <div class="progress-header">
+                        <span class="progress-label">Questões</span>
+                        <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: <%= meta.progresso_questoes %>%"></div>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
+                
+                <div class="meta-footer">
+                  <span class="meta-progresso-total"><%= meta.progresso_total %>% completo</span>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="metas-empty">
+            <p>Você ainda não tem metas principais.</p>
+            <p class="metas-hint">Crie uma meta e marque como principal para aparecer aqui!</p>
+          </div>
+        <% } %>
+      </section>
 
       <!-- =========================
            ROW: CALENDÁRIO + SIMULADOS
@@ -497,6 +543,303 @@
       }
 
       requestAnimationFrame(update);
+    });
+  </script>
+
+  <!-- Modal de Criar Meta -->
+  <div id="modalMeta" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎯 Criar Nova Meta</h3>
+        <button class="modal-close" onclick="fecharModalMeta()">&times;</button>
+      </div>
+      <form id="formCriarMeta" class="modal-body">
+        <div class="form-group">
+          <label for="nome">Nome da Meta *</label>
+          <input type="text" id="nome" name="nome" required placeholder="Ex: Estudar Matemática">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="meta_horas">Meta de Horas *</label>
+            <input type="number" id="meta_horas" name="meta_horas" required min="1" step="0.5" placeholder="Ex: 40">
+          </div>
+          <div class="form-group">
+            <label for="meta_questoes">Meta de Questões</label>
+            <input type="number" id="meta_questoes" name="meta_questoes" min="0" placeholder="500">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data_inicio">Data de Início *</label>
+            <input type="date" id="data_inicio" name="data_inicio" required>
+          </div>
+          <div class="form-group">
+            <label for="data_limite">Data Limite *</label>
+            <input type="date" id="data_limite" name="data_limite" required>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="eh_principal" name="eh_principal" value="true">
+            <span>Definir como meta principal (aparece no dashboard)</span>
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="fecharModalMeta()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Criar Meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Estilos do Modal -->
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: linear-gradient(180deg, #161821, #0f1117);
+      border: 1px solid rgba(46, 229, 157, 0.3);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.25rem;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: #9aa1ad;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    
+    .modal-close:hover {
+      color: #ef4444;
+    }
+    
+    .modal-body {
+      padding: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #9aa1ad;
+      font-size: 0.875rem;
+      margin-bottom: 6px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: #1a1d24;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #2ee59d;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 16px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 8px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #2ee59d;
+      color: #0f1218;
+    }
+    
+    .btn-primary:hover {
+      background: #26c992;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: #9aa1ad;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    @media (max-width: 500px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+    
+    .checkbox-group {
+      margin: 16px 0;
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: #9aa1ad;
+      font-size: 0.9rem;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #2ee59d;
+      cursor: pointer;
+    }
+  </style>
+
+  <!-- Scripts do Modal de Meta -->
+  <script>
+    // Funções para abrir/fechar modal
+    function abrirModalMeta() {
+      const modal = document.getElementById('modalMeta');
+      modal.classList.add('active');
+      
+      // Define datas padrão
+      const hoje = new Date();
+      const dataInicio = document.getElementById('data_inicio');
+      const dataLimite = document.getElementById('data_limite');
+      
+      if (!dataInicio.value) {
+        dataInicio.value = hoje.toISOString().split('T')[0];
+      }
+      
+      if (!dataLimite.value) {
+        const dataFutura = new Date(hoje);
+        dataFutura.setMonth(dataFutura.getMonth() + 1);
+        dataLimite.value = dataFutura.toISOString().split('T')[0];
+      }
+    }
+    
+    function fecharModalMeta() {
+      const modal = document.getElementById('modalMeta');
+      modal.classList.remove('active');
+    }
+    
+    // Fechar modal ao clicar fora
+    document.getElementById('modalMeta').addEventListener('click', function(e) {
+      if (e.target === this) {
+        fecharModalMeta();
+      }
+    });
+    
+    // Enviar formulário de criar meta
+    document.getElementById('formCriarMeta').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const ehPrincipalCheckbox = document.getElementById('eh_principal');
+      const dados = {
+        nome: formData.get('nome'),
+        meta_horas: formData.get('meta_horas'),
+        meta_questoes: formData.get('meta_questoes') || 0,
+        data_inicio: formData.get('data_inicio'),
+        data_limite: formData.get('data_limite'),
+        eh_principal: ehPrincipalCheckbox ? ehPrincipalCheckbox.checked : false
+      };
+      
+      try {
+        const response = await fetch('/api/metas/criar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dados)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          alert('Meta criada com sucesso!');
+          fecharModalMeta();
+          // Recarrega a página para mostrar a nova meta
+          location.reload();
+        } else {
+          alert(result.erro || 'Erro ao criar meta');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao criar meta');
+      }
     });
   </script>
 
