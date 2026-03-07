@@ -8,23 +8,11 @@ const router = express.Router();
 // HUB
 router.get("/estatisticas", auth, stats.hub);
 
-// ESTUDOS
+// ESTUDOS - Página principal de estatísticas
 router.get("/estatisticas/estudos", auth, stats.geral);
 
 // SIMULADOS – COMPARAÇÃO
 router.get("/estatisticas/simulados/comparar", auth, compare.form);
 router.post("/estatisticas/simulados/comparar", auth, compare.comparar);
-
-router.get(
-  "/estatisticas/conteudo/dashboard",
-  auth,
-  stats.materiasDashboard
-);
-
-
-// APIs
-router.get("/estatisticas/materias", auth, stats.porMateria);
-router.get("/estatisticas/materias/:subjectId/topicos", auth, stats.porTopico);
-router.get("/estatisticas/topicos/:topicId/assuntos", auth, stats.porAssunto);
 
 module.exports = router;

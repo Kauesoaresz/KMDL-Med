@@ -1,13 +1,11 @@
-const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
+const { StudyEntry, Subject, Topic, Subtopic, StudyGoal, ReviewHistory } = require("../models");
 const sequelize = require("../config/database");
-const { Op } = require("sequelize");
-const { SimuladoQuestaoErro } = require("../models");
-
-
+const { Op, fn, col } = require("sequelize");
 
 // =========================
-// UTILS
+// HELPERS
 // =========================
+
 function calcStats(row) {
   const horas = Number(row.horas) || 0;
   const questoes = Number(row.questoes) || 0;
@@ -24,106 +22,469 @@ function getDateLimit(period) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  // SEMANA ATUAL (domingo → hoje)
   if (period === "week") {
     const start = new Date(now);
-    start.setDate(now.getDate() - now.getDay()); // domingo
+    start.setDate(now.getDate() - now.getDay());
     return start;
   }
 
-  // MÊS ATUAL (dia 1 → hoje)
   if (period === "month") {
     return new Date(now.getFullYear(), now.getMonth(), 1);
   }
 
-  // TOTAL
   return null;
 }
 
+function todayISO() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
 
-// =========================
-// ERROS DE CONTEÚDO (HELPER)
-// =========================
-async function buscarErrosConteudo({ level, id, dateLimit }) {
-  const where = {};
+function daysAgoISO(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
 
-  if (dateLimit) {
-    where.created_at = { [Op.gte]: dateLimit };
-  }
-
-  if (level === "materia") where.subject_id = id;
-  if (level === "topico") where.topic_id = id;
-  if (level === "assunto") where.subtopic_id = id;
-
-  const rows = await SimuladoQuestaoErro.findAll({
-    where,
-    attributes: [
-      "motivo",
-      [sequelize.fn("COUNT", sequelize.col("id")), "total"]
-    ],
-    group: ["motivo"],
-    raw: true
-  });
-
-  const base = {
-    total: 0,
-    falta_conteudo: 0,
-    lacuna: 0,
-    falta_atencao: 0
-  };
-
-  rows.forEach(r => {
-    base.total += Number(r.total);
-    base[r.motivo] = Number(r.total);
-  });
-
-  return base;
+function parseLocalDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 // =========================
-// VISÃO GERAL
+// CALCULAR STREAK
 // =========================
-exports.geral = async (req, res) => {
-  const userId = req.session.userId;
+async function calcStreak(userId) {
+  const diasEstudadosRaw = await StudyEntry.findAll({
+    where: { user_id: userId },
+    attributes: ["data"],
+    group: ["data"],
+    order: [["data", "DESC"]],
+    raw: true
+  });
 
-  async function calcByPeriod(dateLimit) {
-    const where = { user_id: userId };
+  const diasEstudadosSet = new Set(diasEstudadosRaw.map(d => d.data));
+  const hoje = todayISO();
 
-    if (dateLimit) {
-      where.data = { [Op.gte]: dateLimit };
+  let streakAtual = 0;
+  const hojeDate = parseLocalDate(hoje);
+
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(hojeDate);
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+
+    if (diasEstudadosSet.has(iso)) {
+      streakAtual++;
+    } else {
+      if (i === 0) continue;
+      break;
     }
+  }
 
-    const [row] = await StudyEntry.findAll({
-      where,
+  return streakAtual;
+}
+
+// =========================
+// ESTATÍSTICAS POR PERÍODO
+// =========================
+async function calcByPeriod(userId, dateLimit) {
+  const where = { user_id: userId };
+
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  const [row] = await StudyEntry.findAll({
+    where,
+    attributes: [
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]
+    ],
+    raw: true
+  });
+
+  return calcStats(row || {});
+}
+
+// =========================
+// DIAS ESTUDADOS NO PERÍODO
+// =========================
+async function calcDiasEstudados(userId, dateLimit) {
+  const where = { user_id: userId };
+
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  const diasRaw = await StudyEntry.findAll({
+    where,
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
+  });
+
+  return diasRaw.length;
+}
+
+// =========================
+// EVOLUÇÃO (ÚLTIMOS 30 DIAS)
+// =========================
+async function calcEvolucao(userId, days = 30) {
+  const inicio = daysAgoISO(days - 1);
+  const hoje = todayISO();
+
+  const evolucaoRaw = await StudyEntry.findAll({
+    where: {
+      user_id: userId,
+      data: { [Op.between]: [inicio, hoje] }
+    },
+    attributes: [
+      "data",
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]
+    ],
+    group: ["data"],
+    order: [["data", "ASC"]],
+    raw: true
+  });
+
+  return evolucaoRaw.map(d => ({
+    data: d.data,
+    label: parseLocalDate(d.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+    horas: Number(d.horas) || 0,
+    questoes: Number(d.questoes) || 0,
+    acertos: Number(d.acertos) || 0
+  }));
+}
+
+// =========================
+// POR DIA DA SEMANA
+// =========================
+async function calcPorDiaSemana(userId) {
+  const diasSemanaRaw = await StudyEntry.findAll({
+    where: { user_id: userId },
+    attributes: [
+      [fn("DAYOFWEEK", col("data")), "dia"],
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"]
+    ],
+    group: [fn("DAYOFWEEK", col("data"))],
+    raw: true
+  });
+
+  const horasPorDia = [0, 0, 0, 0, 0, 0, 0];
+  const questoesPorDia = [0, 0, 0, 0, 0, 0, 0];
+
+  diasSemanaRaw.forEach(d => {
+    const dia = parseInt(d.dia) - 1;
+    horasPorDia[dia] = Number(d.horas) || 0;
+    questoesPorDia[dia] = Number(d.questoes) || 0;
+  });
+
+  return { horasPorDia, questoesPorDia };
+}
+
+// =========================
+// POR DIFICULDADE
+// =========================
+async function calcPorDificuldade(userId, dateLimit) {
+  const where = { user_id: userId };
+
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  const porDificuldade = await StudyEntry.findAll({
+    where,
+    attributes: [
+      "dificuldade",
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]
+    ],
+    group: ["dificuldade"],
+    raw: true
+  });
+
+  const resultado = {
+    MUITO_FACIL: { questoes: 0, acertos: 0 },
+    FACIL: { questoes: 0, acertos: 0 },
+    MEDIA: { questoes: 0, acertos: 0 },
+    DIFICIL: { questoes: 0, acertos: 0 },
+    MUITO_DIFICIL: { questoes: 0, acertos: 0 }
+  };
+
+  porDificuldade.forEach(d => {
+    if (resultado[d.dificuldade]) {
+      resultado[d.dificuldade] = {
+        questoes: Number(d.questoes) || 0,
+        acertos: Number(d.acertos) || 0
+      };
+    }
+  });
+
+  return resultado;
+}
+
+// =========================
+// METAS ATIVAS COM PROGRESSO
+// =========================
+async function calcMetas(userId) {
+  const hoje = todayISO();
+
+  const metasRaw = await StudyGoal.findAll({
+    where: {
+      user_id: userId,
+      status: "ativa"
+    },
+    order: [["data_limite", "ASC"]],
+    raw: true
+  });
+
+  const metas = [];
+
+  for (const meta of metasRaw) {
+    const estudos = await StudyEntry.findAll({
+      where: {
+        user_id: userId,
+        data: { [Op.between]: [meta.data_inicio, hoje > meta.data_limite ? meta.data_limite : hoje] }
+      },
       attributes: [
-        [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-        [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-        [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
+        [fn("SUM", col("horas")), "horas"],
+        [fn("SUM", col("questoes")), "questoes"]
       ],
       raw: true
     });
 
-    return calcStats(row || {});
+    const horasConcluidas = Number(estudos[0]?.horas) || 0;
+    const questoesConcluidas = Number(estudos[0]?.questoes) || 0;
+
+    metas.push({
+      id: meta.id,
+      nome: meta.nome,
+      meta_horas: Number(meta.meta_horas),
+      meta_questoes: meta.meta_questoes,
+      horasConcluidas,
+      questoesConcluidas,
+      data_limite: meta.data_limite,
+      progresso_horas: Math.min(Math.round((horasConcluidas / Number(meta.meta_horas)) * 100), 100),
+      progresso_questoes: meta.meta_questoes > 0
+        ? Math.min(Math.round((questoesConcluidas / meta.meta_questoes) * 100), 100)
+        : 100,
+      dias_restantes: Math.max(0, Math.ceil((new Date(meta.data_limite) - new Date(hoje)) / (1000 * 60 * 60 * 24)))
+    });
   }
 
-  const semana = await calcByPeriod(getDateLimit("week"));
-const mes = await calcByPeriod(getDateLimit("month"));
-const total = await calcByPeriod(null);
+  return metas;
+}
 
+// =========================
+// REVISÕES
+// =========================
+async function calcRevisoes(userId) {
+  const totalRevisoes = await ReviewHistory.count({
+    where: { user_id: userId }
+  });
+
+  const revisoesPorMateria = await ReviewHistory.findAll({
+    where: { user_id: userId },
+    attributes: [
+      "subject_id",
+      [fn("COUNT", col("ReviewHistory.id")), "total"]
+    ],
+    include: [{ model: Subject, as: "subject", attributes: ["id", "nome"] }],
+    group: ["subject_id", "subject.id"],
+    raw: false
+  });
+
+  return {
+    total: totalRevisoes,
+    porMateria: revisoesPorMateria.map(r => ({
+      nome: r.subject?.nome || "Sem matéria",
+      total: Number(r.get("total"))
+    }))
+  };
+}
+
+// =========================
+// CONQUISTAS
+// =========================
+async function calcConquistas(userId) {
+  const conquistas = [];
+  const progresso = [];
+
+  // Total de horas
+  const statsTotal = await StudyEntry.findOne({
+    where: { user_id: userId },
+    attributes: [
+      [fn("SUM", col("horas")), "horas"],
+      [fn("SUM", col("questoes")), "questoes"]
+    ],
+    raw: true
+  });
+
+  const horasTotal = Number(statsTotal?.horas) || 0;
+  const questoesTotal = Number(statsTotal?.questoes) || 0;
+
+  // streak
+  const streak = await calcStreak(userId);
+
+  // Total de dias estudados
+  const diasRaw = await StudyEntry.findAll({
+    where: { user_id: userId },
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
+  });
+  const diasTotal = diasRaw.length;
+
+  // Total de revisões
+  const totalRevisoes = await ReviewHistory.count({
+    where: { user_id: userId }
+  });
+
+  // Taxa de acertos
+  const taxaGeral = questoesTotal > 0
+    ? Math.round((Number(statsTotal?.acertos) || 0) / questoesTotal * 100)
+    : 0;
+
+  // Conquistas de horas
+  if (horasTotal >= 10) conquistas.push({ icone: "🌱", titulo: "Primeiros Passos", desc: "10h estudadas" });
+  if (horasTotal >= 50) conquistas.push({ icone: "📚", titulo: "Dedicado", desc: "50h estudadas" });
+  if (horasTotal >= 100) conquistas.push({ icone: "⏰", titulo: "Cem Horas", desc: "100h estudadas" });
+  if (horasTotal >= 250) conquistas.push({ icone: "🎓", titulo: "Mestre", desc: "250h estudadas" });
+  if (horasTotal >= 500) conquistas.push({ icone: "🏆", titulo: "Lenda", desc: "500h estudadas" });
+  else if (horasTotal >= 100) progresso.push({ icone: "🏆", titulo: "Lenda", atual: horasTotal, meta: 500 });
+
+  // Conquistas de streak
+  if (streak >= 7) conquistas.push({ icone: "🔥", titulo: "Semana de Ouro", desc: "7 dias seguidos" });
+  if (streak >= 30) conquistas.push({ icone: "⚡", titulo: "Mês de Ferro", desc: "30 dias seguidos" });
+  if (streak >= 100) conquistas.push({ icone: "👑", titulo: "Lenda", desc: "100 dias seguidos" });
+  else if (streak >= 7) progresso.push({ icone: "👑", titulo: "Lenda", atual: streak, meta: 100 });
+
+  // Conquistas de questões
+  if (questoesTotal >= 100) conquistas.push({ icone: "✏️", titulo: "Praticante", desc: "100 questões" });
+  if (questoesTotal >= 500) conquistas.push({ icone: "📝", titulo: "Questionador", desc: "500 questões" });
+  if (questoesTotal >= 1000) conquistas.push({ icone: "🧠", titulo: "Cérebros em Fogo", desc: "1000 questões" });
+  else if (questoesTotal >= 500) progresso.push({ icone: "🧠", titulo: "Cérebros em Fogo", atual: questoesTotal, meta: 1000 });
+
+  // Conquistas de dias
+  if (diasTotal >= 7) conquistas.push({ icone: "📅", titulo: "Semana Completa", desc: "7 dias estudados" });
+  if (diasTotal >= 30) conquistas.push({ icone: "🗓️", titulo: "Mês de Estudos", desc: "30 dias estudados" });
+
+  // Conquistas de revisões
+  if (totalRevisoes >= 10) conquistas.push({ icone: "🔄", titulo: "Revisor", desc: "10 revisões" });
+  if (totalRevisoes >= 50) conquistas.push({ icone: "📖", titulo: "Mestre da Revisão", desc: "50 revisões" });
+
+  // Conquistas de taxa
+  if (taxaGeral >= 70) conquistas.push({ icone: "🎓", titulo: "Alto Rendimento", desc: "70%+ aproveitamento" });
+  if (taxaGeral >= 90) conquistas.push({ icone: "🌟", titulo: "Gênio", desc: "90%+ aproveitamento" });
+
+  return { conquistas, progresso, streak, diasTotal, horasTotal, questoesTotal, taxaGeral, totalRevisoes };
+}
+
+// =========================
+// PÁGINA PRINCIPAL
+// =========================
+exports.geral = async (req, res) => {
+  const userId = req.session.userId;
+
+  // Período atual (padrão: semana)
+  const period = req.query.period || "week";
+  const dateLimit = getDateLimit(period);
+
+  // Stats por período
+  const statsPeriodo = await calcByPeriod(userId, dateLimit);
+
+  // Stats totais
+  const statsTotal = await calcByPeriod(userId, null);
+
+  // Streak
+  const streak = await calcStreak(userId);
+
+  // Dias estudados
+  const diasEstudados = await calcDiasEstudados(userId, dateLimit);
+  const diasTotal = await calcDiasEstudados(userId, null);
+
+  // Evolução
+  const evolucao = await calcEvolucao(userId, 30);
+
+  // Por dia da semana
+  const { horasPorDia, questoesPorDia } = await calcPorDiaSemana(userId);
+
+  // Por dificuldade
+  const porDificuldade = await calcPorDificuldade(userId, dateLimit);
+
+  // Metas
+  const metas = await calcMetas(userId);
+
+  // Revisões
+  const revisoes = await calcRevisoes(userId);
+
+  // Conquistas
+  const conquistas = await calcConquistas(userId);
 
   res.render("app/statistics", {
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
 
-    semana,
-    mes,
-    total,
+    // Período atual
+    period,
 
-    nivel: "geral"
+    // Stats do período
+    stats: {
+      horas: statsPeriodo.horas,
+      questoes: statsPeriodo.questoes,
+      acertos: statsPeriodo.acertos,
+      erros: statsPeriodo.erros,
+      aproveitamento: statsPeriodo.aproveitamento
+    },
+
+    // Stats totais
+    total: {
+      horas: statsTotal.horas,
+      questoes: statsTotal.questoes,
+      acertos: statsTotal.acertos,
+      erros: statsTotal.erros,
+      aproveitamento: statsTotal.aproveitamento
+    },
+
+    // Streak e dias
+    streak,
+    diasEstudados,
+    diasTotal,
+
+    // Evolução
+    evolucao,
+
+    // Por dia da semana
+    horasPorDia,
+    questoesPorDia,
+
+    // Por dificuldade
+    porDificuldade,
+
+    // Metas
+    metas,
+
+    // Revisões
+    revisoes,
+
+    // Conquistas
+    conquistas: conquistas.conquistas,
+    conquistasProgresso: conquistas.progresso,
+    streakGeral: conquistas.streak,
+    horasTotal: conquistas.horasTotal,
+    questoesTotal: conquistas.questoesTotal,
+    taxaGeral: conquistas.taxaGeral,
+    totalRevisoes: conquistas.totalRevisoes
   });
 };
-
 
 // =========================
 // HUB
@@ -136,313 +497,3 @@ exports.hub = async (req, res) => {
   });
 };
 
-// =========================
-// POR MATÉRIA
-// =========================
-exports.porMateria = async (req, res) => {
-  const userId = req.session.userId;
-  const period = req.query.period || "all";
-  const dateLimit = getDateLimit(period);
-
-  const where = { user_id: userId };
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
-
-  const rows = await StudyEntry.findAll({
-    where,
-    attributes: [
-      "subject_id",
-      [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
-    ],
-    include: [{
-      model: Subject,
-      as: "subject",
-      attributes: ["id", "nome"]
-    }],
-    group: ["subject_id", "subject.id"],
-    raw: true,
-    nest: true
-  });
-
-  const materias = [];
-
-for (const r of rows) {
-  const erros = await buscarErrosConteudo({
-    level: "materia",
-    id: r.subject.id,
-    dateLimit
-  });
-
-  materias.push({
-    id: r.subject.id,
-    nome: r.subject.nome,
-    ...calcStats(r),
-    erros_conteudo: erros
-  });
-}
-
-res.json(materias);
-
-};
-
-// =========================
-// POR TÓPICO
-// =========================
-exports.porTopico = async (req, res) => {
-  const userId = req.session.userId;
-  const subjectId = req.params.subjectId;
-  const period = req.query.period || "all";
-  const dateLimit = getDateLimit(period);
-
-  const where = { user_id: userId, subject_id: subjectId };
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
-
-  const rows = await StudyEntry.findAll({
-    where,
-    attributes: [
-      "topic_id",
-      [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
-    ],
-    include: [{
-      model: Topic,
-      as: "topic",
-      attributes: ["id", "nome"]
-    }],
-    group: ["topic_id", "topic.id"],
-    raw: true,
-    nest: true
-  });
-
-  const topicos = [];
-
-for (const r of rows) {
-  const erros = await buscarErrosConteudo({
-    level: "topico",
-    id: r.topic.id,
-    dateLimit
-  });
-
-  topicos.push({
-    id: r.topic.id,
-    nome: r.topic.nome,
-    ...calcStats(r),
-    erros_conteudo: erros
-  });
-}
-
-res.json(topicos);
-
-};
-
-// =========================
-// POR ASSUNTO
-// =========================
-exports.porAssunto = async (req, res) => {
-  const userId = req.session.userId;
-  const topicId = req.params.topicId;
-  const period = req.query.period || "all";
-  const dateLimit = getDateLimit(period);
-
-  const where = { user_id: userId, topic_id: topicId };
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
-
-  const rows = await StudyEntry.findAll({
-    where,
-    attributes: [
-      "subtopic_id",
-      [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
-      [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
-      [sequelize.fn("SUM", sequelize.col("acertos")), "acertos"]
-    ],
-    include: [{
-      model: Subtopic,
-      as: "subtopic",
-      attributes: ["id", "nome"]
-    }],
-    group: ["subtopic_id", "subtopic.id"],
-    raw: true,
-    nest: true
-  });
-
-  const assuntos = [];
-
-for (const r of rows) {
-  const subId = r.subtopic?.id || null;
-
-  const erros = subId
-    ? await buscarErrosConteudo({
-        level: "assunto",
-        id: subId,
-        dateLimit
-      })
-    : { total: 0, falta_conteudo: 0, lacuna: 0, falta_atencao: 0 };
-
-  assuntos.push({
-    id: subId,
-    nome: r.subtopic?.nome || "Geral",
-    ...calcStats(r),
-    erros_conteudo: erros
-  });
-}
-
-res.json(assuntos);
-
-};
-
-exports.materiasDashboard = async (req, res) => {
-  res.render("app/estatisticas-conteudo", {
-    active: "estatisticas",
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto
-  });
-};
-
-
-
-
-// =========================
-// ESTATÍSTICAS DE SIMULADOS
-// =========================
-exports.simulados = async (req, res) => {
-  if (!req.session.userId) return res.redirect("/login");
-
-  const userId = req.session.userId;
-
-  const totalSimulados = await Simulado.count({
-    where: { user_id: userId }
-  });
-
-  const totalErros = await SimuladoErro.count({
-    include: [{
-      model: SimuladoParte,
-      as: "parte",
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    }]
-  });
-
-  const totalRevisados = await SimuladoErro.count({
-    where: { revisado: true },
-    include: [{
-      model: SimuladoParte,
-      as: "parte",
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    }]
-  });
-
-  const totalPendentes = totalErros - totalRevisados;
-
-  const errosPorAreaRaw = await SimuladoParte.findAll({
-    attributes: [
-      "area",
-      [sequelize.fn("COUNT", sequelize.col("erros.id")), "erros"]
-    ],
-    include: [{
-      model: SimuladoErro,
-      as: "erros",
-      attributes: []
-    }, {
-      model: Simulado,
-      as: "simulado",
-      where: { user_id: userId },
-      attributes: []
-    }],
-    group: ["area"],
-    raw: true
-  });
-
-  const baseAreas = {
-    LINGUAGENS: 0,
-    HUMANAS: 0,
-    NATUREZA: 0,
-    MATEMATICA: 0
-  };
-
-  errosPorAreaRaw.forEach(a => {
-    baseAreas[a.area] = Number(a.erros);
-  });
-
-  const errosPorArea = Object.entries(baseAreas).map(([area, erros]) => ({
-    area,
-    erros,
-    acertos: 45 - erros
-  }));
-
-  const errosPorDiaRaw = await SimuladoParte.findAll({
-    attributes: [
-      "dia",
-      [sequelize.fn("COUNT", sequelize.col("erros.id")), "erros"]
-    ],
-    include: [{
-      model: SimuladoErro,
-      as: "erros",
-      attributes: []
-    }, {
-      model: Simulado,
-      as: "simulado",
-      where: { user_id: userId },
-      attributes: []
-    }],
-    group: ["dia"],
-    raw: true
-  });
-
-  const dia1 = errosPorDiaRaw.find(d => d.dia === "DIA_1")?.erros || 0;
-  const dia2 = errosPorDiaRaw.find(d => d.dia === "DIA_2")?.erros || 0;
-
-  const totalQuestoes = 180;
-  const acertosTotais = totalQuestoes - totalErros;
-  const proficiencia = Math.round((acertosTotais / totalQuestoes) * 100);
-  const mediaAcertos = totalSimulados > 0
-    ? Math.round(acertosTotais / totalSimulados)
-    : 0;
-
-  const areaMaisFraca = errosPorArea.reduce((a, b) =>
-    b.erros > a.erros ? b : a
-  );
-
-  const areaMaisForte = errosPorArea.reduce((a, b) =>
-    b.erros < a.erros ? b : a
-  );
-
-  const piorDia =
-    dia1 === dia2 ? "EQUILIBRADO" : (dia1 > dia2 ? "DIA_1" : "DIA_2");
-
-  res.render("app/estatisticas-simulados", {
-    active: "estatisticas",
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto,
-
-    totalSimulados,
-    totalErros,
-    totalRevisados,
-    totalPendentes,
-
-    errosPorArea,
-    dia1,
-    dia2,
-
-    acertosTotais,
-    proficiencia,
-    mediaAcertos,
-    areaMaisForte,
-    areaMaisFraca,
-    piorDia
-  });
-};

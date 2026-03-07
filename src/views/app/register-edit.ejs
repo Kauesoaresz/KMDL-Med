@@ -70,9 +70,11 @@ function addBloco(entry = null) {
       <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ""}">
 
       <select name="blocos[${idx}][dificuldade]">
+        <option value="MUITO_FACIL" ${entry?.dificuldade === "MUITO_FACIL" ? "selected" : ""}>Muito Fácil</option>
         <option value="FACIL" ${entry?.dificuldade === "FACIL" ? "selected" : ""}>Fácil</option>
         <option value="MEDIA" ${!entry || entry?.dificuldade === "MEDIA" ? "selected" : ""}>Média</option>
         <option value="DIFICIL" ${entry?.dificuldade === "DIFICIL" ? "selected" : ""}>Difícil</option>
+        <option value="MUITO_DIFICIL" ${entry?.dificuldade === "MUITO_DIFICIL" ? "selected" : ""}>Muito Difícil</option>
       </select>
     </div>
   `;

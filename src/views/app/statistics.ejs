@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/statistics.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="page-bg">
 
@@ -21,94 +22,452 @@
 
       <!-- HEADER -->
       <header class="stats-header">
-        <h1>📊 Estatísticas</h1>
-        <p class="sub">Acompanhe seu desempenho em detalhes</p>
+        <div class="header-content">
+          <h1>📊 Seu Painel de Estudos</h1>
+          <p class="sub">Acompanhe sua evolução e conquiste seus objetivos</p>
+        </div>
+        
+        <!-- FILTRO DE PERÍODO -->
+        <div class="period-filter">
+          <a href="/estatisticas/estudos?period=week" class="filter-btn <%= period === 'week' ? 'active' : '' %>">
+            <span class="filter-icon">📅</span> Essa Semana
+          </a>
+          <a href="/estatisticas/estudos?period=month" class="filter-btn <%= period === 'month' ? 'active' : '' %>">
+            <span class="filter-icon">🗓️</span> Esse Mês
+          </a>
+          <a href="/estatisticas/estudos?period=all" class="filter-btn <%= period === 'all' ? 'active' : '' %>">
+            <span class="filter-icon">∞</span> Total
+          </a>
+        </div>
       </header>
 
-      <!-- TEMPO DE ESTUDO -->
-      <section class="stats-cards">
-        <div class="stat-card orange">
-  <div class="stat-title">Essa Semana</div>
-  <div class="stat-value"><%= semana.horas %>h</div>
-  <div class="stat-sub">Últimos 7 dias</div>
-</div>
+      <!-- LINHA 1: CARDS PRINCIPAIS -->
+      <section class="stats-cards-grid">
+        <!-- Card Tempo -->
+        <div class="stat-card main-card tempo">
+          <div class="card-icon">⏱️</div>
+          <div class="card-content">
+            <span class="card-label">Tempo Estudado</span>
+            <div class="card-value"><%= stats.horas.toFixed(1) %>h</div>
+            <div class="card-sub">
+              <% if (period === 'week') { %>
+                Essa semana
+              <% } else if (period === 'month') { %>
+                Esse mês
+              <% } else { %>
+                Total geral
+              <% } %>
+            </div>
+          </div>
+          <div class="card-badge">
+            <%= total.horas.toFixed(1) %>h total
+          </div>
+        </div>
 
-<div class="stat-card purple">
-  <div class="stat-title">Esse Mês</div>
-  <div class="stat-value"><%= mes.horas %>h</div>
-  <div class="stat-sub">Últimos 30 dias</div>
-</div>
+        <!-- Card Questões -->
+        <div class="stat-card main-card questoes">
+          <div class="card-icon">📝</div>
+          <div class="card-content">
+            <span class="card-label">Questões Resolvidas</span>
+            <div class="card-value"><%= stats.questoes %></div>
+            <div class="card-sub">
+              <span class="acertos-text">✓ <%= stats.acertos %> acertos</span>
+              <span class="erros-text">✗ <%= stats.erros %> erros</span>
+            </div>
+          </div>
+          <div class="card-badge warning">
+            <%= stats.aproveitamento %>% aproveitamento
+          </div>
+        </div>
 
-<div class="stat-card blue">
-  <div class="stat-title">Total Geral</div>
-  <div class="stat-value"><%= total.horas %>h</div>
-  <div class="stat-sub">Desde o início</div>
-</div>
+        <!-- Card Streak -->
+        <div class="stat-card main-card streak">
+          <div class="card-icon">🔥</div>
+          <div class="card-content">
+            <span class="card-label">Sequência Atual</span>
+            <div class="card-value"><%= streak %> <small>dias</small></div>
+            <div class="card-sub">
+              <% if (streak >= 7) { %>
+                Impressionante! 🎉
+              <% } else if (streak >= 3) { %>
+                Muito bem! 💪
+              <% } else { %>
+                Continue assim! 🌟
+              <% } %>
+            </div>
+          </div>
+          <div class="card-badge streak-badge">
+            <%= diasTotal %> dias no total
+          </div>
+        </div>
 
-      </section>
-
-      <!-- QUESTÕES -->
-      <!-- QUESTÕES -->
-<section class="stats-block">
-  <h2>Relatório de Questões & Desempenho</h2>
-
-  <div class="stats-mini-cards">
-    <div class="mini-card">
-      <span>Questões</span>
-      <strong><%= total.questoes %></strong>
-    </div>
-
-    <div class="mini-card success">
-      <span>Acertos</span>
-      <strong><%= total.acertos %></strong>
-    </div>
-
-    <div class="mini-card danger">
-      <span>Erros</span>
-      <strong><%= total.erros %></strong>
-    </div>
-
-    <div class="mini-card warning">
-      <span>Aproveitamento</span>
-      <strong><%= total.aproveitamento %>%</strong>
-    </div>
-  </div>
-</section>
-
-
-      <!-- FILTRO -->
-      <div class="period-filter">
-        <button data-period="7">Semana</button>
-        <button data-period="30">Mês</button>
-        <button data-period="all" class="active">Total</button>
-      </div>
-
-      <!-- MATÉRIAS -->
-      <section class="stats-block">
-        <h2>Desempenho por Matéria</h2>
-        <div id="materias-list" class="stats-list">
-          <div class="placeholder">Carregando matérias...</div>
+        <!-- Card Dias Estudados -->
+        <div class="stat-card main-card dias">
+          <div class="card-icon">📅</div>
+          <div class="card-content">
+            <span class="card-label">Dias Estudados</span>
+            <div class="card-value"><%= diasEstudados %></div>
+            <div class="card-sub">
+              <% if (period === 'week') { %>
+                Nessa semana
+              <% } else if (period === 'month') { %>
+                Nesse mês
+              <% } else { %>
+                Diferentes dias
+              <% } %>
+            </div>
+          </div>
+          <div class="card-badge">
+            <%= Math.round((diasEstudados / (period === 'week' ? 7 : period === 'month' ? 30 : diasTotal)) * 100) %>% do período
+          </div>
         </div>
       </section>
 
-      <!-- DETALHES -->
-      <section class="stats-block">
-        <h2 id="detail-title">Detalhes</h2>
-        <div id="detail-list" class="stats-list">
-          <div class="placeholder">Selecione uma matéria para ver tópicos</div>
+      <!-- LINHA 2: GRÁFICOS -->
+      <section class="charts-grid">
+        <!-- Evolução -->
+        <div class="chart-card evolucao">
+          <div class="chart-header">
+            <h2>📈 Evolução de Estudos</h2>
+            <span class="chart-sub">Últimos 30 dias</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="evolucaoChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Dia da Semana -->
+        <div class="chart-card dia-semana">
+          <div class="chart-header">
+            <h2>🗓️ Padrão Semanal</h2>
+            <span class="chart-sub">Horas por dia da semana</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="diaSemanaChart"></canvas>
+          </div>
         </div>
       </section>
 
-      <!-- GRÁFICO -->
-      <section class="stats-block">
-        <h2>Aproveitamento por Matéria</h2>
-        <canvas id="materiasChart" height="120"></canvas>
+      <!-- LINHA 3: DIFICULDADE E TAXA -->
+      <section class="stats-row-3">
+        <!-- Por Dificuldade -->
+        <div class="stats-block dificuldade-block">
+          <h2>📊 Desempenho por Dificuldade</h2>
+          <div class="dificuldade-grid">
+            <% const cores = { MUITO_FACIL: '#22c55e', FACIL: '#4ade80', MEDIA: '#facc15', DIFICIL: '#f97316', MUITO_DIFICIL: '#ef4444' }; %>
+            <% const labels = { MUITO_FACIL: 'Muito Fácil', FACIL: 'Fácil', MEDIA: 'Média', DIFICIL: 'Difícil', MUITO_DIFICIL: 'Muito Difícil' }; %>
+            <% Object.keys(porDificuldade).forEach(function(dif) { %>
+              <% const item = porDificuldade[dif]; %>
+              <% const taxa = item.questoes > 0 ? Math.round((item.acertos / item.questoes) * 100) : 0; %>
+              <div class="dificuldade-item">
+                <div class="dificuldade-header">
+                  <span class="dificuldade-label"><%= labels[dif] %></span>
+                  <span class="dificuldade-taxa" style="color: <%= cores[dif] %>"><%= taxa %>%</span>
+                </div>
+                <div class="dificuldade-bar">
+                  <div class="dificuldade-fill" style="width: <%= taxa %>%; background: <%= cores[dif] %>"></div>
+                </div>
+                <div class="dificuldade-nums">
+                  <span><%= item.questoes %> questões</span>
+                  <span><%= item.acertos %> acertos</span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- Taxa Geral -->
+        <div class="stats-block taxa-block">
+          <h2>🎯 Sua Performance</h2>
+          <div class="taxa-display">
+            <div class="taxa-circle">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" stroke-dasharray="<%= stats.aproveitamento %>, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage"><%= stats.aproveitamento %>%</text>
+              </svg>
+            </div>
+            <div class="taxa-info">
+              <div class="taxa-stat">
+                <span class="taxa-num"><%= stats.acertos %></span>
+                <span class="taxa-label">Acertos</span>
+              </div>
+              <div class="taxa-stat">
+                <span class="taxa-num"><%= stats.erros %></span>
+                <span class="taxa-label">Erros</span>
+              </div>
+              <div class="taxa-stat">
+                <span class="taxa-num"><%= stats.questoes %></span>
+                <span class="taxa-label">Total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LINHA 4: METAS E REVISÕES -->
+      <section class="stats-row-4">
+        <!-- Metas -->
+        <div class="stats-block metas-block">
+          <h2>🎯 Suas Metas</h2>
+          <% if (metas && metas.length > 0) { %>
+            <div class="metas-list">
+              <% metas.forEach(function(meta) { %>
+                <div class="meta-item">
+                  <div class="meta-header">
+                    <span class="meta-nome"><%= meta.nome %></span>
+                    <span class="meta-dias"><%= meta.dias_restantes %> dias restantes</span>
+                  </div>
+                  <div class="meta-progress">
+                    <div class="meta-bar">
+                      <div class="meta-fill" style="width: <%= meta.progresso_horas %>%"></div>
+                    </div>
+                    <span class="meta-percent"><%= meta.progresso_horas %>%</span>
+                  </div>
+                  <div class="meta-details">
+                    <span>⏱️ <%= meta.horasConcluidas.toFixed(1) %>h / <%= meta.meta_horas %>h</span>
+                    <% if (meta.meta_questoes > 0) { %>
+                      <span>📝 <%= meta.questoesConcluidas %> / <%= meta.meta_questoes %></span>
+                    <% } %>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <p>Você não tem metas ativas no momento.</p>
+              <a href="/metas" class="btn-criar-meta">Criar Meta</a>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Revisões -->
+        <div class="stats-block revisoes-block">
+          <h2>🔄 Revisões</h2>
+          <div class="revisoes-stats">
+            <div class="revisao-total">
+              <span class="revisao-num"><%= revisoes.total %></span>
+              <span class="revisao-label">Total de Revisões</span>
+            </div>
+          </div>
+          <% if (revisoes.porMateria && revisoes.porMateria.length > 0) { %>
+            <div class="revisoes-materia">
+              <h3>Por Matéria</h3>
+              <% revisoes.porMateria.slice(0, 5).forEach(function(rev) { %>
+                <div class="revisao-materia-item">
+                  <span class="rev-mat-nome"><%= rev.nome %></span>
+                  <span class="rev-mat-num"><%= rev.total %></span>
+                </div>
+              <% }); %>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- LINHA 5: CONQUISTAS -->
+      <section class="stats-block conquistas-block">
+        <h2>🏆 Conquistas</h2>
+        <div class="conquistas-grid">
+          <% if (conquistas && conquistas.length > 0) { %>
+            <% conquistas.forEach(function(c) { %>
+              <div class="conquista-item desbloqueada">
+                <div class="conquista-icone"><%= c.icone %></div>
+                <div class="conquista-info">
+                  <span class="conquista-titulo"><%= c.titulo %></span>
+                  <span class="conquista-desc"><%= c.desc %></span>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p class="no-conquistas">Comece a estudar para desbloquear conquistas!</p>
+          <% } %>
+          
+          <% if (conquistasProgresso && conquistasProgresso.length > 0) { %>
+            <% conquistasProgresso.forEach(function(c) { %>
+              <div class="conquista-item progresso">
+                <div class="conquista-icone"><%= c.icone %></div>
+                <div class="conquista-info">
+                  <span class="conquista-titulo"><%= c.titulo %></span>
+                  <span class="conquista-desc"><%= c.atual %> / <%= c.meta %></span>
+                </div>
+                <div class="conquista-bar">
+                  <div class="conquista-fill" style="width: <%= Math.round((c.atual / c.meta) * 100) %>%"></div>
+                </div>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- LINHA 6: ESTATÍSTICAS GERAIS -->
+      <section class="stats-gerais">
+        <div class="stats-block geral-block">
+          <h2>📋 Resumo Geral</h2>
+          <div class="geral-grid">
+            <div class="geral-item">
+              <span class="geral-icon">⏱️</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= horasTotal.toFixed(1) %>h</span>
+                <span class="geral-label">Horas Totais</span>
+              </div>
+            </div>
+            <div class="geral-item">
+              <span class="geral-icon">📝</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= questoesTotal %></span>
+                <span class="geral-label">Questões Totais</span>
+              </div>
+            </div>
+            <div class="geral-item">
+              <span class="geral-icon">📅</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= diasTotal %></span>
+                <span class="geral-label">Dias Estudados</span>
+              </div>
+            </div>
+            <div class="geral-item">
+              <span class="geral-icon">🔥</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= streakGeral %></span>
+                <span class="geral-label">Melhor Sequência</span>
+              </div>
+            </div>
+            <div class="geral-item">
+              <span class="geral-icon">🎯</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= taxaGeral %>%</span>
+                <span class="geral-label">Taxa Geral</span>
+              </div>
+            </div>
+            <div class="geral-item">
+              <span class="geral-icon">🔄</span>
+              <div class="geral-info">
+                <span class="geral-value"><%= totalRevisoes %></span>
+                <span class="geral-label">Revisões Feitas</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
     </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/public/js/app/statistics.js"></script>
+  <script>
+    // Dados do servidor
+    const evolucaoData = <%- JSON.stringify(evolucao || []) %>;
+    const horasPorDia = <%- JSON.stringify(horasPorDia || [0,0,0,0,0,0,0]) %>;
+    const questoesPorDia = <%- JSON.stringify(questoesPorDia || [0,0,0,0,0,0,0]) %>;
+
+    // Gráfico de Evolução
+    const ctxEvolucao = document.getElementById('evolucaoChart');
+    if (ctxEvolucao) {
+      new Chart(ctxEvolucao, {
+        type: 'line',
+        data: {
+          labels: evolucaoData.map(e => e.label),
+          datasets: [{
+            label: 'Horas',
+            data: evolucaoData.map(e => e.horas),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#3b82f6'
+          }, {
+            label: 'Questões',
+            data: evolucaoData.map(e => e.questoes),
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#22c55e',
+            yAxisID: 'y1'
+          }]
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Horas', color: '#9ca3af' },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { color: '#9ca3af' }
+            },
+            y1: {
+              beginAtZero: true,
+              position: 'right',
+              title: { display: true, text: 'Questões', color: '#9ca3af' },
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#9ca3af' }
+            },
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#9ca3af' }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#e5e7eb' }
+            }
+          }
+        }
+      });
+    }
+
+    // Gráfico Dia da Semana
+    const ctxDiaSemana = document.getElementById('diaSemanaChart');
+    if (ctxDiaSemana) {
+      const diasLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      new Chart(ctxDiaSemana, {
+        type: 'bar',
+        data: {
+          labels: diasLabels,
+          datasets: [{
+            label: 'Horas',
+            data: horasPorDia,
+            backgroundColor: [
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Horas', color: '#9ca3af' },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { color: '#9ca3af' }
+            },
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#9ca3af' }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
+
