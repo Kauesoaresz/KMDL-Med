@@ -300,12 +300,34 @@ exports.obterErrosTopico = async (req, res) => {
       },
       include: [
         { model: Subject, as: 'subject', attributes: ['nome'] },
-        { model: Topic, as: 'topic', attributes: ['nome'] }
+        { model: Topic, as: 'topic', attributes: ['nome'] },
+        {
+          model: require("../models").SimuladoBloco,
+          as: 'bloco',
+          include: [
+            {
+              model: require("../models").Simulado,
+              as: 'simulado',
+              attributes: ['nome']
+            }
+          ]
+        }
       ],
       order: [['created_at', 'DESC']]
     });
 
-    res.json({ success: true, erros });
+    // Formatar dados para retornar
+    const errosFormatados = erros.map(erro => ({
+      id: erro.id,
+      numero_questao: erro.numero_questao,
+      motivo: erro.motivo,
+      area: erro.area,
+      subject: erro.subject ? erro.subject.nome : null,
+      topic: erro.topic ? erro.topic.nome : null,
+      simuladoNome: erro.bloco && erro.bloco.simulado ? erro.bloco.simulado.nome : 'Simulado'
+    }));
+
+    res.json({ success: true, erros: errosFormatados });
   } catch (error) {
     console.error('Erro ao buscar erros:', error);
     res.status(500).json({ success: false, message: 'Erro ao buscar erros' });

@@ -17,60 +17,178 @@
 <main class="with-sidebar">
   <div class="page">
 
-    <h1>🎯 Nova Prova</h1>
+    <div class="page-header-simple">
+      <a href="/provas" class="back-link">← Voltar</a>
+      <h1>🎯 Nova Prova</h1>
+    </div>
 
     <form action="/provas" method="POST" class="form-prova">
 
-      <div class="form-group">
-        <label>Nome da Prova</label>
-        <input type="text" name="nome" required>
+      <!-- Seção: Informações Básicas -->
+      <div class="form-section">
+        <h2 class="section-title">📋 Informações Básicas</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome da Prova *</label>
+            <input type="text" name="nome" placeholder="Ex: FUVEST 2025" required>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select name="tipo" required>
+              <option value="">Selecione</option>
+              <option value="Vestibular">Vestibular</option>
+              <option value="ENEM">ENEM</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Tipo</label>
-        <select name="tipo" required>
-          <option value="">Selecione</option>
-          <option value="Vestibular">Vestibular</option>
-          <option value="ENEM">ENEM</option>
-          <option value="Outro">Outro</option>
-        </select>
+      <!-- Seção: Datas -->
+      <div class="form-section">
+        <h2 class="section-title">📅 Datas Importantes</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data de Início das Inscrições</label>
+            <input type="date" name="data_inscricao_inicio">
+          </div>
+
+          <div class="form-group">
+            <label>Data de Término das Inscrições</label>
+            <input type="date" name="data_inscricao_fim">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data da 1ª Fase/Prova *</label>
+            <input type="date" name="data_prova_1" required>
+          </div>
+
+          <div class="form-group">
+            <label>Data da 2ª Fase (opcional)</label>
+            <input type="date" name="data_prova_2">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Data da Prova</label>
-        <input type="date" name="data_prova_1" required>
+      <!-- Seção: Status da Inscrição -->
+      <div class="form-section">
+        <h2 class="section-title">📝 Status da Inscrição</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status_inscricao">
+              <option value="nao_iniciada">Não Iniciada</option>
+              <option value="em_andamento">Em Andamento</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Link da Inscrição</label>
+            <input type="url" name="link_inscricao" placeholder="https://...">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Segunda Data (opcional)</label>
-        <input type="date" name="data_prova_2">
+      <!-- Seção: Pagamento -->
+      <div class="form-section">
+        <h2 class="section-title">💰 Pagamento</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Valor da Inscrição (R$)</label>
+            <input type="number" name="valor_inscricao" step="0.01" placeholder="0,00">
+          </div>
+
+          <div class="form-group">
+            <label>Data do Pagamento</label>
+            <input type="date" name="data_pagamento">
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="pago" value="true">
+            <span class="checkmark"></span>
+            Inscrição paga
+          </label>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Valor da Inscrição</label>
-        <input type="number" name="valor_inscricao" step="0.01">
+      <!-- Seção: Local -->
+      <div class="form-section">
+        <h2 class="section-title">📍 Local de Prova</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Local/Nome do Local</label>
+            <input type="text" name="local" placeholder="Ex: Campus USP Butantã">
+          </div>
+
+          <div class="form-group">
+            <label>Endereço Completo</label>
+            <input type="text" name="endereco" placeholder="Rua Example, 123 - Cidade">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>
-          <input type="checkbox" name="pago">
-          Inscrição paga
-        </label>
+      <!-- Seção: Resultados (Opcional) -->
+      <div class="form-section">
+        <h2 class="section-title">🏆 Resultados (preencher após a prova)</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nota de Corte (esperada)</label>
+            <input type="number" name="nota_corte" step="0.01" placeholder="0,00">
+          </div>
+
+          <div class="form-group">
+            <label>Nota Obtida</label>
+            <input type="number" name="nota_obtida" step="0.01" placeholder="0,00">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Posição/Classificação</label>
+            <input type="number" name="posicao" placeholder="Ex: 150">
+          </div>
+
+          <div class="form-group">
+            <label>Resultado</label>
+            <select name="resultado">
+              <option value="">Selecione</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="lista_espera">Lista de Espera</option>
+              <option value="reprovado">Reprovado</option>
+              <option value="nao_afirmado">Não Afirmado</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Local</label>
-        <input type="text" name="local">
+      <!-- Seção: Observações -->
+      <div class="form-section">
+        <h2 class="section-title">📝 Observações</h2>
+        
+        <div class="form-group">
+          <textarea name="observacoes" rows="4" placeholder="Observações adicionais sobre a prova..."></textarea>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea name="observacoes"></textarea>
+      <div class="form-actions">
+        <a href="/provas" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary">
+          💾 Salvar Prova
+        </button>
       </div>
-
-      <button type="submit" class="btn-primary">
-        Salvar Prova
-      </button>
 
     </form>
 
@@ -79,3 +197,4 @@
 
 </body>
 </html>
+

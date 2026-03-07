@@ -6,8 +6,7 @@
   <title>Editar Prova - KMDL Med</title>
   <link rel="stylesheet" href="/public/css/components/global-responsive.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/app/editar-prova.css" />
-
+  <link rel="stylesheet" href="/public/css/app/nova-prova.css">
 </head>
 
 <body class="page-bg">
@@ -17,74 +16,177 @@
 <main class="with-sidebar">
   <div class="page">
 
-    <div class="page-header">
+    <div class="page-header-simple">
+      <a href="/provas" class="back-link">← Voltar</a>
       <h1>✏️ Editar Prova</h1>
-      <a href="/provas" class="btn-secondary">Voltar</a>
     </div>
-
-    <%
-      const partes = prova.data_prova_1.split("-");
-      const dataFormatada = partes.reverse().join("/");
-    %>
 
     <form action="/provas/<%= prova.id %>/editar" method="POST" class="form-prova">
 
-      <div class="form-group">
-        <label>Nome da Prova</label>
-        <input type="text" name="nome" value="<%= prova.nome %>" required>
+      <!-- Seção: Informações Básicas -->
+      <div class="form-section">
+        <h2 class="section-title">📋 Informações Básicas</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome da Prova *</label>
+            <input type="text" name="nome" value="<%= prova.nome %>" required>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select name="tipo" required>
+              <option value="Vestibular" <%= prova.tipo === "Vestibular" ? "selected" : "" %>>Vestibular</option>
+              <option value="ENEM" <%= prova.tipo === "ENEM" ? "selected" : "" %>>ENEM</option>
+              <option value="Outro" <%= prova.tipo === "Outro" ? "selected" : "" %>>Outro</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-  <label>Tipo</label>
-  <select name="tipo" required>
-    <option value="Vestibular" <%= prova.tipo === "Vestibular" ? "selected" : "" %>>
-      Vestibular
-    </option>
+      <!-- Seção: Datas -->
+      <div class="form-section">
+        <h2 class="section-title">📅 Datas Importantes</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data de Início das Inscrições</label>
+            <input type="date" name="data_inscricao_inicio" value="<%= prova.data_inscricao_inicio || '' %>">
+          </div>
 
-    <option value="ENEM" <%= prova.tipo === "ENEM" ? "selected" : "" %>>
-      ENEM
-    </option>
+          <div class="form-group">
+            <label>Data de Término das Inscrições</label>
+            <input type="date" name="data_inscricao_fim" value="<%= prova.data_inscricao_fim || '' %>">
+          </div>
+        </div>
 
-    <option value="Outro" <%= prova.tipo === "Outro" ? "selected" : "" %>>
-      Outro
-    </option>
-  </select>
-</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data da 1ª Fase/Prova *</label>
+            <input type="date" name="data_prova_1" value="<%= prova.data_prova_1 %>" required>
+          </div>
 
-
-      <div class="form-group">
-        <label>Data da Prova</label>
-        <input type="date" name="data_prova_1" value="<%= prova.data_prova_1 %>" required>
-        <small>Data atual: <strong><%= dataFormatada %></strong></small>
+          <div class="form-group">
+            <label>Data da 2ª Fase (opcional)</label>
+            <input type="date" name="data_prova_2" value="<%= prova.data_prova_2 || '' %>">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Valor da Inscrição</label>
-        <input type="number" step="0.01" name="valor_inscricao"
-          value="<%= prova.valor_inscricao || '' %>">
+      <!-- Seção: Status da Inscrição -->
+      <div class="form-section">
+        <h2 class="section-title">📝 Status da Inscrição</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status_inscricao">
+              <option value="nao_iniciada" <%= prova.status_inscricao === "nao_iniciada" || !prova.status_inscricao ? "selected" : "" %>>Não Iniciada</option>
+              <option value="em_andamento" <%= prova.status_inscricao === "em_andamento" ? "selected" : "" %>>Em Andamento</option>
+              <option value="confirmada" <%= prova.status_inscricao === "confirmada" ? "selected" : "" %>>Confirmada</option>
+              <option value="cancelada" <%= prova.status_inscricao === "cancelada" ? "selected" : "" %>>Cancelada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Link da Inscrição</label>
+            <input type="url" name="link_inscricao" value="<%= prova.link_inscricao || '' %>" placeholder="https://...">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Local</label>
-        <input type="text" name="local"
-          value="<%= prova.local || '' %>">
+      <!-- Seção: Pagamento -->
+      <div class="form-section">
+        <h2 class="section-title">💰 Pagamento</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Valor da Inscrição (R$)</label>
+            <input type="number" name="valor_inscricao" step="0.01" value="<%= prova.valor_inscricao || '' %>" placeholder="0,00">
+          </div>
+
+          <div class="form-group">
+            <label>Data do Pagamento</label>
+            <input type="date" name="data_pagamento" value="<%= prova.data_pagamento || '' %>">
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="pago" value="true" <%= prova.pago ? "checked" : "" %>>
+            <span class="checkmark"></span>
+            Inscrição paga
+          </label>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea name="observacoes"><%= prova.observacoes || '' %></textarea>
+      <!-- Seção: Local -->
+      <div class="form-section">
+        <h2 class="section-title">📍 Local de Prova</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Local/Nome do Local</label>
+            <input type="text" name="local" value="<%= prova.local || '' %>" placeholder="Ex: Campus USP Butantã">
+          </div>
+
+          <div class="form-group">
+            <label>Endereço Completo</label>
+            <input type="text" name="endereco" value="<%= prova.endereco || '' %>" placeholder="Rua Example, 123 - Cidade">
+          </div>
+        </div>
       </div>
 
-      <div class="form-group checkbox">
-        <label>
-          <input type="checkbox" name="pago" <%= prova.pago ? "checked" : "" %>>
-          Inscrição paga
-        </label>
+      <!-- Seção: Resultados -->
+      <div class="form-section">
+        <h2 class="section-title">🏆 Resultados</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nota de Corte (esperada)</label>
+            <input type="number" name="nota_corte" step="0.01" value="<%= prova.nota_corte || '' %>" placeholder="0,00">
+          </div>
+
+          <div class="form-group">
+            <label>Nota Obtida</label>
+            <input type="number" name="nota_obtida" step="0.01" value="<%= prova.nota_obtida || '' %>" placeholder="0,00">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Posição/Classificação</label>
+            <input type="number" name="posicao" value="<%= prova.posicao || '' %>" placeholder="Ex: 150">
+          </div>
+
+          <div class="form-group">
+            <label>Resultado</label>
+            <select name="resultado">
+              <option value="" <%= !prova.resultado ? "selected" : "" %>>Selecione</option>
+              <option value="aprovado" <%= prova.resultado === "aprovado" ? "selected" : "" %>>Aprovado</option>
+              <option value="lista_espera" <%= prova.resultado === "lista_espera" ? "selected" : "" %>>Lista de Espera</option>
+              <option value="reprovado" <%= prova.resultado === "reprovado" ? "selected" : "" %>>Reprovado</option>
+              <option value="nao_afirmado" <%= prova.resultado === "nao_afirmado" ? "selected" : "" %>>Não Afirmado</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <button type="submit" class="btn-primary">
-        Salvar Alterações
-      </button>
+      <!-- Seção: Observações -->
+      <div class="form-section">
+        <h2 class="section-title">📝 Observações</h2>
+        
+        <div class="form-group">
+          <textarea name="observacoes" rows="4" placeholder="Observações adicionais sobre a prova..."><%= prova.observacoes || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="/provas" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary">
+          💾 Salvar Alterações
+        </button>
+      </div>
 
     </form>
 
@@ -93,3 +195,4 @@
 
 </body>
 </html>
+

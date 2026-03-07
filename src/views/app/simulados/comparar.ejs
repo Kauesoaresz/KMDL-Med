@@ -2,11 +2,12 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>KMDL Med | Comparar Simulados</title>
+  <title>KMed | Comparar Simulados</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/simulados-comparar.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body class="page-bg">
@@ -18,163 +19,556 @@
 }) %>
 
 <main class="with-sidebar">
-<section class="page">
+  <div class="page compare-page">
 
-  <h1>⚖️ Comparar Simulados</h1>
+    <!-- HEADER -->
+    <header class="page-header">
+      <div class="header-content">
+        <h1>⚖️ Comparar Simulados</h1>
+        <p class="sub">Analise sua evolução e identifique padrões de desempenho</p>
+      </div>
+    </header>
 
-  <!-- ================= FORM ================= -->
-  <form method="POST">
-    <select name="simuladoA" required>
-      <option value="">Simulado A</option>
-      <% simulados.forEach(s => { %>
-        <option value="<%= s.id %>">
-          <%= s.nome %>
-          <% if (s.status === "finalizado") { %>
-            — 🟢 Finalizado
-          <% } else { %>
-            — 🟡 Em andamento
-          <% } %>
-        </option>
-      <% }) %>
-    </select>
+    <!-- FORMULÁRIO DE COMPARAÇÃO -->
+    <div class="compare-form-container">
+      <form method="POST" class="compare-form">
+        <div class="form-group">
+          <label>Simulado A (Base)</label>
+          <select name="simuladoA" required>
+            <option value="">Selecione o simulado base...</option>
+            <% simulados.forEach(s => { %>
+              <option value="<%= s.id %>" <%= resultado && resultado.A && resultado.A.id == s.id ? 'selected' : '' %>>
+                <%= s.nome %> 
+                <% if (s.status === "finalizado") { %>
+                  — ✓ Finalizado
+                <% } else { %>
+                  — ⏳ Em andamento
+                <% } %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
 
-    <select name="simuladoB" required>
-      <option value="">Simulado B</option>
-      <% simulados.forEach(s => { %>
-        <option value="<%= s.id %>">
-          <%= s.nome %>
-          <% if (s.status === "finalizado") { %>
-            — 🟢 Finalizado
-          <% } else { %>
-            — 🟡 Em andamento
-          <% } %>
-        </option>
-      <% }) %>
-    </select>
+        <button type="button" class="swap-btn" onclick="swapSimulados()" title="Inverter simulados">
+          <span>⇄</span>
+        </button>
 
-    <button type="submit">Comparar</button>
-  </form>
+        <div class="form-group">
+          <label>Simulado B (Comparar)</label>
+          <select name="simuladoB" required>
+            <option value="">Selecione o simulado para comparar...</option>
+            <% simulados.forEach(s => { %>
+              <option value="<%= s.id %>" <%= resultado && resultado.B && resultado.B.id == s.id ? 'selected' : '' %>>
+                <%= s.nome %>
+                <% if (s.status === "finalizado") { %>
+                  — ✓ Finalizado
+                <% } else { %>
+                  — ⏳ Em andamento
+                <% } %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
 
-  <% if (resultado) { %>
+        <button type="submit" class="compare-btn">Comparar</button>
+      </form>
+    </div>
 
-  <hr>
-
-  <!-- ================= VISÃO GERAL ================= -->
-  <h2>📊 Visão Geral</h2>
-
-  <table>
-    <tr>
-      <th></th>
-      <th>
-        <%= resultado.A.nome %><br>
-        <small>
-          <%= resultado.A.status === "finalizado"
-            ? "🟢 Finalizado"
-            : "🟡 Em andamento" %>
-        </small>
-      </th>
-      <th>
-        <%= resultado.B.nome %><br>
-        <small>
-          <%= resultado.B.status === "finalizado"
-            ? "🟢 Finalizado"
-            : "🟡 Em andamento" %>
-        </small>
-      </th>
-    </tr>
-
-    <tr>
-      <td>Questões</td>
-      <td><%= resultado.A.totalQ %></td>
-      <td><%= resultado.B.totalQ %></td>
-    </tr>
-
-    <tr>
-      <td>Acertos</td>
-      <td><%= resultado.A.totalA %></td>
-      <td><%= resultado.B.totalA %></td>
-    </tr>
-
-    <tr>
-      <td>Aproveitamento</td>
-      <td><%= resultado.A.percentual %>%</td>
-      <td><%= resultado.B.percentual %>%</td>
-    </tr>
-
-    <tr>
-      <td>Δ Geral</td>
-      <td colspan="2">
-        <% if (resultado.deltaGeral > 0) { %>
-          +<%= resultado.deltaGeral %>%
-        <% } else if (resultado.deltaGeral < 0) { %>
-          <%= resultado.deltaGeral %>%
-        <% } else { %>
-          —
-        <% } %>
-      </td>
-    </tr>
-  </table>
-
-  <hr>
-
-  <!-- ================= POR ÁREA ================= -->
-  <h2>📚 Desempenho por Área</h2>
-
-  <table>
-    <tr>
-      <th>Área</th>
-      <th><%= resultado.A.nome %></th>
-      <th><%= resultado.B.nome %></th>
-      <th>Δ</th>
-    </tr>
-
-    <% Object.keys(resultado.A.areas).forEach(area => { %>
-      <tr>
-        <td><%= area.toUpperCase() %></td>
-        <td>
-          <%= resultado.A.areas[area].acertos %> /
-          <%= resultado.A.areas[area].questoes %>
-        </td>
-        <td>
-          <%= resultado.B.areas[area].acertos %> /
-          <%= resultado.B.areas[area].questoes %>
-        </td>
-        <td>
-          <% const d = resultado.deltaAreas[area]; %>
-          <% if (d > 0) { %>
-            +<%= d %>%
-          <% } else if (d < 0) { %>
-            <%= d %>%
-          <% } else { %>
-            —
-          <% } %>
-        </td>
-      </tr>
-    <% }) %>
-  </table>
-
-  <hr>
-
-  <!-- ================= DIAGNÓSTICO ================= -->
-  <h2>🧠 Diagnóstico</h2>
-
-  <p>
-    <% if (resultado.deltaGeral > 0) { %>
-      Você evoluiu <strong><%= resultado.deltaGeral %>%</strong>
-      em relação ao simulado comparado.
-      Continue reforçando o que funcionou.
-    <% } else if (resultado.deltaGeral < 0) { %>
-      Houve uma queda de <strong><%= Math.abs(resultado.deltaGeral) %>%</strong>.
-      Foque em revisão de lacunas e ajuste de estratégia.
+    <% if (!resultado) { %>
+      <!-- ESTADO VAZIO -->
+      <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <h2>Compare seus Simulados</h2>
+        <p>Selecione dois simulados acima para analisar sua evolução, identificar pontos fortes e fracos, e receber sugestões personalizadas.</p>
+      </div>
     <% } else { %>
-      Seu desempenho se manteve estável entre os simulados.
+
+      <!-- CARDS DE COMPARAÇÃO -->
+      <section class="comparison-cards">
+        <!-- Simulado A -->
+        <div class="comp-card simulado-a">
+          <div class="comp-card-header">
+            <span class="comp-card-icon">📝</span>
+            <div>
+              <div class="comp-card-title">Simulado Base</div>
+              <div class="comp-card-name"><%= resultado.A.nome %></div>
+              <div class="comp-card-date"><%= resultado.A.dataFormatada %></div>
+            </div>
+          </div>
+          <span class="status-badge <%= resultado.A.status === 'finalizado' ? 'finished' : 'ongoing' %>">
+            <%= resultado.A.status === 'finalizado' ? '✓ Finalizado' : '⏳ Em andamento' %>
+          </span>
+          <div class="comp-card-stats">
+            <div class="comp-stat">
+              <span class="comp-stat-value"><%= resultado.A.totalQ %></span>
+              <span class="comp-stat-label">Questões</span>
+            </div>
+            <div class="comp-stat">
+              <span class="comp-stat-value"><%= resultado.A.totalA %></span>
+              <span class="comp-stat-label">Acertos</span>
+            </div>
+            <div class="comp-stat" style="grid-column: span 2;">
+              <span class="comp-stat-value percent <%= resultado.A.percentual >= 70 ? 'good' : resultado.A.percentual >= 50 ? 'neutral' : 'bad' %>">
+                <%= resultado.A.percentual %>%
+              </span>
+              <span class="comp-stat-label">Aproveitamento</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulado B -->
+        <div class="comp-card simulado-b">
+          <div class="comp-card-header">
+            <span class="comp-card-icon">📝</span>
+            <div>
+              <div class="comp-card-title">Simulado Comparado</div>
+              <div class="comp-card-name"><%= resultado.B.nome %></div>
+              <div class="comp-card-date"><%= resultado.B.dataFormatada %></div>
+            </div>
+          </div>
+          <span class="status-badge <%= resultado.B.status === 'finalizado' ? 'finished' : 'ongoing' %>">
+            <%= resultado.B.status === 'finalizado' ? '✓ Finalizado' : '⏳ Em andamento' %>
+          </span>
+          <div class="comp-card-stats">
+            <div class="comp-stat">
+              <span class="comp-stat-value"><%= resultado.B.totalQ %></span>
+              <span class="comp-stat-label">Questões</span>
+            </div>
+            <div class="comp-stat">
+              <span class="comp-stat-value"><%= resultado.B.totalA %></span>
+              <span class="comp-stat-label">Acertos</span>
+            </div>
+            <div class="comp-stat" style="grid-column: span 2;">
+              <span class="comp-stat-value percent <%= resultado.B.percentual >= 70 ? 'good' : resultado.B.percentual >= 50 ? 'neutral' : 'bad' %>">
+                <%= resultado.B.percentual %>%
+              </span>
+              <span class="comp-stat-label">Aproveitamento</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delta -->
+        <div class="comp-card delta-card">
+          <div class="comp-card-header">
+            <span class="comp-card-icon">📈</span>
+            <div>
+              <div class="comp-card-title">Evolução</div>
+              <div class="comp-card-name">Delta Geral</div>
+            </div>
+          </div>
+          <div class="comp-card-stats">
+            <div class="comp-stat">
+              <span class="comp-stat-value <%= resultado.deltaGeral > 0 ? 'positive' : resultado.deltaGeral < 0 ? 'negative' : 'neutral' %>">
+                <%= resultado.deltaGeral > 0 ? '+' : '' %><%= resultado.deltaGeral %>%
+              </span>
+              <span class="comp-stat-label">Diferença</span>
+            </div>
+            <div class="comp-stat">
+              <span class="comp-stat-value <%= resultado.diasEntre > 0 ? 'neutral' : 'neutral' %>">
+                <%= resultado.diasEntre || 0 %>
+              </span>
+              <span class="comp-stat-label">Dias</span>
+            </div>
+            <div class="comp-stat" style="grid-column: span 2;">
+              <span class="comp-stat-value <%= resultado.deltaGeral > 0 ? 'positive' : resultado.deltaGeral < 0 ? 'negative' : 'neutral' %>">
+                <%= resultado.deltaGeral > 0 ? '↑ Melhorou' : resultado.deltaGeral < 0 ? '↓ Piorou' : '— Estável' %>
+              </span>
+              <span class="comp-stat-label">Resultado</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRÁFICOS -->
+      <section class="charts-section">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>📊 Desempenho por Área</h2>
+            <span class="chart-sub">Comparativo entre simulados</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="areaCompareChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2>📈 Evolução</h2>
+            <span class="chart-sub">Gráfico de evolução</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="evolucaoChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETALHAMENTO POR ÁREA -->
+      <section class="areas-comparison">
+        <h2 class="section-title">🎯 Detalhamento por Área</h2>
+        
+        <div class="areas-grid">
+          <% 
+            const areaNames = {
+              linguagens: 'Linguagens',
+              humanas: 'Humanas',
+              naturezas: 'Naturezas',
+              matematica: 'Matemática'
+            };
+            const areaIcons = {
+              linguagens: '📖',
+              humanas: '🏛️',
+              naturezas: '🔬',
+              matematica: '➗'
+            };
+          %>
+          
+          <% Object.keys(resultado.A.areas).forEach(area => { 
+            const areaA = resultado.A.areas[area];
+            const areaB = resultado.B.areas[area];
+            const delta = resultado.deltaAreas[area];
+            const percA = areaA.questoes > 0 ? Math.round((areaA.acertos / areaA.questoes) * 100) : 0;
+            const percB = areaB.questoes > 0 ? Math.round((areaB.acertos / areaB.questoes) * 100) : 0;
+          %>
+            <div class="area-card">
+              <div class="area-card-header">
+                <span class="area-icon"><%= areaIcons[area] %></span>
+                <span class="area-name"><%= areaNames[area] %></span>
+                <span class="area-delta <%= delta > 0 ? 'positive' : delta < 0 ? 'negative' : 'neutral' %>">
+                  <%= delta > 0 ? '+' : '' %><%= delta %>%
+                </span>
+              </div>
+              
+              <div class="area-comparison">
+                <div class="area-row">
+                  <span class="area-label" style="color: #22c55e;">A</span>
+                  <div class="area-values">
+                    <div class="area-bar-container">
+                      <div class="area-bar simulado-a" style="width: <%= percA %>%"></div>
+                    </div>
+                    <span class="area-percent"><%= percA %>%</span>
+                  </div>
+                </div>
+                <div class="area-row">
+                  <span class="area-label" style="color: #3b82f6;">B</span>
+                  <div class="area-values">
+                    <div class="area-bar-container">
+                      <div class="area-bar simulado-b" style="width: <%= percB %>%"></div>
+                    </div>
+                    <span class="area-percent"><%= percB %>%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <!-- DIAGNÓSTICO -->
+      <section class="diagnosis-section">
+        <div class="diagnosis-card <%= resultado.deltaGeral > 0 ? 'positive' : resultado.deltaGeral < 0 ? 'negative' : 'neutral' %>">
+          <div class="diagnosis-header">
+            <span class="diagnosis-icon">
+              <%= resultado.deltaGeral > 0 ? '🚀' : resultado.deltaGeral < 0 ? '💪' : '⚖️' %>
+            </span>
+            <h3 class="diagnosis-title">
+              <%= resultado.deltaGeral > 0 ? 'Ótima Evolução!' : resultado.deltaGeral < 0 ? 'Hora de Analisar' : 'Desempenho Estável' %>
+            </h3>
+          </div>
+          
+          <p class="diagnosis-text">
+            <% if (resultado.deltaGeral > 0) { %>
+              Você evoluiu <strong><%= resultado.deltaGeral %>%</strong> entre os simulados! 
+              Isso mostra que seus estudos estão no caminho certo. Continue mantendo o foco e 
+              reforçando o que já está funcionando bem.
+            <% } else if (resultado.deltaGeral < 0) { %>
+Houve uma queda de <strong><%= Math.abs(resultado.deltaGeral) %>%</strong> no aproveitamento.
+              Não se desanime! Isso acontece. O importante é identificar os motivos e trabalhar neles.
+              Veja as sugestões abaixo.
+            <% } else { %>
+              Seu desempenho se manteve estável entre os simulados. Busque sempre melhorar 
+              consistencyemente para alcançar resultados ainda melhores.
+            <% } %>
+          </p>
+
+          <div class="diagnosis-suggestions">
+            <% 
+              const areasMelhoraram = Object.values(resultado.deltaAreas).filter(d => d > 0).length;
+              const areasPioraram = Object.values(resultado.deltaAreas).filter(d => d < 0).length;
+              const melhorArea = Object.keys(resultado.deltaAreas).reduce((a, b) => resultado.deltaAreas[a] > resultado.deltaAreas[b] ? a : b);
+              const piorArea = Object.keys(resultado.deltaAreas).reduce((a, b) => resultado.deltaAreas[a] < resultado.deltaAreas[b] ? a : b);
+            %>
+            
+            <div class="suggestion-item">
+              <span class="suggestion-icon">🏆</span>
+              <div class="suggestion-text">
+                <strong>Continue assim!</strong><br>
+                <%= areaNames[melhorArea] %> melhorou +<%= resultado.deltaAreas[melhorArea] %>%. Manter o ritmo é a chave do sucesso!
+              </div>
+            </div>
+
+            <% if (areasPioraram > 0) { %>
+              <div class="suggestion-item">
+                <span class="suggestion-icon">📚</span>
+                <div class="suggestion-text">
+                  <strong>Foque em <%= areaNames[piorArea] %></strong><br>
+                  Essa área teve queda de <%= Math.abs(resultado.deltaAreas[piorArea]) %>%. Revise os tópicos com mais erros.
+                </div>
+              </div>
+            <% } else { %>
+              <div class="suggestion-item">
+                <span class="suggestion-icon">⚡</span>
+                <div class="suggestion-text">
+                  <strong>Todas as áreas!</strong><br>
+                  Você melhorou ou manteve o desempenho em todas as áreas. Continue assim!
+                </div>
+              </div>
+            <% } %>
+
+            <div class="suggestion-item">
+              <span class="suggestion-icon">🎯</span>
+              <div class="suggestion-text">
+                <strong>Dica estratégica</strong><br>
+                <%= resultado.deltaGeral > 0 ? 'Aumente gradualmente a dificuldade dos simulados.' : 'Revise os erros mais frequentes e faça simulados mais curtos focados na área fraca.' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABELA COMPARATIVA -->
+      <section class="table-section">
+        <div class="table-card">
+          <div class="table-header">
+            <h2>📋 Tabela Comparativa</h2>
+          </div>
+          
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Métrica</th>
+                <th class="col-a"><%= resultado.A.nome %></th>
+                <th class="col-b"><%= resultado.B.nome %></th>
+                <th class="col-delta">Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Questões</td>
+                <td class="col-a"><%= resultado.A.totalQ %></td>
+                <td class="col-b"><%= resultado.B.totalQ %></td>
+                <td class="table-delta neutral">—</td>
+              </tr>
+              <tr>
+                <td>Acertos</td>
+                <td class="col-a"><%= resultado.A.totalA %></td>
+                <td class="col-b"><%= resultado.B.totalA %></td>
+                <td class="table-delta <%= resultado.B.totalA - resultado.A.totalA > 0 ? 'positive' : resultado.B.totalA - resultado.A.totalA < 0 ? 'negative' : 'neutral' %>">
+                  <%= resultado.B.totalA - resultado.A.totalA > 0 ? '+' : '' %><%= resultado.B.totalA - resultado.A.totalA %>
+                </td>
+              </tr>
+              <tr>
+                <td>Erros</td>
+                <td class="col-a"><%= resultado.A.totalQ - resultado.A.totalA %></td>
+                <td class="col-b"><%= resultado.B.totalQ - resultado.B.totalA %></td>
+                <td class="table-delta <%= (resultado.B.totalQ - resultado.B.totalA) - (resultado.A.totalQ - resultado.A.totalA) < 0 ? 'positive' : (resultado.B.totalQ - resultado.B.totalA) - (resultado.A.totalQ - resultado.A.totalA) > 0 ? 'negative' : 'neutral' %>">
+                  <%= ((resultado.B.totalQ - resultado.B.totalA) - (resultado.A.totalQ - resultado.A.totalA)) > 0 ? '+' : '' %><%= (resultado.B.totalQ - resultado.B.totalA) - (resultado.A.totalQ - resultado.A.totalA) %>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Aproveitamento</strong></td>
+                <td class="col-a"><strong><%= resultado.A.percentual %>%</strong></td>
+                <td class="col-b"><strong><%= resultado.B.percentual %>%</strong></td>
+                <td class="table-delta <%= resultado.deltaGeral > 0 ? 'positive' : resultado.deltaGeral < 0 ? 'negative' : 'neutral' %>">
+                  <%= resultado.deltaGeral > 0 ? '+' : '' %><%= resultado.deltaGeral %>%
+                </td>
+              </tr>
+              
+              <% Object.keys(resultado.A.areas).forEach(area => { 
+                const areaA = resultado.A.areas[area];
+                const areaB = resultado.B.areas[area];
+                const delta = resultado.deltaAreas[area];
+                const percA = areaA.questoes > 0 ? Math.round((areaA.acertos / areaA.questoes) * 100) : 0;
+                const percB = areaB.questoes > 0 ? Math.round((areaB.acertos / areaB.questoes) * 100) : 0;
+              %>
+                <tr>
+                  <td><%= areaNames[area] %></td>
+                  <td class="col-a"><%= areaA.acertos %>/<%= areaA.questoes %> (<%= percA %>% )</td>
+                  <td class="col-b"><%= areaB.acertos %>/<%= areaB.questoes %> (<%= percB %>% )</td>
+                  <td class="table-delta <%= delta > 0 ? 'positive' : delta < 0 ? 'negative' : 'neutral' %>">
+                    <%= delta > 0 ? '+' : '' %><%= delta %>%
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     <% } %>
-  </p>
 
-  <% } %>
-
-</section>
+  </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<% 
+// Preparar dados para JavaScript
+let chartData = null;
+if (resultado) {
+  chartData = {
+    nomeA: resultado.A.nome,
+    nomeB: resultado.B.nome,
+    percentA: resultado.A.percentual,
+    percentB: resultado.B.percentual,
+    areas: Object.keys(resultado.A.areas).map(area => ({
+      key: area,
+      label: area === 'linguagens' ? 'Linguagens' : area === 'humanas' ? 'Humanas' : area === 'naturezas' ? 'Naturezas' : 'Matemática',
+      percA: resultado.A.areas[area].questoes > 0 ? Math.round((resultado.A.areas[area].acertos / resultado.A.areas[area].questoes) * 100) : 0,
+      percB: resultado.B.areas[area].questoes > 0 ? Math.round((resultado.B.areas[area].acertos / resultado.B.areas[area].questoes) * 100) : 0
+    }))
+  };
+}
+%>
+<script>
+  // Função para inverter simulados
+  function swapSimulados() {
+    const selectA = document.querySelector('select[name="simuladoA"]');
+    const selectB = document.querySelector('select[name="simuladoB"]');
+    
+    const temp = selectA.value;
+    selectA.value = selectB.value;
+    selectB.value = temp;
+  }
+
+  <% if (chartData) { %>
+  // Dados dos gráficos
+  var chartData = <%- JSON.stringify(chartData) %>;
+  
+  // Gráfico de Barras Comparativo
+  const ctxArea = document.getElementById('areaCompareChart');
+  if (ctxArea) {
+    new Chart(ctxArea, {
+      type: 'bar',
+      data: {
+        labels: chartData.areas.map(a => a.label),
+        datasets: [
+          {
+            label: chartData.nomeA,
+            data: chartData.areas.map(a => a.percA),
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            borderRadius: 8
+          },
+          {
+            label: chartData.nomeB,
+            data: chartData.areas.map(a => a.percB),
+            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            borderRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { 
+              color: '#e5e7eb',
+              padding: 15,
+              usePointStyle: true
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { 
+              color: '#9ca3af',
+              callback: function(value) { return value + '%'; }
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#9ca3af' }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico de Evolução (Linha)
+  const ctxEvolucao = document.getElementById('evolucaoChart');
+  if (ctxEvolucao) {
+    new Chart(ctxEvolucao, {
+      type: 'line',
+      data: {
+        labels: [chartData.nomeA, chartData.nomeB],
+        datasets: [
+          {
+            label: 'Aproveitamento',
+            data: [chartData.percentA, chartData.percentB],
+            borderColor: 'rgba(139, 92, 246, 1)',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+            pointBorderColor: '#fff',
+            pointRadius: 8,
+            pointHoverRadius: 10
+          },
+          {
+            label: 'Meta 70%',
+            data: [70, 70],
+            borderColor: 'rgba(34, 197, 94, 0.5)',
+            borderDash: [5, 5],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { 
+              color: '#e5e7eb',
+              padding: 15,
+              usePointStyle: true
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { 
+              color: '#9ca3af',
+              callback: function(value) { return value + '%'; }
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { 
+              color: '#9ca3af',
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        }
+      }
+    });
+  }
+  <% } %>
+</script>
 
 </body>
 </html>
+

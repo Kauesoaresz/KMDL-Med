@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provas - KMDL Med</title>
+  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/provas-hub.css">
+</head>
+
+<body class="page-bg">
+
+<%- include("../../partials/sidebar", { active, userNome, userFoto }) %>
+
+<main class="with-sidebar">
+  <div class="page">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>🎯 Provas</h1>
+        <p>Acompanhe suas inscrições e cronogramas</p>
+      </div>
+      <a href="/provas/nova" class="btn-primary">
+        + Nova Prova
+      </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-icon">📋</div>
+        <div class="stat-content">
+          <span class="stat-number"><%= estatisticas.total %></span>
+          <span class="stat-label">Total de Provas</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-proximas">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-content">
+          <span class="stat-number"><%= estatisticas.provasProximas %></span>
+          <span class="stat-label">Próximos 30 dias</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-gasto">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <span class="stat-number">R$ <%= estatisticas.totalGasto %></span>
+          <span class="stat-label">Total Investido</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-pagas">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <span class="stat-number"><%= estatisticas.provasPagas %></span>
+          <span class="stat-label">Inscrições Pagas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+      <h2 class="section-title">Acesso Rápido</h2>
+      <div class="hub-grid">
+        <a href="/provas/lista" class="hub-card">
+          <div class="icon">📝</div>
+          <h3>Todas as Provas</h3>
+          <p>Lista completa com filtros</p>
+        </a>
+        <a href="/provas/lista?pago=false" class="hub-card">
+          <div class="icon">⏳</div>
+          <h3>Pendentes</h3>
+          <p>Inscrições ainda não pagas</p>
+        </a>
+        <a href="/provas/nova" class="hub-card">
+          <div class="icon">➕</div>
+          <h3>Adicionar</h3>
+          <p>Cadastrar nova prova</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Breakdown by Type -->
+    <div class="section">
+      <h2 class="section-title">Por Tipo</h2>
+      <div class="type-cards">
+        <div class="type-card vestibular">
+          <div class="type-icon">🎓</div>
+          <div class="type-info">
+            <span class="type-count"><%= estatisticas.porTipo.vestibular %></span>
+            <span class="type-label">Vestibulares</span>
+          </div>
+        </div>
+        <div class="type-card enem">
+          <div class="type-icon">📕</div>
+          <div class="type-info">
+            <span class="type-count"><%= estatisticas.porTipo.enem %></span>
+            <span class="type-label">ENEM</span>
+          </div>
+        </div>
+        <div class="type-card outro">
+          <div class="type-icon">📄</div>
+          <div class="type-info">
+            <span class="type-count"><%= estatisticas.porTipo.outro %></span>
+            <span class="type-label">Outros</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Próximas Provas -->
+    <% if (proximasProvas.length > 0) { %>
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">📅 Próximas Provas</h2>
+          <a href="/provas/lista" class="see-all">Ver todas →</a>
+        </div>
+        <div class="proximas-grid">
+          <% proximasProvas.forEach(prova => { %>
+            <div class="prova-card-mini">
+              <div class="prova-card-header">
+                <span class="prova-tipo <%= prova.tipo.toLowerCase() %>"><%= prova.tipo %></span>
+                <% if (prova.pago) { %>
+                  <span class="badge success">Pago</span>
+                <% } else { %>
+                  <span class="badge warning">Pendente</span>
+                <% } %>
+              </div>
+              <h3><%= prova.nome %></h3>
+              <div class="prova-info">
+                <span class="prova-data">
+                  <%= new Date(prova.data_prova_1).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }) %>
+                </span>
+                <span class="prova-countdown <%= prova.diasRestantes <= 7 ? 'urgent' : '' %>">
+                  <%= prova.diasRestantes === 0 ? '🟢 Hoje!' : prova.diasRestantes === 1 ? '🔹 Amanhã!' : prova.diasRestantes + ' dias' %>
+                </span>
+              </div>
+              <% if (prova.local) { %>
+                <div class="prova-local">📍 <%= prova.local %></div>
+              <% } %>
+              <a href="/provas/<%= prova.id %>/editar" class="btn-edit">Editar</a>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Empty State -->
+    <% if (estatisticas.total === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <h3>Nenhuma prova cadastrada</h3>
+        <p>Comece adicionando suas provas e vestibulares!</p>
+        <a href="/provas/nova" class="btn-primary">+ Adicionar Primeira Prova</a>
+      </div>
+    <% } %>
+
+    <!-- Recent Activity (if any recent) -->
+    <% if (provasRecentes.length > 0 && estatisticas.total > proximasProvas.length) { %>
+      <div class="section">
+        <h2 class="section-title">🕐 Adicionados Recentemente</h2>
+        <div class="recent-list">
+          <% provasRecentes.forEach(prova => { %>
+            <a href="/provas/<%= prova.id %>/editar" class="recent-item">
+              <span class="recent-name"><%= prova.nome %></span>
+              <span class="recent-tipo"><%= prova.tipo %></span>
+              <span class="recent-data"><%= new Date(prova.data_prova_1).toLocaleDateString('pt-BR') %></span>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+  </div>
+</main>
+
+</body>
+</html>
+

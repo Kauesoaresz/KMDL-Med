@@ -26,15 +26,21 @@ Prova.init(
       allowNull: false,
     },
 
-    valor_inscricao: {
-      type: DataTypes.FLOAT,
+    // Status da inscrição (texto simples para compatibilidade)
+    status_inscricao: {
+      type: DataTypes.STRING,
+      defaultValue: 'nao_iniciada',
+    },
+
+    // Datas importantes
+    data_inscricao_inicio: {
+      type: DataTypes.DATEONLY,
       allowNull: true,
     },
 
-    pago: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
+    data_inscricao_fim: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
     },
 
     data_prova_1: {
@@ -47,13 +53,65 @@ Prova.init(
       allowNull: true,
     },
 
+    // Informações financeiras
+    valor_inscricao: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+
+    pago: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+
+    data_pagamento: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+
+    // Local
     local: {
       type: DataTypes.STRING,
       allowNull: true,
     },
 
+    endereco: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Informações adicionais
     observacoes: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+
+    // Link para inscrição
+    link_inscricao: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Notas internas
+    nota_corte: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+
+    nota_obtida: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+
+    posicao: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+
+    // Resultado (texto simples para compatibilidade)
+    resultado: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },
@@ -68,3 +126,4 @@ Prova.init(
 );
 
 module.exports = Prova;
+

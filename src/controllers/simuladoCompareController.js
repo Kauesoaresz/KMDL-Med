@@ -37,6 +37,14 @@ exports.comparar = async (req, res) => {
     return res.redirect("/estatisticas/simulados/comparar");
   }
 
+  // Buscar todos os simulados para manter no dropdown
+  const simulados = await Simulado.findAll({
+    where: {
+      user_id: userId
+    },
+    order: [["data_realizacao", "DESC"]]
+  });
+
   async function carregarSimulado(id) {
     const simulado = await Simulado.findOne({
       where: {
@@ -72,11 +80,22 @@ exports.comparar = async (req, res) => {
       ? Math.round((totalA / totalQ) * 100)
       : 0;
 
+    // Formatar data - converter para objeto Date se necessário
+    let dataObj = simulado.data_realizacao;
+    if (dataObj && typeof dataObj === 'string') {
+      dataObj = new Date(dataObj);
+    }
+    
+    const dataFormatada = dataObj && dataObj instanceof Date && !isNaN(dataObj) 
+      ? dataObj.toLocaleDateString('pt-BR')
+      : '—';
+
     return {
       id: simulado.id,
       nome: simulado.nome,
-      data: simulado.data_realizacao,
-      status: simulado.status, // ✅
+      data: dataObj, // Retorna objeto Date para cálculo correto
+      dataFormatada,
+      status: simulado.status,
       totalQ,
       totalA,
       percentual,
@@ -89,6 +108,13 @@ exports.comparar = async (req, res) => {
 
   if (!A || !B) {
     return res.redirect("/estatisticas/simulados/comparar");
+  }
+
+  // Calcular dias entre simulados
+  let diasEntre = 0;
+  if (A.data && B.data && A.data instanceof Date && B.data instanceof Date) {
+    const diffTime = Math.abs(B.data.getTime() - A.data.getTime());
+    diasEntre = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
   /* =========================
@@ -110,15 +136,17 @@ exports.comparar = async (req, res) => {
   });
 
   res.render("app/simulados/comparar", {
-    simulados: [],
+    simulados, // Agora mantém a lista completa de simulados
     resultado: {
       A,
       B,
       deltaGeral,
-      deltaAreas
+      deltaAreas,
+      diasEntre
     },
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto
   });
 };
+

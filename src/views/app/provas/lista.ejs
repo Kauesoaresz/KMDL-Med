@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Provas - KMDL Med</title>
+  <title>Todas as Provas - KMDL Med</title>
   <link rel="stylesheet" href="/public/css/components/global-responsive.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/app/provas.css" />
+  <link rel="stylesheet" href="/public/css/app/provas-lista.css">
 </head>
 
 <body class="page-bg">
@@ -16,102 +16,212 @@
 <main class="with-sidebar">
   <div class="page">
 
+    <!-- Header -->
     <div class="page-header">
       <div>
-        <h1>🎯 Provas</h1>
-        <p>Acompanhe suas inscrições e tempo restante</p>
+        <a href="/provas" class="back-link">← Voltar ao Hub</a>
+        <h1>📝 Todas as Provas</h1>
+        <p><%= estatisticas.total %> provas cadastradas • R$ <%= estatisticas.totalGasto %> investidos</p>
       </div>
       <a href="/provas/nova" class="btn-primary">
-        + Adicionar Prova
+        + Nova Prova
       </a>
     </div>
 
+    <!-- Filters -->
+    <div class="filters-bar">
+      <form method="GET" action="/provas/lista" class="filters-form">
+        <div class="filter-group">
+          <label>Tipo</label>
+          <select name="tipo" onchange="this.form.submit()">
+            <option value="todos">Todos</option>
+            <option value="Vestibular" <%= filtros.tipo === 'Vestibular' ? 'selected' : '' %>>Vestibular</option>
+            <option value="ENEM" <%= filtros.tipo === 'ENEM' ? 'selected' : '' %>>ENEM</option>
+            <option value="Outro" <%= filtros.tipo === 'Outro' ? 'selected' : '' %>>Outro</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Pagamento</label>
+          <select name="pago" onchange="this.form.submit()">
+            <option value="todos">Todos</option>
+            <option value="true" <%= filtros.pago === 'true' ? 'selected' : '' %>>Pago</option>
+            <option value="false" <%= filtros.pago === 'false' ? 'selected' : '' %>>Pendente</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Status</label>
+          <select name="status" onchange="this.form.submit()">
+            <option value="todos">Todos</option>
+            <option value="nao_iniciada" <%= filtros.status === 'nao_iniciada' ? 'selected' : '' %>>Não Iniciada</option>
+            <option value="em_andamento" <%= filtros.status === 'em_andamento' ? 'selected' : '' %>>Em Andamento</option>
+            <option value="confirmada" <%= filtros.status === 'confirmada' ? 'selected' : '' %>>Confirmada</option>
+            <option value="cancelada" <%= filtros.status === 'cancelada' ? 'selected' : '' %>>Cancelada</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Ordenar</label>
+          <select name="ordenar" onchange="this.form.submit()">
+            <option value="data" <%= filtros.ordenar === 'data' || !filtros.ordenar ? 'selected' : '' %>>Por Data</option>
+            <option value="nome" <%= filtros.ordenar === 'nome' ? 'selected' : '' %>>Por Nome</option>
+            <option value="valor" <%= filtros.ordenar === 'valor' ? 'selected' : '' %>>Por Valor</option>
+            <option value="recente" <%= filtros.ordenar === 'recente' ? 'selected' : '' %>>Mais Recentes</option>
+          </select>
+        </div>
+
+        <% if (filtros.tipo || filtros.pago || filtros.status || filtros.ordenar) { %>
+          <a href="/provas/lista" class="clear-filters">Limpar</a>
+        <% } %>
+      </form>
+    </div>
+
+    <!-- Provas Grid -->
     <div class="provas-grid">
       <% if (provas.length === 0) { %>
-        <p>Nenhuma prova cadastrada.</p>
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>Nenhuma prova encontrada</h3>
+          <p>Try adjusting your filters or add a new prova.</p>
+          <a href="/provas/nova" class="btn-primary">+ Nova Prova</a>
+        </div>
       <% } %>
 
       <% provas.forEach(prova => { 
 
-  const hoje = new Date();
-  const hojeSemHora = new Date(
-    hoje.getFullYear(),
-    hoje.getMonth(),
-    hoje.getDate()
-  );
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
 
-  const partes = prova.data_prova_1.split("-");
-  const dataObj = new Date(partes[0], partes[1] - 1, partes[2]);
+        const partes = prova.data_prova_1.split("-");
+        const dataObj = new Date(partes[0], partes[1] - 1, partes[2]);
 
-  const diffTime = dataObj - hojeSemHora;
-  const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = dataObj - hoje;
+        const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  const diasSemana = [
-    "Domingo","Segunda-feira","Terça-feira",
-    "Quarta-feira","Quinta-feira","Sexta-feira","Sábado"
-  ];
+        const diasSemana = [
+          "Domingo","Segunda-feira","Terça-feira",
+          "Quarta-feira","Quinta-feira","Sexta-feira","Sábado"
+        ];
 
-  const diaSemana = diasSemana[dataObj.getDay()];
-  const dataFormatada = partes.reverse().join("/");
+        const diaSemana = diasSemana[dataObj.getDay()];
+        const dataFormatada = partes.reverse().join("/");
 
+        // Status label
+        const statusLabels = {
+          'nao_iniciada': 'Não Iniciada',
+          'em_andamento': 'Em Andamento',
+          'confirmada': 'Confirmada',
+          'cancelada': 'Cancelada'
+        };
+
+        // Resultado label
+        const resultadoLabels = {
+          'aprovado': 'Aprovado',
+          'reprovado': 'Reprovado',
+          'nao_afirmado': 'Não Afirmado',
+          'lista_espera': 'Lista de Espera'
+        };
 %>
 
+        <div class="prova-card <%= diasRestantes < 0 ? 'passed' : '' %>">
+          
+          <div class="card-header">
+            <span class="prova-tipo <%= prova.tipo.toLowerCase() %>"><%= prova.tipo %></span>
+            <span class="status-badge <%= prova.status_inscricao %>">
+              <%= statusLabels[prova.status_inscricao] || prova.status_inscricao %>
+            </span>
+          </div>
 
-     
+          <h2><%= prova.nome %></h2>
 
-      <div class="prova-card">
+          <div class="card-info">
+            <div class="info-row">
+              <span class="info-label">📅 Data</span>
+              <span class="info-value"><%= diaSemana %>, <%= dataFormatada %></span>
+            </div>
 
-  <h2><%= prova.nome %></h2>
+            <div class="info-row">
+              <span class="info-label">⏱️ Faltam</span>
+              <span class="info-value countdown <%= diasRestantes <= 7 && diasRestantes >= 0 ? 'urgent' : '' %>">
+                <% if (diasRestantes > 0) { %>
+                  <%= diasRestantes %> dias
+                <% } else if (diasRestantes === 0) { %>
+                  🟢 É hoje!
+                <% } else { %>
+                  Realizada
+                <% } %>
+              </span>
+            </div>
 
-  <small>
-    <strong><%= diaSemana %> - <%= dataFormatada %></strong>
-  </small>
+            <% if (prova.data_inscricao_fim) { %>
+              <div class="info-row">
+                <span class="info-label">📝 Inscrição</span>
+                <span class="info-value <%= new Date(prova.data_inscricao_fim) < hoje ? 'overdue' : '' %>">
+                  <%= new Date(prova.data_inscricao_fim).toLocaleDateString('pt-BR') %>
+                  <% if (new Date(prova.data_inscricao_fim) < hoje) { %>
+                    (encerrada)
+                  <% } else { %>
+                    (prazo)
+                  <% } %>
+                </span>
+              </div>
+            <% } %>
 
-  <div class="info">
+            <div class="info-row">
+              <span class="info-label">💰 Valor</span>
+              <span class="info-value">
+                R$ <%= prova.valor_inscricao ? Number(prova.valor_inscricao).toFixed(2) : "0,00" %>
+              </span>
+            </div>
 
-    <p>📌 Tipo: <strong><%= prova.tipo %></strong></p>
+            <div class="info-row">
+              <span class="info-label">💳 Pagamento</span>
+              <span class="info-value">
+                <% if (prova.pago) { %>
+                  <span class="paid">✓ Pago</span>
+                <% } else { %>
+                  <span class="pending">Pendente</span>
+                <% } %>
+              </span>
+            </div>
 
-    <p>⏳ 
-      <% if (diasRestantes > 0) { %>
-        Faltam <strong><%= diasRestantes %> dias</strong>
-      <% } else if (diasRestantes === 0) { %>
-        É hoje!
-      <% } else { %>
-        Prova já realizada
-      <% } %>
-    </p>
+            <% if (prova.local) { %>
+              <div class="info-row">
+                <span class="info-label">📍 Local</span>
+                <span class="info-value"><%= prova.local %></span>
+              </div>
+            <% } %>
 
-    <p>💰 Valor: 
-      <strong>
-        R$ <%= prova.valor_inscricao ? Number(prova.valor_inscricao).toFixed(2) : "0,00" %>
-      </strong>
-    </p>
+            <% if (prova.resultado) { %>
+              <div class="info-row">
+                <span class="info-label">🏆 Resultado</span>
+                <span class="info-value resultado <%= prova.resultado %>">
+                  <%= resultadoLabels[prova.resultado] || prova.resultado %>
+                  <% if (prova.posicao) { %>
+                    - <%= prova.posicao %>º lugar
+                  <% } %>
+                  <% if (prova.nota_obtida) { %>
+                    (Nota: <%= prova.nota_obtida %>)
+                  <% } %>
+                </span>
+              </div>
+            <% } %>
+          </div>
 
-    <p>
-      💳 Pagamento:
-      <% if (prova.pago) { %>
-        <span class="badge success">Pago</span>
-      <% } else { %>
-        <span class="badge warning">Pendente</span>
-      <% } %>
-    </p>
+          <div class="card-actions">
+            <a href="/provas/<%= prova.id %>/editar" class="btn-secondary">
+              ✏️ Editar
+            </a>
 
-  </div>
+            <form action="/provas/<%= prova.id %>/excluir" method="POST" class="form-delete">
+              <button type="submit" class="btn-danger" onclick="return confirm('Tem certeza que deseja excluir?')">
+                🗑️ Excluir
+              </button>
+            </form>
+          </div>
 
-
-        <div class="card-actions">
-          <a href="/provas/<%= prova.id %>/editar" class="btn-secondary">
-            Editar
-          </a>
-
-          <form action="/provas/<%= prova.id %>/excluir" method="POST">
-            <button type="submit" class="btn-danger">
-              Excluir
-            </button>
-          </form>
         </div>
-
-      </div>
 
       <% }) %>
     </div>
@@ -121,3 +231,4 @@
 
 </body>
 </html>
+

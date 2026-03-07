@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const provaController = require("../controllers/provaController");
-const auth = require("../middlewares/auth"); // 🔥 IMPORTA O OFICIAL
+const auth = require("../middlewares/auth");
 
-// LISTA
-router.get("/provas", auth, provaController.listar);
+// HUB (página principal)
+router.get("/provas", auth, provaController.hub);
+
+// LISTA (com filtros)
+router.get("/provas/lista", auth, provaController.listar);
 
 // NOVA
 router.get("/provas/nova", auth, provaController.nova);
