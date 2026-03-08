@@ -56,7 +56,8 @@ exports.registerSave = async (req, res) => {
     const subject_id = ensureInt(b.subject_id);
     const topic_id = ensureInt(b.topic_id);
     const subtopic_id = ensureInt(b.subtopic_id);
-    const horas = parseFloat(b.horas || 0);
+    const minutos = parseFloat(b.minutos) || 0;
+    const horas = minutos / 60; // Converter minutos para horas
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
     const dificuldade = b.dificuldade || "MEDIA";
@@ -163,7 +164,7 @@ exports.editPage = async (req, res) => {
     return res.redirect("/registrar/lista");
   }
 
-  // 🔥 formata exatamente como o front espera
+  // 🔥 formata exatamente como o front espera (converte horas para minutos)
   const entries = entriesRaw.map(e => ({
     subject_id: e.subject_id,
     subject_nome: e.subject?.nome || "",
@@ -174,6 +175,7 @@ exports.editPage = async (req, res) => {
     subtopic_id: e.subtopic_id,
     subtopic_nome: e.subtopic?.nome || "",
 
+    minutos: Math.round(e.horas * 60), // Converter horas para minutos
     horas: e.horas,
     questoes: e.questoes,
     acertos: e.acertos,
@@ -209,7 +211,8 @@ exports.editSave = async (req, res) => {
     const subject_id = ensureInt(b.subject_id);
     const topic_id = ensureInt(b.topic_id);
     const subtopic_id = ensureInt(b.subtopic_id);
-    const horas = parseFloat(b.horas || 0);
+    const minutos = parseFloat(b.minutos) || 0;
+    const horas = minutos / 60; // Converter minutos para horas
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
     const dificuldade = b.dificuldade || "MEDIA";

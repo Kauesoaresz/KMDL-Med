@@ -65,7 +65,7 @@ function addBloco(entry = null) {
     </select>
 
     <div class="linha-numeros">
-      <input type="number" step="0.25" name="blocos[${idx}][horas]" placeholder="Horas" required value="${entry?.horas || ""}">
+      <input type="number" name="blocos[${idx}][minutos]" placeholder="Minutos" required value="${entry?.minutos || ""}">
       <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ""}">
       <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ""}">
 

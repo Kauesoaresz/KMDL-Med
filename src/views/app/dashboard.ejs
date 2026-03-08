@@ -79,12 +79,22 @@
 
         <div class="card kpi">
           <h3>Horas</h3>
-          <p class="value"><span class="counter" data-target="<%= stats?.horas || 0 %>">0</span>h</p>
+          <% 
+            const horasTotal = stats?.horas || 0;
+            const horasDisplay = Math.floor(horasTotal);
+            const minutosDisplay = Math.round((horasTotal - horasDisplay) * 60);
+          %>
+          <p class="value"><span class="counter" data-target="<%= horasDisplay %>">0</span>h <span class="counter-minutes" data-target="<%= minutosDisplay %>">0</span>m</p>
           <span class="label">Estudadas</span>
           <% if (stats?.horasDiff !== undefined) { %>
+            <% 
+              const horasDiff = stats.horasDiff || 0;
+              const horasDiffDisplay = Math.floor(Math.abs(horasDiff));
+              const minutosDiffDisplay = Math.round((Math.abs(horasDiff) - horasDiffDisplay) * 60);
+            %>
             <span class="extra <%= stats.horasDiff >= 0 ? 'up' : 'down' %>">
               <%= stats.horasDiff >= 0 ? '↑' : '↓' %>
-              <%= Math.abs(stats.horasDiff) %>h
+              <%= horasDiffDisplay %>h <%= minutosDiffDisplay %>m
             </span>
           <% } %>
         </div>
@@ -156,10 +166,16 @@
                 </div>
                 
                 <div class="meta-progressos">
+                  <% 
+                    const horasConcluidasMeta = meta.horas_concluidas || 0;
+                    const metaHoras = meta.meta_horas || 0;
+                    const horasConcluidasDisplay = Math.floor(horasConcluidasMeta);
+                    const minutosConcluidosDisplay = Math.round((horasConcluidasMeta - horasConcluidasDisplay) * 60);
+                  %>
                   <div class="progress-item">
                     <div class="progress-header">
                       <span class="progress-label">Horas</span>
-                      <span class="progress-values"><%= meta.horas_concluidas %>h / <%= meta.meta_horas %>h</span>
+                      <span class="progress-values"><%= horasConcluidasDisplay %>h <%= minutosConcluidosDisplay %>m / <%= metaHoras %>h</span>
                     </div>
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: <%= meta.progresso_horas %>%"></div>
@@ -518,6 +534,7 @@
 
   <!-- Animação de Contadores - Corrigida -->
   <script>
+    // Animação para horas
     document.querySelectorAll('.counter').forEach(counter => {
       const target = parseFloat(counter.getAttribute('data-target')) || 0;
       const duration = 800;
@@ -536,6 +553,30 @@
         } else {
           counter.textContent = current.toFixed(1);
         }
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+
+      requestAnimationFrame(update);
+    });
+
+    // Animação para minutos
+    document.querySelectorAll('.counter-minutes').forEach(counter => {
+      const target = parseFloat(counter.getAttribute('data-target')) || 0;
+      const duration = 800;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = target * easeOutQuart;
+        
+        counter.textContent = Math.floor(current);
 
         if (progress < 1) {
           requestAnimationFrame(update);

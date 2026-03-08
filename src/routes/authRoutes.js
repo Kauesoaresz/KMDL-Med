@@ -18,29 +18,40 @@ router.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
 
+    console.log("📧 Tentando login com:", email);
+
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      console.log("❌ Usuário não encontrado:", email);
       return res.status(401).render("auth/login", {
         erro: "Email ou senha inválidos."
       });
     }
 
+    console.log("✅ Usuário encontrado:", user.id);
+
     const ok = await bcrypt.compare(senha, user.senha_hash);
     if (!ok) {
+      console.log("❌ Senha incorreta para:", email);
       return res.status(401).render("auth/login", {
         erro: "Email ou senha inválidos."
       });
     }
+
+    console.log("✅ Senha válida para:", email);
 
     // ✅ SESSÃO COMPLETA
     req.session.userId = user.id;
     req.session.userNome = user.nome;
     req.session.userFoto = user.foto; // 🔥 AQUI ESTÁ A CHAVE
 
+    console.log("📝 Session criada:", req.session.userId);
+
     return res.redirect("/dashboard");
   } catch (e) {
+    console.error("❌ ERRO NO LOGIN:", e);
     return res.status(500).render("auth/login", {
-      erro: "Erro interno. Tente novamente."
+      erro: "Erro interno. Tente novamente. Erro: " + e.message
     });
   }
 });
@@ -82,6 +93,7 @@ router.post("/cadastrar", async (req, res) => {
 
     return res.redirect("/dashboard");
   } catch (e) {
+    console.error("❌ ERRO NO CADASTRO:", e);
     return res.status(500).render("auth/register", {
       erro: "Erro interno. Tente novamente."
     });
