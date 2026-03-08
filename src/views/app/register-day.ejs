@@ -60,7 +60,11 @@ function addBloco() {
     </select>
 
     <div class="linha-numeros">
-      <input type="number" name="blocos[${idx}][minutos]" placeholder="Minutos" required>
+      <div class="input-group time-input">
+        <input type="number" name="blocos[${idx}][horas]" placeholder="Horas" min="0" value="0" required>
+        <span class="time-separator">:</span>
+        <input type="number" name="blocos[${idx}][minutos]" placeholder="Min" min="0" max="59" value="0" required>
+      </div>
       <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
       <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
 

@@ -130,13 +130,16 @@ exports.index = async (req, res) => {
     const ultimaData = new Date(e.get("ultima_data"));
     const mediaDificuldade = parseFloat(e.get("media_dificuldade")) || 0;
 
-    const diasSemEstudar = Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
+    // Calcular horas sem estudar (em vez de dias)
+    const agora = new Date();
+    const diffMs = agora - ultimaData;
+    const horasSemEstudar = diffMs / (1000 * 60 * 60); // Converter ms para horas
 
     const erroPercentual = totalQuestoes > 0 ? 1 - (totalAcertos / totalQuestoes) : 0;
     const errosPendentes = erroMap[`${e.subject_id}-${e.topic_id}`] || 0;
 
     // Score original preservado
-    const score = (mediaDificuldade * 2) + (erroPercentual * 5) + (diasSemEstudar * 0.3) + (errosPendentes * 2);
+    const score = (mediaDificuldade * 2) + (erroPercentual * 5) + (horasSemEstudar * 0.3) + (errosPendentes * 2);
 
     // Dados de revisão do tópico
     const proximaRevisao = e.topic ? e.topic.proxima_revisao : null;
@@ -148,7 +151,8 @@ exports.index = async (req, res) => {
       topicId: e.topic_id,
       subject: e.subject.nome,
       topic: e.topic.nome,
-      diasSemEstudar,
+      horasSemEstudar: horasSemEstudar.toFixed(1),
+      diasSemEstudar: Math.floor(horasSemEstudar / 24), // Manter compatibilidade
       erroPercentual: (erroPercentual * 100).toFixed(1),
       errosPendentes,
       score: score.toFixed(2),

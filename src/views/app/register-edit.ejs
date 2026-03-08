@@ -38,8 +38,20 @@ const subjects = <%- JSON.stringify(subjects) %>;
 const entries = <%- JSON.stringify(entries) %>;
 let blocoIndex = 0;
 
+// Helper to convert minutes to hours and minutes
+function getHorasEMinutos(minutos) {
+  const m = minutos || 0;
+  return {
+    horas: Math.floor(m / 60),
+    minutos: m % 60
+  };
+}
+
 function addBloco(entry = null) {
   const idx = blocoIndex++;
+  
+  // Calculate hours and minutes for this entry
+  const tempo = entry ? getHorasEMinutos(entry.minutos) : { horas: 0, minutos: 0 };
 
   const bloco = document.createElement("div");
   bloco.className = "bloco";
@@ -65,9 +77,13 @@ function addBloco(entry = null) {
     </select>
 
     <div class="linha-numeros">
-      <input type="number" name="blocos[${idx}][minutos]" placeholder="Minutos" required value="${entry?.minutos || ""}">
-      <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ""}">
-      <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ""}">
+      <div class="input-group time-input">
+        <input type="number" name="blocos[${idx}][horas]" placeholder="Horas" min="0" value="${tempo.horas}" required>
+        <span class="time-separator">:</span>
+        <input type="number" name="blocos[${idx}][minutos]" placeholder="Min" min="0" max="59" value="${tempo.minutos}" required>
+      </div>
+      <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ''}">
+      <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ''}">
 
       <select name="blocos[${idx}][dificuldade]">
         <option value="MUITO_FACIL" ${entry?.dificuldade === "MUITO_FACIL" ? "selected" : ""}>Muito Fácil</option>

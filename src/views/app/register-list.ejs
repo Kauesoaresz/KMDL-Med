@@ -70,7 +70,14 @@
                 <% } %>
               </td>
 
-              <td data-label="Horas"><%= d.total_horas.toFixed(2) %>h</td>
+              <td data-label="Horas">
+                <% 
+                  const horas = d.total_horas;
+                  const horasInt = Math.floor(horas);
+                  const minutos = Math.round((horas - horasInt) * 60);
+                %>
+                <%= horasInt %>h <%= minutos %>min
+              </td>
               <td data-label="Questões"><%= d.total_questoes %></td>
               <td data-label="Acertos"><%= d.total_acertos %></td>
 

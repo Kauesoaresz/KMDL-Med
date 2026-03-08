@@ -50,7 +50,14 @@
         <div class="card-icon">⏱️</div>
         <div class="card-content">
           <span class="card-label">Horas Estudadas</span>
-          <div class="card-value"><%= materia.horas.toFixed(1) %>h</div>
+          <div class="card-value">
+            <%
+              const detalhesHoras = materia.horas;
+              const detalhesHorasInt = Math.floor(detalhesHoras);
+              const detalhesMinutos = Math.round((detalhesHoras - detalhesHorasInt) * 60);
+            %>
+            <%= detalhesHorasInt %>h <%= detalhesMinutos %>min
+          </div>
           <div class="card-sub">
             <% if (period === 'week') { %>
               Essa semana
@@ -137,7 +144,12 @@
               <div class="topico-stat">
                 <span class="stat-icon">⏱️</span>
                 <div class="stat-info">
-                  <span class="stat-value"><%= topico.horas.toFixed(1) %>h</span>
+                  <%
+                    const topicoHoras = topico.horas;
+                    const topicoHorasInt = Math.floor(topicoHoras);
+                    const topicoMinutos = Math.round((topicoHoras - topicoHorasInt) * 60);
+                  %>
+                  <span class="stat-value"><%= topicoHorasInt %>h <%= topicoMinutos %>min</span>
                   <span class="stat-label">Horas</span>
                 </div>
               </div>
@@ -183,7 +195,12 @@
                         <span class="assunto-nome"><%= assunto.nome %></span>
                       </div>
                       <div class="assunto-stats">
-                        <span class="assunto-horas"><%= assunto.horas.toFixed(1) %>h</span>
+                        <%
+                          const assuntoHoras = assunto.horas;
+                          const assuntoHorasInt = Math.floor(assuntoHoras);
+                          const assuntoMinutos = Math.round((assuntoHoras - assuntoHorasInt) * 60);
+                        %>
+                        <span class="assunto-horas"><%= assuntoHorasInt %>h <%= assuntoMinutos %>min</span>
                         <span class="assunto-questoes"><%= assunto.questoes %> questões</span>
                         <span class="assunto-percent <%= assunto.aproveitamento >= 70 ? 'good' : assunto.aproveitamento >= 50 ? 'medium' : 'bad' %>">
                           <%= assunto.aproveitamento %>%>
@@ -224,7 +241,12 @@
                 <tr class="row-topico">
                   <td><span class="tipo-badge topico">Tópico</span></td>
                   <td class="materia-name"><%= topico.nome %></td>
-                  <td><%= topico.horas.toFixed(1) %>h</td>
+                  <%
+                    const tabelaTopicoHoras = topico.horas;
+                    const tabelaTopicoHorasInt = Math.floor(tabelaTopicoHoras);
+                    const tabelaTopicoMinutos = Math.round((tabelaTopicoHoras - tabelaTopicoHorasInt) * 60);
+                  %>
+                  <td><%= tabelaTopicoHorasInt %>h <%= tabelaTopicoMinutos %>min</td>
                   <td><%= topico.questoes %></td>
                   <td class="good"><%= topico.acertos %></td>
                   <td class="bad"><%= topico.erros %></td>
@@ -239,7 +261,12 @@
                     <tr class="row-assunto">
                       <td><span class="tipo-badge assunto">Assunto</span></td>
                       <td class="assunto-name"><%= assunto.nome %></td>
-                      <td><%= assunto.horas.toFixed(1) %>h</td>
+                      <%
+                        const tabelaAssuntoHoras = assunto.horas;
+                        const tabelaAssuntoHorasInt = Math.floor(tabelaAssuntoHoras);
+                        const tabelaAssuntoMinutos = Math.round((tabelaAssuntoHoras - tabelaAssuntoHorasInt) * 60);
+                      %>
+                      <td><%= tabelaAssuntoHorasInt %>h <%= tabelaAssuntoMinutos %>min</td>
                       <td><%= assunto.questoes %></td>
                       <td class="good"><%= assunto.acertos %></td>
                       <td class="bad"><%= assunto.erros %></td>

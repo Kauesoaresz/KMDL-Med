@@ -6,6 +6,24 @@ const { Op, fn, col } = require("sequelize");
 // HELPERS
 // =========================
 
+// Helper function to convert decimal hours to "Xh Ymin" format
+function formatHoursMinutes(decimalHours) {
+  if (!decimalHours || decimalHours <= 0) return "0h 0min";
+  
+  const horas = Math.floor(decimalHours);
+  const minutos = Math.round((decimalHours - horas) * 60);
+  
+  if (horas === 0) {
+    return `${minutos}min`;
+  }
+  
+  if (minutos === 0) {
+    return `${horas}h`;
+  }
+  
+  return `${horas}h ${minutos}min`;
+}
+
 function calcStats(row) {
   const horas = Number(row.horas) || 0;
   const questoes = Number(row.questoes) || 0;

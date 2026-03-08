@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/dashboard.css" />
 
@@ -170,7 +170,7 @@
                     const horasConcluidasMeta = meta.horas_concluidas || 0;
                     const metaHoras = meta.meta_horas || 0;
                     const horasConcluidasDisplay = Math.floor(horasConcluidasMeta);
-                    const minutosConcluidosDisplay = Math.round((horasConcluidasMeta - horasConcluidasDisplay) * 60);
+                    const minutosConcluidosDisplay = Math.round((horasConcluidasMeta - horasConcluidasDisplay) * 60);      
                   %>
                   <div class="progress-item">
                     <div class="progress-header">
@@ -185,7 +185,7 @@
                     <div class="progress-item">
                       <div class="progress-header">
                         <span class="progress-label">Questões</span>
-                        <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
+                        <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>   
                       </div>
                       <div class="progress-bar">
                         <div class="progress-fill" style="width: <%= meta.progresso_questoes %>%"></div>
@@ -225,10 +225,12 @@
             <div class="calendar-grid">
               <% diasCalendario.forEach(d => { 
                 const horaClasse = 'h' + Math.min(Math.floor(d.horas), 12);
+                const horasDisplay = Math.floor(d.horas);
+                const minutosDisplay = Math.round((d.horas - horasDisplay) * 60);
               %>
                 <div 
                   class="calendar-day <%= horaClasse %>"
-                  title="<%= d.horas %>h"
+                  title="<%= horasDisplay %>h <%= minutosDisplay %>min"
                 >
                   <%= d.dia %>
                 </div>
@@ -255,7 +257,7 @@
             <div class="simulado-main">
               <div class="simulado-header">
                 <span class="simulado-nome"><%= ultimoSimulado.nome %></span>
-                <span class="simulado-data"><%= new Date(ultimoSimulado.data).toLocaleDateString('pt-BR') %></span>
+                <span class="simulado-data"><%= new Date(ultimoSimulado.data).toLocaleDateString('pt-BR') %></span>        
               </div>
               <div class="simulado-stats">
                 <div class="stat-item">
@@ -365,7 +367,14 @@
                 <div class="legend-item">
                   <span class="legend-color" style="background: <%= m.cor || '#6b7280' %>"></span>
                   <span class="legend-name"><%= m.nome %></span>
-                  <span class="legend-value"><%= m.horas %>h</span>
+                  <span class="legend-value">
+                    <%
+                      const legHoras = m.horas || 0;
+                      const legHorasInt = Math.floor(legHoras);
+                      const legMinutos = Math.round((legHoras - legHorasInt) * 60);
+                    %>
+                    <%= legHorasInt %>h <%= legMinutos %>min
+                  </span>
                 </div>
               <% }) %>
             </div>
@@ -375,7 +384,7 @@
         <!-- Conquistas -->
         <div class="dashboard-card conquistas-card">
           <h2>🏆 Conquistas</h2>
-          <% if ((conquistas && conquistas.length > 0) || (conquistasProgresso && conquistasProgresso.length > 0)) { %>
+          <% if ((conquistas && conquistas.length > 0) || (conquistasProgresso && conquistasProgresso.length > 0)) { %>    
             <div class="conquistas-grid">
               <% conquistas.forEach(c => { %>
                 <div class="conquista-item conquista-concluida" title="<%= c.descricao %>">
@@ -401,7 +410,12 @@
             <div class="conquistas-empty">
               <p>Complete metas para desbloquear conquistas!</p>
               <div class="stats-mini">
-                <span>⏱️ <%= horasTotal || 0 %>h</span>
+                <%
+                  const miniHoras = horasTotal || 0;
+                  const miniHorasInt = Math.floor(miniHoras);
+                  const miniMinutos = Math.round((miniHoras - miniHorasInt) * 60);
+                %>
+                <span>⏱️ <%= miniHorasInt %>h <%= miniMinutos %>min</span>
                 <span>📝 <%= questoesTotal || 0 %> questões</span>
               </div>
             </div>
@@ -425,9 +439,17 @@
 
   <!-- Scripts - Gráficos -->
   <script>
-    // Dados do servidor
+    // Dados do servidor - usando dados brutos para o gráfico funcionar
     const evolucaoLabels = <%- JSON.stringify((evolucao || []).map(e => e.label)) %>;
     const evolucaoData = <%- JSON.stringify((evolucao || []).map(e => e.horas)) %>;
+    
+    // Função para formatar horas e minutos
+    function formatHorasMinutos(horas) {
+      const horasInt = Math.floor(horas);
+      const minutos = Math.round((horas - horasInt) * 60);
+      return horasInt + 'h ' + minutos + 'min';
+    }
+    
     const diasSemanaLabels = <%- JSON.stringify(diasSemanaLabels || ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']) %>;
     const horasPorDia = <%- JSON.stringify(horasPorDia || [0,0,0,0,0,0,0]) %>;
     const materiaLabels = <%- JSON.stringify((porMateria || []).slice(0,5).map(m => m.nome)) %>;
@@ -454,12 +476,31 @@
         }]
       },
       options: {
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const horas = context.raw;
+                const horasInt = Math.floor(horas);
+                const minutos = Math.round((horas - horasInt) * 60);
+                return horasInt + 'h ' + minutos + 'min';
+              }
+            }
+          }
+        },
         scales: {
           x: { grid: { display: false } },
-          y: { 
+          y: {
             grid: { color: "#1f2a3a" },
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                const horasInt = Math.floor(value);
+                const minutos = Math.round((value - horasInt) * 60);
+                return horasInt + 'h ' + minutos + 'min';
+              }
+            }
           }
         }
       }
@@ -496,12 +537,31 @@
         }]
       },
       options: {
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const horas = context.raw;
+                const horasInt = Math.floor(horas);
+                const minutos = Math.round((horas - horasInt) * 60);
+                return horasInt + 'h ' + minutos + 'min';
+              }
+            }
+          }
+        },
         scales: {
           x: { grid: { display: false } },
-          y: { 
+          y: {
             grid: { color: "#1f2a3a" },
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                const horasInt = Math.floor(value);
+                const minutos = Math.round((value - horasInt) * 60);
+                return horasInt + 'h ' + minutos + 'min';
+              }
+            }
           }
         }
       }
@@ -523,8 +583,18 @@
         },
         options: {
           cutout: "65%",
-          plugins: { 
-            legend: { display: false } 
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const horas = context.raw;
+                  const horasInt = Math.floor(horas);
+                  const minutos = Math.round((horas - horasInt) * 60);
+                  return horasInt + 'h ' + minutos + 'min';
+                }
+              }
+            }
           }
         }
       });
@@ -603,7 +673,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="meta_horas">Meta de Horas *</label>
-            <input type="number" id="meta_horas" name="meta_horas" required min="1" step="0.5" placeholder="Ex: 40">
+            <input type="number" id="meta_horas" name="meta_horas" required min="1" step="0.5" placeholder="Ex: 40">       
           </div>
           <div class="form-group">
             <label for="meta_questoes">Meta de Questões</label>

@@ -48,7 +48,9 @@
           <div class="card-icon">⏱️</div>
           <div class="card-content">
             <span class="card-label">Tempo Estudado</span>
-            <div class="card-value"><%= stats.horas.toFixed(1) %>h</div>
+            <div class="card-value">
+              <%= formatHours(stats.horas) %>
+            </div>
             <div class="card-sub">
               <% if (period === 'week') { %>
                 Essa semana
@@ -60,7 +62,7 @@
             </div>
           </div>
           <div class="card-badge">
-            <%= total.horas.toFixed(1) %>h total
+            <%= formatHours(total.horas) %> total
           </div>
         </div>
 
@@ -225,7 +227,12 @@
                     <span class="meta-percent"><%= meta.progresso_horas %>%</span>
                   </div>
                   <div class="meta-details">
-                    <span>⏱️ <%= meta.horasConcluidas.toFixed(1) %>h / <%= meta.meta_horas %>h</span>
+                    <%
+                      const metaHorasConcluidas = meta.horasConcluidas || 0;
+                      const metaHorasInt = Math.floor(metaHorasConcluidas);
+                      const metaMinutosInt = Math.round((metaHorasConcluidas - metaHorasInt) * 60);
+                    %>
+                    <span>⏱️ <%= metaHorasInt %>h <%= metaMinutosInt %>min / <%= meta.meta_horas %>h</span>
                     <% if (meta.meta_questoes > 0) { %>
                       <span>📝 <%= meta.questoesConcluidas %> / <%= meta.meta_questoes %></span>
                     <% } %>
@@ -307,7 +314,12 @@
             <div class="geral-item">
               <span class="geral-icon">⏱️</span>
               <div class="geral-info">
-                <span class="geral-value"><%= horasTotal.toFixed(1) %>h</span>
+                <%
+                  const horasTotais = horasTotal;
+                  const horasTotaisInt = Math.floor(horasTotais);
+                  const minutosTotais = Math.round((horasTotais - horasTotaisInt) * 60);
+                %>
+                <span class="geral-value"><%= horasTotaisInt %>h <%= minutosTotais %>min</span>
                 <span class="geral-label">Horas Totais</span>
               </div>
             </div>

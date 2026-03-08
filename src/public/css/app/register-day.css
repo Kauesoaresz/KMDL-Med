@@ -1,6 +1,6 @@
-/* =========================
+/*
    VARIÁVEIS
-========================= */
+*/
 :root {
   --bg: #0b0b0d;
   --card: #121214;
@@ -13,17 +13,17 @@
   --danger: #ef4444;
 }
 
-/* =========================
+/*
    FUNDO GLOBAL
-========================= */
+*/
 body.page-bg {
   background: radial-gradient(circle at top, #0f0f16, #08080b 70%);
   min-height: 100vh;
 }
 
-/* =========================
+/*
    CONTAINER
-========================= */
+*/
 .page {
   max-width: 1200px;
   margin: 0 auto;
@@ -48,9 +48,9 @@ h1 {
   color: #d4d4d8;
 }
 
-/* =========================
+/*
    FORM
-========================= */
+*/
 form {
   background: linear-gradient(180deg, #121214, #0d0d10);
   border: 1px solid var(--border);
@@ -77,9 +77,9 @@ input[type="date"] {
   margin-bottom: 24px;
 }
 
-/* =========================
+/*
    LISTA DE BLOCOS
-========================= */
+*/
 #blocos {
   display: flex;
   flex-direction: column;
@@ -87,9 +87,9 @@ input[type="date"] {
   margin-bottom: 20px;
 }
 
-/* =========================
+/*
    BLOCO
-========================= */
+*/
 .bloco {
   background: var(--card-soft);
   border: 1px solid var(--border);
@@ -107,9 +107,9 @@ input[type="date"] {
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 }
 
-/* =========================
+/*
    INPUTS / SELECTS
-========================= */
+*/
 .bloco input,
 .bloco select {
   background: var(--input);
@@ -131,9 +131,9 @@ input[type="date"] {
   box-shadow: 0 0 0 1px rgba(59,130,246,0.35);
 }
 
-/* =========================
+/*
    TAMANHOS E POSIÇÃO
-========================= */
+*/
 .subject-select {
   grid-column: span 2;
 }
@@ -154,9 +154,31 @@ input[type="date"] {
   gap: 12px;
 }
 
-/* =========================
+/*
+   ESTILO PARA CAMPOS DE HORA E MINUTO - TAMANHO IGUAL
+*/
+.time-input {
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+.time-input input {
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: center;
+}
+
+.time-separator {
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/*
    BOTÃO REMOVER
-========================= */
+*/
 .btn-remove {
   position: absolute;
   top: 10px;
@@ -173,9 +195,9 @@ input[type="date"] {
   opacity: 1;
 }
 
-/* =========================
+/*
    BOTÃO ADICIONAR
-========================= */
+*/
 .btn-add {
   background: #1a1a20;
   color: var(--text);
@@ -191,9 +213,9 @@ input[type="date"] {
   color: white;
 }
 
-/* =========================
+/*
    BOTÃO SALVAR
-========================= */
+*/
 .btn-primary {
   margin-top: 28px;
   background: var(--accent);
@@ -210,9 +232,9 @@ input[type="date"] {
   filter: brightness(1.05);
 }
 
-/* =========================
+/*
    RESPONSIVO
-========================= */
+*/
 @media (max-width: 1200px) {
   .bloco {
     grid-template-columns: repeat(3, 1fr);
@@ -344,9 +366,9 @@ input[type="date"] {
   }
 }
 
-/* =========================
+/*
    RESPONSIVO - COMPLEMENTAR
-========================= */
+*/
 
 /* A responsividade principal do with-sidebar está em global-responsive.css */
 /* Aqui adicionamos ajustes específicos para esta página se necessário */
