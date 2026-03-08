@@ -3,6 +3,8 @@ const {
   SimuladoBloco,
   SimuladoQuestaoErro,
 } = require("../models");
+const sequelize = require("../config/database");
+const gamificacao = require("../controllers/gamificacaoController");
 
 const { Op } = require("sequelize");
 
@@ -307,9 +309,49 @@ exports.finalizarSimulado = async (req, res) => {
 
     if (!simulado) return res.redirect("/simulados/lista");
 
+    // Buscar blocos para calcular XP
+    const blocos = await SimuladoBloco.findAll({
+      where: { simulado_id: simulado.id },
+      raw: true
+    });
+
+    // Calcular total de questões e acertos
+    const totalQuestoes = blocos.reduce((sum, b) => sum + (b.total_questoes || 0), 0);
+    const totalAcertos = blocos.reduce((sum, b) => sum + (b.acertos || 0), 0);
+    const nota = totalQuestoes > 0 ? Math.round((totalAcertos / totalQuestoes) * 100) : 0;
+
+    // Atualizar status do simulado
     simulado.status = "finalizado";
     simulado.finished_at = new Date();
     await simulado.save();
+
+    // ========== ADICIONAR XP E ATUALIZAR CONQUISTAS ==========
+    const { XP_CONFIG } = gamificacao;
+    
+    // XP base por simulado
+    let xpSimulado = XP_CONFIG.POR_SIMULADO;
+    
+    // Bônus por nota alta
+    let bonusNota = 0;
+    if (nota >= 90) bonusNota = 50;
+    else if (nota >= 80) bonusNota = 30;
+    else if (nota >= 70) bonusNota = 20;
+    else if (nota >= 60) bonusNota = 10;
+    
+    const xpTotal = xpSimulado + bonusNota;
+
+    if (xpTotal > 0) {
+      // Adicionar XP
+      await gamificacao.adicionarXP(
+        userId, 
+        xpTotal, 
+        `Simulado: ${simulado.nome} - Nota: ${nota}%`, 
+        'simulado'
+      );
+      
+      // Verificar conquistas
+      await gamificacao.verificarEDesbloquearConquistas(userId);
+    }
 
     res.redirect(`/simulados/${id}`);
   } catch (err) {

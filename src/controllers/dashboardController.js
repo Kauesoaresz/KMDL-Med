@@ -1,6 +1,7 @@
 const { StudyEntry, Subject, Topic, Simulado, SimuladoBloco, ReviewHistory, StudyGoal } = require("../models");
 const { Op, fn, col } = require("sequelize");
 const sequelize = require("../config/database");
+const gamificacao = require("../controllers/gamificacaoController");
 
 /* =========================
    HELPER: Atualizar progresso de meta
@@ -107,6 +108,14 @@ exports.dashboard = async (req, res) => {
   const userNome = req.session.userNome;
   const userFoto = req.session.userFoto;
   const periodo = req.query.periodo || "total";
+
+  // Calcular XP histórico e atualizar streak ao acessar o dashboard
+  try {
+    await gamificacao.calcularXPHistorico(userId);
+    await gamificacao.atualizarStreak(userId);
+  } catch (e) {
+    console.log("Erro ao calcular XP histórico:", e.message);
+  }
 
   const hoje = todayISO();
 
@@ -661,6 +670,28 @@ exports.dashboard = async (req, res) => {
   );
 
   /* =========================
+     GAMIFICAÇÃO - NÍVEL E XP
+  ========================= */
+  let gamificacao = null;
+  try {
+    const progress = await gamificacao.getOrCreateProgress(userId);
+    if (progress) {
+      const nivelInfo = gamificacao.calcularNivel(progress.xp_total || 0);
+      gamificacao = {
+        nivel: nivelInfo.nivel,
+        titulo: nivelInfo.titulo || progress.titulo,
+        xp_total: progress.xp_total || 0,
+        xp_atual: nivelInfo.xpAtual,
+        xp_proximo_nivel: nivelInfo.xpProximoNivel,
+        streak_atual: progress.streak_atual || 0
+      };
+    }
+  } catch (e) {
+    console.log("Gamificação não disponível ainda:", e.message);
+    gamificacao = null;
+  }
+
+  /* =========================
      RENDER
   ========================= */
   res.render("app/dashboard", {
@@ -694,6 +725,7 @@ exports.dashboard = async (req, res) => {
     conquistasProgresso,
     horasTotal,
     questoesTotal,
-    metasPrincipais
+    metasPrincipais,
+    gamificacao
   });
 };

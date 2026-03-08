@@ -23,13 +23,31 @@
     <div class="page">
 
       <!-- =========================
-           BOAS-VINDAS + STREAK
+           BOAS-VINDAS + STREAK + GAMIFICAÇÃO
       ========================== -->
       <section class="welcome-card">
         <div class="welcome-text">
           <h1>Olá, <%= userNome %>! 👋</h1>
           <p>Seu objetivo está cada dia mais próximo.</p>
         </div>
+
+        <!-- Badge de Nível Gamificação -->
+        <% if (gamificacao) { %>
+          <div class="level-badge-dashboard">
+            <div class="level-icon">
+              <span class="level-number"><%= gamificacao.nivel %></span>
+            </div>
+            <div class="level-info">
+              <span class="level-title"><%= gamificacao.titulo %></span>
+              <div class="level-progress">
+                <div class="level-progress-bar">
+                  <div class="level-progress-fill" style="width: <%= Math.round((gamificacao.xp_atual / gamificacao.xp_proximo_nivel) * 100) %>%"></div>
+                </div>
+                <span class="level-xp"><%= gamificacao.xp_atual.toLocaleString('pt-BR') %> / <%= gamificacao.xp_proximo_nivel.toLocaleString('pt-BR') %> XP</span>
+              </div>
+            </div>
+          </div>
+        <% } %>
 
         <div class="streak-box">
           <span class="streak-fire">🔥</span>

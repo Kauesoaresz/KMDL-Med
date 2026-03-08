@@ -1,5 +1,6 @@
 const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
+const gamificacao = require("../controllers/gamificacaoController");
 
 function ensureInt(v) {
   const n = parseInt(v, 10);
@@ -52,6 +53,11 @@ exports.registerSave = async (req, res) => {
 
   await StudyEntry.destroy({ where: { user_id: userId, data } });
 
+  // Variáveis para calcular XP
+  let totalHoras = 0;
+  let totalQuestoes = 0;
+  let totalAcertos = 0;
+
   for (const b of blocos) {
     const subject_id = ensureInt(b.subject_id);
     const topic_id = ensureInt(b.topic_id);
@@ -75,6 +81,44 @@ exports.registerSave = async (req, res) => {
       acertos,
       dificuldade
     });
+
+    // Acumular valores para XP
+    totalHoras += horas;
+    totalQuestoes += questoes;
+    totalAcertos += acertos;
+  }
+
+  // ========== ADICIONAR XP E ATUALIZAR CONQUISTAS ==========
+  if (totalHoras > 0 || totalQuestoes > 0) {
+    const { XP_CONFIG } = gamificacao;
+    
+    // XP por horas estudadas
+    const xpHoras = Math.floor(totalHoras) * XP_CONFIG.POR_HORA;
+    
+    // XP por questões corretas
+    const xpAcertos = totalAcertos * XP_CONFIG.POR_QUESTAO_CORRETA;
+    
+    // XP por questões erradas
+    const questoesErradas = totalQuestoes - totalAcertos;
+    const xpErradas = Math.max(0, questoesErradas) * XP_CONFIG.POR_QUESTAO_ERRADA;
+    
+    const xpTotal = xpHoras + xpAcertos + xpErradas;
+
+    if (xpTotal > 0) {
+      // Adicionar XP
+      await gamificacao.adicionarXP(
+        userId, 
+        xpTotal, 
+        `Estudo: ${totalHoras.toFixed(1)}h, ${totalAcertos}/${totalQuestoes} questões`, 
+        'estudo'
+      );
+      
+      // Atualizar streak
+      await gamificacao.atualizarStreak(userId);
+      
+      // Verificar conquistas
+      await gamificacao.verificarEDesbloquearConquistas(userId);
+    }
   }
 
   res.redirect("/registrar/lista");
