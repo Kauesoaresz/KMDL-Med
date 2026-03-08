@@ -6,7 +6,6 @@ const dashboard = require("../controllers/dashboardController");
 const profile = require("../controllers/profileController");
 const reviewController = require("../controllers/reviewController");
 const reportController = require("../controllers/reportController");
-const gamificacaoController = require("../controllers/gamificacaoController");
 
 const { uploadProfile } = require("../config/upload");
 
@@ -52,15 +51,5 @@ router.post("/revisoes/erros/revisar", auth, reviewController.marcarErrosRevisad
 // =========================
 router.get("/relatorio", auth, reportController.index);
 router.get("/relatorio/gerar/:periodo", auth, reportController.gerarRelatorio);
-
-// =========================
-// CONQUISTAS / GAMIFICAÇÃO
-// =========================
-router.get("/conquistas", auth, gamificacaoController.conquistasPage);
-
-// =========================
-// API - GAMIFICAÇÃO
-// =========================
-router.get("/api/gamificacao/progresso", auth, gamificacaoController.getProgress);
 
 module.exports = router;

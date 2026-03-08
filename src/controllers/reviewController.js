@@ -1,7 +1,6 @@
 const { StudyEntry, SimuladoQuestaoErro, Subject, Topic, ReviewHistory } = require("../models");
 const { Op, fn, col, literal } = require("sequelize");
 const sequelize = require("../config/database");
-const gamificacao = require("../controllers/gamificacaoController");
 
 // =====================================================
 // CONFIGURAÇÕES DE INTERVALO DE REVISÃO
@@ -215,25 +214,6 @@ exports.registrarRevisao = async (req, res) => {
       { ultima_revisao: hoje, proxima_revisao: proximaRevisao },
       { where: { id: topicId, user_id: userId } }
     );
-
-    // ========== ADICIONAR XP E ATUALIZAR CONQUISTAS ==========
-    const { XP_CONFIG } = gamificacao;
-    
-    // XP por revisão
-    const xpRevisao = XP_CONFIG.POR_REVISAO;
-
-    if (xpRevisao > 0) {
-      // Adicionar XP
-      await gamificacao.adicionarXP(
-        userId, 
-        xpRevisao, 
-        `Revisão: ${assunto || 'Tópico'}`, 
-        'revisao'
-      );
-      
-      // Verificar conquistas
-      await gamificacao.verificarEDesbloquearConquistas(userId);
-    }
 
     res.json({ 
       success: true, 
