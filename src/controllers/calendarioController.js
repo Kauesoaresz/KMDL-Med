@@ -105,8 +105,8 @@ exports.calendario = async (req, res) => {
 
     const mediaDiaria =
       diasEstudados > 0
-        ? (totalHorasMes / diasEstudados).toFixed(2)
-        : "0.00";
+        ? totalHorasMes / diasEstudados
+        : 0;
 
     const mesLabel = inicioMes.toLocaleString("pt-BR", {
       month: "long",
@@ -119,9 +119,9 @@ exports.calendario = async (req, res) => {
       userFoto: req.session.userFoto,
 
       diasMes,
-      totalHorasMes: formatHoursMinutes(totalHorasMes), // Format in "Xh Ymin" format
+      totalHorasMes: totalHorasMes, // Raw number for view to format
       diasEstudados,
-      mediaDiaria,
+      mediaDiaria: mediaDiaria, // Raw number for view to format
 
       mesLabel,
       anoAnterior: mes === 1 ? ano - 1 : ano,

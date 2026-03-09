@@ -89,7 +89,7 @@
 
         <div>
           <small>Média por dia</small>
-          <strong><%= mediaDiaria %> h</strong>
+          <% const mediaHoras = mediaDiaria || 0; const mediaHorasInt = Math.floor(mediaHoras); const mediaMinutos = Math.round((mediaHoras - mediaHorasInt) * 60); %><strong><%= mediaHorasInt %>h <%= mediaMinutos %>min</strong>
         </div>
       </div>
 
@@ -98,3 +98,4 @@
 
 </body>
 </html>
+
