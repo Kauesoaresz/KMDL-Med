@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Plano para Implementar Modo Claro/Escuro
 
 ## Problema Identificado
@@ -106,7 +105,9 @@ Para gradientes, usar as variáveis diretamente quando possível, ou manter core
 1. Modificar cada arquivo CSS substituindo cores fixas por variáveis
 2. Testar alternando entre modo claro e escuro
 3. Verificar se todos os elementos estão respondendo corretamente ao tema
-=======
+
+---
+
 # TODO - Implement Hours and Minutes
 
 ## Task: Change time tracking from Days to Hours and Minutes
@@ -133,5 +134,14 @@ Para gradientes, usar as variáveis diretamente quando possível, ou manter core
 
 ### 7. reviewController.js ✅
 - [x] Update calculation from days to hours (horasSemEstudar)
->>>>>>> f47d1d6d316171d8548aeb01b514e937ac0f84d7
+
+---
+
+# TODO - Sidebar Scroll
+
+### 1. sidebar.css ✅
+- [x] Add custom scrollbar styling with green accent colors
+- [x] Add rounded corners and hover effects
+- [x] Add smooth scroll behavior
+- [x] Add light theme support for scrollbar
 
