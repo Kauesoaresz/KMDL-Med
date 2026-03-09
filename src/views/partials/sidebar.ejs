@@ -71,6 +71,13 @@
   <!-- FOOTER -->
   <div class="sidebar-footer">
 
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Alternar Tema">
+      <span class="theme-icon theme-icon-dark">🌙</span>
+      <span class="theme-icon theme-icon-light">☀️</span>
+      <p class="theme-label">Modo</p>
+    </button>
+
     <a href="/perfil" class="item profile">
       <img src="<%= userFoto || '/public/img/avatar-default.png' %>">
       <p><%= userNome || 'Usuário' %></p>
@@ -86,3 +93,41 @@
 </aside>
 
 <script src="/public/js/app/sidebar.js"></script>
+
+<!-- Theme Toggle Script -->
+<script>
+  (function() {
+    const toggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Check for saved theme preference or default to dark
+    const savedTheme = localStorage.getItem('kmed-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const currentTheme = savedTheme || (prefersDark ? 'dark' : 'dark');
+    
+    // Apply theme on load
+    if (currentTheme === 'light') {
+      html.setAttribute('data-theme', 'light');
+    }
+    
+    // Remove no-transition class after load
+    window.addEventListener('load', function() {
+      document.body.classList.remove('no-transition');
+    });
+    
+    // Toggle click handler
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        const isLight = html.getAttribute('data-theme') === 'light';
+        
+        if (isLight) {
+          html.removeAttribute('data-theme');
+          localStorage.setItem('kmed-theme', 'dark');
+        } else {
+          html.setAttribute('data-theme', 'light');
+          localStorage.setItem('kmed-theme', 'light');
+        }
+      });
+    }
+  })();
+</script>
