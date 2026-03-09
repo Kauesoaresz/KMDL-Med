@@ -79,7 +79,7 @@
       <div class="kmed-month-summary">
         <div>
           <small>Total de horas</small>
-          <strong><%= totalHorasMes %> h</strong>
+          <% const horasMes = totalHorasMes || 0; const horasMesInt = Math.floor(horasMes); const minutosMes = Math.round((horasMes - horasMesInt) * 60); %><strong><%= horasMesInt %>h <%= minutosMes %>min</strong>
         </div>
 
         <div>

@@ -56,13 +56,14 @@ exports.registerSave = async (req, res) => {
     const subject_id = ensureInt(b.subject_id);
     const topic_id = ensureInt(b.topic_id);
     const subtopic_id = ensureInt(b.subtopic_id);
+    const horas = parseFloat(b.horas) || 0;
     const minutos = parseFloat(b.minutos) || 0;
-    const horas = minutos / 60; // Converter minutos para horas
+    const totalHoras = horas + (minutos / 60); // Converter horas e minutos para horas decimais
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
     const dificuldade = b.dificuldade || "MEDIA";
 
-    if (!subject_id || !topic_id || horas <= 0) continue;
+    if (!subject_id || !topic_id || totalHoras <= 0) continue;
 
     await StudyEntry.create({
       user_id: userId,
@@ -70,7 +71,7 @@ exports.registerSave = async (req, res) => {
       subject_id,
       topic_id,
       subtopic_id,
-      horas,
+      horas: totalHoras,
       questoes,
       acertos,
       dificuldade
@@ -211,13 +212,14 @@ exports.editSave = async (req, res) => {
     const subject_id = ensureInt(b.subject_id);
     const topic_id = ensureInt(b.topic_id);
     const subtopic_id = ensureInt(b.subtopic_id);
+    const horas = parseFloat(b.horas) || 0;
     const minutos = parseFloat(b.minutos) || 0;
-    const horas = minutos / 60; // Converter minutos para horas
+    const totalHoras = horas + (minutos / 60); // Converter horas e minutos para horas decimais
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
     const dificuldade = b.dificuldade || "MEDIA";
 
-    if (!subject_id || !topic_id || horas <= 0) continue;
+    if (!subject_id || !topic_id || totalHoras <= 0) continue;
 
     await StudyEntry.create({
       user_id: userId,
@@ -225,7 +227,7 @@ exports.editSave = async (req, res) => {
       subject_id,
       topic_id,
       subtopic_id,
-      horas,
+      horas: totalHoras,
       questoes,
       acertos,
       dificuldade

@@ -5,6 +5,20 @@ function toISO(date) {
   return date.toISOString().slice(0, 10);
 }
 
+// Helper function to convert decimal hours to "Xh Ymin" format
+function formatHoursMinutes(decimalHours) {
+  if (!decimalHours || decimalHours <= 0) return "0h 0min";
+  
+  const horas = Math.floor(decimalHours);
+  const minutos = Math.round((decimalHours - horas) * 60);
+  
+  if (horas === 0) {
+    return `${minutos}min`;
+  }
+  
+  return `${horas}h ${minutos}min`;
+}
+
 exports.calendario = async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -81,7 +95,7 @@ exports.calendario = async (req, res) => {
       diasMes.push({
         dia: d,
         dataISO: iso,
-        horas: info.horas.toFixed(2),
+        horas: formatHoursMinutes(info.horas), // Format in "Xh Ymin" format
         cor,
         perfeito,
         isHoje: iso === hojeISO,
@@ -105,7 +119,7 @@ exports.calendario = async (req, res) => {
       userFoto: req.session.userFoto,
 
       diasMes,
-      totalHorasMes: totalHorasMes.toFixed(2),
+      totalHorasMes: formatHoursMinutes(totalHorasMes), // Format in "Xh Ymin" format
       diasEstudados,
       mediaDiaria,
 
@@ -121,3 +135,4 @@ exports.calendario = async (req, res) => {
     res.status(500).send("Erro no calendário");
   }
 };
+

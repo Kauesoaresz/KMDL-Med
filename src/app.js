@@ -30,6 +30,27 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // =========================
+// HELPER FUNCTIONS GLOBAL
+// =========================
+// Função para formatar horas em "Xh Ymin", "Xh" ou "Ymin"
+app.locals.formatHours = function(decimalHours) {
+  if (!decimalHours || decimalHours <= 0) return "0min";
+  
+  const horas = Math.floor(decimalHours);
+  const minutos = Math.round((decimalHours - horas) * 60);
+  
+  if (horas === 0) {
+    return minutos + "min";
+  }
+  
+  if (minutos === 0) {
+    return horas + "h";
+  }
+  
+  return horas + "h " + minutos + "min";
+};
+
+// =========================
 // MIDDLEWARES
 // =========================
 app.use(express.urlencoded({ extended: true }));

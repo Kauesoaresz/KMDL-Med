@@ -49,7 +49,14 @@
         <div class="card-icon">⏱️</div>
         <div class="card-content">
           <span class="card-label">Horas Estudadas</span>
-          <div class="card-value"><%= stats.horas.toFixed(1) %>h</div>
+          <div class="card-value">
+            <%
+              const horasPeriodo = stats.horas;
+              const horasPeriodoInt = Math.floor(horasPeriodo);
+              const minutosPeriodo = Math.round((horasPeriodo - horasPeriodoInt) * 60);
+            %>
+            <%= horasPeriodoInt %>h <%= minutosPeriodo %>min
+          </div>
           <div class="card-sub">
             <% if (period === 'week') { %>
               Essa semana
@@ -61,7 +68,12 @@
           </div>
         </div>
         <div class="card-badge">
-          <%= total.horas.toFixed(1) %>h total
+          <%
+              const horasTotalGeral = total.horas;
+              const horasTotalGeralInt = Math.floor(horasTotalGeral);
+              const minutosTotalGeral = Math.round((horasTotalGeral - horasTotalGeralInt) * 60);
+            %>
+            <%= horasTotalGeralInt %>h <%= minutosTotalGeral %>min total
         </div>
       </div>
 
@@ -182,7 +194,12 @@
                 <span class="ranking-detalhes"><%= item.questoes %> questões</span>
               </div>
               <span class="ranking-horas">
-                <%= item.horas.toFixed(1) %>h
+                <%
+                  const itemHoras = item.horas;
+                  const itemHorasInt = Math.floor(itemHoras);
+                  const itemMinutos = Math.round((itemHoras - itemHorasInt) * 60);
+                %>
+                <%= itemHorasInt %>h <%= itemMinutos %>min
               </span>
             </div>
           <% }); %>
@@ -256,7 +273,12 @@
               <div class="materia-stat">
                 <span class="stat-icon">⏱️</span>
                 <div class="stat-info">
-                  <span class="stat-value"><%= materia.horas.toFixed(1) %>h</span>
+                  <%
+                    const matHoras = materia.horas;
+                    const matHorasInt = Math.floor(matHoras);
+                    const matMinutos = Math.round((matHoras - matHorasInt) * 60);
+                  %>
+                  <span class="stat-value"><%= matHorasInt %>h <%= matMinutos %>min</span>
                   <span class="stat-label">Horas</span>
                 </div>
               </div>
@@ -350,7 +372,12 @@
                 <div class="geral-bar">
                   <div class="geral-bar-fill good" style="width: <%= materia.perc_horas %>%"></div>
                 </div>
-                <span class="geral-bar-label"><%= materia.horas.toFixed(1) %>h</span>
+                <%
+                  const geralHoras = materia.horas;
+                  const geralHorasInt = Math.floor(geralHoras);
+                  const geralMinutos = Math.round((geralHoras - geralHorasInt) * 60);
+                %>
+                <span class="geral-bar-label"><%= geralHorasInt %>h <%= geralMinutos %>min</span>
               </div>
             </div>
           <% }); %>
@@ -383,7 +410,12 @@
               <% materias.forEach(function(materia) { %>
                 <tr>
                   <td class="materia-name"><%= materia.nome %></td>
-                  <td><%= materia.horas.toFixed(1) %>h</td>
+                  <%
+                    const tabelaHoras = materia.horas;
+                    const tabelaHorasInt = Math.floor(tabelaHoras);
+                    const tabelaMinutos = Math.round((tabelaHoras - tabelaHorasInt) * 60);
+                  %>
+                  <td><%= tabelaHorasInt %>h <%= tabelaMinutos %>min</td>
                   <td><%= materia.questoes %></td>
                   <td class="good"><%= materia.acertos %></td>
                   <td class="bad"><%= materia.erros %></td>

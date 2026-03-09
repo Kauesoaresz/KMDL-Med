@@ -3,7 +3,7 @@ const { Op, fn, col } = require("sequelize");
 const puppeteer = require("puppeteer");
 
 // =====================================================
-// HELPER: Calcular período based on type
+// HELPER: Calcular período
 // =====================================================
 function getPeriodo(periodoTipo) {
   const hoje = new Date();
@@ -33,7 +33,7 @@ function getPeriodo(periodoTipo) {
     default:
       inicio = null;
       fim = null;
-      label = 'Total';
+      label = 'Total Geral';
       break;
   }
   
@@ -159,13 +159,12 @@ exports.gerarRelatorio = async (req, res) => {
       materiasMap[subjectId].acertos += acertos;
     });
     
-    // Converter para array - CORRIGIDO: tópico agora soma os assuntos
+    // Converter para array
     const materias = Object.values(materiasMap).map(materia => {
       const topicos = Object.values(materia.topicos).map(topico => {
         const assuntos = Object.values(topico.assuntos);
         
         if (assuntos.length === 0) {
-          // Sem assuntos = tudo no tópico (Geral)
           return {
             ...topico,
             assuntos: [{ 
@@ -179,7 +178,6 @@ exports.gerarRelatorio = async (req, res) => {
           };
         }
         
-        // Com assuntos: somar assuntos para obter total do tópico
         const totalHorasTopico = assuntos.reduce((sum, a) => sum + a.horas, 0);
         const totalQuestoesTopico = assuntos.reduce((sum, a) => sum + a.questoes, 0);
         const totalAcertosTopico = assuntos.reduce((sum, a) => sum + a.acertos, 0);
@@ -236,56 +234,79 @@ exports.gerarRelatorio = async (req, res) => {
 };
 
 // =====================================================
-// RENDERIZAR HTML DO RELATÓRIO
+// RENDERIZAR HTML DO RELATÓRIO - NOVO DESIGN
 // =====================================================
 function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '-';
-  const formatHoras = (h) => (parseFloat(h) || 0).toFixed(2).replace('.', ':');
-  const calcPorc = (acertos, questoes) => (!questoes || questoes === 0) ? '0%' : Math.round((acertos / questoes) * 100) + '%';
   
+  // Formatar horas como "Xh Ymin"
+  const formatHoras = (h) => {
+    const horas = Math.floor(parseFloat(h) || 0);
+    const minutos = Math.round((parseFloat(h) || 0) * 60 - horas * 60);
+    if (horas === 0) return `${minutos}min`;
+    if (minutos === 0) return `${horas}h`;
+    return `${horas}h ${minutos}min`;
+  };
+  
+  const calcPorc = (acertos, questoes) => (!questoes || questoes === 0) ? '0%' : Math.round((acertos / questoes) * 100) + '%';
+
+  // Gerar seções de matérias
   const materiasHTML = materias.map(materia => {
     const topicosHTML = materia.topicos.map(topico => {
       const assuntosHTML = topico.assuntos.map(assunto => `
         <tr class="assunto-row">
-          <td class="assunto-name">${assunto.nome}</td>
-          <td class="center">${formatHoras(assunto.horas)}</td>
-          <td class="center">${assunto.questoes}</td>
-          <td class="center">${assunto.acertos}</td>
-          <td class="center ${assunto.porcentagem >= 70 ? 'success' : assunto.porcentagem >= 50 ? 'warning' : 'danger'}">${assunto.porcentagem}%</td>
+          <td class="nome">▸ ${assunto.nome}</td>
+          <td class="tempo">${formatHoras(assunto.horas)}</td>
+          <td class="numero">${assunto.questoes}</td>
+          <td class="numero">${assunto.acertos}</td>
+          <td class="porcentagem ${assunto.porcentagem >= 70 ? 'alta' : assunto.porcentagem >= 50 ? 'media' : 'baixa'}">${assunto.porcentagem}%</td>
         </tr>`).join('');
       
       return `
-        <tr class="topico-header">
-          <td><span class="bullet">•</span> ${topico.nome}</td>
-          <td class="center">${formatHoras(topico.horas)}</td>
-          <td class="center">${topico.questoes}</td>
-          <td class="center">${topico.acertos}</td>
-          <td class="center">${calcPorc(topico.acertos, topico.questoes)}</td>
+        <tr class="topico-row">
+          <td class="nome"><strong>◆ ${topico.nome}</strong></td>
+          <td class="tempo"><strong>${formatHoras(topico.horas)}</strong></td>
+          <td class="numero"><strong>${topico.questoes}</strong></td>
+          <td class="numero"><strong>${topico.acertos}</strong></td>
+          <td class="porcentagem"><strong>${calcPorc(topico.acertos, topico.questoes)}</strong></td>
         </tr>
         ${assuntosHTML}`;
     }).join('');
-    
+
     return `
-      <div class="materia-section">
-        <h2 class="materia-title">${materia.nome}</h2>
-        <table class="data-table">
+      <div class="materia-bloco">
+        <div class="materia-cabecalho">
+          <div class="materia-titulo">📚 ${materia.nome}</div>
+          <div class="materia-resumo">
+            <span class="resumo-item">⏱️ ${formatHoras(materia.horas)}</span>
+            <span class="resumo-item">📝 ${materia.questoes}</span>
+            <span class="resumo-item ${materia.porcentagem >= 70 ? 'alta' : materia.porcentagem >= 50 ? 'media' : 'baixa'}">${materia.porcentagem}%</span>
+          </div>
+        </div>
+        <table class="tabela-conteudo">
           <thead>
-            <tr><th>Conteúdo</th><th class="center">Horas</th><th class="center">Questões</th><th class="center">Acertos</th><th class="center">%</th></tr>
+            <tr>
+              <th class="col-nome">Tópico / Assunto</th>
+              <th class="col-tempo">Tempo</th>
+              <th class="col-num">Qts</th>
+              <th class="col-num">Acertos</th>
+              <th class="col-porc">%</th>
+            </tr>
           </thead>
           <tbody>
             ${topicosHTML}
             <tr class="materia-total">
-              <td><strong>Total ${materia.nome}</strong></td>
-              <td class="center"><strong>${formatHoras(materia.horas)}</strong></td>
-              <td class="center"><strong>${materia.questoes}</strong></td>
-              <td class="center"><strong>${materia.acertos}</strong></td>
-              <td class="center ${materia.porcentagem >= 70 ? 'success' : materia.porcentagem >= 50 ? 'warning' : 'danger'}"><strong>${materia.porcentagem}%</strong></td>
+              <td class="nome"><strong>► TOTAL ${materia.nome.toUpperCase()}</strong></td>
+              <td class="tempo"><strong>${formatHoras(materia.horas)}</strong></td>
+              <td class="numero"><strong>${materia.questoes}</strong></td>
+              <td class="numero"><strong>${materia.acertos}</strong></td>
+              <td class="porcentagem ${materia.porcentagem >= 70 ? 'alta' : materia.porcentagem >= 50 ? 'media' : 'baixa'}"><strong>${materia.porcentagem}%</strong></td>
             </tr>
           </tbody>
         </table>
       </div>`;
   }).join('');
-  
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -293,13 +314,20 @@ function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
   <title>Relatório de Estudos</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 11pt; line-height: 1.4; color: #eaeaea; background: #0b0f17; }
+    body { 
+      font-family: 'Arial', sans-serif; 
+      font-size: 10pt; 
+      line-height: 1.4; 
+      color: #1a1a2e; 
+      background: #ffffff; 
+    }
     
+    /* ============ CAPA ============ */
     .capa {
       min-height: 100vh;
-      padding: 60px 50px;
-      background: radial-gradient(circle at top, #121826 0%, #0b0f17 45%, #080b12 100%);
-      color: white;
+      padding: 60px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -308,75 +336,259 @@ function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
       page-break-after: always;
     }
     
-    .capa h1 { font-size: 42pt; font-weight: 700; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 3px; }
-    .capa .periodo { font-size: 18pt; margin-bottom: 40px; opacity: 0.9; }
-    .capa .resumo-box { background: rgba(15,22,36,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 40px 60px; margin-top: 30px; }
-    .capa .resumo-title { font-size: 16pt; margin-bottom: 25px; color: #3ee28a; }
-    .capa .resumo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
-    .capa .resumo-item { text-align: center; }
-    .capa .resumo-value { font-size: 28pt; font-weight: 700; display: block; }
-    .capa .resumo-label { font-size: 11pt; opacity: 0.85; margin-top: 5px; }
-    .capa .data-geracao { position: absolute; bottom: 40px; font-size: 10pt; opacity: 0.7; }
+    .capa .logo {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
     
-    .conteudo { padding: 40px 50px; min-height: 100vh; background: #0b0f17; }
-    .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #3ee28a; }
-    .header h1 { color: #ffffff; font-size: 24pt; margin-bottom: 10px; }
-    .header .periodo-info { color: #aeb4c2; font-size: 12pt; }
+    .capa h1 { 
+      font-size: 36pt; 
+      font-weight: bold;
+      margin-bottom: 10px; 
+      text-transform: uppercase; 
+      letter-spacing: 3px;
+    }
     
-    .materia-section { margin-bottom: 35px; page-break-inside: avoid; }
-    .materia-title { background: linear-gradient(145deg, #0f1624, #0a0f1a); border-left: 4px solid #3ee28a; color: #ffffff; padding: 12px 20px; font-size: 14pt; border-radius: 8px; margin-bottom: 15px; }
+    .capa .subtitulo {
+      font-size: 16pt;
+      color: #94a3b8;
+      margin-bottom: 50px;
+      font-weight: 300;
+    }
     
-    .data-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
-    .data-table th { background: #0f1624; padding: 10px 12px; text-align: left; font-weight: 600; color: #aeb4c2; border-bottom: 2px solid #1e3c72; }
-    .data-table td { padding: 8px 12px; border-bottom: 1px solid #1f2a3a; color: #eaeaea; }
-    .data-table .center { text-align: center; }
-    .topico-header td { background: #0f1624; font-weight: 600; color: #3ee28a; }
-    .assunto-row td { padding-left: 30px; }
-    .assunto-name { color: #b5bccb; }
-    .bullet { color: #3ee28a; font-weight: bold; margin-right: 8px; }
-    .materia-total td { background: #0f1624; border-top: 2px solid #3ee28a; font-size: 11pt; color: #ffffff; }
+    .capa .periodo-destaque {
+      font-size: 24pt;
+      color: #38bdf8;
+      font-weight: bold;
+      margin-bottom: 40px;
+      padding: 15px 40px;
+      border: 2px solid #38bdf8;
+      border-radius: 8px;
+    }
     
-    .success { color: #3ee28a; }
-    .warning { color: #f0c75e; }
-    .danger { color: #ff6b6b; }
+    .resumo-capa {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 700px;
+    }
+    
+    .resumo-item-capa {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .resumo-item-capa .icon { font-size: 28px; display: block; margin-bottom: 8px; }
+    .resumo-item-capa .valor { font-size: 24pt; font-weight: bold; display: block; }
+    .resumo-item-capa .rotulo { font-size: 9pt; color: #94a3b8; margin-top: 5px; }
+    
+    .resumo-item-capa .valor.alta { color: #22c55e; }
+    .resumo-item-capa .valor.media { color: #eab308; }
+    .resumo-item-capa .valor.baixa { color: #ef4444; }
+    
+    .data-rodape {
+      position: absolute;
+      bottom: 40px;
+      font-size: 10pt;
+      color: #64748b;
+    }
+    
+    /* ============ PÁGINA DE CONTEÚDO ============ */
+    .pagina-conteudo {
+      padding: 40px 50px;
+      min-height: 100vh;
+      background: #ffffff;
+    }
+    
+    .cabecalho-pagina {
+      text-align: center;
+      margin-bottom: 35px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #1a1a2e;
+    }
+    
+    .cabecalho-pagina h1 {
+      font-size: 22pt;
+      color: #1a1a2e;
+      margin-bottom: 5px;
+    }
+    
+    .cabecalho-pagina .periodo {
+      font-size: 12pt;
+      color: #64748b;
+    }
+    
+    /* ============ BLOCO DE MATÉRIA ============ */
+    .materia-bloco {
+      margin-bottom: 30px;
+      page-break-inside: avoid;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .materia-cabecalho {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #ffffff;
+      padding: 18px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .materia-titulo {
+      font-size: 16pt;
+      font-weight: bold;
+    }
+    
+    .materia-resumo {
+      display: flex;
+      gap: 25px;
+    }
+    
+    .materia-resumo .resumo-item {
+      font-size: 11pt;
+    }
+    
+    .materia-resumo .resumo-item.alta { color: #22c55e; }
+    .materia-resumo .resumo-item.media { color: #eab308; }
+    .materia-resumo .resumo-item.baixa { color: #ef4444; }
+    
+    /* ============ TABELA ============ */
+    .tabela-conteudo {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+    }
+    
+    .tabela-conteudo thead {
+      background: #f1f5f9;
+    }
+    
+    .tabela-conteudo th {
+      padding: 12px 15px;
+      text-align: left;
+      font-weight: bold;
+      color: #475569;
+      border-bottom: 2px solid #cbd5e1;
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+    
+    .tabela-conteudo td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    
+    .tabela-conteudo .col-nome { width: 45%; }
+    .tabela-conteudo .col-tempo { width: 18%; text-align: center; }
+    .tabela-conteudo .col-num { width: 12%; text-align: center; }
+    .tabela-conteudo .col-porc { width: 13%; text-align: center; }
+    
+    .tabela-conteudo .tempo { text-align: center; font-weight: 500; }
+    .tabela-conteudo .numero { text-align: center; }
+    
+    /* Linhas diferenciadas */
+    .topico-row {
+      background: #f8fafc;
+    }
+    
+    .topico-row td {
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .assunto-row td {
+      padding-left: 30px;
+      color: #64748b;
+    }
+    
+    .materia-total {
+      background: #1a1a2e !important;
+    }
+    
+    .materia-total td {
+      color: #ffffff !important;
+      font-size: 10pt;
+    }
+    
+    /* Porcentagens coloridas */
+    .porcentagem.alta { color: #16a34a; font-weight: bold; }
+    .porcentagem.media { color: #ca8a04; font-weight: bold; }
+    .porcentagem.baixa { color: #dc2626; font-weight: bold; }
+    
+    /* ============ RODAPÉ ============ */
+    .rodape {
+      text-align: center;
+      padding: 20px;
+      font-size: 9pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 30px;
+    }
+    
+    /* ============ IMPRESSÃO ============ */
+    @media print {
+      .capa, .pagina-conteudo { min-height: auto; }
+      .materia-bloco { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
+  <!-- CAPA -->
   <div class="capa">
+    <div class="logo">📖</div>
     <h1>Relatório de Estudos</h1>
-    <p class="periodo">Período: ${periodo.label}</p>
-    <div class="resumo-box">
-      <p class="resumo-title">Resumo Geral</p>
-      <div class="resumo-grid">
-        <div class="resumo-item">
-          <span class="resumo-value">${formatHoras(resumo.totalHoras)}</span>
-          <span class="resumo-label">Horas Estudadas</span>
-        </div>
-        <div class="resumo-item">
-          <span class="resumo-value">${resumo.totalQuestoes}</span>
-          <span class="resumo-label">Questões Feitas</span>
-        </div>
-        <div class="resumo-item">
-          <span class="resumo-value">${resumo.totalAcertos}</span>
-          <span class="resumo-label">Total de Acertos</span>
-        </div>
-        <div class="resumo-item">
-          <span class="resumo-value">${resumo.porcentagemGeral}%</span>
-          <span class="resumo-label">Aproveitamento</span>
-        </div>
+    <p class="subtitulo">Resumo detalhado do seu desempenho</p>
+    
+    <div class="periodo-destaque">📅 ${periodo.label}</div>
+    
+    <div class="resumo-capa">
+      <div class="resumo-item-capa">
+        <span class="icon">⏱️</span>
+        <span class="valor">${formatHoras(resumo.totalHoras)}</span>
+        <span class="rotulo">Tempo Total</span>
+      </div>
+      <div class="resumo-item-capa">
+        <span class="icon">📝</span>
+        <span class="valor">${resumo.totalQuestoes}</span>
+        <span class="rotulo">Questões</span>
+      </div>
+      <div class="resumo-item-capa">
+        <span class="icon">✅</span>
+        <span class="valor">${resumo.totalAcertos}</span>
+        <span class="rotulo">Acertos</span>
+      </div>
+      <div class="resumo-item-capa">
+        <span class="icon">📊</span>
+        <span class="valor ${resumo.porcentagemGeral >= 70 ? 'alta' : resumo.porcentagemGeral >= 50 ? 'media' : 'baixa'}">${resumo.porcentagemGeral}%</span>
+        <span class="rotulo">Aproveitamento</span>
+      </div>
     </div>
-    <p class="data-geracao">Gerado em: ${formatDate(dataGeracao)}</p>
+    
+    <p class="data-rodape">Gerado em: ${formatDate(dataGeracao)}</p>
   </div>
   
-  <div class="conteudo">
-    <div class="header">
-      <h1>Organização dos Estudos</h1>
-      <p class="periodo-info">Período: ${periodo.label}</p>
+  <!-- CONTEÚDO -->
+  <div class="pagina-conteudo">
+    <div class="cabecalho-pagina">
+      <h1>📋 Detalhamento por Matéria</h1>
+      <p class="periodo">Período: ${periodo.label}</p>
     </div>
+    
     ${materiasHTML || '<p style="text-align:center;color:#666;padding:50px;">Nenhum registro de estudo encontrado no período selecionado.</p>'}
+    
+    <div class="rodape">
+      Relatório gerado automaticamente pelo sistema KMDL-Med
+    </div>
   </div>
 </body>
 </html>`;
 }
 
 module.exports = exports;
+
