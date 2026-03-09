@@ -1,5 +1,5 @@
-const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
-const { Op, fn, col } = require("sequelize");
+const { StudyEntry, Subject, Topic, Subtopic, Simulado, SimuladoBloco } = require("../models");
+const { Op, fn, col, literal } = require("sequelize");
 const puppeteer = require("puppeteer");
 
 // =====================================================
@@ -79,11 +79,13 @@ exports.gerarRelatorio = async (req, res) => {
       whereClause.data = { [Op.between]: [periodo.inicio, periodo.fim] };
     }
     
-    // Consulta SQL agregada
+    // =====================================================
+    // 1. Consulta principal - Study Entries
+    // =====================================================
     const entries = await StudyEntry.findAll({
       where: whereClause,
       attributes: [
-        'subject_id', 'topic_id', 'subtopic_id',
+        'subject_id', 'topic_id', 'subtopic_id', 'data',
         [fn('SUM', col('horas')), 'total_horas'],
         [fn('SUM', col('questoes')), 'total_questoes'],
         [fn('SUM', col('acertos')), 'total_acertos']
@@ -93,7 +95,7 @@ exports.gerarRelatorio = async (req, res) => {
         { model: Topic, as: 'topic', attributes: ['id', 'nome'] },
         { model: Subtopic, as: 'subtopic', attributes: ['id', 'nome'] }
       ],
-      group: ['subject_id', 'topic_id', 'subtopic_id'],
+      group: ['subject_id', 'topic_id', 'subtopic_id', 'data'],
       raw: false
     });
     
@@ -104,7 +106,15 @@ exports.gerarRelatorio = async (req, res) => {
       return horas > 0 || questoes > 0;
     });
     
-    // Estruturar dados hierárquicos
+    // =====================================================
+    // 2. Calcular dias estudados
+    // =====================================================
+    const diasEstudadosSet = new Set(entriesComAtividade.map(e => e.data));
+    const diasEstudados = diasEstudadosSet.size;
+    
+    // =====================================================
+    // 3. Estruturar dados hierárquicos
+    // =====================================================
     const materiasMap = {};
     
     entriesComAtividade.forEach(entry => {
@@ -159,7 +169,7 @@ exports.gerarRelatorio = async (req, res) => {
       materiasMap[subjectId].acertos += acertos;
     });
     
-    // Converter para array
+    // Converter para array e ordenar por horas
     const materias = Object.values(materiasMap).map(materia => {
       const topicos = Object.values(materia.topicos).map(topico => {
         const assuntos = Object.values(topico.assuntos);
@@ -194,17 +204,80 @@ exports.gerarRelatorio = async (req, res) => {
       return { ...materia, topicos };
     });
     
-    // Resumo geral
+    // Ordenar por horas (mais estudada primeiro)
+    materias.sort((a, b) => b.horas - a.horas);
+    
+    // =====================================================
+    // 4. Resumo geral
+    // =====================================================
     const totalHoras = materias.reduce((sum, m) => sum + m.horas, 0);
     const totalQuestoes = materias.reduce((sum, m) => sum + m.questoes, 0);
     const totalAcertos = materias.reduce((sum, m) => sum + m.acertos, 0);
     const porcentagemGeral = calcularPorcentagem(totalAcertos, totalQuestoes);
-    const resumo = { totalHoras, totalQuestoes, totalAcertos, porcentagemGeral };
+    const mediaHorasDia = diasEstudados > 0 ? (totalHoras / diasEstudados) : 0;
     
-    // Gerar HTML
-    const html = renderRelatorioHTML({ periodo, resumo, materias, dataGeracao: new Date() });
+    const resumo = { 
+      totalHoras, 
+      totalQuestoes, 
+      totalAcertos, 
+      porcentagemGeral,
+      diasEstudados,
+      mediaHorasDia
+    };
     
-    // Gerar PDF com Puppeteer
+    // =====================================================
+    // 5. Consultar Simulados
+    // =====================================================
+    const whereSimulados = { 
+      user_id: userId,
+      status: 'finalizado'
+    };
+    
+    if (periodo.inicio && periodo.fim) {
+      whereSimulados.data_realizacao = { [Op.between]: [periodo.inicio, periodo.fim] };
+    }
+    
+    // Buscar simulados com seus blocos
+    const simulados = await Simulado.findAll({
+      where: whereSimulados,
+      include: [{
+        model: SimuladoBloco,
+        as: 'blocos',
+        attributes: ['id', 'total_questoes', 'acertos']
+      }],
+      raw: false
+    });
+    
+    // Processar simulados - calcular totais manualmente
+    const simuladosFormatados = simulados.map(simulado => {
+      const blocos = simulado.blocos || [];
+      const totalQuestoesSimulado = blocos.reduce((sum, b) => sum + (parseInt(b.total_questoes) || 0), 0);
+      const totalAcertosSimulado = blocos.reduce((sum, b) => sum + (parseInt(b.acertos) || 0), 0);
+      
+      return {
+        id: simulado.id,
+        nome: simulado.nome,
+        data: simulado.data_realizacao,
+        questoes: totalQuestoesSimulado,
+        acertos: totalAcertosSimulado,
+        porcentagem: calcularPorcentagem(totalAcertosSimulado, totalQuestoesSimulado)
+      };
+    }).filter(s => s.questoes > 0);
+    
+    // =====================================================
+    // 6. Gerar HTML
+    // =====================================================
+    const html = renderRelatorioHTML({ 
+      periodo, 
+      resumo, 
+      materias, 
+      simulados: simuladosFormatados,
+      dataGeracao: new Date() 
+    });
+    
+    // =====================================================
+    // 7. Gerar PDF com Puppeteer
+    // =====================================================
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -217,7 +290,12 @@ exports.gerarRelatorio = async (req, res) => {
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '0', right: '0', bottom: '0', left: '0' }
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '15mm',
+        right: '15mm'
+      }
     });
     
     await browser.close();
@@ -225,7 +303,8 @@ exports.gerarRelatorio = async (req, res) => {
     const nomeArquivo = `relatorio-estudos-${periodo.label.toLowerCase().replace(' ', '-')}-${Date.now()}.pdf`;
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
-    res.setHeader('Content-Length', pdfBuffer.length); res.end(pdfBuffer);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    res.end(pdfBuffer);
     
   } catch (error) {
     console.error('Erro ao gerar relatório:', error);
@@ -234,10 +313,19 @@ exports.gerarRelatorio = async (req, res) => {
 };
 
 // =====================================================
-// RENDERIZAR HTML DO RELATÓRIO - NOVO DESIGN
+// RENDERIZAR HTML DO RELATÓRIO - NOVO DESIGN PROFISSIONAL
 // =====================================================
-function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
-  const formatDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '-';
+function renderRelatorioHTML({ periodo, resumo, materias, simulados, dataGeracao }) {
+  // =====================================================
+  // HELPERS
+  // =====================================================
+  const formatDate = (d) => d ? new Date(d).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  }) : '-';
+  
+  const formatDateShort = (d) => d ? new Date(d).toLocaleDateString('pt-BR') : '-';
   
   // Formatar horas como "Xh Ymin"
   const formatHoras = (h) => {
@@ -249,248 +337,307 @@ function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
   };
   
   const calcPorc = (acertos, questoes) => (!questoes || questoes === 0) ? '0%' : Math.round((acertos / questoes) * 100) + '%';
-
-  // Gerar seções de matérias
-  const materiasHTML = materias.map(materia => {
+  
+  const getPorcClass = (porc) => {
+    if (porc >= 70) return 'alta';
+    if (porc >= 50) return 'media';
+    return 'baixa';
+  };
+  
+  // =====================================================
+  // 1. DASHBOARD - Cards de estatísticas
+  // =====================================================
+  const dashboardCards = `
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-value">${formatHoras(resumo.totalHoras)}</div>
+        <div class="stat-label">Total de Horas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value">${resumo.totalQuestoes}</div>
+        <div class="stat-label">Questões Feitas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">${resumo.totalAcertos}</div>
+        <div class="stat-label">Questões Acertadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value ${getPorcClass(resumo.porcentagemGeral)}">${resumo.porcentagemGeral}%</div>
+        <div class="stat-label">Taxa de Acertos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">${resumo.diasEstudados}</div>
+        <div class="stat-label">Dias Estudados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-value">${formatHoras(resumo.mediaHorasDia)}</div>
+        <div class="stat-label">Média por Dia</div>
+      </div>
+    </div>
+  `;
+  
+  // =====================================================
+  // 2. Tabela de Matérias (resumo)
+  // =====================================================
+  const materiasTabela = materias.map(materia => `
+    <tr>
+      <td class="materia-nome">${materia.nome}</td>
+      <td class="center">${formatHoras(materia.horas)}</td>
+      <td class="center">${materia.questoes}</td>
+      <td class="center">${materia.acertos}</td>
+      <td class="center ${getPorcClass(materia.porcentagem)}"><strong>${materia.porcentagem}%</strong></td>
+    </tr>
+  `).join('');
+  
+  // =====================================================
+  // 3. Detalhamento por Matéria > Tópico > Assunto
+  // =====================================================
+  const materiasDetalhadas = materias.map(materia => {
     const topicosHTML = materia.topicos.map(topico => {
       const assuntosHTML = topico.assuntos.map(assunto => `
         <tr class="assunto-row">
-          <td class="nome">▸ ${assunto.nome}</td>
-          <td class="tempo">${formatHoras(assunto.horas)}</td>
-          <td class="numero">${assunto.questoes}</td>
-          <td class="numero">${assunto.acertos}</td>
-          <td class="porcentagem ${assunto.porcentagem >= 70 ? 'alta' : assunto.porcentagem >= 50 ? 'media' : 'baixa'}">${assunto.porcentagem}%</td>
-        </tr>`).join('');
+          <td class="topic-name">▸ ${assunto.nome}</td>
+          <td class="center">${formatHoras(assunto.horas)}</td>
+          <td class="center">${assunto.questoes}</td>
+          <td class="center">${assunto.acertos}</td>
+          <td class="center ${getPorcClass(assunto.porcentagem)}">${assunto.porcentagem}%</td>
+        </tr>
+      `).join('');
       
       return `
         <tr class="topico-row">
-          <td class="nome"><strong>◆ ${topico.nome}</strong></td>
-          <td class="tempo"><strong>${formatHoras(topico.horas)}</strong></td>
-          <td class="numero"><strong>${topico.questoes}</strong></td>
-          <td class="numero"><strong>${topico.acertos}</strong></td>
-          <td class="porcentagem"><strong>${calcPorc(topico.acertos, topico.questoes)}</strong></td>
+          <td class="topic-name"><strong>◆ ${topico.nome}</strong></td>
+          <td class="center"><strong>${formatHoras(topico.horas)}</strong></td>
+          <td class="center"><strong>${topico.questoes}</strong></td>
+          <td class="center"><strong>${topico.acertos}</strong></td>
+          <td class="center"><strong>${calcPorc(topico.acertos, topico.questoes)}</strong></td>
         </tr>
-        ${assuntosHTML}`;
+        ${assuntosHTML}
+      `;
     }).join('');
-
+    
     return `
-      <div class="materia-bloco">
-        <div class="materia-cabecalho">
-          <div class="materia-titulo">📚 ${materia.nome}</div>
-          <div class="materia-resumo">
-            <span class="resumo-item">⏱️ ${formatHoras(materia.horas)}</span>
-            <span class="resumo-item">📝 ${materia.questoes}</span>
-            <span class="resumo-item ${materia.porcentagem >= 70 ? 'alta' : materia.porcentagem >= 50 ? 'media' : 'baixa'}">${materia.porcentagem}%</span>
+      <div class="subject-section" style="page-break-inside: avoid;">
+        <div class="subject-header">
+          <h2 class="subject-title">📚 ${materia.nome}</h2>
+          <div class="subject-summary">
+            <span class="summary-item">⏱️ ${formatHoras(materia.horas)}</span>
+            <span class="summary-item">📝 ${materia.questoes}</span>
+            <span class="summary-item ${getPorcClass(materia.porcentagem)}">${materia.porcentagem}%</span>
           </div>
         </div>
-        <table class="tabela-conteudo">
+        <table class="detail-table">
           <thead>
             <tr>
-              <th class="col-nome">Tópico / Assunto</th>
-              <th class="col-tempo">Tempo</th>
-              <th class="col-num">Qts</th>
-              <th class="col-num">Acertos</th>
-              <th class="col-porc">%</th>
+              <th style="width: 40%;">Tópico / Assunto</th>
+              <th style="width: 18%;">Horas</th>
+              <th style="width: 14%;">Questões</th>
+              <th style="width: 14%;">Acertos</th>
+              <th style="width: 14%;">Taxa</th>
             </tr>
           </thead>
           <tbody>
             ${topicosHTML}
-            <tr class="materia-total">
-              <td class="nome"><strong>► TOTAL ${materia.nome.toUpperCase()}</strong></td>
-              <td class="tempo"><strong>${formatHoras(materia.horas)}</strong></td>
-              <td class="numero"><strong>${materia.questoes}</strong></td>
-              <td class="numero"><strong>${materia.acertos}</strong></td>
-              <td class="porcentagem ${materia.porcentagem >= 70 ? 'alta' : materia.porcentagem >= 50 ? 'media' : 'baixa'}"><strong>${materia.porcentagem}%</strong></td>
+            <tr class="subject-total">
+              <td><strong>► TOTAL ${materia.nome.toUpperCase()}</strong></td>
+              <td class="center"><strong>${formatHoras(materia.horas)}</strong></td>
+              <td class="center"><strong>${materia.questoes}</strong></td>
+              <td class="center"><strong>${materia.acertos}</strong></td>
+              <td class="center ${getPorcClass(materia.porcentagem)}"><strong>${materia.porcentagem}%</strong></td>
             </tr>
           </tbody>
         </table>
-      </div>`;
+      </div>
+    `;
   }).join('');
-
+  
+  // =====================================================
+  // 4. Simulados
+  // =====================================================
+  let simuladosHTML = '';
+  if (simulados && simulados.length > 0) {
+    const simuladosRows = simulados.map(simulado => `
+      <tr>
+        <td>${simulado.nome}</td>
+        <td class="center">${formatDateShort(simulado.data)}</td>
+        <td class="center">${simulado.questoes}</td>
+        <td class="center">${simulado.acertos}</td>
+        <td class="center ${getPorcClass(simulado.porcentagem)}"><strong>${simulado.porcentagem}%</strong></td>
+      </tr>
+    `).join('');
+    
+    simuladosHTML = `
+      <div class="section">
+        <h2 class="section-title">📋 Simulados Realizados</h2>
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th style="width: 35%;">Simulado</th>
+              <th style="width: 18%;">Data</th>
+              <th style="width: 15%;">Questões</th>
+              <th style="width: 15%;">Acertos</th>
+              <th style="width: 17%;">Taxa</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${simuladosRows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  
+  // =====================================================
+  // RETORNO DO HTML COMPLETO
+  // =====================================================
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Relatório de Estudos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Desempenho de Estudos</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Arial', sans-serif; 
-      font-size: 10pt; 
-      line-height: 1.4; 
-      color: #1a1a2e; 
-      background: #ffffff; 
+    /* =====================================================
+       RESET E BASE
+       ===================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
     
-    /* ============ CAPA ============ */
-    .capa {
-      min-height: 100vh;
-      padding: 60px;
-      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      page-break-after: always;
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
     }
     
-    .capa .logo {
-      font-size: 60px;
-      margin-bottom: 20px;
-    }
-    
-    .capa h1 { 
-      font-size: 36pt; 
-      font-weight: bold;
-      margin-bottom: 10px; 
-      text-transform: uppercase; 
-      letter-spacing: 3px;
-    }
-    
-    .capa .subtitulo {
-      font-size: 16pt;
-      color: #94a3b8;
-      margin-bottom: 50px;
-      font-weight: 300;
-    }
-    
-    .capa .periodo-destaque {
-      font-size: 24pt;
-      color: #38bdf8;
-      font-weight: bold;
-      margin-bottom: 40px;
-      padding: 15px 40px;
-      border: 2px solid #38bdf8;
-      border-radius: 8px;
-    }
-    
-    .resumo-capa {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      width: 100%;
-      max-width: 700px;
-    }
-    
-    .resumo-item-capa {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-    }
-    
-    .resumo-item-capa .icon { font-size: 28px; display: block; margin-bottom: 8px; }
-    .resumo-item-capa .valor { font-size: 24pt; font-weight: bold; display: block; }
-    .resumo-item-capa .rotulo { font-size: 9pt; color: #94a3b8; margin-top: 5px; }
-    
-    .resumo-item-capa .valor.alta { color: #22c55e; }
-    .resumo-item-capa .valor.media { color: #eab308; }
-    .resumo-item-capa .valor.baixa { color: #ef4444; }
-    
-    .data-rodape {
-      position: absolute;
-      bottom: 40px;
+    body {
+      font-family: 'Arial', 'Helvetica', sans-serif;
       font-size: 10pt;
-      color: #64748b;
-    }
-    
-    /* ============ PÁGINA DE CONTEÚDO ============ */
-    .pagina-conteudo {
-      padding: 40px 50px;
-      min-height: 100vh;
+      line-height: 1.5;
+      color: #1a1a2e;
       background: #ffffff;
     }
     
-    .cabecalho-pagina {
+    /* =====================================================
+       CABEÇALHO
+       ===================================================== */
+    .header {
       text-align: center;
-      margin-bottom: 35px;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #1a1a2e;
-    }
-    
-    .cabecalho-pagina h1 {
-      font-size: 22pt;
-      color: #1a1a2e;
-      margin-bottom: 5px;
-    }
-    
-    .cabecalho-pagina .periodo {
-      font-size: 12pt;
-      color: #64748b;
-    }
-    
-    /* ============ BLOCO DE MATÉRIA ============ */
-    .materia-bloco {
+      padding: 30px 20px 25px;
+      border-bottom: 3px solid #1e3a5f;
       margin-bottom: 30px;
-      page-break-inside: avoid;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
     }
     
-    .materia-cabecalho {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      color: #ffffff;
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .materia-titulo {
-      font-size: 16pt;
-      font-weight: bold;
-    }
-    
-    .materia-resumo {
-      display: flex;
-      gap: 25px;
-    }
-    
-    .materia-resumo .resumo-item {
-      font-size: 11pt;
-    }
-    
-    .materia-resumo .resumo-item.alta { color: #22c55e; }
-    .materia-resumo .resumo-item.media { color: #eab308; }
-    .materia-resumo .resumo-item.baixa { color: #ef4444; }
-    
-    /* ============ TABELA ============ */
-    .tabela-conteudo {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 9pt;
-    }
-    
-    .tabela-conteudo thead {
-      background: #f1f5f9;
-    }
-    
-    .tabela-conteudo th {
-      padding: 12px 15px;
-      text-align: left;
-      font-weight: bold;
-      color: #475569;
-      border-bottom: 2px solid #cbd5e1;
-      font-size: 8pt;
+    .header h1 {
+      font-size: 22pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
       text-transform: uppercase;
     }
     
-    .tabela-conteudo td {
-      padding: 10px 15px;
+    .header .subtitle {
+      font-size: 12pt;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    
+    .header .meta {
+      font-size: 9pt;
+      color: #94a3b8;
+    }
+    
+    .header-line {
+      height: 3px;
+      background: linear-gradient(90deg, #1e3a5f 0%, #3b82f6 50%, #1e3a5f 100%);
+      margin-top: 15px;
+    }
+    
+    /* =====================================================
+       DASHBOARD - Cards de Estatísticas
+       ===================================================== */
+    .dashboard {
+      margin-bottom: 35px;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 18px 15px;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    
+    .stat-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 22pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 4px;
+    }
+    
+    .stat-value.alta { color: #16a34a; }
+    .stat-value.media { color: #ca8a04; }
+    .stat-value.baixa { color: #dc2626; }
+    
+    .stat-label {
+      font-size: 9pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* =====================================================
+       TABELAS
+       ===================================================== */
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      margin-bottom: 25px;
+    }
+    
+    .detail-table thead {
+      background: #1e3a5f;
+    }
+    
+    .detail-table th {
+      padding: 12px 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #ffffff;
+      border-bottom: 2px solid #1e3a5f;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .detail-table td {
+      padding: 10px;
       border-bottom: 1px solid #e2e8f0;
       color: #334155;
     }
     
-    .tabela-conteudo .col-nome { width: 45%; }
-    .tabela-conteudo .col-tempo { width: 18%; text-align: center; }
-    .tabela-conteudo .col-num { width: 12%; text-align: center; }
-    .tabela-conteudo .col-porc { width: 13%; text-align: center; }
-    
-    .tabela-conteudo .tempo { text-align: center; font-weight: 500; }
-    .tabela-conteudo .numero { text-align: center; }
+    .detail-table .center { text-align: center; }
     
     /* Linhas diferenciadas */
     .topico-row {
@@ -503,89 +650,195 @@ function renderRelatorioHTML({ periodo, resumo, materias, dataGeracao }) {
     }
     
     .assunto-row td {
-      padding-left: 30px;
+      padding-left: 25px;
       color: #64748b;
+      font-size: 8.5pt;
     }
     
-    .materia-total {
-      background: #1a1a2e !important;
+    .subject-total {
+      background: #1e3a5f !important;
     }
     
-    .materia-total td {
+    .subject-total td {
       color: #ffffff !important;
-      font-size: 10pt;
+      font-size: 9.5pt;
     }
     
     /* Porcentagens coloridas */
-    .porcentagem.alta { color: #16a34a; font-weight: bold; }
-    .porcentagem.media { color: #ca8a04; font-weight: bold; }
-    .porcentagem.baixa { color: #dc2626; font-weight: bold; }
+    .alta { color: #16a34a !important; font-weight: 600; }
+    .media { color: #ca8a04 !important; font-weight: 600; }
+    .baixa { color: #dc2626 !important; font-weight: 600; }
     
-    /* ============ RODAPÉ ============ */
-    .rodape {
+    /* =====================================================
+       SEÇÕES
+       ===================================================== */
+    .section {
+      margin-bottom: 30px;
+      page-break-before: auto;
+    }
+    
+    .section-title {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    /* =====================================================
+       DETALHAMENTO POR MATÉRIA
+       ===================================================== */
+    .subject-section {
+      margin-bottom: 30px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+    
+    .subject-header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      color: #ffffff;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .subject-title {
+      font-size: 13pt;
+      font-weight: 700;
+    }
+    
+    .subject-summary {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .summary-item {
+      font-size: 10pt;
+    }
+    
+    .summary-item.alta { color: #4ade80; }
+    .summary-item.media { color: #facc15; }
+    .summary-item.baixa { color: #f87171; }
+    
+    /* =====================================================
+       TABELA RESUMO DE MATÉRIAS
+       ===================================================== */
+    .materias-resumo {
+      margin-bottom: 35px;
+    }
+    
+    .materias-resumo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .materias-resumo-table thead {
+      background: #1e3a5f;
+    }
+    
+    .materias-resumo-table th {
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #ffffff;
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+    
+    .materias-resumo-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    
+    .materias-resumo-table .center { text-align: center; }
+    
+    .materias-resumo-table .materia-nome {
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .materias-resumo-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    
+    /* =====================================================
+       RODAPÉ
+       ===================================================== */
+    .footer {
       text-align: center;
       padding: 20px;
-      font-size: 9pt;
+      font-size: 8pt;
       color: #94a3b8;
       border-top: 1px solid #e2e8f0;
       margin-top: 30px;
     }
     
-    /* ============ IMPRESSÃO ============ */
+    /* =====================================================
+       IMPRESSÃO
+       ===================================================== */
     @media print {
-      .capa, .pagina-conteudo { min-height: auto; }
-      .materia-bloco { break-inside: avoid; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .subject-section, .stat-card { break-inside: avoid; }
     }
   </style>
 </head>
 <body>
-  <!-- CAPA -->
-  <div class="capa">
-    <div class="logo">📖</div>
-    <h1>Relatório de Estudos</h1>
-    <p class="subtitulo">Resumo detalhado do seu desempenho</p>
-    
-    <div class="periodo-destaque">📅 ${periodo.label}</div>
-    
-    <div class="resumo-capa">
-      <div class="resumo-item-capa">
-        <span class="icon">⏱️</span>
-        <span class="valor">${formatHoras(resumo.totalHoras)}</span>
-        <span class="rotulo">Tempo Total</span>
-      </div>
-      <div class="resumo-item-capa">
-        <span class="icon">📝</span>
-        <span class="valor">${resumo.totalQuestoes}</span>
-        <span class="rotulo">Questões</span>
-      </div>
-      <div class="resumo-item-capa">
-        <span class="icon">✅</span>
-        <span class="valor">${resumo.totalAcertos}</span>
-        <span class="rotulo">Acertos</span>
-      </div>
-      <div class="resumo-item-capa">
-        <span class="icon">📊</span>
-        <span class="valor ${resumo.porcentagemGeral >= 70 ? 'alta' : resumo.porcentagemGeral >= 50 ? 'media' : 'baixa'}">${resumo.porcentagemGeral}%</span>
-        <span class="rotulo">Aproveitamento</span>
-      </div>
-    </div>
-    
-    <p class="data-rodape">Gerado em: ${formatDate(dataGeracao)}</p>
+
+  <!-- CABEÇALHO -->
+  <div class="header">
+    <h1>Relatório de Desempenho de Estudos</h1>
+    <p class="subtitle">Preparação para Vestibular de Medicina</p>
+    <p class="meta">Período: ${periodo.label} | Gerado em: ${formatDate(dataGeracao)}</p>
+    <div class="header-line"></div>
   </div>
-  
-  <!-- CONTEÚDO -->
-  <div class="pagina-conteudo">
-    <div class="cabecalho-pagina">
-      <h1>📋 Detalhamento por Matéria</h1>
-      <p class="periodo">Período: ${periodo.label}</p>
-    </div>
-    
-    ${materiasHTML || '<p style="text-align:center;color:#666;padding:50px;">Nenhum registro de estudo encontrado no período selecionado.</p>'}
-    
-    <div class="rodape">
-      Relatório gerado automaticamente pelo sistema KMDL-Med
-    </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    ${dashboardCards}
   </div>
+
+  <!-- RESUMO POR MATÉRIA -->
+  <div class="materias-resumo">
+    <h2 class="section-title">📊 Desempenho por Matéria</h2>
+    <table class="materias-resumo-table">
+      <thead>
+        <tr>
+          <th style="width: 40%;">Matéria</th>
+          <th style="width: 18%;">Horas</th>
+          <th style="width: 14%;">Questões</th>
+          <th style="width: 14%;">Acertos</th>
+          <th style="width: 14%;">Taxa</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${materiasTabela || '<tr><td colspan="5" class="center" style="padding: 30px;">Nenhum registro de estudo encontrado.</td></tr>'}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DETALHAMENTO POR MATÉRIA -->
+  <div class="section">
+    <h2 class="section-title">📚 Detalhamento por Matéria, Tópico e Assunto</h2>
+    ${materiasDetalhadas || '<p style="text-align: center; color: #64748b; padding: 30px;">Nenhum detalhamento disponível.</p>'}
+  </div>
+
+  <!-- SIMULADOS -->
+  ${simuladosHTML}
+
+  <!-- RODAPÉ -->
+  <div class="footer">
+    Relatório gerado automaticamente pelo sistema KMDL-Med | Prepare-se para a Medicina com excelência
+  </div>
+
 </body>
 </html>`;
 }
