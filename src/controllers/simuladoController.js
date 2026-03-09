@@ -48,25 +48,48 @@ exports.criarSimulado = async (req, res) => {
   const userId = req.session.userId;
   const { nome, data_realizacao } = req.body;
 
-  if (!nome || !data_realizacao || !userId) {
+  console.log("=== CRIAR SIMULADO ===");
+  console.log("userId:", userId);
+  console.log("nome:", nome);
+  console.log("data_realizacao:", data_realizacao);
+
+  if (!nome || !data_realizacao) {
+    console.log("ERRO: Campos obrigatórios faltando");
+    req.flash = req.flash || {};
+    req.flash.error = "Preencha todos os campos obrigatórios.";
     return res.redirect("/simulados/lista");
   }
 
+  if (!userId) {
+    console.log("ERRO: Usuário não autenticado");
+    return res.redirect("/login");
+  }
+
   // Bloqueia datas futuras
-  if (new Date(data_realizacao) > new Date()) {
+  const dataInput = new Date(data_realizacao);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  
+  if (dataInput > hoje) {
+    console.log("ERRO: Data futura");
+    req.flash = req.flash || {};
+    req.flash.error = "Não é permitido criar simulados com datas futuras.";
     return res.redirect("/simulados/lista");
   }
 
   try {
-    await Simulado.create({
+    const novoSimulado = await Simulado.create({
       user_id: userId,
       nome,
       data_realizacao,
     });
 
+    console.log("Simulado criado com sucesso! ID:", novoSimulado.id);
     res.redirect("/simulados/lista");
   } catch (err) {
     console.error("Erro ao criar simulado:", err);
+    req.flash = req.flash || {};
+    req.flash.error = "Erro ao criar simulado. Tente novamente.";
     res.redirect("/simulados/lista");
   }
 };

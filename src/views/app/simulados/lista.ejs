@@ -1,93 +1,125 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>KMDL Med | Simulados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/app/simulados-lista.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Simulados - KMDL Med</title>
+  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/simulados-lista.css">
 </head>
+
 <body class="page-bg">
 
-  <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
+<%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-    <div class="container">
+  <div class="page">
 
-      <!-- HEADER -->
-      <div class="header">
-        <h1>📘 Simulados</h1>
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>📘 Meus Simulados</h1>
+        <p>Crie e acompanhe seus simulados</p>
+      </div>
+    </div>
 
-        <form action="/simulados" method="POST" class="novo-simulado-form">
-          <input
-            type="text"
-            name="nome"
-            placeholder="Nome do simulado (ex: ENEM 2023)"
-            required
-          />
+    <!-- Alert Messages -->
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    
+    <% if (ok) { %>
+      <div class="alert alert-success"><%= ok %></div>
+    <% } %>
 
-          <input
-            type="date"
-            name="data_realizacao"
-            required
-          />
+    <!-- New Simulado Form -->
+    <div class="section">
+      <div class="form-card">
+        <h2 class="section-title">Criar Novo Simulado</h2>
+        <form action="/simulados" method="POST" class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome do simulado</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              placeholder="Ex: ENEM 2023, Simulado 1"
+              required
+            />
+          </div>
 
-          <button type="submit">Criar simulado</button>
+          <div class="form-group">
+            <label for="data_realizacao">Data de realização</label>
+            <input
+              type="date"
+              id="data_realizacao"
+              name="data_realizacao"
+              required
+            />
+          </div>
+
+          <div class="form-group form-actions">
+            <button type="submit" class="btn-primary">
+              + Criar Simulado
+            </button>
+          </div>
         </form>
       </div>
-
-      <!-- LISTA -->
-      <div class="simulados-lista">
-
-        <% if (simulados.length === 0) { %>
-          <p class="empty">
-            Nenhum simulado criado ainda.
-          </p>
-        <% } %>
-
-        <% simulados.forEach(simulado => { %>
-          <div class="simulado-card <%= simulado.status %>">
-
-            <div class="info">
-              <h3><%= simulado.nome %></h3>
-
-              <span class="status <%= simulado.status %>">
-                <%= simulado.status === "finalizado" ? "Finalizado" : "Em andamento" %>
-              </span>
-            </div>
-
-            <div class="meta">
-              <span>
-                Realizado em:
-                <%= simulado.data_realizacao.split("-").reverse().join("/") %>
-
-              </span>
-            </div>
-
-            <div class="actions">
-              <a href="/simulados/<%= simulado.id %>" class="btn">
-                Abrir simulado
-              </a>
-
-              <form
-                action="/simulados/<%= simulado.id %>/excluir"
-                method="POST"
-                onsubmit="return confirm('Tem certeza que deseja excluir este simulado?')"
-              >
-                <button type="submit" class="btn danger small">
-                  Excluir
-                </button>
-              </form>
-            </div>
-
-          </div>
-        <% }) %>
-
-      </div>
-
     </div>
-  </main>
+
+    <!-- Simulados List -->
+    <div class="section">
+      <h2 class="section-title">Simulados Criados</h2>
+      
+      <% if (simulados.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">📘</div>
+          <h3>Nenhum simulado criado ainda</h3>
+          <p>Crie seu primeiro simulado acima para começar a praticar!</p>
+        </div>
+      <% } else { %>
+        <div class="list-grid">
+          <% simulados.forEach(simulado => { %>
+            <div class="list-card <%= simulado.status %>">
+              <div class="list-card-header">
+                <span class="status-badge <%= simulado.status %>">
+                  <%= simulado.status === "finalizado" ? "✅ Finalizado" : simulado.status === "revisao" ? "📝 Revisão" : "⏳ Em andamento" %>
+                </span>
+              </div>
+              
+              <h3 class="list-card-title"><%= simulado.nome %></h3>
+              
+              <div class="list-card-meta">
+                <span class="meta-item">
+                  📅 <%= simulado.data_realizacao ? simulado.data_realizacao.split("-").reverse().join("/") : "Sem data" %>
+                </span>
+              </div>
+
+              <div class="list-card-actions">
+                <a href="/simulados/<%= simulado.id %>" class="btn-secondary">
+                  Abrir
+                </a>
+                <form
+                  action="/simulados/<%= simulado.id %>/excluir"
+                  method="POST"
+                  onsubmit="return confirm('Tem certeza que deseja excluir este simulado?')"
+                  class="inline-form"
+                >
+                  <button type="submit" class="btn-danger">
+                    Excluir
+                  </button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+</main>
 
 </body>
 </html>
+

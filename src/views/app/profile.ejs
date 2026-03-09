@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="/public/css/components/global-responsive.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/components/theme.css">
   <link rel="stylesheet" href="/public/css/app/profile.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -44,6 +45,7 @@
             <span class="stat-value"><%= totalHorasProfileInt %>h <%= totalMinutosProfile %>min</span>
             <span class="stat-label">Horas Estudadas</span>
           </div>
+        </div>
 
         <div class="stat-card questions">
           <div class="stat-icon">
@@ -53,6 +55,7 @@
             <span class="stat-value"><%= stats.totalQuestoes %></span>
             <span class="stat-label">Questões Respondidas</span>
           </div>
+        </div>
 
         <div class="stat-card correct">
           <div class="stat-icon">
@@ -62,6 +65,7 @@
             <span class="stat-value"><%= stats.totalAcertos %></span>
             <span class="stat-label">Acertos</span>
           </div>
+        </div>
 
         <div class="stat-card accuracy">
           <div class="stat-icon">
@@ -71,6 +75,7 @@
             <span class="stat-value"><%= stats.taxaAcertos %>%</span>
             <span class="stat-label">Taxa de Acerto</span>
           </div>
+        </div>
 
         <div class="stat-card exams">
           <div class="stat-icon">
@@ -80,6 +85,7 @@
             <span class="stat-value"><%= stats.simuladoCount %></span>
             <span class="stat-label">Simulados Feitos</span>
           </div>
+        </div>
 
         <div class="stat-card streak">
           <div class="stat-icon">
@@ -89,8 +95,10 @@
             <span class="stat-value"><%= stats.streak %></span>
             <span class="stat-label">Dias Seguidos</span>
           </div>
+        </div>
 
       </div>
+    </div>
 
     <!-- Card do Perfil -->
     <form method="POST" enctype="multipart/form-data" class="profile-card">
@@ -107,6 +115,7 @@
           <h2><%= user.nome %></h2>
           <p>Membro desde <%= dataCadastro %></p>
         </div>
+      </div>
 
       <div class="form-section">
         <div class="form-group">
@@ -130,7 +139,9 @@
           <span class="char-count"><%= (user.bio || '').length %>/500</span>
         </div>
 
-      <button class="btn">Salvar alterações</button>
+        <button class="btn">Salvar alterações</button>
+      </div>
+
     </form>
 
   </div>
@@ -156,3 +167,4 @@
 
 </body>
 </html>
+

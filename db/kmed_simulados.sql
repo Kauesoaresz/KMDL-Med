@@ -26,7 +26,7 @@ CREATE TABLE `simulados` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `nome` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('em_andamento','finalizado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'em_andamento',
+  `status` enum('em_andamento','finalizado','revisao') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'em_andamento',
   `finished_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,

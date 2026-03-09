@@ -1,95 +1,126 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Tópicos</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tópicos - KMDL Med</title>
+  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
-<link rel="stylesheet" href="/public/css/content/base.css">
-<link rel="stylesheet" href="/public/css/content/topicos.css">
+  <link rel="stylesheet" href="/public/css/content/topicos.css">
 </head>
 
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "conteudos", userNome, userFoto }) %>
+<%- include("../partials/sidebar", { active: "conteudos", userNome, userFoto }) %>
 
-  <main class="with-sidebar">
-    <div class="container">
+<main class="with-sidebar">
+  <div class="page">
 
-      <div class="topbar">
-        <div class="tabs">
-          <a class="tab" href="/conteudos/materias">Matérias</a>
-          <a class="tab active" href="/conteudos/topicos">Tópicos</a>
-          <a class="tab" href="/conteudos/assuntos">Assuntos</a>
-        </div>
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>📑 Tópicos</h1>
+        <p>Cadastre tópicos dentro de cada matéria</p>
       </div>
+    </div>
 
-      <div class="card">
-        <h1>Tópicos</h1>
-        <p class="sub">Cadastre vários tópicos sem perder o filtro.</p>
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <a class="tab" href="/conteudos/materias">Matérias</a>
+        <a class="tab active" href="/conteudos/topicos">Tópicos</a>
+        <a class="tab" href="/conteudos/assuntos">Assuntos</a>
+      </div>
+    </div>
 
-        <% if (erro) { %><div class="alert"><%= erro %></div><% } %>
-        <% if (ok) { %><div class="ok"><%= ok %></div><% } %>
+    <!-- Alert Messages -->
+    <% if (erro) { %>
+      <div class="alert alert-error"><%= erro %></div>
+    <% } %>
+    
+    <% if (ok) { %>
+      <div class="alert alert-success"><%= ok %></div>
+    <% } %>
 
-        <!-- FORM -->
-        <form method="POST"
-              action="/conteudos/topicos?subject_id=<%= filtroSubjectId || '' %>"
-              class="formGrid">
-
-          <select name="subject_id" required
-        onchange="window.location.href='?subject_id=' + this.value">
-
-            <option value="">Selecione a matéria</option>
-            <% subjects.forEach(s => { %>
-              <option value="<%= s.id %>"
-                <%= String(filtroSubjectId) === String(s.id) ? "selected" : "" %>>
-                <%= s.nome %>
-              </option>
-            <% }) %>
-          </select>
-
-          <input name="nome" placeholder="Nome do tópico" required />
-          <button type="submit">Adicionar</button>
-        </form>
-
-        <!-- LISTA -->
-        <div class="table">
-          <div class="thead">
-            <div>Matéria</div>
-            <div>Tópico</div>
-            <div>Ações</div>
+    <!-- Form Card -->
+    <div class="section">
+      <div class="form-card">
+        <h2 class="section-title">Novo Tópico</h2>
+        <form method="POST" action="/conteudos/topicos?subject_id=<%= filtroSubjectId || '' %>" class="form-grid">
+          <div class="form-group">
+            <label for="subject_id">Matéria</label>
+            <select name="subject_id" id="subject_id" required onchange="window.location.href='?subject_id=' + this.value">
+              <option value="">Selecione a matéria</option>
+              <% subjects.forEach(s => { %>
+                <option value="<%= s.id %>" <%= String(filtroSubjectId) === String(s.id) ? "selected" : "" %>>
+                  <%= s.nome %>
+                </option>
+              <% }) %>
+            </select>
           </div>
 
-          <% if (!topics.length) { %>
-            <div class="trow">
-              <div class="muted" style="grid-column:1/-1;">
-                Nenhum tópico encontrado.
-              </div>
-            </div>
-          <% } %>
+          <div class="form-group">
+            <label for="nome">Nome do tópico</label>
+            <input 
+              type="text" 
+              id="nome" 
+              name="nome" 
+              placeholder="Ex: Funções, Cinemática, Genética..." 
+              required 
+              <%= !filtroSubjectId ? "disabled" : "" %>
+            />
+          </div>
 
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" <%= !filtroSubjectId ? "disabled" : "" %>>
+              + Adicionar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="section">
+      <h2 class="section-title">Tópicos Cadastrados</h2>
+      
+      <% if (!topics || topics.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">📑</div>
+          <h3>Nenhum tópico encontrado</h3>
+          <p>Selecione uma matéria acima e adicione seus primeiros tópicos!</p>
+        </div>
+      <% } else { %>
+        <div class="list-table">
           <% topics.forEach(t => { %>
-            <div class="trow">
-              <div><%= t.subject?.nome || "-" %></div>
-              <div><%= t.nome %></div>
-              <div class="actions">
-                <a class="btnSecondary" href="/conteudos/topicos/<%= t.id %>/editar">
+            <div class="list-row">
+              <div class="list-cell cell-subject">
+                <span class="cell-badge"><%= t.subject?.nome || "-" %></span>
+              </div>
+              <div class="list-cell cell-name">
+                <span class="cell-icon">📄</span>
+                <span class="cell-text"><%= t.nome %></span>
+              </div>
+              <div class="list-cell cell-actions">
+                <a href="/conteudos/topicos/<%= t.id %>/editar" class="btn-secondary">
                   Editar
                 </a>
-                <form method="POST"
-                      action="/conteudos/topicos/<%= t.id %>/excluir"
-                      onsubmit="return confirm('Excluir tópico?');">
-                  <button class="danger">Excluir</button>
+                <form method="POST" action="/conteudos/topicos/<%= t.id %>/excluir"
+                      onsubmit="return confirm('Excluir tópico?');" class="inline-form">
+                  <button type="submit" class="btn-danger">
+                    Excluir
+                  </button>
                 </form>
               </div>
             </div>
           <% }) %>
         </div>
-
-      </div>
+      <% } %>
     </div>
-  </main>
+
+  </div>
+</main>
 
 </body>
 </html>
+

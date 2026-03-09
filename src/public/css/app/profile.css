@@ -20,6 +20,13 @@ html, body {
    CONTAINER DA PÁGINA
    =============================== */
 
+.page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
 .profile-page {
   width: 100%;
   max-width: 720px;

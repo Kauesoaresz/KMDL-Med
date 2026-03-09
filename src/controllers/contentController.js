@@ -1,4 +1,5 @@
 const { Subject, Topic, Subtopic } = require("../models");
+const { Op } = require("sequelize");
 
 function safeTrim(v) {
   return (v || "").toString().trim();
@@ -212,10 +213,21 @@ exports.topicsDelete = async (req, res) => {
 // =========================
 exports.subtopicsIndex = async (req, res) => {
   const userId = req.session.userId;
+  const filtroSubjectId = ensureInt(req.query.subject_id);
   const filtroTopicId = ensureInt(req.query.topic_id);
 
-  const topics = await Topic.findAll({
+  const subjects = await Subject.findAll({
     where: { user_id: userId },
+    order: [["nome", "ASC"]]
+  });
+
+  const topicsWhere = { user_id: userId };
+  if (filtroSubjectId) {
+    topicsWhere.subject_id = filtroSubjectId;
+  }
+
+  const topics = await Topic.findAll({
+    where: topicsWhere,
     include: [{ model: Subject, as: "subject" }],
     order: [["nome", "ASC"]]
   });
@@ -223,6 +235,12 @@ exports.subtopicsIndex = async (req, res) => {
   const where = { user_id: userId };
   if (filtroTopicId) {
     where.topic_id = filtroTopicId;
+  } else if (filtroSubjectId) {
+    // Se filtrar por matéria, mostra apenas assuntos dos tópicos dessa matéria
+    const topicIds = topics.map(t => t.id);
+    if (topicIds.length > 0) {
+      where.topic_id = { [Op.in]: topicIds };
+    }
   }
 
   const subtopics = await Subtopic.findAll({
@@ -234,8 +252,10 @@ exports.subtopicsIndex = async (req, res) => {
   });
 
   res.render("content/subtopics", {
+    subjects,
     topics,
     subtopics,
+    filtroSubjectId,
     filtroTopicId,
     erro: req.query.erro || null,
     ok: req.query.ok || null,
@@ -250,16 +270,17 @@ exports.subtopicsIndex = async (req, res) => {
 exports.subtopicsCreate = async (req, res) => {
   const userId = req.session.userId;
   const topic_id = ensureInt(req.body.topic_id);
+  const subject_id = ensureInt(req.query.subject_id);
   const nome = safeTrim(req.body.nome);
 
   if (!topic_id || !nome) {
-    return res.redirect(`/conteudos/assuntos?topic_id=${topic_id}&erro=Dados inválidos`);
+    return res.redirect(`/conteudos/assuntos?subject_id=${subject_id || ''}&topic_id=${topic_id || ''}&erro=Dados inválidos`);
   }
 
   await Subtopic.create({ user_id: userId, topic_id, nome });
 
-  // 🔥 mantém o filtro
-  return res.redirect(`/conteudos/assuntos?topic_id=${topic_id}&ok=Assunto criado`);
+  // Mantém os filtros
+  return res.redirect(`/conteudos/assuntos?subject_id=${subject_id || ''}&topic_id=${topic_id}&ok=Assunto criado`);
 };
 
 
