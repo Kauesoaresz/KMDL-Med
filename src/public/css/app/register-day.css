@@ -1,23 +1,13 @@
 /*
-   VARIÁVEIS
+   KMed | Registrar Dia - Theme Support
+   Usando variáveis CSS do theme.css
 */
-:root {
-  --bg: #0b0b0d;
-  --card: #121214;
-  --card-soft: #0f0f12;
-  --border: #1f1f23;
-  --input: #0f0f12;
-  --text: #eaeaf0;
-  --muted: #a1a1aa;
-  --accent: #3b82f6;
-  --danger: #ef4444;
-}
 
 /*
-   FUNDO GLOBAL
+   FUNDO GLOBAL - Usa variável do theme.css
 */
 body.page-bg {
-  background: radial-gradient(circle at top, #0f0f16, #08080b 70%);
+  background: var(--page-bg);
   min-height: 100vh;
 }
 
@@ -28,53 +18,64 @@ body.page-bg {
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
-  color: var(--text);
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
 }
 
 h1 {
   margin-bottom: 8px;
-  color: #f4f4f5;
+  color: var(--text-primary);
 }
 
 .btn-back {
   display: inline-block;
   margin-bottom: 20px;
-  color: var(--muted);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 14px;
+  transition: color 0.2s ease;
 }
 
 .btn-back:hover {
-  color: #d4d4d8;
+  color: var(--accent);
 }
 
 /*
    FORM
 */
 form {
-  background: linear-gradient(180deg, #121214, #0d0d10);
-  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 28px;
-  box-shadow:
-    0 20px 40px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.02);
+  box-shadow: var(--shadow-card);
 }
 
 label {
   display: block;
   font-size: 13px;
-  color: var(--muted);
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 
 input[type="date"] {
-  background: var(--input);
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 10px 12px;
   border-radius: 10px;
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 200px;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
 /*
@@ -91,8 +92,8 @@ input[type="date"] {
    BLOCO
 */
 .bloco {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 18px;
   display: grid;
@@ -103,8 +104,8 @@ input[type="date"] {
 }
 
 .bloco:hover {
-  border-color: #2a2a31;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-hover);
 }
 
 /*
@@ -112,23 +113,24 @@ input[type="date"] {
 */
 .bloco input,
 .bloco select {
-  background: var(--input);
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bloco input::placeholder {
-  color: var(--muted);
+  color: var(--text-muted);
 }
 
 .bloco input:focus,
 .bloco select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
 /*
@@ -170,7 +172,7 @@ input[type="date"] {
 }
 
 .time-separator {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 16px;
   font-weight: 600;
   flex-shrink: 0;
@@ -189,6 +191,8 @@ input[type="date"] {
   font-size: 13px;
   cursor: pointer;
   opacity: 0.8;
+  transition: opacity 0.2s ease;
+  padding: 4px 8px;
 }
 
 .btn-remove:hover {
@@ -199,18 +203,21 @@ input[type="date"] {
    BOTÃO ADICIONAR
 */
 .btn-add {
-  background: #1a1a20;
-  color: var(--text);
-  border: 1px dashed var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px dashed var(--border-color);
   padding: 10px 16px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
 }
 
 .btn-add:hover {
   border-color: var(--accent);
-  color: white;
+  color: var(--accent);
 }
 
 /*
@@ -219,17 +226,19 @@ input[type="date"] {
 .btn-primary {
   margin-top: 28px;
   background: var(--accent);
-  color: white;
+  color: #0f1218;
   border: none;
   padding: 14px 24px;
   border-radius: 14px;
   font-weight: 600;
   cursor: pointer;
   font-size: 15px;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 .btn-primary:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 /*
@@ -255,7 +264,7 @@ input[type="date"] {
   .with-sidebar {
     margin-left: 0;
     padding: 16px;
-    padding-top: 80px; /* Espaço para o hamburger */
+    padding-top: 80px;
   }
   
   .page {
@@ -365,10 +374,3 @@ input[type="date"] {
     font-size: 12px;
   }
 }
-
-/*
-   RESPONSIVO - COMPLEMENTAR
-*/
-
-/* A responsividade principal do with-sidebar está em global-responsive.css */
-/* Aqui adicionamos ajustes específicos para esta página se necessário */

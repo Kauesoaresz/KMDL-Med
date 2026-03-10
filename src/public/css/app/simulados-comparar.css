@@ -1,5 +1,5 @@
 /* =========================
-   BASE GERAL
+   BASE GERAL - Suporte Modo Claro/Escuro
 ========================= */
 * {
   box-sizing: border-box;
@@ -8,8 +8,8 @@
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #1a1d26 0%, #0f1115 50%, #080a0d 100%);
-  color: #e5e7eb;
+  background: var(--page-bg);
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
 }
@@ -43,7 +43,7 @@
 .header-content h1 {
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
@@ -53,15 +53,15 @@
 
 .header-content .sub {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* =========================
    FORMULÁRIO DE COMPARAÇÃO
 ========================= */
 .compare-form-container {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 28px;
@@ -83,7 +83,7 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -91,29 +91,29 @@
 
 .form-group select {
   width: 100%;
-  background: #0b0c10;
-  border: 1px solid #1f2229;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 14px 16px;
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .form-group select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .form-group select:hover {
-  border-color: #3b82f6;
+  border-color: var(--accent);
 }
 
 .swap-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -126,18 +126,18 @@
 }
 
 .swap-btn:hover {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background: var(--accent-bg);
+  border-color: var(--accent);
   transform: rotate(180deg);
 }
 
 .swap-btn span {
   font-size: 1.2rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .compare-btn {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: var(--accent);
   border: none;
   border-radius: 14px;
   padding: 14px 32px;
@@ -151,7 +151,7 @@
 
 .compare-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .compare-btn:active {
@@ -169,8 +169,8 @@
 }
 
 .comp-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   position: relative;
@@ -180,7 +180,7 @@
 
 .comp-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .comp-card::before {
@@ -219,7 +219,7 @@
 .comp-card-title {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -227,7 +227,7 @@
 .comp-card-name {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -236,7 +236,7 @@
 
 .comp-card-date {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .comp-card-stats {
@@ -248,20 +248,20 @@
 .comp-stat {
   text-align: center;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-secondary);
   border-radius: 12px;
 }
 
 .comp-stat-value {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   display: block;
 }
 
 .comp-stat-label {
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
@@ -270,15 +270,15 @@
 }
 
 .comp-stat-value.percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .comp-stat-value.percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .comp-stat-value.percent.neutral {
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .delta-card .comp-stat-value {
@@ -286,15 +286,15 @@
 }
 
 .delta-card .comp-stat-value.positive {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .delta-card .comp-stat-value.negative {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .delta-card .comp-stat-value.neutral {
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .status-badge {
@@ -309,12 +309,12 @@
 
 .status-badge.finished {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: var(--success);
 }
 
 .status-badge.ongoing {
   background: rgba(250, 204, 21, 0.15);
-  color: #facc15;
+  color: var(--warning);
 }
 
 /* =========================
@@ -328,8 +328,8 @@
 }
 
 .chart-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
 }
@@ -344,12 +344,12 @@
 .chart-header h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .chart-sub {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .chart-container {
@@ -367,7 +367,7 @@
 .section-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 20px;
 }
 
@@ -378,8 +378,8 @@
 }
 
 .area-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 20px;
   transition: all 0.3s ease;
@@ -387,7 +387,7 @@
 
 .area-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .area-card-header {
@@ -404,7 +404,7 @@
 .area-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   flex: 1;
 }
 
@@ -417,17 +417,17 @@
 
 .area-delta.positive {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: var(--success);
 }
 
 .area-delta.negative {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .area-delta.neutral {
   background: rgba(156, 163, 175, 0.15);
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .area-comparison {
@@ -445,7 +445,7 @@
 .area-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
   min-width: 60px;
 }
@@ -460,7 +460,7 @@
 .area-bar-container {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -482,7 +482,7 @@
 .area-percent {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   min-width: 40px;
   text-align: right;
 }
@@ -495,8 +495,8 @@
 }
 
 .diagnosis-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   position: relative;
@@ -521,7 +521,7 @@
 }
 
 .diagnosis-card.neutral::before {
-  background: linear-gradient(180deg, #9ca3af, #6b7280);
+  background: linear-gradient(180deg, var(--text-secondary), var(--text-muted));
 }
 
 .diagnosis-header {
@@ -538,12 +538,12 @@
 .diagnosis-title {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .diagnosis-text {
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 20px;
 }
@@ -559,7 +559,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 14px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-secondary);
   border-radius: 12px;
 }
 
@@ -570,12 +570,12 @@
 
 .suggestion-text {
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
 .suggestion-text strong {
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 /* =========================
@@ -586,8 +586,8 @@
 }
 
 .table-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   overflow: hidden;
@@ -603,7 +603,7 @@
 .table-header h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .comparison-table {
@@ -616,10 +616,10 @@
   padding: 14px 16px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .comparison-table th.col-a {
@@ -637,25 +637,25 @@
 .comparison-table td {
   padding: 16px;
   font-size: 0.9rem;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .comparison-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-secondary);
 }
 
 .comparison-table td:first-child {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .comparison-table .col-a {
-  background: rgba(34, 197, 94, 0.03);
+  background: rgba(34, 197, 94, 0.05);
 }
 
 .comparison-table .col-b {
-  background: rgba(59, 130, 246, 0.03);
+  background: rgba(59, 130, 246, 0.05);
 }
 
 .table-delta {
@@ -663,15 +663,15 @@
 }
 
 .table-delta.positive {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .table-delta.negative {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .table-delta.neutral {
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* =========================
@@ -680,8 +680,8 @@
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   margin-bottom: 28px;
 }
@@ -695,13 +695,13 @@
 .empty-state h2 {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
 .empty-state p {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   max-width: 400px;
   margin: 0 auto;
 }

@@ -1,5 +1,5 @@
 /* =========================
-   BASE
+   BASE - Suporte Modo Claro/Escuro
 ========================= */
 * {
   box-sizing: border-box;
@@ -8,8 +8,8 @@
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #1a1d26 0%, #0f1115 50%, #080a0d 100%);
-  color: #e5e7eb;
+  background: var(--page-bg);
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   min-height: 100vh;
 }
@@ -43,23 +43,23 @@
 .header-content h1 {
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
 .header-content .sub {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* FILTRO DE PERÍODO */
 .period-filter {
   display: flex;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-tertiary);
   padding: 6px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
 }
 
 .filter-btn {
@@ -69,21 +69,21 @@
   padding: 8px 16px;
   border-radius: 10px;
   text-decoration: none;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
+  background: var(--accent-bg);
+  color: var(--text-primary);
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .filter-icon {
@@ -101,8 +101,8 @@
 }
 
 .stat-card.main-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
   position: relative;
@@ -112,7 +112,7 @@
 
 .stat-card.main-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .stat-card.main-card::before {
@@ -144,14 +144,14 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .card-value {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin: 6px 0;
   line-height: 1.1;
 }
@@ -159,57 +159,57 @@
 .card-value small {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .card-sub {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .acertos-text {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .erros-text {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .good-text {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .medium-text {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .bad-text {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .card-badge {
   position: absolute;
   top: 18px;
   right: 18px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-tertiary);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .card-badge.warning {
   background: rgba(250, 204, 21, 0.15);
-  color: #facc15;
+  color: var(--warning);
 }
 
 .card-badge.success {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: var(--success);
 }
 
 /* =========================
@@ -223,8 +223,8 @@
 }
 
 .ranking-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -236,13 +236,13 @@
 .ranking-header h2 {
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .ranking-sub {
   font-size: 0.7rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .ranking-list {
@@ -256,13 +256,13 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   transition: all 0.2s ease;
 }
 
 .ranking-item:hover {
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card-hover);
 }
 
 .ranking-posicao {
@@ -274,8 +274,8 @@
   border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.1);
-  color: #9ca3af;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
 }
 
 .ranking-posicao.gold {
@@ -295,7 +295,7 @@
 
 .ranking-posicao.attention {
   background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .ranking-info {
@@ -307,7 +307,7 @@
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -315,7 +315,7 @@
 
 .ranking-detalhes {
   font-size: 0.65rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .ranking-percent {
@@ -324,15 +324,15 @@
 }
 
 .ranking-percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .ranking-percent.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .ranking-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .ranking-horas {
@@ -358,8 +358,8 @@
 }
 
 .chart-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -374,12 +374,12 @@
 .chart-header h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .chart-sub {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .chart-container {
@@ -397,7 +397,7 @@
 .section-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 20px;
 }
 
@@ -408,8 +408,8 @@
 }
 
 .materia-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
   transition: all 0.3s ease;
@@ -417,7 +417,7 @@
 
 .materia-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
   border-color: rgba(59, 130, 246, 0.3);
 }
 
@@ -431,7 +431,7 @@
 .materia-header h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .materia-percent {
@@ -440,15 +440,15 @@
 }
 
 .materia-percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .materia-percent.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .materia-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .materia-stats {
@@ -476,20 +476,20 @@
 .stat-value {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .stat-value.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .stat-value.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .stat-label {
   font-size: 0.6rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -503,7 +503,7 @@
 .progress-bar {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -529,7 +529,7 @@
 .progress-text {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--text-muted);
   min-width: 40px;
 }
 
@@ -541,13 +541,13 @@
 
 .extra-item {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .materia-topicos h4 {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
@@ -562,13 +562,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 8px;
 }
 
 .topico-nome {
   font-size: 0.8rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .topico-percent {
@@ -577,27 +577,27 @@
 }
 
 .topico-percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .topico-percent.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .topico-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .topicos-more {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: center;
   padding: 6px;
 }
 
 .no-topicos {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: center;
   padding: 12px;
 }
@@ -631,8 +631,8 @@
 }
 
 .stats-block {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -640,7 +640,7 @@
 .stats-block h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 18px;
 }
 
@@ -666,7 +666,7 @@
 .geral-materia-nome {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .geral-materia-percent {
@@ -675,15 +675,15 @@
 }
 
 .geral-materia-percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .geral-materia-percent.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .geral-materia-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .geral-materia-bars {
@@ -696,7 +696,7 @@
 .geral-bar {
   flex: 1;
   height: 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -712,7 +712,7 @@
 
 .geral-bar-label {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   min-width: 45px;
   text-align: right;
 }
@@ -725,8 +725,8 @@
 }
 
 .tabela-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -741,12 +741,12 @@
 .tabela-header h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .tabela-sub {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .table-container {
@@ -763,26 +763,26 @@
   padding: 12px 14px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .data-table td {
   padding: 14px;
   font-size: 0.85rem;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .data-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-card-hover);
 }
 
 .materia-name {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .table-percent {
@@ -790,24 +790,24 @@
 }
 
 .table-percent.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .table-percent.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .table-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 td.good {
-  color: #22c55e;
+  color: var(--success);
   font-weight: 600;
 }
 
 td.bad {
-  color: #ef4444;
+  color: var(--danger);
   font-weight: 600;
 }
 
@@ -890,7 +890,7 @@ td.bad {
 ========================= */
 .btn-voltar {
   display: inline-block;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.9rem;
   margin-bottom: 12px;
@@ -908,8 +908,8 @@ td.bad {
 }
 
 .topico-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
   transition: all 0.3s ease;
@@ -917,7 +917,7 @@ td.bad {
 
 .topico-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
   border-color: rgba(59, 130, 246, 0.3);
 }
 
@@ -931,7 +931,7 @@ td.bad {
 .topico-header h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .topico-stats {
@@ -954,13 +954,13 @@ td.bad {
 .assuntos-list {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-color);
 }
 
 .topico-assuntos h4 {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 12px;
 }
 
@@ -969,7 +969,7 @@ td.bad {
   justify-content: space-between;
   align-items: center;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 10px;
   margin-bottom: 8px;
 }
@@ -980,7 +980,7 @@ td.bad {
 
 .assunto-nome {
   font-size: 0.85rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .assunto-stats {
@@ -991,12 +991,12 @@ td.bad {
 
 .assunto-horas {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .assunto-questoes {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .assunto-percent {
@@ -1004,21 +1004,21 @@ td.bad {
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-tertiary);
 }
 
 .assunto-percent.good {
-  color: #22c55e;
+  color: var(--success);
   background: rgba(34, 197, 94, 0.15);
 }
 
 .assunto-percent.medium {
-  color: #facc15;
+  color: var(--warning);
   background: rgba(250, 204, 21, 0.15);
 }
 
 .assunto-percent.bad {
-  color: #ef4444;
+  color: var(--danger);
   background: rgba(239, 68, 68, 0.15);
 }
 
@@ -1052,7 +1052,7 @@ td.bad {
 .row-assunto td {
   padding-left: 30px;
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .assunto-name {
@@ -1063,7 +1063,7 @@ td.bad {
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .empty-state p {

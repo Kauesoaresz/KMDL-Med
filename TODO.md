@@ -1,17 +1,19 @@
-# TODO - Fix Profile CSS
+# TODO - Light/Dark Mode Support for simulados-estatisticas.css
 
-## Plan to Fix Profile Page
+## Task
+Finalize light and dark mode support in `simulados-estatisticas.css`
 
-### 1. Fix HTML Structure in profile.ejs
-- [x] Add missing closing </div> for stats-grid
-- [x] Add missing closing </div> for stats-section  
-- [x] Add missing closing </div> for avatar-section
-- [x] Add missing closing </div> for form-section
+## Steps
+- [x] 1. Update chart-card backgrounds (replace dark gradients with CSS variables)
+- [x] 2. Update area-card backgrounds and text colors
+- [x] 3. Update erro-kpi-card backgrounds
+- [x] 4. Update erros-motivos backgrounds
+- [x] 5. Update lacuna-col backgrounds
+- [x] 6. Update tabela-card backgrounds
+- [x] 7. Update all hardcoded text colors to use CSS variables
+- [x] 8. Update progress bar backgrounds for light mode
+- [ ] 9. Test light/dark mode toggle
 
-### 2. Fix CSS Issues in profile.css
-- [x] Add .page class definition
-- [x] Fix spacing and layout issues
-
-### 3. Add Missing CSS Includes in profile.ejs
-- [x] Add theme.css link (like dashboard has)
+## Status: COMPLETED
+All CSS variables have been replaced in simulados-estatisticas.css!
 

@@ -1,5 +1,6 @@
 /* ===============================
-   KMed | Registrar Hub (Vertical Images)
+   KMed | Registrar Hub - Theme Support
+   Usando variáveis CSS do theme.css
 =============================== */
 
 * {
@@ -10,10 +11,11 @@ html, body {
   height: 100%;
 }
 
+/* Usa variáveis do theme.css */
 .page-bg {
-  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  background: var(--page-bg);
   font-family: "Inter", system-ui, sans-serif;
-  color: #e5e7eb;
+  color: var(--text-primary);
   overflow: hidden;
 }
 
@@ -49,6 +51,7 @@ html, body {
   font-size: 2.3rem;
   font-weight: 900;
   margin-bottom: 36px;
+  color: var(--text-primary);
 }
 
 .action-link {
@@ -61,8 +64,8 @@ html, body {
   padding: 48px;
   margin-bottom: 28px;
 
-  background: linear-gradient(145deg, #14161c, #0e0f14);
-  border: 1px solid #23262f;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 
   transition: all 0.25s ease;
   overflow: hidden;
@@ -87,24 +90,24 @@ html, body {
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 30px 70px rgba(0,0,0,.8);
+  box-shadow: var(--shadow-hover);
 }
 
 .card h2 {
   font-size: 1.9rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .card p {
   margin-top: 10px;
   font-size: 1.05rem;
-  color: #cbd5f5;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .card.new {
-  border-color: #2563eb;
+  border-color: var(--accent);
 }
 
 .card.new::after {
@@ -116,7 +119,7 @@ html, body {
 }
 
 .card.list {
-  border-color: #22c55e;
+  border-color: var(--success);
 }
 
 .card.list::after {
@@ -146,9 +149,7 @@ html, body {
   overflow: hidden;
   position: relative;
 
-  box-shadow:
-    0 40px 80px rgba(0,0,0,.8),
-    inset 0 0 0 1px rgba(255,255,255,.05);
+  box-shadow: var(--shadow-card);
 }
 
 .image-frame::after {
@@ -318,9 +319,7 @@ html, body {
   overflow: hidden;
   position: relative;
 
-  box-shadow:
-    0 40px 80px rgba(0,0,0,.8),
-    inset 0 0 0 1px rgba(255,255,255,.05);
+  box-shadow: var(--shadow-card);
 }
 
 .image-frame::after {
@@ -371,7 +370,7 @@ html, body {
 
   background: rgba(10, 12, 16, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e5e7eb;
+  color: var(--text-primary);
 
   font-size: 28px;
   line-height: 1;

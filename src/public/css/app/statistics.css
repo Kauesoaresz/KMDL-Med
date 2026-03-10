@@ -1,5 +1,5 @@
 /* =========================
-   BASE
+   BASE - Suporte Modo Claro/Escuro
 ========================= */
 * {
   box-sizing: border-box;
@@ -8,8 +8,8 @@
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #1a1d26 0%, #0f1115 50%, #080a0d 100%);
-  color: #e5e7eb;
+  background: var(--page-bg);
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   min-height: 100vh;
 }
@@ -43,23 +43,23 @@
 .header-content h1 {
   font-size: 2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
 .header-content .sub {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* FILTRO DE PERÍODO */
 .period-filter {
   display: flex;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-tertiary);
   padding: 6px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
 }
 
 .filter-btn {
@@ -69,21 +69,21 @@
   padding: 8px 16px;
   border-radius: 10px;
   text-decoration: none;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
+  background: var(--accent-bg);
+  color: var(--text-primary);
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: var(--accent);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .filter-icon {
@@ -101,8 +101,8 @@
 }
 
 .stat-card.main-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
   position: relative;
@@ -112,7 +112,7 @@
 
 .stat-card.main-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .stat-card.main-card::before {
@@ -144,14 +144,14 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .card-value {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin: 6px 0;
   line-height: 1.1;
 }
@@ -159,45 +159,45 @@
 .card-value small {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .card-sub {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .acertos-text {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .erros-text {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .card-badge {
   position: absolute;
   top: 18px;
   right: 18px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-tertiary);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .card-badge.warning {
   background: rgba(250, 204, 21, 0.15);
-  color: #facc15;
+  color: var(--warning);
 }
 
 .card-badge.streak-badge {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--danger);
 }
 
 /* =========================
@@ -211,8 +211,8 @@
 }
 
 .chart-card {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -227,12 +227,12 @@
 .chart-header h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .chart-sub {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .chart-container {
@@ -251,8 +251,8 @@
 }
 
 .stats-block {
-  background: linear-gradient(145deg, #16181f 0%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 22px;
 }
@@ -260,7 +260,7 @@
 .stats-block h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 18px;
 }
 
@@ -272,7 +272,7 @@
 }
 
 .dificuldade-item {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 12px;
   padding: 12px 14px;
 }
@@ -285,7 +285,7 @@
 
 .dificuldade-label {
   font-size: 0.8rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -296,7 +296,7 @@
 
 .dificuldade-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 6px;
@@ -312,7 +312,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.7rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 /* Taxa (Gráfico Rosca) */
@@ -336,7 +336,7 @@
 
 .circle-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: var(--border-color);
   stroke-width: 3;
 }
 
@@ -345,11 +345,11 @@
   stroke-width: 3;
   stroke-linecap: round;
   animation: progress 1s ease-out forwards;
-  stroke: #22c55e;
+  stroke: var(--success);
 }
 
 .percentage {
-  fill: #fff;
+  fill: var(--text-primary);
   font-size: 0.5em;
   text-anchor: middle;
   font-weight: 700;
@@ -374,12 +374,12 @@
 .taxa-num {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .taxa-label {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* =========================
@@ -400,7 +400,7 @@
 }
 
 .meta-item {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 14px;
   padding: 16px;
 }
@@ -415,13 +415,13 @@
 .meta-nome {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .meta-dias {
   font-size: 0.7rem;
-  color: #f97316;
-  background: rgba(249, 115, 22, 0.15);
+  color: var(--warning);
+  background: rgba(250, 204, 21, 0.15);
   padding: 4px 10px;
   border-radius: 12px;
 }
@@ -436,14 +436,14 @@
 .meta-bar {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 10px;
   overflow: hidden;
 }
 
 .meta-fill {
   height: 100%;
-  background: linear-gradient(90deg, #22c55e, #16a34a);
+  background: linear-gradient(90deg, var(--success), #16a34a);
   border-radius: 10px;
   transition: width 0.5s ease;
 }
@@ -451,7 +451,7 @@
 .meta-percent {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #22c55e;
+  color: var(--success);
   min-width: 40px;
   text-align: right;
 }
@@ -460,13 +460,13 @@
   display: flex;
   gap: 16px;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .empty-state {
   text-align: center;
   padding: 30px 20px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .empty-state p {
@@ -500,7 +500,7 @@
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 14px;
 }
 
@@ -512,12 +512,12 @@
 
 .revisao-label {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .revisoes-materia h3 {
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin-bottom: 12px;
   font-weight: 500;
 }
@@ -526,7 +526,7 @@
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .revisao-materia-item:last-child {
@@ -535,7 +535,7 @@
 
 .rev-mat-nome {
   font-size: 0.85rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .rev-mat-num {
@@ -562,18 +562,18 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 14px;
   transition: all 0.2s ease;
 }
 
 .conquista-item.desbloqueada {
   border: 1px solid rgba(250, 204, 21, 0.3);
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), rgba(0, 0, 0, 0.2));
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.1), var(--bg-tertiary));
 }
 
 .conquista-item.progresso {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   flex-direction: column;
   align-items: stretch;
 }
@@ -597,17 +597,17 @@
 .conquista-titulo {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .conquista-desc {
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .conquista-bar {
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 10px;
   margin-top: 10px;
   overflow: hidden;
@@ -621,7 +621,7 @@
 
 .no-conquistas {
   text-align: center;
-  color: #6b7280;
+  color: var(--text-secondary);
   padding: 30px;
   grid-column: 1 / -1;
 }
@@ -644,7 +644,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 14px;
 }
 
@@ -660,12 +660,12 @@
 .geral-value {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .geral-label {
   font-size: 0.65rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

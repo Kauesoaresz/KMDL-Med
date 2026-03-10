@@ -1,13 +1,16 @@
 /* =====================================================
+   KMed | Revisões - Theme Support
+   Usando variáveis CSS do theme.css
+===================================================== */
+
+/* =====================================================
    BASE
 ===================================================== */
-* {
-  box-sizing: border-box;
-}
 
 .page-bg {
-  background: radial-gradient(circle at top, #141620, #07080b 75%);
-  color: #e5e7eb;
+  background: var(--page-bg);
+  min-height: 100vh;
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
@@ -20,21 +23,21 @@
 /* =====================================================
    CONTAINER
 ===================================================== */
+
 .page {
   max-width: 1400px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #12131a, #0b0c11);
+  background: var(--bg-card);
   border-radius: 28px;
   padding: 34px;
-  border: 1px solid #1f2229;
-  box-shadow:
-    0 40px 90px rgba(0,0,0,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.03);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
 }
 
 /* =====================================================
    HEADER
 ===================================================== */
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -47,13 +50,11 @@
   font-weight: 900;
   margin-bottom: 6px;
   letter-spacing: -0.02em;
-  background: linear-gradient(90deg, #ffffff, #93c5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: .95rem;
   margin: 0;
 }
@@ -61,7 +62,7 @@
 .btn-back {
   display: inline-block;
   font-size: .85rem;
-  color: #9aa1ad;
+  color: var(--accent);
   text-decoration: none;
   transition: .2s ease;
   padding: 8px 16px;
@@ -69,13 +70,13 @@
 }
 
 .btn-back:hover {
-  color: #ffffff;
-  background: rgba(255,255,255,0.05);
+  opacity: .8;
 }
 
 /* =====================================================
    FILTROS
 ===================================================== */
+
 .filters {
   display: flex;
   gap: 20px;
@@ -83,9 +84,9 @@
   flex-wrap: wrap;
   margin-bottom: 32px;
   padding: 24px;
-  background: rgba(255,255,255,0.02);
+  background: var(--bg-secondary);
   border-radius: 16px;
-  border: 1px solid #1f2229;
+  border: 1px solid var(--border-color);
 }
 
 .filter-group {
@@ -98,14 +99,14 @@
   font-size: .75rem;
   text-transform: uppercase;
   letter-spacing: .05em;
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
 .filter-group select {
-  background: #161821;
-  border: 1px solid #2a2d35;
-  color: #e5e7eb;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 10px 16px;
   border-radius: 10px;
   font-size: .9rem;
@@ -115,13 +116,13 @@
 }
 
 .filter-group select:hover {
-  border-color: #3b82f6;
+  border-color: var(--accent);
 }
 
 .filter-group select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .filter-stats {
@@ -152,23 +153,24 @@
 }
 
 .stat-atrasadas {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: rgba(239, 68, 68, .15);
+  color: var(--danger);
 }
 
 .stat-hoje {
-  background: rgba(234, 179, 8, 0.15);
-  color: #facc15;
+  background: rgba(234, 179, 8, .15);
+  color: var(--warning);
 }
 
 .stat-outras {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: rgba(34, 197, 94, .15);
+  color: var(--success);
 }
 
 /* =====================================================
    SEÇÕES
 ===================================================== */
+
 .review-section {
   margin-bottom: 36px;
 }
@@ -181,7 +183,7 @@
   font-weight: 700;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #1f2229;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .section-title .icon {
@@ -189,27 +191,28 @@
 }
 
 .section-title .count {
-  background: rgba(255,255,255,0.1);
+  background: var(--bg-tertiary);
   padding: 2px 10px;
   border-radius: 20px;
   font-size: .8rem;
 }
 
 .section-atrasada .section-title {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .section-hoje .section-title {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .section-outras .section-title {
-  color: #22c55e;
+  color: var(--success);
 }
 
 /* =====================================================
    CARDS GRID
 ===================================================== */
+
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -219,12 +222,13 @@
 /* =====================================================
    REVIEW CARD
 ===================================================== */
+
 .review-card {
-  background: linear-gradient(180deg, #161821, #0f1117);
+  background: var(--bg-secondary);
   border-radius: 20px;
   padding: 24px;
-  border: 1px solid #1f2229;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
   transition: all .25s ease;
   display: flex;
   flex-direction: column;
@@ -233,18 +237,18 @@
 
 .review-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  border-color: #2a2d35;
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent-border);
 }
 
 .review-card[data-status="atrasada"] {
   border-color: rgba(239, 68, 68, 0.3);
-  background: linear-gradient(180deg, #1a1010, #0f0a0a);
+  background: var(--bg-tertiary);
 }
 
 .review-card[data-status="hoje"] {
   border-color: rgba(234, 179, 8, 0.3);
-  background: linear-gradient(180deg, #1a1810, #0f0e0a);
+  background: var(--bg-tertiary);
 }
 
 /* Card Header */
@@ -257,7 +261,7 @@
 .subject-name {
   font-weight: 800;
   font-size: 1rem;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .status-badge {
@@ -270,24 +274,24 @@
 }
 
 .status-badge.atrasada {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: rgba(239, 68, 68, .2);
+  color: var(--danger);
 }
 
 .status-badge.hoje {
-  background: rgba(234, 179, 8, 0.2);
-  color: #facc15;
+  background: rgba(234, 179, 8, .2);
+  color: var(--warning);
 }
 
 .status-badge.em-dia {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: rgba(34, 197, 94, .2);
+  color: var(--success);
 }
 
 /* Card Topic */
 .card-topic {
   font-size: .9rem;
-  color: #9aa1ad;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -307,34 +311,34 @@
 .stat .stat-label {
   font-size: .65rem;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--text-muted);
   letter-spacing: .05em;
 }
 
 .stat .stat-value {
   font-size: .95rem;
   font-weight: 700;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .stat .stat-value.bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .stat .stat-value.medium {
-  color: #facc15;
+  color: var(--warning);
 }
 
 .stat .stat-value.good {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .stat .stat-value.has-errors {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .stat .stat-value.never {
-  color: #6b7280;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -344,7 +348,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-primary);
   border-radius: 10px;
 }
 
@@ -355,11 +359,11 @@
 }
 
 .revisao-date .label {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .revisao-date .value {
-  color: #e5e7eb;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -372,7 +376,7 @@
 
 .priority-label {
   font-size: .75rem;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .priority-badge {
@@ -406,12 +410,13 @@
   flex-wrap: wrap;
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid #1f2229;
+  border-top: 1px solid var(--border-color);
 }
 
 /* =====================================================
    BOTÕES
 ===================================================== */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -433,39 +438,40 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: #000;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: rgba(255,255,255,0.08);
-  color: #e5e7eb;
-  border: 1px solid #2a2d35;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: #3b82f6;
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
 }
 
 .btn-ghost {
   background: transparent;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .btn-ghost:hover {
-  color: #e5e7eb;
-  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 /* =====================================================
    MODAIS
 ===================================================== */
+
 .modal {
   position: fixed;
   top: 0;
@@ -489,13 +495,13 @@
 }
 
 .modal-content {
-  background: linear-gradient(180deg, #161821, #0f1117);
+  background: var(--bg-card);
   border-radius: 24px;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
   overflow: hidden;
-  border: 1px solid #2a2d35;
+  border: 1px solid var(--border-color);
   box-shadow: 0 40px 80px rgba(0,0,0,0.6);
   transform: scale(0.9);
   transition: all .3s ease;
@@ -514,20 +520,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #1f2229;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .modal-close {
   background: none;
   border: none;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 4px;
@@ -536,7 +542,7 @@
 }
 
 .modal-close:hover {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .modal-body {
@@ -550,13 +556,14 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 20px 24px;
-  border-top: 1px solid #1f2229;
-  background: rgba(0,0,0,0.2);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
 /* =====================================================
    FORMULÁRIO
 ===================================================== */
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -565,15 +572,15 @@
   display: block;
   font-size: .85rem;
   font-weight: 600;
-  color: #9aa1ad;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .form-input {
   width: 100%;
-  background: #0f1117;
-  border: 1px solid #2a2d35;
-  color: #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 12px 16px;
   border-radius: 10px;
   font-size: .9rem;
@@ -582,13 +589,13 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .form-input[readonly] {
-  background: rgba(0,0,0,0.3);
-  color: #6b7280;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
@@ -618,28 +625,28 @@
 }
 
 .difficulty-btn.muito-facil {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: rgba(34, 197, 94, .15);
+  color: var(--success);
 }
 
 .difficulty-btn.facil {
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, .1);
   color: #4ade80;
 }
 
 .difficulty-btn.medio {
-  background: rgba(234, 179, 8, 0.15);
-  color: #facc15;
+  background: rgba(234, 179, 8, .15);
+  color: var(--warning);
 }
 
 .difficulty-btn.dificil {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, .15);
   color: #f87171;
 }
 
 .difficulty-btn.muito-dificil {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: rgba(239, 68, 68, .2);
+  color: var(--danger);
 }
 
 .difficulty-option input:checked + .difficulty-btn {
@@ -647,7 +654,7 @@
 }
 
 .difficulty-option input:checked + .difficulty-btn.muito-facil {
-  border-color: #22c55e;
+  border-color: var(--success);
   box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
 }
 
@@ -657,7 +664,7 @@
 }
 
 .difficulty-option input:checked + .difficulty-btn.medio {
-  border-color: #facc15;
+  border-color: var(--warning);
   box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
 }
 
@@ -667,14 +674,14 @@
 }
 
 .difficulty-option input:checked + .difficulty-btn.muito-dificil {
-  border-color: #ef4444;
+  border-color: var(--danger);
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
 }
 
 /* Interval Info */
 .interval-info {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   border-radius: 12px;
   padding: 16px;
 }
@@ -682,7 +689,7 @@
 .interval-info p {
   margin: 0 0 12px 0;
   font-size: .85rem;
-  color: #93c5fd;
+  color: var(--accent);
 }
 
 .interval-list {
@@ -701,17 +708,18 @@
 }
 
 .interval-list .level {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .interval-list .interval {
-  color: #e5e7eb;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 /* =====================================================
    ERROS LIST
 ===================================================== */
+
 .erros-list {
   display: flex;
   flex-direction: column;
@@ -723,27 +731,27 @@
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-primary);
   border-radius: 12px;
-  border: 1px solid #1f2229;
+  border: 1px solid var(--border-color);
 }
 
 .erro-number {
   font-weight: 700;
-  color: #ef4444;
+  color: var(--danger);
   min-width: 80px;
 }
 
 .erro-motivo {
   flex: 1;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .erro-area {
   font-size: .75rem;
   text-transform: uppercase;
-  color: #6b7280;
-  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
   padding: 4px 10px;
   border-radius: 6px;
 }
@@ -751,16 +759,17 @@
 .loading, .empty-erros, .error {
   text-align: center;
   padding: 40px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .error {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 /* =====================================================
    HISTÓRICO LIST
 ===================================================== */
+
 .historico-list {
   display: flex;
   flex-direction: column;
@@ -772,14 +781,14 @@
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-primary);
   border-radius: 12px;
-  border: 1px solid #1f2229;
+  border: 1px solid var(--border-color);
 }
 
 .historico-date {
   font-weight: 600;
-  color: #e5e7eb;
+  color: var(--text-primary);
   min-width: 90px;
 }
 
@@ -792,40 +801,41 @@
 }
 
 .historico-dificuldade.muito-facil {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: rgba(34, 197, 94, .2);
+  color: var(--success);
 }
 
 .historico-dificuldade.facil {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, .15);
   color: #4ade80;
 }
 
 .historico-dificuldade.medio {
-  background: rgba(234, 179, 8, 0.2);
-  color: #facc15;
+  background: rgba(234, 179, 8, .2);
+  color: var(--warning);
 }
 
 .historico-dificuldade.dificil {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, .2);
   color: #f87171;
 }
 
 .historico-dificuldade.muito-dificil {
-  background: rgba(239, 68, 68, 0.25);
-  color: #ef4444;
+  background: rgba(239, 68, 68, .25);
+  color: var(--danger);
 }
 
 .historico-assunto {
   flex: 1;
   font-size: .85rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: right;
 }
 
 /* =====================================================
    EMPTY STATE
 ===================================================== */
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -838,18 +848,19 @@
 
 .empty-state h3 {
   font-size: 1.3rem;
-  color: #e5e7eb;
+  color: var(--text-primary);
   margin: 0 0 10px 0;
 }
 
 .empty-state p {
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0;
 }
 
 /* =====================================================
    RESPONSIVO
 ===================================================== */
+
 @media (max-width: 1024px) {
   .with-sidebar {
     margin-left: 0;
@@ -927,8 +938,8 @@
 
   .filters {
     padding: 14px;
-    gap: 14 margin-bottom: px;
-   20px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
   .filter-group {

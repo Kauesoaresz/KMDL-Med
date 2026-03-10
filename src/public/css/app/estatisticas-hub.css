@@ -1,20 +1,15 @@
 /* ================================
    ESTATÍSTICAS HUB – KMDL MED
-   FUNDO DARK (SEM BRANCO)
+   Suporte a Modo Claro/Escuro
 ================================ */
 
 /* ================================
    FUNDO GERAL DA PÁGINA
 ================================ */
 .page-bg {
-  background: radial-gradient(
-    circle at top,
-    #121826 0%,
-    #0b0f17 45%,
-    #080b12 100%
-  );
+  background: var(--page-bg);
   min-height: 100vh;
-  color: #eaeaea;
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -45,7 +40,7 @@
 .estatisticas-hub h1 {
   font-size: 2.3rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 6px;
   letter-spacing: 0.4px;
 }
@@ -53,7 +48,7 @@
 /* Subtítulo */
 .estatisticas-hub .sub {
   font-size: 1rem;
-  color: #aeb4c2;
+  color: var(--text-secondary);
   margin-bottom: 42px;
 }
 
@@ -78,20 +73,14 @@
   padding: 30px 34px;
   min-height: 175px;
 
-  background: linear-gradient(
-    145deg,
-    #0f1624,
-    #0a0f1a
-  );
+  background: var(--bg-card);
 
   border-radius: 20px;
   text-decoration: none;
 
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 
-  box-shadow:
-    0 10px 35px rgba(0, 0, 0, 0.6),
-    inset 0 0 0 rgba(255, 255, 255, 0);
+  box-shadow: var(--shadow-card);
 
   transition:
     transform 0.25s ease,
@@ -103,7 +92,7 @@
 .hub-card h3 {
   font-size: 1.4rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 10px;
   display: flex;
   align-items: center;
@@ -113,7 +102,7 @@
 /* Texto */
 .hub-card p {
   font-size: 0.96rem;
-  color: #b5bccb;
+  color: var(--text-secondary);
   line-height: 1.55;
   max-width: 92%;
 }
@@ -123,8 +112,7 @@
 ================================ */
 .hub-card:hover {
   transform: translateY(-7px);
-  box-shadow:
-    0 18px 55px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ================================
@@ -156,13 +144,13 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
   transition: transform 0.25s ease, color 0.25s ease;
 }
 
 .hub-card:hover::after {
   transform: translate(8px, -50%);
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--accent);
 }
 
 /* ================================

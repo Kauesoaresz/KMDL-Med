@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>KMed | Revisões</title>
 
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kmed-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (!savedTheme && !prefersDark || savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
+  <link rel="stylesheet" href="/public/css/components/theme.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/revisoes.css" />
 </head>
