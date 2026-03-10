@@ -1,5 +1,6 @@
 /* ===============================
    KMed | Perfil do Usuário - Responsivo
+   Theme-aware using CSS variables
    =============================== */
 
 * {
@@ -11,9 +12,9 @@ html, body {
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  background: var(--page-bg);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #eaeaea;
+  color: var(--text-primary);
 }
 
 /* ===============================
@@ -41,7 +42,7 @@ html, body {
 .profile-page h1 {
   font-size: 2.1rem;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 24px;
   text-align: center;
 }
@@ -58,15 +59,15 @@ html, body {
 }
 
 .alert.ok {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid #22c55e;
-  color: #4ade80;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--success);
 }
 
 .alert.error {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid #ef4444;
-  color: #f87171;
+  color: var(--danger);
 }
 
 /* ===============================
@@ -84,19 +85,19 @@ html, body {
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #1a1d24 0%, #12151a 100%);
+  background: linear-gradient(135deg, var(--bg-card-hover) 0%, var(--bg-tertiary) 100%);
   border-radius: 16px;
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 14px;
-  border: 1px solid #2a2f38;
+  border: 1px solid var(--border-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .stat-icon {
@@ -147,13 +148,13 @@ html, body {
 .stat-value {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -164,11 +165,11 @@ html, body {
    =============================== */
 
 .profile-card {
-  background: linear-gradient(180deg, #121318, #0b0c10);
+  background: linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
   border-radius: 26px;
   padding: 32px 36px;
-  border: 1px solid #1f2229;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
 }
 
 /* ===============================
@@ -181,7 +182,7 @@ html, body {
   gap: 24px;
   margin-bottom: 32px;
   padding-bottom: 28px;
-  border-bottom: 1px solid #2a2f38;
+  border-bottom: 1px solid var(--border-color-light);
 }
 
 .avatar {
@@ -194,8 +195,8 @@ html, body {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #2563eb;
-  box-shadow: 0 14px 36px rgba(37, 99, 235, 0.45);
+  border: 3px solid var(--accent);
+  box-shadow: var(--shadow-hover);
 }
 
 .avatar-edit {
@@ -204,7 +205,7 @@ html, body {
   right: 4px;
   width: 32px;
   height: 32px;
-  background: #2563eb;
+  background: var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -212,12 +213,12 @@ html, body {
   cursor: pointer;
   color: #fff;
   font-size: 0.85rem;
-  border: 2px solid #121318;
+  border: 2px solid var(--bg-card);
   transition: background 0.2s ease;
 }
 
 .avatar-edit:hover {
-  background: #1d4ed8;
+  background: var(--accent-hover);
 }
 
 .avatar input[type="file"] {
@@ -227,13 +228,13 @@ html, body {
 .user-name h2 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0 0 6px 0;
 }
 
 .user-name p {
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -256,23 +257,23 @@ html, body {
 .form-group label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #9aa1ad;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .form-group label i {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .form-group input,
 .form-group textarea {
-  background: #0e1015;
-  border: 1px solid #23262f;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 14px 16px;
-  color: #eaeaea;
+  color: var(--text-primary);
   font-size: 1rem;
   width: 100%;
   font-family: inherit;
@@ -281,14 +282,14 @@ html, body {
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .form-group textarea {
@@ -298,7 +299,7 @@ html, body {
 
 .char-count {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: right;
 }
 
@@ -311,7 +312,7 @@ html, body {
   padding: 16px;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #ffffff;
   font-size: 1.05rem;
   font-weight: 700;
@@ -322,7 +323,7 @@ html, body {
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.5);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ===============================

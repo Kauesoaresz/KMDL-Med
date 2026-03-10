@@ -1,26 +1,7 @@
 /* =====================================
    NOVA PROVA - KMDL MED
-   Layout responsivo e moderno
+   Suporte a Light/Dark Mode
 ===================================== */
-
-:root {
-  --bg: #0e0f12;
-  --card: #14161a;
-  --card-soft: #101216;
-  --border: #1f2229;
-  --border-soft: #232734;
-
-  --text: #eaeaea;
-  --text-muted: #9aa1ad;
-  --text-light: #cbd5e1;
-
-  --blue: #8bbcff;
-  --blue-strong: #4f9cff;
-  --blue-glow: rgba(79, 156, 255, 0.15);
-
-  --green: #22c55e;
-  --red: #ef4444;
-}
 
 * {
   margin: 0;
@@ -30,21 +11,19 @@
 }
 
 .page-bg {
-  background: radial-gradient(circle at top, #12141a, #0b0c10 70%);
+  background: var(--page-bg);
   min-height: 100vh;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .page {
   max-width: 800px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #16181e, #111318);
+  background: var(--bg-secondary);
   border-radius: 24px;
   padding: 40px;
-  box-shadow:
-    0 25px 60px rgba(0,0,0,.65),
-    inset 0 1px 0 rgba(255,255,255,.03);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
 }
 
 /* ================= HEADER ================= */
@@ -56,24 +35,21 @@
 .back-link {
   display: inline-block;
   font-size: .9rem;
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
   margin-bottom: 12px;
   transition: .2s;
 }
 
 .back-link:hover {
-  color: #fff;
+  color: var(--accent-hover);
 }
 
 .page h1 {
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -.02em;
-  background: linear-gradient(135deg, #fff 0%, #9aa1ad 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 /* ================= FORM ================= */
@@ -87,8 +63,8 @@
 /* ================= SECTIONS ================= */
 
 .form-section {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 24px;
 }
@@ -96,10 +72,10 @@
 .form-section .section-title {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--text-primary);
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* ================= FORM ROWS ================= */
@@ -130,7 +106,7 @@
 .form-group label {
   font-size: .85rem;
   font-weight: 600;
-  color: var(--text-light);
+  color: var(--text-secondary);
 }
 
 /* Inputs, Select e Textarea padronizados */
@@ -144,9 +120,9 @@
   height: 48px;
   padding: 0 16px;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background-color: var(--card);
-  color: var(--text);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: .95rem;
   transition: all 0.2s ease;
 }
@@ -165,8 +141,8 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(79, 156, 255, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 /* Select personalizado */
@@ -199,14 +175,14 @@
   gap: 12px;
   cursor: pointer;
   font-size: .95rem;
-  color: var(--text);
+  color: var(--text-primary);
   user-select: none;
 }
 
 .checkbox-label input[type="checkbox"] {
   width: 22px;
   height: 22px;
-  accent-color: var(--green);
+  accent-color: var(--success);
   cursor: pointer;
 }
 
@@ -227,7 +203,7 @@
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--blue), var(--blue-strong));
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: white;
   transition: all 0.25s ease;
   display: inline-flex;
@@ -238,16 +214,16 @@
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(79, 156, 255, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 .btn-secondary {
   height: 52px;
   padding: 0 28px;
   border-radius: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -259,9 +235,9 @@
 }
 
 .btn-secondary:hover {
-  border-color: var(--border-soft);
-  color: var(--text);
-  background: var(--card-soft);
+  border-color: var(--border-color-light);
+  color: var(--text-primary);
+  background: var(--bg-card);
 }
 
 /* ================= RESPONSIVO ================= */

@@ -1,59 +1,27 @@
 /* ================================
    KMDL Med | Provas Hub - Moderno
+   Suporte a Light/Dark Mode
 =============================== */
 
-:root {
-  --bg: #0e0f12;
-  --card: #14161a;
-  --card-soft: #101216;
-  --border: #1f2229;
-  --border-soft: #232734;
-
-  --text: #eaeaea;
-  --muted: #9aa1ad;
-  --muted-light: #6b7280;
-
-  --blue: #8bbcff;
-  --blue-strong: #4f9cff;
-  --blue-glow: rgba(79, 156, 255, 0.15);
-
-  --green: #22c55e;
-  --green-soft: rgba(34, 197, 94, 0.15);
-  
-  --yellow: #facc15;
-  --yellow-soft: rgba(234, 179, 8, 0.15);
-  
-  --red: #ef4444;
-  --red-soft: rgba(239, 68, 68, 0.15);
-
-  --purple: #a78bfa;
-  --purple-soft: rgba(167, 139, 250, 0.15);
-
-  --orange: #fb923c;
-  --orange-soft: rgba(251, 146, 60, 0.15);
-}
-
 /* ================================
-   BASE
+   BASE - Usa variáveis do theme.css
 =============================== */
 
 .page-bg {
-  background: radial-gradient(circle at top, #12141a, #0b0c10 70%);
+  background: var(--page-bg);
   min-height: 100vh;
-  color: var(--text);
+  color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #16181e, #111318);
+  background: var(--bg-secondary);
   border-radius: 24px;
   padding: 40px;
-  box-shadow:
-    0 25px 60px rgba(0,0,0,.65),
-    inset 0 1px 0 rgba(255,255,255,.03);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
 }
 
 /* ================================
@@ -74,15 +42,12 @@
   font-weight: 800;
   margin-bottom: 6px;
   letter-spacing: -.02em;
-  background: linear-gradient(135deg, #fff 0%, #9aa1ad 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 .page-header p {
   font-size: .95rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 /* ================================
@@ -90,7 +55,7 @@
 =============================== */
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--blue), var(--blue-strong));
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #fff;
   padding: 14px 28px;
   border-radius: 16px;
@@ -106,7 +71,7 @@
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(79, 156, 255, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ================================
@@ -121,8 +86,8 @@
 }
 
 .stat-card {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   display: flex;
@@ -133,8 +98,8 @@
 
 .stat-card:hover {
   transform: translateY(-4px);
-  border-color: var(--border-soft);
-  box-shadow: 0 15px 40px rgba(0,0,0,.4);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-card);
 }
 
 .stat-icon {
@@ -148,19 +113,19 @@
 }
 
 .stat-total .stat-icon {
-  background: var(--blue-glow);
+  background: var(--accent-bg);
 }
 
 .stat-proximas .stat-icon {
-  background: var(--orange-soft);
+  background: rgba(251, 146, 60, 0.15);
 }
 
 .stat-gasto .stat-icon {
-  background: var(--green-soft);
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .stat-pagas .stat-icon {
-  background: var(--purple-soft);
+  background: rgba(167, 139, 250, 0.15);
 }
 
 .stat-content {
@@ -172,11 +137,12 @@
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -.02em;
+  color: var(--text-primary);
 }
 
 .stat-label {
   font-size: .85rem;
-  color: var(--muted);
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 
@@ -199,7 +165,7 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 20px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .section-header .section-title {
@@ -208,13 +174,13 @@
 
 .see-all {
   font-size: .9rem;
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
   transition: .2s;
 }
 
 .see-all:hover {
-  color: #fff;
+  color: var(--accent-hover);
 }
 
 /* ================================
@@ -228,8 +194,8 @@
 }
 
 .hub-card {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 24px;
   text-decoration: none;
@@ -242,16 +208,16 @@
 
 .hub-card:hover {
   transform: translateY(-4px);
-  border-color: var(--blue);
-  background: #181b22;
-  box-shadow: 0 15px 40px rgba(0,0,0,.4);
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-card);
 }
 
 .hub-card .icon {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: var(--blue-glow);
+  background: var(--accent-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -261,13 +227,13 @@
 .hub-card h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .hub-card p {
   font-size: .85rem;
-  color: var(--muted);
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1.4;
 }
@@ -283,8 +249,8 @@
 }
 
 .type-card {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 20px;
   display: flex;
@@ -295,19 +261,19 @@
 
 .type-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  box-shadow: var(--shadow-card);
 }
 
 .type-card.vestibular {
-  border-left: 4px solid var(--blue);
+  border-left: 4px solid var(--accent);
 }
 
 .type-card.enem {
-  border-left: 4px solid var(--green);
+  border-left: 4px solid var(--success);
 }
 
 .type-card.outro {
-  border-left: 4px solid var(--purple);
+  border-left: 4px solid #a78bfa;
 }
 
 .type-icon {
@@ -321,15 +287,15 @@
 }
 
 .vestibular .type-icon {
-  background: var(--blue-glow);
+  background: var(--accent-bg);
 }
 
 .enem .type-icon {
-  background: var(--green-soft);
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .outro .type-icon {
-  background: var(--purple-soft);
+  background: rgba(167, 139, 250, 0.15);
 }
 
 .type-info {
@@ -340,12 +306,12 @@
 .type-count {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .type-label {
   font-size: .85rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 /* ================================
@@ -359,8 +325,8 @@
 }
 
 .prova-card-mini {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 20px;
   transition: all .25s ease;
@@ -368,8 +334,8 @@
 
 .prova-card-mini:hover {
   transform: translateY(-3px);
-  border-color: var(--border-soft);
-  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-card);
 }
 
 .prova-card-header {
@@ -389,18 +355,18 @@
 }
 
 .prova-tipo.vestibular {
-  background: var(--blue-glow);
-  color: var(--blue);
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 .prova-tipo.enem {
-  background: var(--green-soft);
-  color: var(--green);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
 }
 
 .prova-tipo.outro {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
 }
 
 .badge {
@@ -413,20 +379,20 @@
 }
 
 .badge.success {
-  background: var(--green-soft);
-  color: var(--green);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
 }
 
 .badge.warning {
-  background: var(--yellow-soft);
-  color: var(--yellow);
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--warning);
 }
 
 .prova-card-mini h3 {
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 12px 0;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .prova-info {
@@ -438,35 +404,35 @@
 
 .prova-data {
   font-size: .9rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 .prova-countdown {
   font-size: .85rem;
   font-weight: 600;
-  color: var(--blue);
+  color: var(--accent);
 }
 
 .prova-countdown.urgent {
-  color: var(--red);
+  color: var(--danger);
 }
 
 .prova-local {
   font-size: .85rem;
-  color: var(--muted-light);
+  color: var(--text-muted);
   margin-bottom: 12px;
 }
 
 .btn-edit {
   display: inline-block;
   font-size: .85rem;
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
   transition: .2s;
 }
 
 .btn-edit:hover {
-  color: #fff;
+  color: var(--accent-hover);
 }
 
 /* ================================
@@ -476,8 +442,8 @@
 .empty-state {
   text-align: center;
   padding: 60px 40px;
-  background: var(--card-soft);
-  border: 1px dashed var(--border);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
   border-radius: 20px;
   margin-bottom: 30px;
 }
@@ -491,11 +457,11 @@
   font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .empty-state p {
-  color: var(--muted);
+  color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
@@ -514,35 +480,35 @@
   align-items: center;
   gap: 16px;
   padding: 14px 18px;
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   text-decoration: none;
   transition: all .2s ease;
 }
 
 .recent-item:hover {
-  background: #181b22;
-  border-color: var(--border-soft);
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-light);
 }
 
 .recent-name {
   flex: 1;
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .recent-tipo {
   font-size: .8rem;
-  color: var(--muted);
+  color: var(--text-secondary);
   padding: 4px 10px;
-  background: var(--card);
+  background: var(--bg-tertiary);
   border-radius: 6px;
 }
 
 .recent-data {
   font-size: .85rem;
-  color: var(--muted-light);
+  color: var(--text-muted);
 }
 
 /* ================================

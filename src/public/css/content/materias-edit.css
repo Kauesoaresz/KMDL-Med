@@ -1,5 +1,6 @@
 /* ===============================
    KMed | Conteúdos — Editar Matéria
+   Theme-aware using CSS variables
    =============================== */
 
 * {
@@ -11,9 +12,9 @@
    =============================== */
 
 .page-bg {
-  background: radial-gradient(circle at top, #14161a, #08090c 75%);
+  background: var(--page-bg);
   min-height: 100vh;
-  color: #eaeaea;
+  color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -51,17 +52,17 @@
   font-weight: 600;
 
   text-decoration: none;
-  color: #9aa1ad;
+  color: var(--text-secondary);
 
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-color);
 
   transition: all 0.15s ease;
 }
 
 .btnSecondary:hover {
-  color: #ffffff;
-  border-color: rgba(255,255,255,0.25);
+  color: var(--text-primary);
+  border-color: var(--border-color-light);
 }
 
 /* ===============================
@@ -69,19 +70,19 @@
    =============================== */
 
 .card {
-  background: linear-gradient(180deg, #121318, #0b0c10);
+  background: linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
   border-radius: 22px;
   padding: 28px 30px;
 
-  border: 1px solid #1f2229;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
 }
 
 /* HEADER */
 .card h1 {
   font-size: 1.6rem;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 18px;
 }
 
@@ -92,7 +93,7 @@
 .alert {
   background: rgba(239,68,68,0.12);
   border: 1px solid rgba(239,68,68,0.35);
-  color: #fecaca;
+  color: var(--danger);
   padding: 10px 14px;
   border-radius: 10px;
   font-size: 0.85rem;
@@ -112,25 +113,25 @@
 .formCol label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #9aa1ad;
+  color: var(--text-secondary);
 }
 
 .formCol input {
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid #23262f;
-  background: #0e1015;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
 
 .formCol input::placeholder {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .formCol input:focus {
   outline: none;
-  border-color: #2ee59d;
+  border-color: var(--accent);
 }
 
 /* ===============================
@@ -144,8 +145,8 @@
   border-radius: 14px;
   border: none;
 
-  background: #2ee59d;
-  color: #07110f;
+  background: var(--accent);
+  color: var(--bg-primary);
 
   font-weight: 800;
   font-size: 0.9rem;
@@ -156,7 +157,7 @@
 
 .formCol button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 32px rgba(46,229,157,0.35);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ===============================

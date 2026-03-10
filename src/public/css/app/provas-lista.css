@@ -1,56 +1,27 @@
 /* ================================
    KMDL Med | Provas Lista
+   Suporte a Light/Dark Mode
 =============================== */
-
-:root {
-  --bg: #0e0f12;
-  --card: #14161a;
-  --card-soft: #101216;
-  --border: #1f2229;
-  --border-soft: #232734;
-
-  --text: #eaeaea;
-  --muted: #9aa1ad;
-  --muted-light: #6b7280;
-
-  --blue: #8bbcff;
-  --blue-strong: #4f9cff;
-  --blue-glow: rgba(79, 156, 255, 0.15);
-
-  --green: #22c55e;
-  --green-soft: rgba(34, 197, 94, 0.15);
-  
-  --yellow: #facc15;
-  --yellow-soft: rgba(234, 179, 8, 0.15);
-  
-  --red: #ef4444;
-  --red-soft: rgba(239, 68, 68, 0.15);
-
-  --purple: #a78bfa;
-  --purple-soft: rgba(167, 139, 250, 0.15);
-}
 
 /* ================================
    BASE
 =============================== */
 
 .page-bg {
-  background: radial-gradient(circle at top, #12141a, #0b0c10 70%);
+  background: var(--page-bg);
   min-height: 100vh;
-  color: var(--text);
+  color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(180deg, #16181e, #111318);
+  background: var(--bg-secondary);
   border-radius: 24px;
   padding: 40px;
-  box-shadow:
-    0 25px 60px rgba(0,0,0,.65),
-    inset 0 1px 0 rgba(255,255,255,.03);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
 }
 
 /* ================================
@@ -69,14 +40,14 @@
 .back-link {
   display: inline-block;
   font-size: .85rem;
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
   margin-bottom: 8px;
   transition: .2s;
 }
 
 .back-link:hover {
-  color: #fff;
+  color: var(--accent-hover);
 }
 
 .page-header h1 {
@@ -84,11 +55,12 @@
   font-weight: 800;
   margin-bottom: 6px;
   letter-spacing: -.02em;
+  color: var(--text-primary);
 }
 
 .page-header p {
   font-size: .9rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 /* ================================
@@ -96,7 +68,7 @@
 =============================== */
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--blue), var(--blue-strong));
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #fff;
   padding: 14px 28px;
   border-radius: 16px;
@@ -112,7 +84,7 @@
 
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(79, 156, 255, 0.4);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ================================
@@ -120,8 +92,8 @@
 =============================== */
 
 .filters-bar {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 28px;
@@ -142,16 +114,16 @@
 
 .filter-group label {
   font-size: .8rem;
-  color: var(--muted);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .filter-group select {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 10px 14px;
-  color: var(--text);
+  color: var(--text-primary);
   font-size: .9rem;
   min-width: 140px;
   cursor: pointer;
@@ -159,12 +131,12 @@
 }
 
 .filter-group select:hover {
-  border-color: var(--border-soft);
+  border-color: var(--border-color-light);
 }
 
 .filter-group select:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--accent);
 }
 
 .clear-filters {
@@ -172,15 +144,15 @@
   align-items: center;
   padding: 10px 16px;
   font-size: .85rem;
-  color: var(--red);
+  color: var(--danger);
   text-decoration: none;
-  background: var(--red-soft);
+  background: rgba(239, 68, 68, 0.1);
   border-radius: 10px;
   transition: .2s;
 }
 
 .clear-filters:hover {
-  background: var(--red);
+  background: var(--danger);
   color: #fff;
 }
 
@@ -199,8 +171,8 @@
 =============================== */
 
 .prova-card {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
   transition: all .25s ease;
@@ -210,8 +182,8 @@
 
 .prova-card:hover {
   transform: translateY(-4px);
-  border-color: var(--border-soft);
-  box-shadow: 0 18px 45px rgba(0,0,0,.5);
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-card);
 }
 
 .prova-card.passed {
@@ -240,18 +212,18 @@
 }
 
 .prova-tipo.vestibular {
-  background: var(--blue-glow);
-  color: var(--blue);
+  background: var(--accent-bg);
+  color: var(--accent);
 }
 
 .prova-tipo.enem {
-  background: var(--green-soft);
-  color: var(--green);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
 }
 
 .prova-tipo.outro {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
 }
 
 .status-badge {
@@ -262,23 +234,23 @@
 }
 
 .status-badge.nao_iniciada {
-  background: var(--red-soft);
-  color: var(--red);
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
 }
 
 .status-badge.em_andamento {
-  background: var(--yellow-soft);
-  color: var(--yellow);
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--warning);
 }
 
 .status-badge.confirmada {
-  background: var(--green-soft);
-  color: var(--green);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
 }
 
 .status-badge.cancelada {
-  background: rgba(107, 114, 128, 0.2);
-  color: var(--muted-light);
+  background: rgba(107, 114, 128, 0.15);
+  color: var(--text-muted);
 }
 
 /* Título */
@@ -287,6 +259,7 @@
   font-weight: 700;
   margin-bottom: 20px;
   letter-spacing: -.01em;
+  color: var(--text-primary);
 }
 
 /* Card Info */
@@ -305,25 +278,25 @@
 
 .info-label {
   font-size: .85rem;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 .info-value {
   font-size: .9rem;
-  color: var(--text);
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .info-value .paid {
-  color: var(--green);
+  color: var(--success);
 }
 
 .info-value .pending {
-  color: var(--yellow);
+  color: var(--warning);
 }
 
 .info-value.overdue {
-  color: var(--red);
+  color: var(--danger);
 }
 
 .info-value.countdown {
@@ -331,7 +304,7 @@
 }
 
 .info-value.countdown.urgent {
-  color: var(--red);
+  color: var(--danger);
 }
 
 .info-value.resultado {
@@ -339,15 +312,15 @@
 }
 
 .info-value.resultado.aprovado {
-  color: var(--green);
+  color: var(--success);
 }
 
 .info-value.resultado.reprovado {
-  color: var(--red);
+  color: var(--danger);
 }
 
 .info-value.resultado.lista_espera {
-  color: var(--yellow);
+  color: var(--warning);
 }
 
 /* Card Actions */
@@ -356,13 +329,13 @@
   gap: 12px;
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-secondary {
   flex: 1;
-  background: rgba(139, 188, 255, 0.12);
-  color: var(--blue);
+  background: var(--accent-bg);
+  color: var(--accent);
   padding: 12px 16px;
   border-radius: 12px;
   font-size: .85rem;
@@ -377,14 +350,14 @@
 }
 
 .btn-secondary:hover {
-  background: rgba(139, 188, 255, 0.25);
-  color: #fff;
+  background: var(--accent-border);
+  color: var(--accent-hover);
 }
 
 .btn-danger {
   flex: 1;
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--red);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
   border: none;
   padding: 12px 16px;
   border-radius: 12px;
@@ -399,8 +372,8 @@
 }
 
 .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.3);
-  color: #fff;
+  background: rgba(239, 68, 68, 0.25);
+  color: var(--danger);
 }
 
 .form-delete {
@@ -415,8 +388,8 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px 40px;
-  background: var(--card-soft);
-  border: 1px dashed var(--border);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
   border-radius: 20px;
 }
 
@@ -429,11 +402,11 @@
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text);
+  color: var(--text-primary);
 }
 
 .empty-state p {
-  color: var(--muted);
+  color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
