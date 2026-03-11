@@ -7,6 +7,9 @@
 
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/simulados-detalhes.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="page-bg">
 
@@ -17,7 +20,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <div>
+  <div class="header-left">
     <h1><%= simulado.nome %></h1>
     <span class="status <%= simulado.status %>">
       <%= simulado.status === "finalizado" ? "✓ Finalizado" : (simulado.status === "revisao" ? "✎ Modo Revisão" : "Em andamento") %>
@@ -50,8 +53,6 @@
 
 <!-- ================= RESUMO ================= -->
 <%
-  const LIMITE = 45;
-
   const areas = {
     linguagens: { questoes: 0, acertos: 0 },
     humanas: { questoes: 0, acertos: 0 },
@@ -59,27 +60,39 @@
     matematica: { questoes: 0, acertos: 0 }
   };
 
+  let totalGeral = 0;
+  let acertosGeral = 0;
+
   simulado.blocos.forEach(b => {
     areas[b.area].questoes += Number(b.total_questoes);
     areas[b.area].acertos += Number(b.acertos);
+    totalGeral += Number(b.total_questoes);
+    acertosGeral += Number(b.acertos);
   });
 %>
 
-<div class="resumo">
-  <h2>Resumo</h2>
+<div class="section">
+  <h2 class="section-title">Resumo de Desempenho</h2>
 
   <div class="resumo-grid">
     <% Object.keys(areas).forEach(area => {
       const q = areas[area].questoes;
       const a = areas[area].acertos;
       const percentual = q > 0 ? Math.round((a / q) * 100) : 0;
+      
+      let percentClass = '';
+      if (percentual >= 70) percentClass = 'high';
+      else if (percentual >= 50) percentClass = 'medium';
+      else if (percentual > 0) percentClass = 'low';
     %>
-      <div class="resumo-card">
+      <div class="resumo-card <%= area %>">
         <h4><%= area.toUpperCase() %></h4>
-
+        
         <% if (q > 0) { %>
-          <p><strong><%= a %></strong> / <%= q %></p>
-          <span><%= percentual %>%</span>
+          <div class="stats">
+            <p><strong><%= a %></strong> / <%= q %></p>
+          </div>
+          <span class="percent <%= percentClass %>"><%= percentual %>%</span>
         <% } else { %>
           <p>—</p>
         <% } %>
@@ -91,197 +104,211 @@
 
 
 <!-- ================= BLOCOS ================= -->
-<div class="blocos">
-  <h2>Blocos realizados</h2>
+<div class="section">
+  <h2 class="section-title">Blocos Realizados</h2>
 
   <% if (simulado.blocos.length === 0) { %>
-    <p class="empty">Nenhum bloco registrado.</p>
-  <% } %>
-
-  <% simulado.blocos.forEach(bloco => { %>
-    <div class="bloco-card">
-
-      <!-- HEADER DO BLOCO -->
-      <div class="bloco-header">
-        <strong><%= bloco.area.toUpperCase() %></strong>
-        <span><%= bloco.total_questoes %> questões — <%= bloco.acertos %> acertos</span>
-        <span><%= bloco.tempo_minutos ? bloco.tempo_minutos + " min" : "—" %></span>
-        <span><%= bloco.data_realizacao.split("-").reverse().join("/") %></span>
-      </div>
-
-      <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
-
-        <!-- AÇÕES DO BLOCO -->
-        <div class="bloco-actions">
-          <a href="/simulados/bloco/<%= bloco.id %>/editar" class="btn small">✏️ Editar</a>
-
-          <form
-            action="/simulados/bloco/<%= bloco.id %>/excluir"
-            method="POST"
-            onsubmit="return confirm('Excluir este bloco?')"
-          >
-            <button class="btn danger small">Excluir</button>
-          </form>
-
-          <button
-            type="button"
-            class="btn small"
-            onclick="toggleErroForm(<%= bloco.id %>)"
-          >
-            ➕ Adicionar erro
-          </button>
-        </div>
-
-        <!-- FORM ADICIONAR ERRO -->
-        <form
-          id="form-erro-<%= bloco.id %>"
-          class="form-add-erro"
-          style="display:none; margin-top:10px;"
-          onsubmit="return salvarErro(event, <%= bloco.id %>)"
-        >
-
-          <div class="form-erro-grid">
-            <input
-              type="number"
-              name="numero_questao"
-              placeholder="Nº da questão"
-              required
-            />
-
-            <select name="motivo" onchange="onMotivoChange(this)" required>
-              <option value="">Motivo</option>
-              <option value="falta_conteudo">Falta de conteúdo</option>
-              <option value="falta_atencao">Falta de atenção</option>
-              <option value="lacuna">Lacuna</option>
-            </select>
-          </div>
-
-          <!-- CAMPOS DE LACUNA -->
-          <div class="lacuna-fields" style="display:none;">
-            <select name="subject_id" onchange="loadTopics(this)">
-              <option value="">Matéria</option>
-              <% subjects.forEach(s => { %>
-                <option value="<%= s.id %>"><%= s.nome %></option>
-              <% }) %>
-            </select>
-
-            <select name="topic_id" disabled onchange="loadSubtopics(this)">
-              <option value="">Tópico</option>
-            </select>
-
-            <select name="subtopic_id" disabled>
-              <option value="">Assunto (opcional)</option>
-            </select>
-          </div>
-
-          <div class="form-erro-actions">
-            <button type="submit" class="btn primary small">Salvar erro</button>
-            <button
-              type="button"
-              class="btn danger small"
-              onclick="this.closest('form').style.display='none'"
-            >
-              Cancelar
-            </button>
-          </div>
-
-        </form>
-
-      <% } %>
-
-      <!-- ERROS JÁ REGISTRADOS -->
-      <% if (bloco.erros.length > 0) { %>
-        <div class="erros">
-          <h4>Questões erradas</h4>
-
-          <% bloco.erros.forEach(erro => { %>
-            <div class="erro <%= erro.revisada ? "revisada" : "" %>">
-              <span class="erro-info">
-  Questão <strong><%= erro.numero_questao %></strong>
-  — <%= erro.motivo.replace("_", " ") %>
-
-  <% if (erro.motivo === "lacuna") { %>
-    <br>
-    <small style="opacity:0.75">
-      Matéria: <%= erro.subject ? erro.subject.nome : "—" %>
-      <% if (erro.topic) { %>
-        | Tópico: <%= erro.topic.nome %>
-      <% } %>
-      <% if (erro.subtopic) { %>
-        | Assunto: <%= erro.subtopic.nome %>
-      <% } %>
-    </small>
-  <% } %>
-</span>
-
-
-              <div class="erro-actions">
-                <% if (!erro.revisada) { %>
-                  <form action="/simulados/erro/<%= erro.id %>/revisar" method="POST">
-                    <button class="btn small">Marcar como revisada</button>
-                  </form>
-                <% } %>
-
-                <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
-                  <a href="/simulados/erro/<%= erro.id %>/editar" class="btn small">✏️ Editar</a>
-
-                  <form
-                    action="/simulados/erro/<%= erro.id %>/excluir"
-                    method="POST"
-                    onsubmit="return confirm('Excluir este erro?')"
-                  >
-                    <button class="btn danger small">Excluir</button>
-                  </form>
-                <% } %>
-              </div>
-            </div>
-          <% }) %>
-        </div>
-      <% } %>
-
+    <div class="empty-state">
+      <div class="icon">📝</div>
+      <p>Nenhum bloco registrado ainda.</p>
     </div>
-  <% }) %>
+  <% } else { %>
+    <div class="blocos-grid">
+      <% simulado.blocos.forEach(bloco => { %>
+        <div class="bloco-card">
+
+          <!-- HEADER DO BLOCO -->
+          <div class="bloco-header">
+            <span class="area <%= bloco.area %>"><%= bloco.area.toUpperCase() %></span>
+            <span class="info">
+              <strong><%= bloco.total_questoes %></strong> questões — <strong><%= bloco.acertos %></strong> acertos
+            </span>
+            <span class="tempo"><%= bloco.tempo_minutos ? bloco.tempo_minutos + " min" : "—" %></span>
+            <span class="data"><%= bloco.data_realizacao.split("-").reverse().join("/") %></span>
+          </div>
+
+          <div class="bloco-body">
+
+            <!-- ERROS JÁ REGISTRADOS -->
+            <% if (bloco.erros.length > 0) { %>
+              <div class="erros collapsed" id="erros-<%= bloco.id %>">
+                <div class="erros-header" onclick="toggleErros(<%= bloco.id %>)">
+                  <h4>Questões erradas (<%= bloco.erros.length %>)</h4>
+                  <div class="erros-toggle">
+                    <span>Ver</span>
+                    <span class="arrow">▼</span>
+                  </div>
+                </div>
+
+                <div class="erros-list">
+                  <% bloco.erros.forEach(erro => { %>
+                    <div class="erro <%= erro.revisada ? "revisada" : "" %>">
+                      <div class="erro-info">
+                        <span>Questão <strong><%= erro.numero_questao %></strong> — <span class="motivo"><%= erro.motivo.replace("_", " ") %></span></span>
+                        
+                        <% if (erro.motivo === "lacuna") { %>
+                          <small class="details">
+                            <span>📚 <%= erro.subject ? erro.subject.nome : "—" %></span>
+                            <% if (erro.topic) { %>
+                              <span>📋 <%= erro.topic.nome %></span>
+                            <% } %>
+                            <% if (erro.subtopic) { %>
+                              <span>📑 <%= erro.subtopic.nome %></span>
+                            <% } %>
+                          </small>
+                        <% } %>
+                      </div>
+
+                      <div class="erro-actions">
+                        <% if (!erro.revisada) { %>
+                          <form action="/simulados/erro/<%= erro.id %>/revisar" method="POST">
+                            <button class="btn small neutral">✓ Revisada</button>
+                          </form>
+                        <% } %>
+
+                        <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
+                          <a href="/simulados/erro/<%= erro.id %>/editar" class="btn small neutral">✏️</a>
+
+                          <form
+                            action="/simulados/erro/<%= erro.id %>/excluir"
+                            method="POST"
+                            onsubmit="return confirm('Excluir este erro?')"
+                          >
+                            <button class="btn small danger">✕</button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            <% } %>
+
+            <!-- FORM ADICIONAR ERRO (dentro do bloco) -->
+            <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
+              <form
+                id="form-erro-<%= bloco.id %>"
+                class="form-add-erro"
+                style="display:none;"
+                onsubmit="return salvarErro(event, <%= bloco.id %>)"
+              >
+
+                <div class="form-erro-grid">
+                  <input
+                    type="number"
+                    name="numero_questao"
+                    placeholder="Nº da questão"
+                    required
+                  />
+
+                  <select name="motivo" onchange="onMotivoChange(this)" required>
+                    <option value="">Motivo do erro</option>
+                    <option value="falta_conteudo">Falta de conteúdo</option>
+                    <option value="falta_atencao">Falta de atenção</option>
+                    <option value="lacuna">Lacuna de conhecimento</option>
+                  </select>
+                </div>
+
+                <!-- CAMPOS DE LACUNA -->
+                <div class="lacuna-fields" style="display:none;">
+                  <select name="subject_id" onchange="loadTopics(this)">
+                    <option value="">Matéria</option>
+                    <% subjects.forEach(s => { %>
+                      <option value="<%= s.id %>"><%= s.nome %></option>
+                    <% }) %>
+                  </select>
+
+                  <select name="topic_id" disabled onchange="loadSubtopics(this)">
+                    <option value="">Tópico</option>
+                  </select>
+
+                  <select name="subtopic_id" disabled>
+                    <option value="">Assunto (opcional)</option>
+                  </select>
+                </div>
+
+                <div class="form-erro-actions">
+                  <button type="submit" class="btn primary small">Salvar</button>
+                  <button
+                    type="button"
+                    class="btn danger small"
+                    onclick="toggleErroForm(<%= bloco.id %>)"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+
+              </form>
+            <% } %>
+
+          </div>
+
+          <!-- AÇÕES DO BLOCO -->
+          <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
+            <div class="bloco-actions">
+              <button
+                type="button"
+                class="btn small primary"
+                onclick="toggleErroForm(<%= bloco.id %>)"
+              >
+                ➕ Adicionar erro
+              </button>
+
+              <a href="/simulados/bloco/<%= bloco.id %>/editar" class="btn small neutral">✏️ Editar</a>
+
+              <form
+                action="/simulados/bloco/<%= bloco.id %>/excluir"
+                method="POST"
+                onsubmit="return confirm('Excluir este bloco?')"
+                style="display: inline;"
+              >
+                <button type="submit" class="btn small danger">Excluir</button>
+              </form>
+            </div>
+          <% } %>
+
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
 </div>
 
 
 <!-- ================= ADD BLOCO ================= -->
 <% if (simulado.status === "em_andamento") { %>
 <div class="form-bloco">
-<h2>Adicionar bloco</h2>
+  <h2>Adicionar novo bloco</h2>
 
-<form id="form-add-bloco">
+  <form id="form-add-bloco">
 
-  <div class="grid">
-    <select name="area" required>
-      <option value="">Área</option>
-      <option value="linguagens">Linguagens</option>
-      <option value="humanas">Humanas</option>
-      <option value="naturezas">Naturezas</option>
-      <option value="matematica">Matemática</option>
-    </select>
+    <div class="grid">
+      <select name="area" required>
+        <option value="">Área</option>
+        <option value="linguagens">Linguagens</option>
+        <option value="humanas">Humanas</option>
+        <option value="naturezas">Naturezas</option>
+        <option value="matematica">Matemática</option>
+      </select>
 
-    <input type="number" name="total_questoes" placeholder="Total de questões" required />
-    <input type="number" name="acertos" placeholder="Acertos" required />
-    <input type="number" name="tempo_minutos" placeholder="Tempo (min)" />
-    <input type="date" name="data_realizacao" required />
-  </div>
+      <input type="number" name="total_questoes" placeholder="Total de questões" required />
+      <input type="number" name="acertos" placeholder="Acertos" required />
+      <input type="number" name="tempo_minutos" placeholder="Tempo (min)" />
+      <input type="date" name="data_realizacao" required />
+    </div>
 
-  <h3>Questões erradas</h3>
-  <div id="erros-container"></div>
+    <h3>Questões erradas</h3>
+    <div id="erros-container"></div>
 
-  <button type="button" onclick="addErro()" class="btn small">
-    ➕ Adicionar erro
-  </button>
+    <button type="button" onclick="addErro()" class="btn small neutral" style="margin-bottom: 16px;">
+      ➕ Adicionar erro
+    </button>
 
-  <div id="erro-bloco" style="display:none; color:#ff6b6b; margin-top:10px;"></div>
+    <div id="erro-bloco" style="display:none; color:#ef4444; margin-top:10px;"></div>
 
-  <br><br>
-  <button type="submit" class="btn primary">Salvar bloco</button>
-</form>
+    <br>
+    <button type="submit" class="btn primary">Salvar bloco</button>
+  </form>
 
-
-
-</form>
 </div>
 <% } %>
 
@@ -290,6 +317,24 @@
 
 <script>
 const subjects = <%- JSON.stringify(subjects) %>;
+
+/* =========================
+   TOGGLE ERROS (Accordion)
+========================= */
+function toggleErros(blocoId) {
+  const errosDiv = document.getElementById("erros-" + blocoId);
+  if (!errosDiv) return;
+  
+  errosDiv.classList.toggle("collapsed");
+  
+  // Update toggle text
+  const toggleSpan = errosDiv.querySelector(".erros-toggle span:first-child");
+  if (errosDiv.classList.contains("collapsed")) {
+    toggleSpan.textContent = "Ver";
+  } else {
+    toggleSpan.textContent = "Ocultar";
+  }
+}
 
 /* =========================
    LACUNA (COMPARTILHADO)
@@ -309,7 +354,7 @@ function onMotivoChange(select) {
 
   if (!lacuna) return;
 
-  lacuna.style.display = select.value === "lacuna" ? "block" : "none";
+  lacuna.style.display = select.value === "lacuna" ? "grid" : "none";
 }
 
 
@@ -365,7 +410,16 @@ async function loadSubtopics(select) {
 function toggleErroForm(blocoId) {
   const form = document.getElementById("form-erro-" + blocoId);
   if (!form) return;
-  form.style.display = form.style.display === "none" ? "block" : "none";
+  
+  if (form.style.display === "none" || form.style.display === "") {
+    form.style.display = "block";
+  } else {
+    form.style.display = "none";
+    // Reset fields
+    form.reset();
+    const lacunaFields = form.querySelector(".lacuna-fields");
+    if (lacunaFields) lacunaFields.style.display = "none";
+  }
 }
 
 async function salvarErro(event, blocoId) {
@@ -431,7 +485,7 @@ function addErro() {
       </button>
     </div>
 
-    <div class="lacuna-fields" style="display:none; margin-top:8px;">
+    <div class="lacuna-fields" style="display:none;">
       <select name="erros[${idx}][subject_id]" onchange="loadTopics(this)">
         <option value="">Matéria</option>
         ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
@@ -459,32 +513,34 @@ function addErro() {
 const form = document.getElementById("form-add-bloco");
 const erroBox = document.getElementById("erro-bloco");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  erroBox.style.display = "none";
-  erroBox.innerText = "";
+    erroBox.style.display = "none";
+    erroBox.innerText = "";
 
-  const data = new URLSearchParams(new FormData(form));
+    const data = new URLSearchParams(new FormData(form));
 
-  const res = await fetch("/simulados/<%= simulado.id %>/bloco", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: data
+    const res = await fetch("/simulados/<%= simulado.id %>/bloco", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: data
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      erroBox.innerText = json.error || "Erro interno ao adicionar bloco.";
+      erroBox.style.display = "block";
+      return;
+    }
+
+    location.reload();
   });
-
-  const json = await res.json();
-
-  if (!res.ok) {
-    erroBox.innerText = json.error || "Erro interno ao adicionar bloco.";
-    erroBox.style.display = "block";
-    return;
-  }
-
-  location.reload();
-});
+}
 </script>
 
 </body>
