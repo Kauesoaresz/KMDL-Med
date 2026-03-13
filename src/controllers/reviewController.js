@@ -135,16 +135,22 @@ exports.index = async (req, res) => {
     const diffMs = agora - ultimaData;
     const horasSemEstudar = diffMs / (1000 * 60 * 60); // Converter ms para horas
 
-    const erroPercentual = totalQuestoes > 0 ? 1 - (totalAcertos / totalQuestoes) : 0;
-    const errosPendentes = erroMap[`${e.subject_id}-${e.topic_id}`] || 0;
-
-    // Score original preservado
-    const score = (mediaDificuldade * 2) + (erroPercentual * 5) + (horasSemEstudar * 0.3) + (errosPendentes * 2);
-
-    // Dados de revisão do tópico
+    // Calcular dias desde última revisão (prioridade: review > study)
     const proximaRevisao = e.topic ? e.topic.proxima_revisao : null;
     const status = getStatusRevisao(proximaRevisao);
     const ultimaRevisao = e.topic ? e.topic.ultima_revisao : (ultimaRevisaoMap[`${e.subject_id}-${e.topic_id}`] || null);
+    
+    let diasDesdeUltimaRevisao = Math.floor(horasSemEstudar / 24);
+    if (ultimaRevisao) {
+      const ultimaDate = new Date(ultimaRevisao);
+      diasDesdeUltimaRevisao = Math.floor((agora - ultimaDate) / (1000 * 60 * 60 * 24));
+    }
+
+    const erroPercentual = totalQuestoes > 0 ? 1 - (totalAcertos / totalQuestoes) : 0;
+    const errosPendentes = erroMap[`${e.subject_id}-${e.topic_id}`] || 0;
+
+    // Score com dias
+    const score = (mediaDificuldade * 2) + (erroPercentual * 5) + (diasDesdeUltimaRevisao * 0.8) + (errosPendentes * 2);
 
     return {
       subjectId: e.subject_id,
@@ -152,7 +158,8 @@ exports.index = async (req, res) => {
       subject: e.subject.nome,
       topic: e.topic.nome,
       horasSemEstudar: horasSemEstudar.toFixed(1),
-      diasSemEstudar: Math.floor(horasSemEstudar / 24), // Manter compatibilidade
+      diasSemEstudar: Math.floor(horasSemEstudar / 24),
+      diasDesdeUltimaRevisao,
       erroPercentual: (erroPercentual * 100).toFixed(1),
       errosPendentes,
       score: score.toFixed(2),

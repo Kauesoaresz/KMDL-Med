@@ -28,14 +28,9 @@ const review = locals.review;
 
   <div class="card-stats">
     <div class="stat">
-      <span class="stat-label">Horas sem estudar</span>
-      <span class="stat-value">
-        <% 
-          const horasSemEstudar = review.diasSemEstudar * 24;
-          const horasInt = Math.floor(horasSemEstudar);
-          const minutos = Math.round((horasSemEstudar - horasInt) * 60);
-        %>
-        <%= horasInt %>h <%= minutos %>min
+      <span class="stat-label">Dias sem estudar</span>
+      <span class="stat-value <%= review.diasDesdeUltimaRevisao > 30 ? 'bad' : review.diasDesdeUltimaRevisao > 14 ? 'medium' : 'good' %>">
+        <%= review.diasDesdeUltimaRevisao %> dias
       </span>
     </div>
     <div class="stat">
