@@ -1,19 +1,20 @@
-# TODO - Light/Dark Mode Support for simulados-estatisticas.css
+# TODO - Fixed Editar Provas Styling
 
-## Task
-Finalize light and dark mode support in `simulados-estatisticas.css`
+## Previous Task
+Light/Dark Mode Support for simulados-estatisticas.css - COMPLETED ✅
+
+## Current Task
+Fix styling for editar provas page
 
 ## Steps
-- [x] 1. Update chart-card backgrounds (replace dark gradients with CSS variables)
-- [x] 2. Update area-card backgrounds and text colors
-- [x] 3. Update erro-kpi-card backgrounds
-- [x] 4. Update erros-motivos backgrounds
-- [x] 5. Update lacuna-col backgrounds
-- [x] 6. Update tabela-card backgrounds
-- [x] 7. Update all hardcoded text colors to use CSS variables
-- [x] 8. Update progress bar backgrounds for light mode
-- [ ] 9. Test light/dark mode toggle
+- [x] 1. Analyzed view, CSS, controller, routes
+- [x] 2. Created plan and got approval
+- [x] 3. Created/Updated TODO.md 
+- [x] 4. Updated src/public/css/app/editar-prova.css with missing layouts (.page-header-simple, .form-row grid, .checkbox-group, .section-title, .form-actions), polishes, responsive fixes
+- [x] 5. Updated TODO.md to mark complete
 
-## Status: COMPLETED
-All CSS variables have been replaced in simulados-estatisticas.css!
+## Status: COMPLETED ✅
+Styling fixed! Check /provas/[id]/editar in browser. Test responsive (F12 mobile), light/dark toggle.
+
+To test: Open browser devtools, resize, theme switch.
 
