@@ -18,6 +18,9 @@ const SimuladoQuestaoErro = require("./SimuladoQuestaoErro");
 ========================== */
 const Prova = require("./Prova");
 
+const ArquivoTipo = require("./ArquivoTipo");
+const Arquivo = require("./Arquivo");
+
 // ==========================
 // USUÁRIO
 // ==========================
@@ -127,6 +130,38 @@ ReviewHistory.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 User.hasMany(StudyGoal, { foreignKey: "user_id", as: "goals" });
 StudyGoal.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
+
+// ==========================
+// ARQUIVOS E MATERIAIS
+// ==========================
+
+// Relação com Usuário
+User.hasMany(ArquivoTipo, { foreignKey: "user_id", as: "arquivo_tipos" });
+ArquivoTipo.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+User.hasMany(Arquivo, { foreignKey: "user_id", as: "arquivos" });
+Arquivo.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+// Relação Arquivo -> Tipo
+ArquivoTipo.hasMany(Arquivo, { foreignKey: "tipo_id", as: "arquivos" });
+Arquivo.belongsTo(ArquivoTipo, { foreignKey: "tipo_id", as: "tipo" });
+
+// Relações Arquivo -> Entidades (Opcionais)
+Simulado.hasMany(Arquivo, { foreignKey: "simulado_id", as: "arquivos" });
+Arquivo.belongsTo(Simulado, { foreignKey: "simulado_id", as: "simulado" });
+
+Prova.hasMany(Arquivo, { foreignKey: "prova_id", as: "arquivos" });
+Arquivo.belongsTo(Prova, { foreignKey: "prova_id", as: "prova" });
+
+Subject.hasMany(Arquivo, { foreignKey: "subject_id", as: "arquivos" });
+Arquivo.belongsTo(Subject, { foreignKey: "subject_id", as: "subject" });
+
+Topic.hasMany(Arquivo, { foreignKey: "topic_id", as: "arquivos" });
+Arquivo.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
+
+Subtopic.hasMany(Arquivo, { foreignKey: "subtopic_id", as: "arquivos" });
+Arquivo.belongsTo(Subtopic, { foreignKey: "subtopic_id", as: "subtopic" });
+
 module.exports = {
   User,
   Subject,
@@ -139,4 +174,6 @@ module.exports = {
   SimuladoBloco,
   SimuladoQuestaoErro,
   Prova,
+  ArquivoTipo,
+  Arquivo,
 };

@@ -12,6 +12,7 @@ require("./models/index");
 // =========================
 const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
+const arquivoRoutes = require("./routes/arquivoRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
 const simuladoStatsRoutes = require("./routes/simuladoStatsRoutes");
@@ -77,6 +78,7 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 // =========================
 app.use(authRoutes);
 app.use(appRoutes);
+app.use(arquivoRoutes);
 app.use(contentRoutes);
 
 app.use(statisticsRoutes);

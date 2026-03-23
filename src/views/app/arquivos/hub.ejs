@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KMed | Hub de Arquivos</title>
+
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kmed-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (!savedTheme && !prefersDark || savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/components/theme.css" />
+  <link rel="stylesheet" href="/public/css/app/dashboard.css" />
+
+  <style>
+    /* Estilos da Grid e Cards */
+    .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+    .file-card { background: linear-gradient(180deg, #161821, #0f1117); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; }
+    .file-card:hover { border-color: rgba(46, 229, 157, 0.3); transform: translateY(-2px); }
+    .file-icon { font-size: 2.5rem; color: #2ee59d; }
+    .file-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.1rem; }
+    .file-meta { font-size: 0.85rem; color: #9aa1ad; display: flex; flex-direction: column; gap: 4px; }
+    .file-tag { background: rgba(46, 229, 157, 0.1); color: #2ee59d; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; width: fit-content; }
+    
+    /* Botões do Card */
+    .file-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+    
+    .btn-view, .btn-download { flex: 1; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    
+    .btn-view { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .btn-view:hover { background: #3b82f6; color: #fff; }
+    
+    .btn-download { background: rgba(46, 229, 157, 0.15); color: #2ee59d; }
+    .btn-download:hover { background: #2ee59d; color: #0f1117; }
+    
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-delete:hover { background: #ef4444; color: #fff; }
+
+    /* Forms */
+    .dark-form .form-group { margin-bottom: 16px; }
+    .dark-form label { display: block; color: #9aa1ad; font-size: 0.85rem; margin-bottom: 6px; }
+    .dark-form input, .dark-form select { width: 100%; padding: 10px; background: #1a1d24; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 0.95rem; }
+    .dark-form input:focus, .dark-form select:focus { outline: none; border-color: #2ee59d; }
+    
+    .type-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+    .type-item { display: flex; align-items: center; gap: 8px; background: #1a1d24; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .type-item form { display: inline; }
+    .type-item button { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; }
+
+    /* Sessão de Filtros */
+    .filter-section { background: #161821; border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+  </style>
+</head>
+<body class="page-bg">
+
+  <%- include("../../partials/sidebar", { active: "arquivos", userNome, userFoto }) %>
+
+  <main class="with-sidebar">
+    <div class="page">
+
+      <section class="welcome-card">
+        <div class="welcome-text">
+          <h1>Central de Materiais 📚</h1>
+          <p>Organize suas provas, gabaritos, resoluções e listas de exercícios.</p>
+        </div>
+      </section>
+
+      <section class="dashboard-row" style="margin-bottom: 30px;">
+        <div class="dashboard-card" style="flex: 1;">
+          <h2>🏷️ Categorias</h2>
+          <form action="/arquivos/tipo" method="POST" class="dark-form" style="display: flex; gap: 10px; margin-top: 15px;">
+            <div class="form-group" style="margin: 0; flex: 1;">
+              <input type="text" name="nome" placeholder="Ex: Gabarito, Lista..." required>
+            </div>
+            <button type="submit" class="btn-primary" style="padding: 0 15px; border-radius: 8px; border: none; font-weight: 600;">+</button>
+          </form>
+
+          <div class="type-list">
+            <% if (tipos.length === 0) { %>
+              <p class="muted" style="font-size: 0.85rem;">Nenhuma categoria criada.</p>
+            <% } else { %>
+              <% tipos.forEach(tipo => { %>
+                <div class="type-item">
+                  <span style="color: #fff;"><%= tipo.nome %></span>
+                  <form action="/arquivos/tipo/deletar/<%= tipo.id %>" method="POST" onsubmit="return confirm('Tem certeza?')">
+                    <button type="submit" title="Excluir categoria">&times;</button>
+                  </form>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="dashboard-card" style="flex: 2;">
+          <h2>📤 Adicionar Material</h2>
+          <form action="/arquivos/upload" method="POST" enctype="multipart/form-data" class="dark-form">
+            <div style="display: flex; gap: 15px;">
+              <div class="form-group" style="flex: 2;">
+                <label>Nome do Arquivo *</label>
+                <input type="text" name="nome" placeholder="Ex: ENEM 2023 - Caderno Azul" required>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Categoria *</label>
+                <select name="tipo_id" required>
+                  <option value="">Selecione...</option>
+                  <% tipos.forEach(tipo => { %>
+                    <option value="<%= tipo.id %>"><%= tipo.nome %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <div class="form-group" style="flex: 1;">
+                <label>Simulado (Op)</label>
+                <select name="simulado_id">
+                  <option value="">Nenhum</option>
+                  <% simulados.forEach(sim => { %>
+                    <option value="<%= sim.id %>"><%= sim.nome %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Matéria (Op)</label>
+                <select name="subject_id" id="up_subject_id" onchange="loadUploadTopics()">
+                  <option value="">Nenhuma</option>
+                  <% subjects.forEach(sub => { %>
+                    <option value="<%= sub.id %>"><%= sub.nome %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Tópico (Op)</label>
+                <select name="topic_id" id="up_topic_id" disabled onchange="loadUploadSubtopics()">
+                  <option value="">Selecione a matéria</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Assunto (Op)</label>
+                <select name="subtopic_id" id="up_subtopic_id" disabled>
+                  <option value="">Selecione o tópico</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+              <div style="flex: 3;">
+                <label>Arquivo (PDF, DOC, JPG, PNG) *</label>
+                <input type="file" name="arquivo" required style="background: rgba(46, 229, 157, 0.05); padding: 8px;">
+              </div>
+              <button type="submit" class="btn-primary" style="flex: 1; border: none; padding: 12px; border-radius: 8px; font-weight: bold; height: 42px;">
+                Fazer Upload
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="dashboard-section">
+        <div class="section-header">
+          <h2>📂 Meus Materiais</h2>
+        </div>
+
+        <div class="filter-section dark-form">
+          <form action="/arquivos" method="GET" class="filter-grid">
+            <div class="form-group">
+              <label>Buscar por nome</label>
+              <input type="text" name="busca" placeholder="Pesquisar..." value="<%= filtrosAtual.busca || '' %>">
+            </div>
+            <div class="form-group">
+              <label>Categoria</label>
+              <select name="tipo_id">
+                <option value="">Todas</option>
+                <% tipos.forEach(tipo => { %>
+                  <option value="<%= tipo.id %>" <%= filtrosAtual.tipo_id == tipo.id ? 'selected' : '' %>><%= tipo.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Simulado</label>
+              <select name="simulado_id">
+                <option value="">Todos</option>
+                <% simulados.forEach(sim => { %>
+                  <option value="<%= sim.id %>" <%= filtrosAtual.simulado_id == sim.id ? 'selected' : '' %>><%= sim.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Matéria</label>
+              <select name="subject_id" id="filter_subject_id" onchange="loadFilterTopics()">
+                <option value="">Todas</option>
+                <% subjects.forEach(sub => { %>
+                  <option value="<%= sub.id %>" <%= filtrosAtual.subject_id == sub.id ? 'selected' : '' %>><%= sub.nome %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+              <button type="submit" class="btn-primary" style="width: 100%; height: 40px; border-radius: 8px; border: none; font-weight: bold;">
+                Filtrar
+              </button>
+              <a href="/arquivos" class="btn-secondary" style="height: 40px; display: flex; align-items: center; justify-content: center; padding: 0 15px; border-radius: 8px; text-decoration: none;">Limpar</a>
+            </div>
+          </form>
+        </div>
+        
+        <% if (arquivos.length === 0) { %>
+          <div class="empty-state-small" style="text-align: center; padding: 40px; background: #161821; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+            <p>Nenhum material encontrado com estes filtros.</p>
+          </div>
+        <% } else { %>
+          <div class="files-grid">
+            <% arquivos.forEach(arq => { %>
+              <div class="file-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div class="file-icon">
+                    <% if(arq.extensao === '.pdf') { %> 📄
+                    <% } else if (['.jpg','.jpeg','.png'].includes(arq.extensao.toLowerCase())) { %> 🖼️
+                    <% } else { %> 📁 <% } %>
+                  </div>
+                  <% if (arq.tipo) { %>
+                    <span class="file-tag"><%= arq.tipo.nome %></span>
+                  <% } %>
+                </div>
+                
+                <div class="file-info">
+                  <h4><%= arq.nome %></h4>
+                  <div class="file-meta">
+                    <% if (arq.simulado) { %> <span>📝 <%= arq.simulado.nome %></span> <% } %>
+                    <% if (arq.subject) { %> 
+                      <span>📚 <%= arq.subject.nome %>
+                        <% if (arq.topic) { %> ➔ <%= arq.topic.nome %><% } %>
+                        <% if (arq.subtopic) { %> ➔ <%= arq.subtopic.nome %><% } %>
+                      </span> 
+                    <% } %>
+                    <span>Extensão: <%= arq.extensao %></span>
+                  </div>
+                </div>
+
+                <div class="file-actions">
+                  <a href="<%= arq.caminho %>" target="_blank" class="btn-view" title="Ver Arquivo">👁️ Ver</a>
+                  <a href="/arquivos/download/<%= arq.id %>" class="btn-download" title="Baixar">⬇️ Baixar</a>
+                  <form action="/arquivos/deletar/<%= arq.id %>" method="POST" onsubmit="return confirm('Deseja realmente deletar este arquivo permanentemente?')" style="margin: 0;">
+                    <button type="submit" class="btn-delete" title="Excluir">🗑️</button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    const allTopics = <%- JSON.stringify(topics || []) %>;
+    const allSubtopics = <%- JSON.stringify(subtopics || []) %>;
+
+    // --- CASCATA DO UPLOAD ---
+    function loadUploadTopics() {
+      const subjectId = document.getElementById('up_subject_id').value;
+      const topicSelect = document.getElementById('up_topic_id');
+      const subtopicSelect = document.getElementById('up_subtopic_id');
+      
+      topicSelect.innerHTML = '<option value="">Selecione...</option>';
+      subtopicSelect.innerHTML = '<option value="">Selecione o tópico</option>';
+      subtopicSelect.disabled = true;
+
+      if (!subjectId) {
+        topicSelect.disabled = true;
+        return;
+      }
+
+      topicSelect.disabled = false;
+      const filteredTopics = allTopics.filter(t => t.subject_id == subjectId);
+      filteredTopics.forEach(t => {
+        topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
+      });
+    }
+
+    function loadUploadSubtopics() {
+      const topicId = document.getElementById('up_topic_id').value;
+      const subtopicSelect = document.getElementById('up_subtopic_id');
+      
+      subtopicSelect.innerHTML = '<option value="">Selecione...</option>';
+
+      if (!topicId) {
+        subtopicSelect.disabled = true;
+        return;
+      }
+
+      subtopicSelect.disabled = false;
+      const filteredSubtopics = allSubtopics.filter(s => s.topic_id == topicId);
+      filteredSubtopics.forEach(s => {
+        subtopicSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
+      });
+    }
+
+    // --- CASCATA DO FILTRO (Opcional pra não poluir, deixei só Matéria no HTML, mas aqui está a base caso vc expanda) ---
+    function loadFilterTopics() {
+      // Deixei o filtro de tópicos fora da barra pra não ficar gigante, 
+      // mas se quiser adicionar, a lógica é idêntica a de cima!
+    }
+  </script>
+
+</body>
+</html>

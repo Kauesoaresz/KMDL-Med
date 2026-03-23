@@ -1,16 +1,13 @@
-<!-- HAMBURGER MOBILE -->
 <button class="hamburger" id="hamburger" aria-label="Abrir Menu">
   <span></span>
   <span></span>
   <span></span>
 </button>
 
-<!-- OVERLAY (FUNDO ESCURO) -->
 <div class="overlay" id="overlay"></div>
 
 <aside class="sidebar" id="sidebar">
 
-  <!-- LOGO -->
   <div class="sidebar-brand">
     <a href="/dashboard">
       <img src="/public/img/Logo sistema.png" class="logo">
@@ -18,7 +15,6 @@
     </a>
   </div>
 
-  <!-- MENU -->
   <nav class="sidebar-menu">
 
     <a href="/dashboard" class="item <%= active === 'dashboard' ? 'active' : '' %>">
@@ -56,6 +52,10 @@
       <p>Simulados</p>
     </a>
 
+    <a href="/arquivos" class="item <%= active === 'arquivos' ? 'active' : '' %>">
+      <span>📂</span>
+      <p>Materiais</p>
+    </a>
     <a href="/provas" class="item <%= active === 'provas' ? 'active' : '' %>">
       <span>🎯</span>
       <p>Provas</p>
@@ -68,10 +68,8 @@
 
   </nav>
 
-  <!-- FOOTER -->
   <div class="sidebar-footer">
 
-    <!-- Theme Toggle Button -->
     <button class="theme-toggle" id="themeToggle" aria-label="Alternar Tema">
       <span class="theme-icon theme-icon-dark">🌙</span>
       <span class="theme-icon theme-icon-light">☀️</span>
@@ -94,7 +92,6 @@
 
 <script src="/public/js/app/sidebar.js"></script>
 
-<!-- Theme Toggle Script -->
 <script>
   (function() {
     const toggle = document.getElementById('themeToggle');
