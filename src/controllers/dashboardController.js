@@ -103,10 +103,11 @@ function daysAgoISO(days) {
    DASHBOARD
 ========================= */
 exports.dashboard = async (req, res) => {
-  const userId = req.session.userId;
+const userId = req.session.userId;
   const userNome = req.session.userNome;
   const userFoto = req.session.userFoto;
   const periodo = req.query.periodo || "total";
+  const filtros = ["hoje", "semana", "mês", "total"];
 
   const hoje = todayISO();
 
@@ -409,7 +410,7 @@ exports.dashboard = async (req, res) => {
     const areaNomes = {
       'linguagens': 'Linguagens',
       'humanas': 'Humanas',
-      'naturezas': 'Naturesas',
+'naturezas': 'Naturezas',
       'matematica': 'Matemática'
     };
 
@@ -694,6 +695,8 @@ exports.dashboard = async (req, res) => {
     conquistasProgresso,
     horasTotal,
     questoesTotal,
-    metasPrincipais
+    metasPrincipais,
+    filtros
   });
 };
+
