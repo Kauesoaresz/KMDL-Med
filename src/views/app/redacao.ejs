@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KMed | Redação</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kmed-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (!savedTheme && !prefersDark || savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
+  <link rel="stylesheet" href="/public/css/components/theme.css" />
+  <link rel="stylesheet" href="/public/css/app/dashboard.css" />
+  <link rel="stylesheet" href="/public/css/app/redacao.css" />
+</head>
+<body class="page-bg">
+
+  <%- include("../partials/sidebar", { active: "redacao", userNome, userFoto }) %>
+
+  <main class="with-sidebar">
+    <div class="page redacao-page">
+      <% const hasTopics = Array.isArray(redacaoTopics) && redacaoTopics.length > 0; %>
+
+      <section class="redacao-hero">
+        <div class="redacao-hero__content">
+          <div class="redacao-badge">✍️ Painel de Redação</div>
+          <h1 class="redacao-hero__title">Registre cada treino e acompanhe sua evolução com mais clareza.</h1>
+          <p class="redacao-hero__subtitle">
+            Some competências, estime a nota final, ajuste seu tempo e mantenha uma rotina estratégica para chegar mais forte no ENEM e vestibulares.
+          </p>
+
+          <div class="redacao-hero__highlights">
+            <span class="redacao-chip">🎯 Feedback instantâneo</span>
+            <span class="redacao-chip">⏱️ Meta recomendada de tempo</span>
+            <span class="redacao-chip">📊 Progresso de preenchimento</span>
+          </div>
+        </div>
+
+        <div class="redacao-hero__panel">
+          <div class="redacao-kpi-card">
+            <span class="redacao-kpi-card__label">Tempo total</span>
+            <strong class="redacao-kpi-card__value" data-redacao-total-time>0min</strong>
+            <small class="redacao-kpi-card__hint">Calculado automaticamente</small>
+          </div>
+
+          <div class="redacao-kpi-card">
+            <span class="redacao-kpi-card__label">Soma ENEM</span>
+            <strong class="redacao-kpi-card__value" data-redacao-competencias-total>0</strong>
+            <small class="redacao-kpi-card__hint">Competências C1 a C5</small>
+          </div>
+
+          <div class="redacao-kpi-card">
+            <span class="redacao-kpi-card__label">Sugestão de nota</span>
+            <strong class="redacao-kpi-card__value" data-redacao-nota-sugerida>—</strong>
+            <small class="redacao-kpi-card__hint">Com base no preenchimento</small>
+          </div>
+
+          <div class="redacao-kpi-card">
+            <span class="redacao-kpi-card__label">Formulário</span>
+            <strong class="redacao-kpi-card__value"><span data-redacao-filled-count>0</span>/<span data-redacao-total-count>10</span></strong>
+            <small class="redacao-kpi-card__hint">Campos principais preenchidos</small>
+          </div>
+        </div>
+      </section>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="redacao-alert redacao-alert--error">❌ <%= erro %></div>
+      <% } %>
+
+      <% if (!hasTopics) { %>
+        <section class="redacao-empty">
+          <div class="redacao-empty__icon">🗂️</div>
+          <div class="redacao-empty__content">
+            <h2>Nenhum estilo de redação disponível no momento</h2>
+            <p>
+              Para registrar uma redação, é preciso ter ao menos um tipo/estilo cadastrado em <strong><%= redacaoSubject?.nome || 'Redação' %></strong>.
+              Quando os tópicos estiverem disponíveis, esta tela permitirá salvar normalmente pelo formulário padrão.
+            </p>
+            <div class="redacao-empty__tips">
+              <span class="redacao-chip">Verifique o cadastro de tópicos</span>
+              <span class="redacao-chip">Mantenha estilos como ENEM, UFSC, ACAFE</span>
+              <span class="redacao-chip">Volte aqui depois para registrar</span>
+            </div>
+          </div>
+        </section>
+      <% } else { %>
+        <section class="redacao-layout">
+          <section class="redacao-main">
+            <div class="redacao-card redacao-card--form">
+              <div class="redacao-section-head">
+                <div>
+                  <span class="redacao-section-head__eyebrow">Registro principal</span>
+                  <h2>Salvar nova redação</h2>
+                  <p>Preencha os dados abaixo para manter seu histórico completo.</p>
+                </div>
+                <div class="redacao-progress-box">
+                  <div class="redacao-progress-box__top">
+                    <span>Progresso</span>
+                    <strong data-redacao-progress-text>0%</strong>
+                  </div>
+                  <div class="redacao-progress">
+                    <span class="redacao-progress__bar" data-redacao-progress-bar></span>
+                  </div>
+                </div>
+              </div>
+
+              <form method="POST" action="/redacao" class="redacao-form" id="redacaoForm">
+                <div class="redacao-grid redacao-grid--2">
+                  <div class="redacao-field">
+                    <label for="redacao-data">Data</label>
+                    <input id="redacao-data" type="date" name="data" value="<%= hoje %>" required />
+                  </div>
+
+                  <div class="redacao-field">
+                    <label>Tempo dedicado</label>
+                    <div class="redacao-time-wrap">
+                      <div class="redacao-time-input">
+                        <input id="redacao-horas" type="number" name="horas" min="0" max="10" value="0" />
+                        <span>h</span>
+                      </div>
+                      <div class="redacao-time-input">
+                        <input id="redacao-minutos" type="number" name="minutos" min="0" max="59" value="30" />
+                        <span>min</span>
+                      </div>
+                    </div>
+                    <div class="redacao-quick-time">
+                      <button type="button" class="redacao-quick-time__btn" data-time-minutes="30">30m</button>
+                      <button type="button" class="redacao-quick-time__btn" data-time-minutes="60">1h</button>
+                      <button type="button" class="redacao-quick-time__btn" data-time-minutes="90">1h30</button>
+                      <button type="button" class="redacao-quick-time__btn" data-time-minutes="120">2h</button>
+                    </div>
+                    <div class="redacao-inline-feedback" data-redacao-time-feedback>Meta recomendada: entre 1h e 1h30 para treino completo.</div>
+                  </div>
+                </div>
+
+                <div class="redacao-grid redacao-grid--2">
+                  <div class="redacao-field">
+                    <label for="redacao-tema">Tema da redação <span class="redacao-field__optional">(visual)</span></label>
+                    <input id="redacao-tema" type="text" name="tema" placeholder="Ex: Desafios para combater a desinformação no Brasil" />
+                  </div>
+
+                  <div class="redacao-field">
+                    <label for="redacao-topic">Estilo / proposta</label>
+                    <select id="redacao-topic" name="topic_id" required>
+                      <option value="">Selecione um estilo</option>
+                      <% redacaoTopics.forEach(t => { %>
+                        <option value="<%= t.id %>"><%= t.nome %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="redacao-grid redacao-grid--2">
+                  <div class="redacao-field">
+                    <label for="redacao-nota">Nota final</label>
+                    <input id="redacao-nota" type="number" name="nota" min="0" step="0.1" placeholder="Ex: 760 ou 8.5" />
+                    <small class="redacao-help">Aceita ENEM (0 a 1000) ou escalas como ACAFE/UFSC.</small>
+                  </div>
+
+                  <div class="redacao-field">
+                    <label>Análise da nota</label>
+                    <div class="redacao-score-panel">
+                      <strong data-redacao-score-status>Preencha sua nota ou competências para ver um feedback.</strong>
+                      <span data-redacao-score-detail>Faixas sugeridas: abaixo de 600 exige reforço; acima de 800 indica excelente desempenho no padrão ENEM.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="redacao-card redacao-card--inner">
+                  <div class="redacao-section-head redacao-section-head--compact">
+                    <div>
+                      <span class="redacao-section-head__eyebrow">Competências ENEM</span>
+                      <h3>Avaliação detalhada</h3>
+                    </div>
+                    <div class="redacao-badge-soft">0 a 200 por competência</div>
+                  </div>
+
+                  <div class="redacao-competencias">
+                    <div class="redacao-competencia">
+                      <label for="redacao-c1">C1</label>
+                      <input id="redacao-c1" type="number" name="c1" min="0" max="200" step="0.1" placeholder="0" />
+                    </div>
+                    <div class="redacao-competencia">
+                      <label for="redacao-c2">C2</label>
+                      <input id="redacao-c2" type="number" name="c2" min="0" max="200" step="0.1" placeholder="0" />
+                    </div>
+                    <div class="redacao-competencia">
+                      <label for="redacao-c3">C3</label>
+                      <input id="redacao-c3" type="number" name="c3" min="0" max="200" step="0.1" placeholder="0" />
+                    </div>
+                    <div class="redacao-competencia">
+                      <label for="redacao-c4">C4</label>
+                      <input id="redacao-c4" type="number" name="c4" min="0" max="200" step="0.1" placeholder="0" />
+                    </div>
+                    <div class="redacao-competencia">
+                      <label for="redacao-c5">C5</label>
+                      <input id="redacao-c5" type="number" name="c5" min="0" max="200" step="0.1" placeholder="0" />
+                    </div>
+                  </div>
+
+                  <div class="redacao-competencias-summary">
+                    <div class="redacao-summary-pill">
+                      <span>Total calculado</span>
+                      <strong data-redacao-competencias-total-pill>0 pontos</strong>
+                    </div>
+                    <div class="redacao-summary-pill">
+                      <span>Média por competência</span>
+                      <strong data-redacao-competencias-media>0</strong>
+                    </div>
+                    <div class="redacao-summary-pill">
+                      <span>Competência mais crítica</span>
+                      <strong data-redacao-competencias-lowest>—</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="redacao-form__footer">
+                  <div class="redacao-submit-hint">
+                    <span class="redacao-badge-soft">Compatível com o backend atual</span>
+                    <p>Os campos obrigatórios continuam usando os mesmos names esperados pelo POST <strong>/redacao</strong>.</p>
+                  </div>
+                  <button type="submit" class="btn-primary redacao-submit-btn">Salvar redação</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <aside class="redacao-sidebar">
+            <div class="redacao-card">
+              <div class="redacao-section-head redacao-section-head--compact">
+                <div>
+                  <span class="redacao-section-head__eyebrow">Painel rápido</span>
+                  <h3>Indicadores ao vivo</h3>
+                </div>
+              </div>
+
+              <div class="redacao-side-metrics">
+                <div class="redacao-side-metric">
+                  <span>Tempo recomendado</span>
+                  <strong data-redacao-meta-tempo>1h a 1h30</strong>
+                </div>
+                <div class="redacao-side-metric">
+                  <span>Faixa atual</span>
+                  <strong data-redacao-faixa-atual>Em definição</strong>
+                </div>
+                <div class="redacao-side-metric">
+                  <span>Campos completos</span>
+                  <strong data-redacao-side-filled>0 de 10</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="redacao-card">
+              <div class="redacao-section-head redacao-section-head--compact">
+                <div>
+                  <span class="redacao-section-head__eyebrow">Checklist</span>
+                  <h3>Antes de salvar</h3>
+                </div>
+              </div>
+
+              <ul class="redacao-checklist" data-redacao-checklist>
+                <li data-check="data">Definiu a data do treino</li>
+                <li data-check="tempo">Registrou o tempo gasto</li>
+                <li data-check="topic_id">Selecionou o estilo da redação</li>
+                <li data-check="nota">Preencheu a nota final ou estimativa</li>
+                <li data-check="competencias">Avaliou ao menos uma competência</li>
+              </ul>
+            </div>
+
+            <div class="redacao-card">
+              <div class="redacao-section-head redacao-section-head--compact">
+                <div>
+                  <span class="redacao-section-head__eyebrow">Competências ENEM</span>
+                  <h3>O que observar</h3>
+                </div>
+              </div>
+
+              <div class="redacao-info-list">
+                <div class="redacao-info-item">
+                  <strong>C1</strong>
+                  <span>Norma padrão e domínio da escrita formal.</span>
+                </div>
+                <div class="redacao-info-item">
+                  <strong>C2</strong>
+                  <span>Compreensão da proposta e repertório sociocultural.</span>
+                </div>
+                <div class="redacao-info-item">
+                  <strong>C3</strong>
+                  <span>Seleção e organização dos argumentos.</span>
+                </div>
+                <div class="redacao-info-item">
+                  <strong>C4</strong>
+                  <span>Coesão textual e articulação entre as partes.</span>
+                </div>
+                <div class="redacao-info-item">
+                  <strong>C5</strong>
+                  <span>Proposta de intervenção completa e viável.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="redacao-card">
+              <div class="redacao-section-head redacao-section-head--compact">
+                <div>
+                  <span class="redacao-section-head__eyebrow">Estratégia</span>
+                  <h3>Dicas para melhorar</h3>
+                </div>
+              </div>
+
+              <div class="redacao-tips">
+                <div class="redacao-tip">
+                  <span class="redacao-tip__icon">🧠</span>
+                  <p>Treinos cronometrados ajudam a consolidar repertório e gestão de tempo.</p>
+                </div>
+                <div class="redacao-tip">
+                  <span class="redacao-tip__icon">📚</span>
+                  <p>Se a nota travar, revise por competência e não apenas pelo resultado final.</p>
+                </div>
+                <div class="redacao-tip">
+                  <span class="redacao-tip__icon">🔁</span>
+                  <p>Repita temas parecidos para comparar evolução real de argumentação.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </section>
+      <% } %>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      const form = document.getElementById('redacaoForm');
+      if (!form) return;
+
+      const fields = {
+        data: form.querySelector('[name="data"]'),
+        horas: form.querySelector('[name="horas"]'),
+        minutos: form.querySelector('[name="minutos"]'),
+        topicId: form.querySelector('[name="topic_id"]'),
+        nota: form.querySelector('[name="nota"]'),
+        tema: form.querySelector('[name="tema"]'),
+        competencias: [
+          form.querySelector('[name="c1"]'),
+          form.querySelector('[name="c2"]'),
+          form.querySelector('[name="c3"]'),
+          form.querySelector('[name="c4"]'),
+          form.querySelector('[name="c5"]')
+        ]
+      };
+
+      const totalTimeEl = document.querySelector('[data-redacao-total-time]');
+      const competenciasTotalEl = document.querySelector('[data-redacao-competencias-total]');
+      const competenciasTotalPillEl = document.querySelector('[data-redacao-competencias-total-pill]');
+      const competenciasMediaEl = document.querySelector('[data-redacao-competencias-media]');
+      const competenciasLowestEl = document.querySelector('[data-redacao-competencias-lowest]');
+      const notaSugeridaEl = document.querySelector('[data-redacao-nota-sugerida]');
+      const scoreStatusEl = document.querySelector('[data-redacao-score-status]');
+      const scoreDetailEl = document.querySelector('[data-redacao-score-detail]');
+      const progressBarEl = document.querySelector('[data-redacao-progress-bar]');
+      const progressTextEl = document.querySelector('[data-redacao-progress-text]');
+      const filledCountEls = document.querySelectorAll('[data-redacao-filled-count], [data-redacao-side-filled]');
+      const totalCountEl = document.querySelector('[data-redacao-total-count]');
+      const timeFeedbackEl = document.querySelector('[data-redacao-time-feedback]');
+      const metaTempoEl = document.querySelector('[data-redacao-meta-tempo]');
+      const faixaAtualEl = document.querySelector('[data-redacao-faixa-atual]');
+      const sideFilledEl = document.querySelector('[data-redacao-side-filled]');
+      const quickButtons = Array.from(document.querySelectorAll('.redacao-quick-time__btn'));
+      const checklist = {
+        data: document.querySelector('[data-check="data"]'),
+        tempo: document.querySelector('[data-check="tempo"]'),
+        topic_id: document.querySelector('[data-check="topic_id"]'),
+        nota: document.querySelector('[data-check="nota"]'),
+        competencias: document.querySelector('[data-check="competencias"]')
+      };
+
+      const trackedFields = [
+        fields.data,
+        fields.horas,
+        fields.minutos,
+        fields.topicId,
+        fields.nota,
+        fields.tema,
+        fields.competencias[0],
+        fields.competencias[1],
+        fields.competencias[2],
+        fields.competencias[3]
+      ].filter(Boolean);
+
+      const totalTracked = trackedFields.length;
+      if (totalCountEl) totalCountEl.textContent = totalTracked;
+
+      function normalizeNumber(value) {
+        const parsed = parseFloat(String(value || '').replace(',', '.'));
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function hasValue(input) {
+        return !!(input && String(input.value || '').trim() !== '');
+      }
+
+      function formatTime(totalMinutes) {
+        const minutes = Math.max(0, totalMinutes);
+        const hours = Math.floor(minutes / 60);
+        const rest = minutes % 60;
+        if (hours <= 0) return rest + 'min';
+        if (rest === 0) return hours + 'h';
+        return hours + 'h ' + rest + 'min';
+      }
+
+      function getFilledCount() {
+        return trackedFields.reduce(function(acc, input) {
+          return acc + (hasValue(input) ? 1 : 0);
+        }, 0);
+      }
+
+      function getCompetenciasData() {
+        return fields.competencias.map(function(input, index) {
+          return {
+            key: 'C' + (index + 1),
+            value: normalizeNumber(input ? input.value : 0),
+            filled: hasValue(input)
+          };
+        });
+      }
+
+      function updateQuickButtons(totalMinutes) {
+        quickButtons.forEach(function(button) {
+          const buttonMinutes = Number(button.getAttribute('data-time-minutes') || 0);
+          button.classList.toggle('is-active', buttonMinutes === totalMinutes);
+        });
+      }
+
+      function updateChecklist(item, done) {
+        if (!item) return;
+        item.classList.toggle('is-done', !!done);
+      }
+
+      function updateUI() {
+        const horas = Math.max(0, Math.floor(normalizeNumber(fields.horas.value)));
+        let minutos = Math.max(0, Math.floor(normalizeNumber(fields.minutos.value)));
+
+        if (minutos > 59) {
+          const extraHours = Math.floor(minutos / 60);
+          minutos = minutos % 60;
+          fields.horas.value = horas + extraHours;
+          fields.minutos.value = minutos;
+        }
+
+        const totalMinutes = (Math.max(0, Math.floor(normalizeNumber(fields.horas.value))) * 60) + Math.max(0, Math.floor(normalizeNumber(fields.minutos.value)));
+        if (totalTimeEl) totalTimeEl.textContent = formatTime(totalMinutes);
+        updateQuickButtons(totalMinutes);
+
+        let recommendedText = 'Meta recomendada: entre 1h e 1h30 para treino completo.';
+        if (totalMinutes === 0) {
+          recommendedText = 'Defina o tempo do treino para comparar com a meta recomendada.';
+        } else if (totalMinutes < 60) {
+          recommendedText = 'Treino curto: bom para rascunho ou correção focada, mas abaixo da meta completa.';
+        } else if (totalMinutes <= 90) {
+          recommendedText = 'Ótimo ritmo: seu tempo está dentro da faixa recomendada para uma redação completa.';
+        } else if (totalMinutes <= 120) {
+          recommendedText = 'Tempo acima da meta ideal: válido para treino detalhado e revisão.';
+        } else {
+          recommendedText = 'Treino longo: observe se há perda de objetividade ou excesso de tempo no planejamento.';
+        }
+
+        if (timeFeedbackEl) timeFeedbackEl.textContent = recommendedText;
+        if (metaTempoEl) metaTempoEl.textContent = totalMinutes >= 60 && totalMinutes <= 90 ? 'Dentro da meta ideal' : '1h a 1h30';
+
+        const competencias = getCompetenciasData();
+        const preenchidas = competencias.filter(function(item) { return item.filled; });
+        const totalCompetencias = competencias.reduce(function(sum, item) { return sum + item.value; }, 0);
+        const mediaCompetencias = preenchidas.length ? (totalCompetencias / preenchidas.length) : 0;
+        const menorCompetencia = preenchidas.length
+          ? preenchidas.reduce(function(prev, current) { return current.value < prev.value ? current : prev; })
+          : null;
+
+        if (competenciasTotalEl) competenciasTotalEl.textContent = totalCompetencias.toFixed(totalCompetencias % 1 === 0 ? 0 : 1);
+        if (competenciasTotalPillEl) competenciasTotalPillEl.textContent = totalCompetencias.toFixed(totalCompetencias % 1 === 0 ? 0 : 1) + ' pontos';
+        if (competenciasMediaEl) competenciasMediaEl.textContent = mediaCompetencias ? mediaCompetencias.toFixed(mediaCompetencias % 1 === 0 ? 0 : 1) : '0';
+        if (competenciasLowestEl) competenciasLowestEl.textContent = menorCompetencia ? (menorCompetencia.key + ' • ' + menorCompetencia.value.toFixed(menorCompetencia.value % 1 === 0 ? 0 : 1)) : '—';
+
+        const notaDigitada = hasValue(fields.nota) ? normalizeNumber(fields.nota.value) : null;
+        let notaSugerida = null;
+        if (totalCompetencias > 0) {
+          notaSugerida = totalCompetencias;
+        } else if (notaDigitada !== null) {
+          notaSugerida = notaDigitada;
+        }
+
+        if (notaSugeridaEl) {
+          notaSugeridaEl.textContent = notaSugerida !== null ? notaSugerida.toFixed(notaSugerida % 1 === 0 ? 0 : 1) : '—';
+        }
+
+        let faixa = 'Em definição';
+        let status = 'Preencha sua nota ou competências para ver um feedback.';
+        let detail = 'Faixas sugeridas: abaixo de 600 exige reforço; acima de 800 indica excelente desempenho no padrão ENEM.';
+
+        if (notaSugerida !== null) {
+          if (notaSugerida <= 10) {
+            if (notaSugerida < 6) {
+              faixa = 'Abaixo do esperado';
+              status = 'Seu desempenho ainda está em consolidação.';
+              detail = 'Em escalas de 0 a 10, uma nota abaixo de 6 pede reforço estrutural e revisão de argumentação.';
+            } else if (notaSugerida < 8) {
+              faixa = 'Bom caminho';
+              status = 'Você está evoluindo com consistência.';
+              detail = 'Na faixa intermediária, vale focar em repertório, coesão e aprofundamento dos argumentos.';
+            } else {
+              faixa = 'Excelente nível';
+              status = 'Ótimo desempenho para essa escala.';
+              detail = 'Mantenha a constância e refine detalhes de estilo, proposta e intervenção.';
+            }
+          } else {
+            if (notaSugerida < 600) {
+              faixa = 'Base em construção';
+              status = 'Sua redação ainda precisa de ajustes mais estruturais.';
+              detail = 'Priorize domínio da proposta, organização dos parágrafos e clareza argumentativa.';
+            } else if (notaSugerida < 800) {
+              faixa = 'Bom desempenho';
+              status = 'Você já tem uma boa base e pode buscar maior consistência.';
+              detail = 'Aperfeiçoe repertório, coesão e proposta de intervenção para subir de faixa.';
+            } else if (notaSugerida < 900) {
+              faixa = 'Muito forte';
+              status = 'Seu resultado está competitivo.';
+              detail = 'Ajustes finos nas competências podem aproximar sua redação das notas de excelência.';
+            } else {
+              faixa = 'Faixa de excelência';
+              status = 'Excelente desempenho no padrão ENEM.';
+              detail = 'Continue treinando para manter constância e evitar oscilações entre temas.';
+            }
+          }
+        }
+
+        if (scoreStatusEl) scoreStatusEl.textContent = status;
+        if (scoreDetailEl) scoreDetailEl.textContent = detail;
+        if (faixaAtualEl) faixaAtualEl.textContent = faixa;
+
+        const filledCount = getFilledCount();
+        const progress = totalTracked ? Math.round((filledCount / totalTracked) * 100) : 0;
+
+        document.querySelectorAll('[data-redacao-filled-count]').forEach(function(el) {
+          el.textContent = filledCount;
+        });
+
+        if (sideFilledEl) sideFilledEl.textContent = filledCount + ' de ' + totalTracked;
+        if (progressTextEl) progressTextEl.textContent = progress + '%';
+        if (progressBarEl) progressBarEl.style.width = progress + '%';
+
+        updateChecklist(checklist.data, hasValue(fields.data));
+        updateChecklist(checklist.tempo, totalMinutes > 0);
+        updateChecklist(checklist.topic_id, hasValue(fields.topicId));
+        updateChecklist(checklist.nota, hasValue(fields.nota));
+        updateChecklist(checklist.competencias, preenchidas.length > 0);
+      }
+
+      quickButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          const total = Number(button.getAttribute('data-time-minutes') || 0);
+          const horas = Math.floor(total / 60);
+          const minutos = total % 60;
+          fields.horas.value = horas;
+          fields.minutos.value = minutos;
+          updateUI();
+        });
+      });
+
+      form.querySelectorAll('input, select').forEach(function(input) {
+        input.addEventListener('input', updateUI);
+        input.addEventListener('change', updateUI);
+      });
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

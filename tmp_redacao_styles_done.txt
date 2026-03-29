@@ -1,0 +1,1 @@
+redacao-styles completed modification for src/public/css/app/redacao.css

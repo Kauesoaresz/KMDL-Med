@@ -38,7 +38,15 @@ router.get("/registrar/editar/:data", auth, study.editPage);
 router.post("/registrar/editar/:data", auth, study.editSave);
 router.post("/registrar/excluir/:data", auth, study.deleteDay);
 
+// =========================
+// REDAÇÃO
+// =========================
+router.get("/redacao", auth, study.redacaoPage);
+router.post("/redacao", auth, study.redacaoSave);
 
+// =========================
+// REVISÕES
+// =========================
 router.get("/revisoes", auth, reviewController.index);
 router.post("/revisoes/registrar", auth, reviewController.registrarRevisao);
 router.get("/revisoes/hoje", auth, reviewController.listarRevisoesHoje);

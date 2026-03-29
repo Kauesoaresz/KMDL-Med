@@ -1,5 +1,6 @@
 const { StudyEntry, Subject, Topic, Subtopic } = require("../models");
 const sequelize = require("../config/database");
+const { Op } = require("sequelize");
 
 function ensureInt(v) {
   const n = parseInt(v, 10);
@@ -249,4 +250,86 @@ exports.deleteDay = async (req, res) => {
   });
 
   res.redirect("/registrar/lista");
+};
+
+// =========================
+// REDAÇÃO PAGE
+// =========================
+exports.redacaoPage = async (req, res) => {
+  const userId = req.session.userId;
+
+  const redacaoSubject = await Subject.findOne({
+    where: {
+      user_id: userId,
+      nome: 'Redação'
+    }
+  });
+
+  let redacaoTopics = [];
+  if (redacaoSubject) {
+  redacaoTopics = await Topic.findAll({
+      where: {
+        user_id: userId,
+        subject_id: redacaoSubject.id
+      },
+      order: [["nome", "ASC"]]
+    });
+  }
+
+  const hoje = new Date().toISOString().slice(0, 10);
+
+const defaults = {
+  redacaoSubject: redacaoSubject || null,
+  redacaoTopics: Array.isArray(redacaoTopics) ? redacaoTopics : [],
+  hoje: hoje || new Date().toISOString().slice(0, 10),
+  erro: null,
+  active: "redacao",
+  userNome: req.session.userNome || 'Usuário',
+  userFoto: req.session.userFoto || '/public/img/avatar-default.png'
+};
+res.render("app/redacao", defaults);
+};
+
+// =========================
+// REDAÇÃO SAVE
+// =========================
+exports.redacaoSave = async (req, res) => {
+  const userId = req.session.userId;
+  const { data, horas, minutos, topic_id, nota, estilo } = req.body;
+
+  const totalHoras = parseFloat(horas || 0) + parseFloat(minutos || 0) / 60;
+
+  if (!data || totalHoras <= 0 || !topic_id) {
+    return res.redirect('/redacao?erro=Dados inválidos');
+  }
+
+  // Find subject and topic
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: 'Redação' }
+  });
+
+  const topic = await Topic.findOne({
+    where: { id: ensureInt(topic_id), user_id: userId }
+  });
+
+  if (!redacaoSubject || !topic) {
+    return res.redirect('/redacao?erro=Matéria ou estilo não encontrado');
+  }
+
+  // Create entry: questoes=1 (redação), acertos = nota normalized 0-10
+  const acertos = nota ? Math.min(parseFloat(nota) / 100, 10) : 0;
+
+  await StudyEntry.create({
+    user_id: userId,
+    data,
+    subject_id: redacaoSubject.id,
+    topic_id: topic.id,
+    subtopic_id: null,
+    horas: totalHoras,
+    questoes: 1,
+    acertos: acertos > 10 ? 1 : acertos, // cap at 10/10
+    dificuldade: 'MEDIA'
+  });
+
+  res.redirect('/dashboard');
 };

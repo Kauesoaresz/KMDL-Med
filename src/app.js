@@ -29,6 +29,10 @@ const app = express();
 // =========================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+// Development: disable cache
+if (process.env.NODE_ENV !== 'production') {
+  app.set('view cache', false);
+}
 
 // =========================
 // HELPER FUNCTIONS GLOBAL
