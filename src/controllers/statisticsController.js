@@ -767,7 +767,10 @@ async function calcEstatisticasRedacaoAvancadas(userId, period) {
   const where = {
     user_id: userId,
     subject_id: redacaoSubject.id,
-    redacao_nota: { [Op.ne]: null }
+    [Op.or]: [
+      { redacao_nota: { [Op.ne]: null } },
+      { redacao_total_competencias: { [Op.ne]: null } }
+    ]
   };
 
   if (dateLimit) {
@@ -837,10 +840,19 @@ async function calcEstatisticasRedacaoAvancadas(userId, period) {
   // Correlação tempo x nota (simples)
   const correlData = await StudyEntry.findAll({
     where,
-    attributes: ['horas', 'redacao_nota'],
+    attributes: ['horas', 'redacao_nota', 'redacao_total_competencias'],
     raw: true
   });
-  const correl = correlData.length > 1 ? simpleCorrelation(correlData.map(r => ({x: r.horas, y: r.redacao_nota}))) : 0;
+  const correlPoints = correlData
+    .map((r) => {
+      const x = Number(r.horas || 0);
+      const yRaw = r.redacao_nota != null ? r.redacao_nota : r.redacao_total_competencias;
+      const y = Number(yRaw || 0);
+      return { x, y };
+    })
+    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && p.x > 0 && p.y > 0);
+
+  const correl = correlPoints.length > 1 ? simpleCorrelation(correlPoints) : 0;
 
   // Streak de redações (dias consecutivos com redação)
   const redStreak = await calcRedacaoStreak(userId, redacaoSubject.id);
