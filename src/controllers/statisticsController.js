@@ -582,6 +582,126 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
 }
 
 // =========================
+// ESTATÍSTICAS REDAÇÃO
+// =========================
+async function calcEstatisticasRedacao(userId, period) {
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: 'Redação' }
+  });
+
+  if (!redacaoSubject) {
+    return {
+      total: 0,
+      horas: 0,
+      mediaNota: 0,
+      notaMin: null,
+      notaMax: null,
+      totalCompetencias: 0,
+      mediaCompetencias: 0,
+      mediaC1: null,
+      mediaC2: null,
+      mediaC3: null,
+      mediaC4: null,
+      mediaC5: null,
+      ultimasRedacoes: []
+    };
+  }
+
+  const dateLimit = getDateLimit(period);
+  const redacaoWhere = {
+    user_id: userId,
+    subject_id: redacaoSubject.id,
+    [Op.or]: [
+      { redacao_nota: { [Op.ne]: null } },
+      { c1: { [Op.ne]: null } },
+      { c2: { [Op.ne]: null } },
+      { c3: { [Op.ne]: null } },
+      { c4: { [Op.ne]: null } },
+      { c5: { [Op.ne]: null } }
+    ]
+  };
+
+  if (dateLimit) {
+    redacaoWhere.data = { [Op.gte]: dateLimit };
+  }
+
+  const [summary] = await StudyEntry.findAll({
+    where: redacaoWhere,
+    attributes: [
+      [fn('COUNT', col('id')), 'total_redacoes'],
+      [fn('SUM', col('horas')), 'horas'],
+      [fn('AVG', col('redacao_nota')), 'media_nota'],
+      [fn('MIN', col('redacao_nota')), 'nota_min'],
+      [fn('MAX', col('redacao_nota')), 'nota_max'],
+      [fn('SUM', col('redacao_total_competencias')), 'total_competencias'],
+      [fn('AVG', col('redacao_media_competencias')), 'media_competencias'],
+      [fn('AVG', col('c1')), 'media_c1'],
+      [fn('AVG', col('c2')), 'media_c2'],
+      [fn('AVG', col('c3')), 'media_c3'],
+      [fn('AVG', col('c4')), 'media_c4'],
+      [fn('AVG', col('c5')), 'media_c5']
+    ],
+    raw: true
+  });
+
+  const ultimasRedacoesRaw = await StudyEntry.findAll({
+    where: redacaoWhere,
+    order: [['data', 'DESC']],
+    limit: 20,
+    include: [{ model: Topic, as: 'topic', attributes: ['nome'] }],
+    raw: false
+  });
+
+  const ultimasRedacoes = ultimasRedacoesRaw.map(r => ({
+    data: r.data,
+    tema: r.tema || 'Não informado',
+    estilo: r.topic?.nome || 'Redação',
+    nota: r.redacao_nota != null ? r.redacao_nota : (r.acertos != null ? r.acertos * 100 : null),
+    c1: r.c1,
+    c2: r.c2,
+    c3: r.c3,
+    c4: r.c4,
+    c5: r.c5,
+    totalCompetencias: r.redacao_total_competencias,
+    mediaCompetencias: r.redacao_media_competencias,
+    horas: r.horas
+  }));
+
+  const notasMaiores = ultimasRedacoes
+    .map(r => Number(r.nota || 0))
+    .filter(n => n > 0)
+    .sort((a, b) => b - a);
+
+  const metas = ultimasRedacoes.reduce((acc, r) => {
+    const nota = Number(r.nota || 0);
+    if (nota >= 600) acc.ate600++;
+    if (nota >= 700) acc.ate700++;
+    if (nota >= 800) acc.ate800++;
+    return acc;
+  }, { ate600: 0, ate700: 0, ate800: 0 });
+
+  return {
+    total: Number(summary?.total_redacoes || 0),
+    horas: Number(summary?.horas || 0),
+    mediaNota: summary?.media_nota ? Number(Number(summary.media_nota).toFixed(1)) : 0,
+    notaMin: summary?.nota_min ? Number(summary.nota_min) : null,
+    notaMax: summary?.nota_max ? Number(summary.nota_max) : null,
+    totalCompetencias: Number(summary?.total_competencias || 0),
+    mediaCompetencias: summary?.media_competencias ? Number(Number(summary.media_competencias).toFixed(1)) : 0,
+    mediaC1: summary?.media_c1 ? Number(Number(summary.media_c1).toFixed(1)) : null,
+    mediaC2: summary?.media_c2 ? Number(Number(summary.media_c2).toFixed(1)) : null,
+    mediaC3: summary?.media_c3 ? Number(Number(summary.media_c3).toFixed(1)) : null,
+    mediaC4: summary?.media_c4 ? Number(Number(summary.media_c4).toFixed(1)) : null,
+    mediaC5: summary?.media_c5 ? Number(Number(summary.media_c5).toFixed(1)) : null,
+    melhorNota: notasMaiores[0] || null,
+    piorNota: notasMaiores.length ? notasMaiores[notasMaiores.length - 1] : null,
+    porcentagem800: ultimasRedacoes.length ? Math.round((metas.ate800 / ultimasRedacoes.length) * 100) : 0,
+    porcentagem700: ultimasRedacoes.length ? Math.round((metas.ate700 / ultimasRedacoes.length) * 100) : 0,
+    ultimasRedacoes
+  };
+}
+
+// =========================
 // PÁGINA PRINCIPAL
 // =========================
 exports.geral = async (req, res) => {
@@ -621,6 +741,9 @@ exports.geral = async (req, res) => {
 
   // Conquistas
   const conquistas = await calcConquistas(userId);
+
+  // Redação
+  const redacao = await calcEstatisticasRedacao(userId, period);
 
   res.render("app/statistics", {
     active: "estatisticas",
@@ -739,6 +862,24 @@ exports.conteudo = async (req, res) => {
 
     // Evolução
     evolucao
+  });
+};
+
+// =========================
+// REDAÇÃO
+// =========================
+exports.redacao = async (req, res) => {
+  const userId = req.session.userId;
+  const period = req.query.period || 'all';
+
+  const redacao = await calcEstatisticasRedacao(userId, period);
+
+  res.render('app/estatisticas-redacao', {
+    active: 'estatisticas',
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto,
+    period,
+    redacao
   });
 };
 

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>KMed | Estatísticas de Redação</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/public/css/components/theme.css">
+  <link rel="stylesheet" href="/public/css/components/sidebar.css">
+  <link rel="stylesheet" href="/public/css/app/estatisticas-conteudo.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="page-bg">
+
+<%- include("../partials/sidebar", {
+  active: "estatisticas",
+  userNome,
+  userFoto
+}) %>
+
+<main class="with-sidebar">
+  <div class="page conteudo-page">
+    <header class="conteudo-header">
+      <div class="header-content">
+        <h1>📝 Estatísticas de Redação</h1>
+        <p class="sub">Visualize notas, competências e evolução das redações.</p>
+      </div>
+      <div class="period-filter">
+        <a href="/estatisticas/redacao?period=week" class="filter-btn <%= period === 'week' ? 'active' : '' %>">
+          <span class="filter-icon">📅</span> Essa Semana
+        </a>
+        <a href="/estatisticas/redacao?period=month" class="filter-btn <%= period === 'month' ? 'active' : '' %>">
+          <span class="filter-icon">🗓️</span> Esse Mês
+        </a>
+        <a href="/estatisticas/redacao?period=all" class="filter-btn <%= period === 'all' ? 'active' : '' %>">
+          <span class="filter-icon">∞</span> Total
+        </a>
+      </div>
+    </header>
+
+    <section class="stats-cards-grid">
+      <div class="stat-card main-card tempo">
+        <div class="card-icon">📝</div>
+        <div class="card-content">
+          <span class="card-label">Redações Válidas</span>
+          <div class="card-value"><%= redacao.total %></div>
+          <div class="card-sub">Notas ou competências preenchidas</div>
+        </div>
+        <div class="card-badge">Últimas 20</div>
+      </div>
+
+      <div class="stat-card main-card questoes">
+        <div class="card-icon">⏱️</div>
+        <div class="card-content">
+          <span class="card-label">Horas registradas</span>
+          <div class="card-value"><%= Math.floor(redacao.horas) %>h <%= Math.round((redacao.horas - Math.floor(redacao.horas))*60) %>min</div>
+          <div class="card-sub">Total de tempo em redações</div>
+        </div>
+        <div class="card-badge">Média <%= redacao.total > 0 ? (redacao.horas/redacao.total).toFixed(2) : 0 %>h</div>
+      </div>
+
+      <div class="stat-card main-card media">
+        <div class="card-icon">🏅</div>
+        <div class="card-content">
+          <span class="card-label">Nota média</span>
+          <div class="card-value"><%= redacao.mediaNota || '—' %></div>
+          <div class="card-sub">Escala ENEM/ACAFE</div>
+        </div>
+        <div class="card-badge">Melhor <%= redacao.melhorNota || '—' %> | Pior <%= redacao.piorNota || '—' %></div>
+      </div>
+
+      <div class="stat-card main-card materias">
+        <div class="card-icon">📊</div>
+        <div class="card-content">
+          <span class="card-label">Competências média</span>
+          <div class="card-value"><%= redacao.mediaCompetencias || '—' %></div>
+          <div class="card-sub">C1–C5</div>
+        </div>
+        <div class="card-badge">≥800: <%= redacao.porcentagem800 || 0 %>%  | ≥700: <%= redacao.porcentagem700 || 0 %>%</div>
+      </div>
+    </section>
+
+    <section class="rankings-section">
+      <div class="ranking-card melhores" style="width:100%;margin-top:1rem;">
+        <div class="ranking-header">
+          <h2>📌 Médias por competência</h2>
+          <span class="ranking-sub">C1 a C5</span>
+        </div>
+        <div class="ranking-list">
+          <div class="ranking-item">C1: <strong><%= redacao.mediaC1 != null ? redacao.mediaC1.toFixed(1) : '—' %></strong></div>
+          <div class="ranking-item">C2: <strong><%= redacao.mediaC2 != null ? redacao.mediaC2.toFixed(1) : '—' %></strong></div>
+          <div class="ranking-item">C3: <strong><%= redacao.mediaC3 != null ? redacao.mediaC3.toFixed(1) : '—' %></strong></div>
+          <div class="ranking-item">C4: <strong><%= redacao.mediaC4 != null ? redacao.mediaC4.toFixed(1) : '—' %></strong></div>
+          <div class="ranking-item">C5: <strong><%= redacao.mediaC5 != null ? redacao.mediaC5.toFixed(1) : '—' %></strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid" style="margin-top:1.5rem; gap:16px; display:flex; flex-wrap:wrap;">
+      <div class="chart-card" style="flex:1 1 260px; min-width:260px;">
+        <div class="chart-header">
+          <h2>📈 Evolução de nota</h2>
+          <span class="chart-sub">Últimas redações</span>
+        </div>
+        <div class="chart-container" style="height: 260px;">
+          <canvas id="notaLinhaChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card" style="flex:1 1 260px; min-width:260px;">
+        <div class="chart-header">
+          <h2>🧩 Competências</h2>
+          <span class="chart-sub">Média C1–C5</span>
+        </div>
+        <div class="chart-container" style="height: 260px;">
+          <canvas id="competenciasRadarChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid" style="margin-top:1.5rem;">
+      <div class="chart-card" style="width:100%; padding:1rem;">
+        <div class="chart-header">
+          <h2>🗂️ Últimas redações</h2>
+          <span class="chart-sub">Data, nota, competências e estilo</span>
+        </div>
+
+        <% if (redacao.ultimasRedacoes && redacao.ultimasRedacoes.length > 0) { %>
+          <div class="table-responsive" style="overflow-x:auto;">
+            <table class="table-stats" style="width:100%; border-collapse: collapse; font-size: 0.95rem;">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Estilo</th>
+                  <th>Nota</th>
+                  <th>C1</th>
+                  <th>C2</th>
+                  <th>C3</th>
+                  <th>C4</th>
+                  <th>C5</th>
+                  <th>Total</th>
+                  <th>Média</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% redacao.ultimasRedacoes.forEach(function(row){ %>
+                  <tr>
+                    <td><%= new Date(row.data).toLocaleDateString('pt-BR') %></td>
+                    <td><%= row.estilo %></td>
+                    <td><%= row.nota != null ? row.nota : '—' %></td>
+                    <td><%= row.c1 != null ? row.c1 : '—' %></td>
+                    <td><%= row.c2 != null ? row.c2 : '—' %></td>
+                    <td><%= row.c3 != null ? row.c3 : '—' %></td>
+                    <td><%= row.c4 != null ? row.c4 : '—' %></td>
+                    <td><%= row.c5 != null ? row.c5 : '—' %></td>
+                    <td><%= row.totalCompetencias != null ? row.totalCompetencias : '—' %></td>
+                    <td><%= row.mediaCompetencias != null ? row.mediaCompetencias : '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p>Ainda não há registros de redação no período selecionado.</p>
+        <% } %>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const redacoesData = <%- JSON.stringify(redacao.ultimasRedacoes || []) %>;
+  const radGrade = ["C1", "C2", "C3", "C4", "C5"];
+
+  const notaCanvas = document.getElementById('notaLinhaChart');
+  if (notaCanvas && redacoesData.length > 0) {
+    const sorted = [...redacoesData].sort((a, b) => new Date(a.data) - new Date(b.data));
+    new Chart(notaCanvas, {
+      type: 'line',
+      data: {
+        labels: sorted.map(r => new Date(r.data).toLocaleDateString('pt-BR')),
+        datasets: [{
+          label: 'Nota',
+          data: sorted.map(r => r.nota || 0),
+          borderColor: 'rgba(37, 99, 235, 0.85)',
+          backgroundColor: 'rgba(37, 99, 235, 0.25)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3
+        }, {
+          label: 'Total competencias',
+          data: sorted.map(r => r.totalCompetencias || 0),
+          borderColor: 'rgba(34, 197, 94, 0.9)',
+          backgroundColor: 'rgba(34, 197, 94, 0.2)',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            suggestedMax: 1000,
+            ticks: { color: '#9ca3af' }
+          },
+          x: { ticks: { color: '#9ca3af' } }
+        },
+        plugins: {
+          legend: { labels: { color: '#d1d5db' } }
+        }
+      }
+    });
+  }
+
+  const compCanvas = document.getElementById('competenciasRadarChart');
+  if (compCanvas) {
+    const mean = [redacao.mediaC1 || 0, redacao.mediaC2 || 0, redacao.mediaC3 || 0, redacao.mediaC4 || 0, redacao.mediaC5 || 0];
+
+    new Chart(compCanvas, {
+      type: 'radar',
+      data: {
+        labels: radGrade,
+        datasets: [{
+          label: 'Média competências',
+          data: mean,
+          backgroundColor: 'rgba(249, 115, 22, 0.25)',
+          borderColor: 'rgba(249, 115, 22, 0.9)',
+          pointBackgroundColor: 'rgba(249, 115, 22, 0.9)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(249, 115, 22, 0.9)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            angleLines: { color: 'rgba(148, 163, 184, 0.3)' },
+            grid: { color: 'rgba(148, 163, 184, 0.2)' },
+            pointLabels: { color: '#cbd5e1' },
+            ticks: { color: '#94a3b8' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#d1d5db' } }
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>
+

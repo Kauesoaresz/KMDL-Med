@@ -16,6 +16,16 @@ const StudyEntry = sequelize.define(
     questoes: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
     acertos: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 
+    // Redação (ENEM / Competências)
+    redacao_nota: { type: DataTypes.DECIMAL(7, 2), allowNull: true },
+    c1: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+    c2: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+    c3: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+    c4: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+    c5: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+    redacao_total_competencias: { type: DataTypes.DECIMAL(7, 2), allowNull: true },
+    redacao_media_competencias: { type: DataTypes.DECIMAL(7, 2), allowNull: true },
+
     dificuldade: {
       type: DataTypes.ENUM("MUITO_FACIL", "FACIL", "MEDIA", "DIFICIL", "MUITO_DIFICIL"),
       allowNull: false,

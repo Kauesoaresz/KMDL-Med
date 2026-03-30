@@ -295,7 +295,7 @@ res.render("app/redacao", defaults);
 // =========================
 exports.redacaoSave = async (req, res) => {
   const userId = req.session.userId;
-  const { data, horas, minutos, topic_id, nota, estilo } = req.body;
+  const { data, horas, minutos, topic_id, nota, estilo, c1, c2, c3, c4, c5 } = req.body;
 
   const totalHoras = parseFloat(horas || 0) + parseFloat(minutos || 0) / 60;
 
@@ -316,8 +316,24 @@ exports.redacaoSave = async (req, res) => {
     return res.redirect('/redacao?erro=Matéria ou estilo não encontrado');
   }
 
-  // Create entry: questoes=1 (redação), acertos = nota normalized 0-10
-  const acertos = nota ? Math.min(parseFloat(nota) / 100, 10) : 0;
+  const competencias = [c1, c2, c3, c4, c5].map(value => {
+    const v = parseFloat(value || 0);
+    return Number.isFinite(v) ? Math.max(0, Math.min(v, 200)) : null;
+  });
+
+  const competenciasValidas = competencias.filter(v => v !== null && !Number.isNaN(v));
+  const totalCompetencias = competenciasValidas.reduce((sum, v) => sum + v, 0);
+  const mediaCompetencias = competenciasValidas.length > 0 ? totalCompetencias / competenciasValidas.length : null;
+
+  const notaCompetencias = totalCompetencias > 0 ? totalCompetencias : null;
+  const notaFinal = nota ? Number(nota) : notaCompetencias;
+
+  // Convert nota 0-1000 to 0-10 acertos; if valor é 0-10, também funciona de forma robusta
+  let acertos = 0;
+  if (notaFinal != null && !Number.isNaN(Number(notaFinal))) {
+    const n = Number(notaFinal);
+    acertos = n > 100 ? Math.min(n / 100, 10) : Math.min(n, 10);
+  }
 
   await StudyEntry.create({
     user_id: userId,
@@ -327,8 +343,16 @@ exports.redacaoSave = async (req, res) => {
     subtopic_id: null,
     horas: totalHoras,
     questoes: 1,
-    acertos: acertos > 10 ? 1 : acertos, // cap at 10/10
-    dificuldade: 'MEDIA'
+    acertos: acertos,
+    dificuldade: 'MEDIA',
+    redacao_nota: notaFinal || null,
+    c1: competencias[0],
+    c2: competencias[1],
+    c3: competencias[2],
+    c4: competencias[3],
+    c5: competencias[4],
+    redacao_total_competencias: totalCompetencias || null,
+    redacao_media_competencias: mediaCompetencias || null
   });
 
   res.redirect('/dashboard');
