@@ -25,6 +25,8 @@ const StudyEntry = sequelize.define(
     c5: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
     redacao_total_competencias: { type: DataTypes.DECIMAL(7, 2), allowNull: true },
     redacao_media_competencias: { type: DataTypes.DECIMAL(7, 2), allowNull: true },
+    tema: { type: DataTypes.STRING(255), allowNull: true },
+    redacao_comentario: { type: DataTypes.TEXT, allowNull: true },
 
     dificuldade: {
       type: DataTypes.ENUM("MUITO_FACIL", "FACIL", "MEDIA", "DIFICIL", "MUITO_DIFICIL"),

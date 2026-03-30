@@ -115,22 +115,24 @@
                 </div>
               </div>
 
-              <form method="POST" action="/redacao" class="redacao-form" id="redacaoForm">
+<form method="POST" action="<%= (editing || false) ? '/redacao/editar/' + (entryId || '') : '/redacao' %>" class="redacao-form" id="redacaoForm">
+
                 <div class="redacao-grid redacao-grid--2">
-                  <div class="redacao-field">
+  <div class="redacao-field">
                     <label for="redacao-data">Data</label>
-                    <input id="redacao-data" type="date" name="data" value="<%= hoje %>" required />
+                    <input id="redacao-data" type="date" name="data" value="<%= prefill?.data || hoje %>" required />
+
                   </div>
 
                   <div class="redacao-field">
                     <label>Tempo dedicado</label>
                     <div class="redacao-time-wrap">
                       <div class="redacao-time-input">
-                        <input id="redacao-horas" type="number" name="horas" min="0" max="10" value="0" />
+                        <input id="redacao-horas" type="number" name="horas" min="0" max="10" value="<%= prefill?.horas || 0 %>" />
                         <span>h</span>
                       </div>
                       <div class="redacao-time-input">
-                        <input id="redacao-minutos" type="number" name="minutos" min="0" max="59" value="30" />
+                        <input id="redacao-minutos" type="number" name="minutos" min="0" max="59" value="<%= prefill?.minutos || 30 %>" />
                         <span>min</span>
                       </div>
                     </div>
@@ -146,16 +148,17 @@
 
                 <div class="redacao-grid redacao-grid--2">
                   <div class="redacao-field">
-                    <label for="redacao-tema">Tema da redação <span class="redacao-field__optional">(visual)</span></label>
-                    <input id="redacao-tema" type="text" name="tema" placeholder="Ex: Desafios para combater a desinformação no Brasil" />
+                    <label for="redacao-tema">Tema da redação <span class="redacao-field__required">requerido</span></label>
+                    <input id="redacao-tema" type="text" name="tema" value="<%= prefill?.tema || '' %>" placeholder="Ex: Desafios para combater a desinformação no Brasil" required />
+
                   </div>
 
                   <div class="redacao-field">
                     <label for="redacao-topic">Estilo / proposta</label>
-                    <select id="redacao-topic" name="topic_id" required>
+<select id="redacao-topic" name="topic_id" required>
                       <option value="">Selecione um estilo</option>
                       <% redacaoTopics.forEach(t => { %>
-                        <option value="<%= t.id %>"><%= t.nome %></option>
+                        <option value="<%= t.id %>" <%= (prefill && prefill.topic_id == t.id) ? 'selected' : '' %>><%= t.nome %></option>
                       <% }) %>
                     </select>
                   </div>
@@ -164,7 +167,7 @@
                 <div class="redacao-grid redacao-grid--2">
                   <div class="redacao-field">
                     <label for="redacao-nota">Nota final</label>
-                    <input id="redacao-nota" type="number" name="nota" min="0" step="0.1" placeholder="Ex: 760 ou 8.5" />
+                    <input id="redacao-nota" type="number" name="nota" min="0" step="0.1" value="<%= prefill?.nota || '' %>" placeholder="Ex: 760 ou 8.5" />
                     <small class="redacao-help">Aceita ENEM (0 a 1000) ou escalas como ACAFE/UFSC.</small>
                   </div>
 
@@ -189,23 +192,23 @@
                   <div class="redacao-competencias">
                     <div class="redacao-competencia">
                       <label for="redacao-c1">C1</label>
-                      <input id="redacao-c1" type="number" name="c1" min="0" max="200" step="0.1" placeholder="0" />
+                      <input id="redacao-c1" type="number" name="c1" min="0" max="200" step="0.1" value="<%= prefill?.c1 || '' %>" placeholder="0" />
                     </div>
                     <div class="redacao-competencia">
-                      <label for="redacao-c2">C2</label>
-                      <input id="redacao-c2" type="number" name="c2" min="0" max="200" step="0.1" placeholder="0" />
+                       <label for="redacao-c2">C2</label>
+                      <input id="redacao-c2" type="number" name="c2" min="0" max="200" step="0.1" value="<%= prefill?.c2 || '' %>" placeholder="0" />
                     </div>
                     <div class="redacao-competencia">
-                      <label for="redacao-c3">C3</label>
-                      <input id="redacao-c3" type="number" name="c3" min="0" max="200" step="0.1" placeholder="0" />
+                       <label for="redacao-c3">C3</label>
+                      <input id="redacao-c3" type="number" name="c3" min="0" max="200" step="0.1" value="<%= prefill?.c3 || '' %>" placeholder="0" />
                     </div>
                     <div class="redacao-competencia">
-                      <label for="redacao-c4">C4</label>
-                      <input id="redacao-c4" type="number" name="c4" min="0" max="200" step="0.1" placeholder="0" />
+                       <label for="redacao-c4">C4</label>
+                      <input id="redacao-c4" type="number" name="c4" min="0" max="200" step="0.1" value="<%= prefill?.c4 || '' %>" placeholder="0" />
                     </div>
                     <div class="redacao-competencia">
-                      <label for="redacao-c5">C5</label>
-                      <input id="redacao-c5" type="number" name="c5" min="0" max="200" step="0.1" placeholder="0" />
+                       <label for="redacao-c5">C5</label>
+                      <input id="redacao-c5" type="number" name="c5" min="0" max="200" step="0.1" value="<%= prefill?.c5 || '' %>" placeholder="0" />
                     </div>
                   </div>
 
@@ -225,12 +228,23 @@
                   </div>
                 </div>
 
+                <div class="redacao-field">
+                  <label for="redacao-comentario">Comentários / feedback da redação</label>
+                  <textarea
+                    id="redacao-comentario"
+                    name="comentario"
+                    rows="4"
+                    placeholder="Ex: melhorar repertório na introdução, revisar proposta de intervenção..."
+                  ><%= prefill?.comentario || '' %></textarea>
+                  <small class="redacao-help">Use este campo para registrar feedback do corretor ou autoavaliação.</small>
+                </div>
+
                 <div class="redacao-form__footer">
                   <div class="redacao-submit-hint">
                     <span class="redacao-badge-soft">Compatível com o backend atual</span>
-                    <p>Os campos obrigatórios continuam usando os mesmos names esperados pelo POST <strong>/redacao</strong>.</p>
+                    <p>Você pode editar tema, nota, competências e comentários depois em Estatísticas de Redação.</p>
                   </div>
-                  <button type="submit" class="btn-primary redacao-submit-btn">Salvar redação</button>
+                  <button type="submit" class="btn-primary redacao-submit-btn"><%= (editing || false) ? 'Salvar alterações' : 'Salvar redação' %></button>
                 </div>
               </form>
             </div>
@@ -272,6 +286,7 @@
               <ul class="redacao-checklist" data-redacao-checklist>
                 <li data-check="data">Definiu a data do treino</li>
                 <li data-check="tempo">Registrou o tempo gasto</li>
+                <li data-check="tema">Informou o tema da redação</li>
                 <li data-check="topic_id">Selecionou o estilo da redação</li>
                 <li data-check="nota">Preencheu a nota final ou estimativa</li>
                 <li data-check="competencias">Avaliou ao menos uma competência</li>
@@ -380,6 +395,7 @@
       const checklist = {
         data: document.querySelector('[data-check="data"]'),
         tempo: document.querySelector('[data-check="tempo"]'),
+        tema: document.querySelector('[data-check="tema"]'),
         topic_id: document.querySelector('[data-check="topic_id"]'),
         nota: document.querySelector('[data-check="nota"]'),
         competencias: document.querySelector('[data-check="competencias"]')
@@ -389,9 +405,9 @@
         fields.data,
         fields.horas,
         fields.minutos,
+        fields.tema,
         fields.topicId,
         fields.nota,
-        fields.tema,
         fields.competencias[0],
         fields.competencias[1],
         fields.competencias[2],
@@ -560,6 +576,7 @@
 
         updateChecklist(checklist.data, hasValue(fields.data));
         updateChecklist(checklist.tempo, totalMinutes > 0);
+        updateChecklist(checklist.tema, hasValue(fields.tema));
         updateChecklist(checklist.topic_id, hasValue(fields.topicId));
         updateChecklist(checklist.nota, hasValue(fields.nota));
         updateChecklist(checklist.competencias, preenchidas.length > 0);

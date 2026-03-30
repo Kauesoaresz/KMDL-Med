@@ -109,7 +109,15 @@ async function calcStreak(userId) {
 // ESTATÍSTICAS POR PERÍODO
 // =========================
 async function calcByPeriod(userId, dateLimit) {
-  const where = { user_id: userId };
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: "Redação" },
+    attributes: ["id"],
+    raw: true
+  });
+  const where = {
+    user_id: userId,
+    ...(redacaoSubject?.id ? { subject_id: { [Op.ne]: redacaoSubject.id } } : {})
+  };
 
   if (dateLimit) {
     where.data = { [Op.gte]: dateLimit };
@@ -413,13 +421,27 @@ async function calcEstatisticasConteudo(userId, period) {
   const where = { user_id: userId };
   const whereAll = { user_id: userId };
 
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: "Redação" },
+    attributes: ["id"],
+    raw: true
+  });
+
+  if (redacaoSubject?.id) {
+    where.subject_id = { [Op.ne]: redacaoSubject.id };
+    whereAll.subject_id = { [Op.ne]: redacaoSubject.id };
+  }
+
   if (dateLimit) {
     where.data = { [Op.gte]: dateLimit };
   }
 
   // Buscar todas as matérias do usuário
   const subjects = await Subject.findAll({
-    where: { user_id: userId },
+    where: {
+      user_id: userId,
+      ...(redacaoSubject?.id ? { id: { [Op.ne]: redacaoSubject.id } } : {})
+    },
     order: [["nome", "ASC"]],
     raw: true
   });
@@ -582,7 +604,7 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
 }
 
 // =========================
-// ESTATÍSTICAS REDAÇÃO
+// ESTATÍSTICAS REDAÇÃO BÁSICO
 // =========================
 async function calcEstatisticasRedacao(userId, period) {
   const redacaoSubject = await Subject.findOne({
@@ -603,7 +625,8 @@ async function calcEstatisticasRedacao(userId, period) {
       mediaC3: null,
       mediaC4: null,
       mediaC5: null,
-      ultimasRedacoes: []
+      ultimasRedacoes: [],
+      porRedacao: []
     };
   }
 
@@ -653,10 +676,11 @@ async function calcEstatisticasRedacao(userId, period) {
   });
 
   const ultimasRedacoes = ultimasRedacoesRaw.map(r => ({
+    id: r.id,
     data: r.data,
     tema: r.tema || 'Não informado',
     estilo: r.topic?.nome || 'Redação',
-    nota: r.redacao_nota != null ? r.redacao_nota : (r.acertos != null ? r.acertos * 100 : null),
+    nota: r.redacao_nota != null ? r.redacao_nota : (r.redacao_total_competencias != null ? r.redacao_total_competencias : null),
     c1: r.c1,
     c2: r.c2,
     c3: r.c3,
@@ -664,8 +688,35 @@ async function calcEstatisticasRedacao(userId, period) {
     c5: r.c5,
     totalCompetencias: r.redacao_total_competencias,
     mediaCompetencias: r.redacao_media_competencias,
-    horas: r.horas
+    horas: r.horas,
+    comentario: r.redacao_comentario || null
   }));
+
+  const redacoesOrdenadas = [...ultimasRedacoes].sort((a, b) => new Date(a.data) - new Date(b.data));
+  let notaAnterior = null;
+  const porRedacao = redacoesOrdenadas.map((r) => {
+    const notaAtual = Number(r.nota || 0);
+    const deltaNota = notaAnterior != null ? (notaAtual - notaAnterior) : null;
+    notaAnterior = notaAtual > 0 ? notaAtual : notaAnterior;
+
+    const comps = [
+      { nome: "C1", valor: Number(r.c1 || 0) },
+      { nome: "C2", valor: Number(r.c2 || 0) },
+      { nome: "C3", valor: Number(r.c3 || 0) },
+      { nome: "C4", valor: Number(r.c4 || 0) },
+      { nome: "C5", valor: Number(r.c5 || 0) }
+    ];
+
+    const melhorComp = comps.reduce((best, c) => (c.valor > best.valor ? c : best), comps[0]);
+    const piorComp = comps.reduce((worst, c) => (c.valor < worst.valor ? c : worst), comps[0]);
+
+    return {
+      ...r,
+      deltaNota,
+      melhorCompetencia: melhorComp,
+      piorCompetencia: piorComp
+    };
+  }).reverse();
 
   const notasMaiores = ultimasRedacoes
     .map(r => Number(r.nota || 0))
@@ -697,7 +748,178 @@ async function calcEstatisticasRedacao(userId, period) {
     piorNota: notasMaiores.length ? notasMaiores[notasMaiores.length - 1] : null,
     porcentagem800: ultimasRedacoes.length ? Math.round((metas.ate800 / ultimasRedacoes.length) * 100) : 0,
     porcentagem700: ultimasRedacoes.length ? Math.round((metas.ate700 / ultimasRedacoes.length) * 100) : 0,
-    ultimasRedacoes
+    ultimasRedacoes,
+    porRedacao
+  };
+}
+
+// =========================
+// ESTATÍSTICAS REDAÇÃO AVANÇADAS
+// =========================
+async function calcEstatisticasRedacaoAvancadas(userId, period) {
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: 'Redação' }
+  });
+
+  if (!redacaoSubject) return {};
+
+  const dateLimit = getDateLimit(period);
+  const where = {
+    user_id: userId,
+    subject_id: redacaoSubject.id,
+    redacao_nota: { [Op.ne]: null }
+  };
+
+  if (dateLimit) {
+    where.data = { [Op.gte]: dateLimit };
+  }
+
+  // Distribuição de notas (histogram) - usando literals SQL
+  // Distribuição de notas (histogram) - raw query segura
+  const notaDist = await sequelize.query(`
+    SELECT 
+      CASE
+        WHEN redacao_nota < 500 THEN 'lt500'
+        WHEN redacao_nota BETWEEN 500 AND 599 THEN '500-599'
+        WHEN redacao_nota BETWEEN 600 AND 699 THEN '600-699'
+        WHEN redacao_nota BETWEEN 700 AND 799 THEN '700-799'
+        WHEN redacao_nota BETWEEN 800 AND 899 THEN '800-899'
+        ELSE '900+'
+      END as faixa,
+      COUNT(*) as count
+    FROM study_entries 
+    WHERE user_id = ? AND subject_id = ? AND redacao_nota IS NOT NULL
+    ${dateLimit ? 'AND data >= ?' : ''}
+    GROUP BY faixa
+  `, { 
+    replacements: [userId, redacaoSubject.id, dateLimit ? dateLimit.toISOString().slice(0,10) : null],
+    type: sequelize.QueryTypes.SELECT 
+  });
+
+  const distribution = {
+    lt500: 0, '500-599': 0, '600-699': 0, '700-799': 0, '800-899': 0, '900+': 0
+  };
+  let totalCount = 0;
+  notaDist.forEach(row => {
+    distribution[row.faixa] = Number(row.count);
+    totalCount += Number(row.count);
+  });
+
+  // Top 5 estilos
+  const topEstilosRaw = await StudyEntry.findAll({
+    where,
+    include: [{ model: Topic, as: 'topic', attributes: ['nome'] }],
+    attributes: [
+      [col('topic.nome'), 'estilo'],
+      [fn('COUNT', col('StudyEntry.id')), 'total']
+    ],
+    group: ['topic.id'],
+    order: [[fn('COUNT', col('StudyEntry.id')), 'DESC']],
+    limit: 5,
+    raw: true
+  });
+
+  const topEstilos = topEstilosRaw.map(row => ({
+    estilo: row.estilo || 'Não definido',
+    total: Number(row.total)
+  }));
+
+  // Tempo médio por redação
+  const [tempoMedio] = await StudyEntry.findAll({
+    where,
+    attributes: [
+      [fn('AVG', col('horas')), 'tempo_medio']
+    ],
+    raw: true
+  });
+  const tempoMedioHoras = Number(tempoMedio?.tempo_medio || 0).toFixed(2);
+
+  // Correlação tempo x nota (simples)
+  const correlData = await StudyEntry.findAll({
+    where,
+    attributes: ['horas', 'redacao_nota'],
+    raw: true
+  });
+  const correl = correlData.length > 1 ? simpleCorrelation(correlData.map(r => ({x: r.horas, y: r.redacao_nota}))) : 0;
+
+  // Streak de redações (dias consecutivos com redação)
+  const redStreak = await calcRedacaoStreak(userId, redacaoSubject.id);
+
+  return {
+    distribution,
+    topEstilos,
+    tempoMedio: tempoMedioHoras,
+    correlacaoTempoNota: Math.round(correl * 100) / 100,
+    redacaoStreak: redStreak
+  };
+}
+
+// Helper simples para correlação Pearson
+function simpleCorrelation(data) {
+  if (data.length < 2) return 0;
+  const n = data.length;
+  const sumX = data.reduce((s, p) => s + p.x, 0);
+  const sumY = data.reduce((s, p) => s + p.y, 0);
+  const sumXY = data.reduce((s, p) => s + p.x * p.y, 0);
+  const sumXX = data.reduce((s, p) => s + p.x * p.x, 0);
+  const sumYY = data.reduce((s, p) => s + p.y * p.y, 0);
+  const num = n * sumXY - sumX * sumY;
+  const den = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
+  return den === 0 ? 0 : num / den;
+}
+
+// Streak específico para redações
+async function calcRedacaoStreak(userId, subjectId) {
+  const diasRaw = await StudyEntry.findAll({
+    where: { user_id: userId, subject_id: subjectId },
+    attributes: ['data'],
+    order: [['data', 'DESC']],
+    group: ['data'],
+    raw: true
+  });
+
+  const diasSet = new Set(diasRaw.map(d => d.data));
+  const hoje = todayISO();
+  let streak = 0;
+
+  for (let i = 0; i < 365; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    if (diasSet.has(iso)) streak++;
+    else break;
+  }
+
+  return streak;
+}
+
+// Detalhes de uma redação específica
+async function getRedacaoDetalhes(userId, entryId) {
+  const entry = await StudyEntry.findOne({
+    where: { id: entryId, user_id: userId },
+    include: [
+      { model: Subject, as: 'subject' },
+      { model: Topic, as: 'topic' }
+    ],
+    raw: false
+  });
+
+  if (!entry || entry.subject.nome !== 'Redação') return null;
+
+  return {
+    id: entry.id,
+    data: entry.data,
+    tema: entry.tema || "Não informado",
+    estilo: entry.topic?.nome || 'Redação',
+    horas: entry.horas,
+    nota: entry.redacao_nota,
+    c1: entry.c1, c2: entry.c2, c3: entry.c3, c4: entry.c4, c5: entry.c5,
+    totalCompetencias: entry.redacao_total_competencias,
+    mediaCompetencias: entry.redacao_media_competencias,
+    comentario: entry.redacao_comentario || null,
+    acertos: entry.acertos,
+    questoes: entry.questoes,
+    dificuldade: entry.dificuldade
   };
 }
 
@@ -872,7 +1094,10 @@ exports.redacao = async (req, res) => {
   const userId = req.session.userId;
   const period = req.query.period || 'all';
 
-  const redacao = await calcEstatisticasRedacao(userId, period);
+  const basic = await calcEstatisticasRedacao(userId, period);
+  const avancado = await calcEstatisticasRedacaoAvancadas(userId, period);
+
+  const redacao = { ...basic, avancado };
 
   res.render('app/estatisticas-redacao', {
     active: 'estatisticas',
@@ -881,6 +1106,20 @@ exports.redacao = async (req, res) => {
     period,
     redacao
   });
+};
+
+// Nova rota para detalhes individuais
+exports.redacaoDetalhes = async (req, res) => {
+  const userId = req.session.userId;
+  const entryId = parseInt(req.params.entryId);
+
+  const detalhes = await getRedacaoDetalhes(userId, entryId);
+
+  if (!detalhes) {
+    return res.status(404).json({ error: 'Redação não encontrada' });
+  }
+
+  res.json(detalhes);
 };
 
 // =========================

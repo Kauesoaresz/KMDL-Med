@@ -45,6 +45,18 @@ router.get("/redacao", auth, study.redacaoPage);
 router.post("/redacao", auth, study.redacaoSave);
 
 // =========================
+// REDAÇÃO EDIT/DELETE
+// =========================
+router.get("/redacao/editar/:id", auth, study.editRedacaoPage);
+router.post("/redacao/editar/:id", auth, study.editRedacaoSave);
+router.post("/redacao/excluir/:id", auth, study.deleteRedacao);
+router.post("/redacao/comentario/:id", auth, study.saveRedacaoComentario);
+
+// =========================
+
+
+
+// =========================
 // REVISÕES
 // =========================
 router.get("/revisoes", auth, reviewController.index);

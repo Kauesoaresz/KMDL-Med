@@ -13,6 +13,7 @@ router.get("/estatisticas/estudos", auth, stats.geral);
 
 // REDAÇÃO - Estatísticas de redação
 router.get("/estatisticas/redacao", auth, stats.redacao);
+router.get("/estatisticas/redacao/:entryId", auth, stats.redacaoDetalhes);
 
 // CONTEÚDO - Estatísticas por matéria/tópico/assunto
 router.get("/estatisticas/conteudo", auth, stats.conteudo);

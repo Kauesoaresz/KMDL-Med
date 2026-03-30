@@ -356,7 +356,8 @@ body {
 }
 
 .redacao-field input,
-.redacao-field select {
+.redacao-field select,
+.redacao-field textarea {
   width: 100%;
   min-height: 56px;
   padding: 0 16px;
@@ -368,17 +369,25 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.redacao-field textarea {
+  min-height: 120px;
+  padding: 12px 16px;
+  resize: vertical;
+}
+
 .redacao-field input::placeholder {
   color: var(--text-muted);
 }
 
 .redacao-field input:hover,
-.redacao-field select:hover {
+.redacao-field select:hover,
+.redacao-field textarea:hover {
   border-color: var(--border-color-light);
 }
 
 .redacao-field input:focus,
-.redacao-field select:focus {
+.redacao-field select:focus,
+.redacao-field textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);

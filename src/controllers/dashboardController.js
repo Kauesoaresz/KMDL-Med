@@ -139,11 +139,22 @@ const userId = req.session.userId;
     })
   };
 
+  const redacaoSubject = await Subject.findOne({
+    where: { user_id: userId, nome: "Redação" },
+    attributes: ["id"],
+    raw: true
+  });
+  const redacaoSubjectId = redacaoSubject?.id || null;
+  const wherePeriodoSemRedacao = {
+    ...wherePeriodo,
+    ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
+  };
+
   /* =========================
      STATS PRINCIPAIS
   ========================= */
   const statsRaw = await StudyEntry.findOne({
-    where: wherePeriodo,
+    where: wherePeriodoSemRedacao,
     attributes: [
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
@@ -443,7 +454,10 @@ const userId = req.session.userId;
   ];
 
   const porMateriaRaw = await StudyEntry.findAll({
-    where: { user_id: userId },
+    where: {
+      user_id: userId,
+      ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
+    },
     attributes: [
       "subject_id",
       [fn("SUM", col("horas")), "horas"],
@@ -530,7 +544,10 @@ const userId = req.session.userId;
 
   // Total de horas
   const statsTotalRaw = await StudyEntry.findOne({
-    where: { user_id: userId },
+    where: {
+      user_id: userId,
+      ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
+    },
     attributes: [
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"]
