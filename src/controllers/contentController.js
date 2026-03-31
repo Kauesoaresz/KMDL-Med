@@ -277,7 +277,14 @@ exports.subtopicsCreate = async (req, res) => {
     return res.redirect(`/conteudos/assuntos?subject_id=${subject_id || ''}&topic_id=${topic_id || ''}&erro=Dados inválidos`);
   }
 
-  await Subtopic.create({ user_id: userId, topic_id, nome });
+  const [subtopic, created] = await Subtopic.findOrCreate({
+    where: { user_id: userId, topic_id, nome },
+    defaults: { user_id: userId, topic_id, nome }
+  });
+
+  if (!created) {
+    return res.redirect(`/conteudos/assuntos?subject_id=${subject_id || ''}&topic_id=${topic_id || ''}&erro=Assunto já existe para este tópico`);
+  }
 
   // Mantém os filtros
   return res.redirect(`/conteudos/assuntos?subject_id=${subject_id || ''}&topic_id=${topic_id}&ok=Assunto criado`);

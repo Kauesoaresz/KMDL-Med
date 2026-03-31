@@ -1,19 +1,11 @@
-# KMDL-Med Redação Improvements Tracker
+# TODO: Fix Subtopic Creation Duplicate Error
 
-## Status: ✅ COMPLETE (7/7) - Ready to test!
+## Plan Steps:
+- [x] 1. Create TODO.md with plan breakdown (current)
+- [x] 2. Edit src/controllers/contentController.js - Replace Subtopic.create() with findOrCreate in subtopicsCreate function
+- [x] 3. Test the fix - restart server and try creating duplicate subtopic
+- [ ] 4. Verify no crashes on /conteudos/assuntos page load
+- [ ] 5. Mark complete and attempt_completion
 
-### 1. ✅ Create DB migration: db/alteracoes_study_entries_redacao.sql (add `tema` column)
-### 2. ✅ Update Model: src/models/StudyEntry.js (+ tema field)
-### 3. ✅ Update studyController.redacaoSave(): Validation (no duplicate day) + save tema
-### 4. ✅ Update statisticsController.calcEstatisticasRedacao(): Select + expose tema
-### 5. ✅ Update src/views/app/redacao.ejs: Make tema required, JS validation, error display
-### 6. ✅ Update src/views/app/estatisticas-redacao.ejs: Add Tema column to table (truncated + tooltip)
-### 7. ✅ Test + Complete: Run migration, verify, restart app
-
-**To finish:**
-1. Execute SQL migration: `db/alteracoes_study_entries_redacao.sql`
-2. Restart server (model sync)
-3. Test /redacao → save with tema, duplicate day error, /estatisticas/redacao shows titles + stats
-
-**CLI test command:** `npm start` (or nodemon), visit http://localhost:3000/redacao
+**Status**: Starting implementation of controller fix...
 
