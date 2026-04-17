@@ -42,7 +42,7 @@
       <div class="kmed-calendar-grid">
   <% diasMes.forEach(d => { %>
 
-    <a
+      <a
       class="kmed-cal-day <%= d.cor %> 
              <%= d.isHoje ? 'today' : '' %>
              <%= d.futuro ? 'future' : '' %>
@@ -50,9 +50,11 @@
       <% if (!d.futuro) { %>
         href="/registrar/editar/<%= d.dataISO %>"
       <% } %>
-      title="<%= d.horas %>h"
     >
-      <span><%= d.dia %></span>
+      <span class="day-number"><%= d.dia %></span>
+      <% if (d.horas && d.horas !== '0h 0min') { %>
+        <span class="day-hours"><%= d.horas %></span>
+      <% } %>
     </a>
 
   <% }) %>

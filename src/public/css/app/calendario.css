@@ -123,6 +123,10 @@
   transition: all .15s ease;
 }
 
+.kmed-cal-day .day-number {
+  z-index: 1;
+}
+
 .kmed-cal-day:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover, 0 6px 18px rgba(0,0,0,.45));
@@ -391,7 +395,7 @@
 .kmed-cal-day.h8::after {
   position: absolute;
   top: 6px;
-  right: 8px;
+  right: 6px;
   color: #facc15;
   display: flex;
   align-items: center;
@@ -405,13 +409,13 @@
 .kmed-cal-day.h11::after,
 .kmed-cal-day.h12::after {
   position: absolute;
-  top: 6px;
-  right: 8px;
+  top: 4px;
+  right: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 /* Light theme reward colors */
@@ -432,13 +436,38 @@
   50% { transform: translateY(-3px); }
 }
 
-/* Mantém o número centralizado */
-.kmed-cal-day span {
-  display: block;
-  width: 100%;
-  text-align: center;
+/* Transforma o quadrado num container flexível e centralizado */
+.kmed-cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* Importante para não quebrar a estrela de dia perfeito */
 }
 
+/* O número do dia (o protagonista) */
+.kmed-cal-day .day-number {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* As horas (a informação secundária e sutil) */
+.kmed-cal-day .day-hours {
+  font-size: 0.65rem; /* Pequeno para não brigar com o dia */
+  font-weight: 400; /* Sem negrito, para ficar leve */
+  color: rgba(255, 255, 255, 0.7); /* Branco com transparência, mistura com a cor de fundo natural */
+  margin-top: 4px; /* Um espacinho elegante entre o número e a hora */
+  
+  /* Resetando TUDO daquela versão horrorosa */
+  position: static;
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  pointer-events: none;
+}
 /* ===============================
    LEGENDA
 =============================== */
@@ -679,6 +708,12 @@
     height: 45px;
     font-size: 0.7rem;
     border-radius: 8px;
+  }
+
+  .kmed-cal-day .day-hours {
+    bottom: 4px;
+    right: 6px;
+    font-size: 0.65rem;
   }
 
   .kmed-cal-day::after {
