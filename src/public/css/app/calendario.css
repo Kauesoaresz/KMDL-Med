@@ -468,6 +468,51 @@
   backdrop-filter: none;
   pointer-events: none;
 }
+
+/* ===============================
+   ESTATÍSTICAS DO DIA (Questões + % acerto)
+=============================== */
+
+.kmed-cal-day .day-stats {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin: 0;
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  z-index: 1;
+}
+
+.kmed-cal-day .day-stats-questoes,
+.kmed-cal-day .day-stats-acerto {
+  font-size: 0.55rem;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+
+.kmed-cal-day .day-stats-questoes {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+[data-theme="light"] .kmed-cal-day .day-stats-questoes,
+[data-theme="light"] .kmed-cal-day .day-stats-acerto {
+  color: rgba(15, 23, 42, 0.72);
+}
+
+
+
 /* ===============================
    LEGENDA
 =============================== */

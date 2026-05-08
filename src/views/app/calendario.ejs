@@ -52,10 +52,20 @@
       <% } %>
     >
       <span class="day-number"><%= d.dia %></span>
+
       <% if (d.horas && d.horas !== '0h 0min') { %>
         <span class="day-hours"><%= d.horas %></span>
       <% } %>
+
+      <% if (d.questoes && d.questoes > 0) { %>
+        <span class="day-stats" aria-label="Estatísticas do dia">
+          <span class="day-stats-questoes"><%= `Q${d.questoes}` %></span>
+          <span class="day-stats-acerto"><%= Math.round(d.acertoPct) %>%</span>
+        </span>
+      <% } %>
+
     </a>
+
 
   <% }) %>
 </div>

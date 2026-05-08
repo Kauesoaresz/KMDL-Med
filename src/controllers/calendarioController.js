@@ -68,6 +68,11 @@ exports.calendario = async (req, res) => {
       const info = mapa[iso] || { horas: 0, questoes: 0, acertos: 0 };
       const horasInt = Math.floor(info.horas);
 
+      const questoes = Number(info.questoes || 0);
+      const acertos = Number(info.acertos || 0);
+      const acertoPct = questoes > 0 ? (acertos / questoes) * 100 : 0;
+
+
       if (info.horas > 0) diasEstudados++;
       totalHorasMes += info.horas;
 
@@ -96,11 +101,15 @@ exports.calendario = async (req, res) => {
         dia: d,
         dataISO: iso,
         horas: formatHoursMinutes(info.horas), // Format in "Xh Ymin" format
+        questoes,
+        acertos,
+        acertoPct,
         cor,
         perfeito,
         isHoje: iso === hojeISO,
         futuro: iso > hojeISO
       });
+
     }
 
     const mediaDiaria =
