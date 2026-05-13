@@ -200,7 +200,10 @@ exports.editPage = async (req, res) => {
 // =========================
 exports.editSave = async (req, res) => {
   const userId = req.session.userId;
-  const data = req.params.data;
+  const dataFromBody = req.body?.data;
+  const dataFromParams = req.params.data;
+  const data = dataFromBody || dataFromParams;
+
   const { blocos } = req.body;
 
   if (!Array.isArray(blocos)) {

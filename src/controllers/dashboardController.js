@@ -691,6 +691,7 @@ const userId = req.session.userId;
     stats: {
       horas,
       questoes,
+      acertos,
       taxa,
       dias,
       horasDiff
