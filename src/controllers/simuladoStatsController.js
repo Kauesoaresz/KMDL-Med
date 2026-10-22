@@ -3,8 +3,7 @@ const {
   SimuladoBloco,
   SimuladoQuestaoErro,
   Subject,
-  Topic,
-  Subtopic
+  Topic
 } = require("../models");
 
 const { Op } = require("sequelize");
@@ -82,8 +81,7 @@ exports.dashboard = async (req, res) => {
         as: "erros",
         include: [
           { model: Subject, as: "subject" },
-          { model: Topic, as: "topic" },
-          { model: Subtopic, as: "subtopic" }
+          { model: Topic, as: "topic" }
         ]
       }]
     }],
@@ -175,10 +173,6 @@ exports.dashboard = async (req, res) => {
           if (erro.topic) {
             const topico = erro.topic.nome;
             lacunasPorTopico[topico] = (lacunasPorTopico[topico] || 0) + 1;
-          }
-          if (erro.subtopic) {
-            const assunto = erro.subtopic.nome;
-            lacunasPorAssunto[assunto] = (lacunasPorAssunto[assunto] || 0) + 1;
           }
         }
       });
@@ -335,8 +329,7 @@ exports.dashboard = async (req, res) => {
     // Lacunas - mostrar TODAS sem limite
     lacunas: {
       materias: sortDesc(lacunasPorMateria),
-      topicos: sortDesc(lacunasPorTopico),
-      assuntos: sortDesc(lacunasPorAssunto)
+      topicos: sortDesc(lacunasPorTopico)
     },
 
     // Simulados

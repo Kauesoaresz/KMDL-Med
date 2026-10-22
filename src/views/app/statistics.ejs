@@ -219,7 +219,7 @@
         </div>
       </section>
 
-      <!-- LINHA 4: METAS E REVISÕES -->
+      <!-- LINHA 4: METAS -->
       <section class="stats-row-4">
         <!-- Metas -->
         <div class="stats-block metas-block">
@@ -260,27 +260,6 @@
           <% } %>
         </div>
 
-        <!-- Revisões -->
-        <div class="stats-block revisoes-block">
-          <h2>🔄 Revisões</h2>
-          <div class="revisoes-stats">
-            <div class="revisao-total">
-              <span class="revisao-num"><%= revisoes.total %></span>
-              <span class="revisao-label">Total de Revisões</span>
-            </div>
-          </div>
-          <% if (revisoes.porMateria && revisoes.porMateria.length > 0) { %>
-            <div class="revisoes-materia">
-              <h3>Por Matéria</h3>
-              <% revisoes.porMateria.slice(0, 5).forEach(function(rev) { %>
-                <div class="revisao-materia-item">
-                  <span class="rev-mat-nome"><%= rev.nome %></span>
-                  <span class="rev-mat-num"><%= rev.total %></span>
-                </div>
-              <% }); %>
-            </div>
-          <% } %>
-        </div>
       </section>
 
       <!-- LINHA 5: CONQUISTAS -->
@@ -361,13 +340,6 @@
               <div class="geral-info">
                 <span class="geral-value"><%= taxaGeral %>%</span>
                 <span class="geral-label">Taxa Geral</span>
-              </div>
-            </div>
-            <div class="geral-item">
-              <span class="geral-icon">🔄</span>
-              <div class="geral-info">
-                <span class="geral-value"><%= totalRevisoes %></span>
-                <span class="geral-label">Revisões Feitas</span>
               </div>
             </div>
           </div>

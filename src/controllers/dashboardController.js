@@ -1,4 +1,4 @@
-const { StudyEntry, Subject, Topic, Simulado, SimuladoBloco, ReviewHistory, StudyGoal } = require("../models");
+const { StudyEntry, Subject, Topic, Simulado, SimuladoBloco, StudyGoal } = require("../models");
 const { Op, fn, col } = require("sequelize");
 const sequelize = require("../config/database");
 
@@ -139,22 +139,11 @@ const userId = req.session.userId;
     })
   };
 
-  const redacaoSubject = await Subject.findOne({
-    where: { user_id: userId, nome: "Redação" },
-    attributes: ["id"],
-    raw: true
-  });
-  const redacaoSubjectId = redacaoSubject?.id || null;
-  const wherePeriodoSemRedacao = {
-    ...wherePeriodo,
-    ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
-  };
-
   /* =========================
      STATS PRINCIPAIS
   ========================= */
   const statsRaw = await StudyEntry.findOne({
-    where: wherePeriodoSemRedacao,
+    where: wherePeriodo,
     attributes: [
       [sequelize.fn("SUM", sequelize.col("horas")), "horas"],
       [sequelize.fn("SUM", sequelize.col("questoes")), "questoes"],
@@ -328,22 +317,6 @@ const userId = req.session.userId;
   }
 
   /* =========================
-     REVISÕES PENDENTES
-  ========================= */
-  const revisoesPendentes = await Topic.findAll({
-    where: {
-      user_id: userId,
-      proxima_revisao: { [Op.lte]: hoje }
-    },
-    include: [
-      { model: Subject, as: "subject", attributes: ["id", "nome"] }
-    ],
-    order: [["proxima_revisao", "ASC"]],
-    limit: 5,
-    raw: false
-  });
-
-  /* =========================
      MINI CALENDÁRIO (DIAS DO MÊS ATUAL)
   ========================= */
   const anoAtual = new Date().getFullYear();
@@ -454,10 +427,7 @@ const userId = req.session.userId;
   ];
 
   const porMateriaRaw = await StudyEntry.findAll({
-    where: {
-      user_id: userId,
-      ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
-    },
+    where: { user_id: userId },
     attributes: [
       "subject_id",
       [fn("SUM", col("horas")), "horas"],
@@ -544,10 +514,7 @@ const userId = req.session.userId;
 
   // Total de horas
   const statsTotalRaw = await StudyEntry.findOne({
-    where: {
-      user_id: userId,
-      ...(redacaoSubjectId ? { subject_id: { [Op.ne]: redacaoSubjectId } } : {})
-    },
+    where: { user_id: userId },
     attributes: [
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"]
@@ -607,21 +574,6 @@ const userId = req.session.userId;
     conquistas.push({ id: "simulado_10", icone: "🥇", titulo: "Maratonista", descricao: "10 simulados realizados", progresso: 10, meta: 10, concluida: true });
   }
 
-  // Revisões
-  const totalRevisoes = await ReviewHistory.count({
-    where: { user_id: userId }
-  });
-  if (totalRevisoes >= 1) {
-    conquistas.push({ id: "revisoes_1", icone: "🔄", titulo: "Revisor Iniciante", descricao: "1 revisão registrada", progresso: 1, meta: 1, concluida: true });
-  }
-  if (totalRevisoes >= 10) {
-    conquistas.push({ id: "revisoes_10", icone: "📖", titulo: "Revisor", descricao: "10 revisões registradas", progresso: 10, meta: 10, concluida: true });
-  } else if (totalRevisoes >= 1) {
-    conquistasProgresso.push({ id: "revisoes_10", icone: "📖", titulo: "Revisor", descricao: `${totalRevisoes}/10 revisões`, progresso: totalRevisoes, meta: 10 });
-  }
-  if (totalRevisoes >= 50) {
-    conquistas.push({ id: "revisoes_50", icone: "🧩", titulo: "Mestre da Revisão", descricao: "50 revisões registradas", progresso: 50, meta: 50, concluida: true });
-  }
 
   // Dias estudados totais
   const totalDiasEstudados = diasEstudadosRaw.length;
@@ -698,7 +650,6 @@ const userId = req.session.userId;
     },
     evolucao,
     // Novas funcionalidades
-    revisoesPendentes,
     diasCalendario,
     ultimoSimulado,
     ultimoSimuladoBlocos,

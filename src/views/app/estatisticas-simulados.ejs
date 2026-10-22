@@ -445,23 +445,6 @@
             <p class="empty-lacuna">Nenhuma lacuna registrada</p>
           <% } %>
         </div>
-
-        <!-- Assuntos -->
-        <div class="lacuna-col">
-          <h3>📙 Assuntos</h3>
-          <% if (lacunas.assuntos.length > 0) { %>
-            <ul class="lacunas-lista">
-              <% lacunas.assuntos.forEach(l => { %>
-                <li>
-                  <span><%= l.nome %></span>
-                  <strong><%= l.total %></strong>
-                </li>
-              <% }); %>
-            </ul>
-          <% } else { %>
-            <p class="empty-lacuna">Nenhuma lacuna registrada</p>
-          <% } %>
-        </div>
       </div>
     </section>
 

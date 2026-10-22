@@ -7,14 +7,9 @@ const Topic = sequelize.define(
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
     subject_id: { type: DataTypes.INTEGER, allowNull: false },
-    nome: { type: DataTypes.STRING(120), allowNull: false },
-    ultima_revisao: { type: DataTypes.DATEONLY, allowNull: true },
-    proxima_revisao: { type: DataTypes.DATEONLY, allowNull: true }
+    nome: { type: DataTypes.STRING(120), allowNull: false }
   },
-  {
-    tableName: "topics",
-    underscored: true
-  }
+  { tableName: "topics", underscored: true }
 );
 
 module.exports = Topic;

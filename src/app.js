@@ -12,14 +12,12 @@ require("./models/index");
 // =========================
 const authRoutes = require("./routes/authRoutes");
 const appRoutes = require("./routes/appRoutes");
-const arquivoRoutes = require("./routes/arquivoRoutes");
 const contentRoutes = require("./routes/contentRoutes");
 const statisticsRoutes = require("./routes/statisticsRoutes");
 const simuladoStatsRoutes = require("./routes/simuladoStatsRoutes");
 const calendarioRoutes = require("./routes/calendarioRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 const simuladoRoutes = require("./routes/simuladoRoutes");
-const provaRoutes = require("./routes/provaRoutes");
 const goalRoutes = require("./routes/goalRoutes");
 
 const app = express();
@@ -82,7 +80,6 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 // =========================
 app.use(authRoutes);
 app.use(appRoutes);
-app.use(arquivoRoutes);
 app.use(contentRoutes);
 
 app.use(statisticsRoutes);
@@ -91,7 +88,6 @@ app.use(simuladoStatsRoutes);
 app.use(calendarioRoutes);
 
 app.use(simuladoRoutes);
-app.use(provaRoutes);
 
 app.use(goalRoutes);
 
@@ -107,8 +103,7 @@ const PORT = process.env.PORT || 3000;
     await sequelize.authenticate();
     console.log("✅ Conectado no MySQL com Sequelize");
 
-    // 🔥 ESSA LINHA CRIA A TABELA PROVAS
-    await sequelize.sync();
+    await sequelize.sync(); // cria tabelas novas; NÃO apaga tabelas/colunas antigas
 
     console.log("📦 Tabelas sincronizadas");
 

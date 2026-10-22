@@ -67,10 +67,6 @@ function addBloco() {
       <option value="">Selecione o tópico</option>
     </select>
 
-    <select name="blocos[${idx}][subtopic_id]" class="subtopic-select" disabled>
-      <option value="">Assunto (opcional)</option>
-    </select>
-
     <div class="linha-numeros">
       <div class="input-group time-input">
         <input type="number" name="blocos[${idx}][horas]" placeholder="Horas" min="0" value="0" required>
@@ -92,20 +88,18 @@ function addBloco() {
 
   const subjectSelect = bloco.querySelector(".subject-select");
   const topicSelect = bloco.querySelector(".topic-select");
-  const subSelect = bloco.querySelector(".subtopic-select");
 
-  /* ===============================
-     DISCIPLINA → TÓPICOS
-  ================================ */
+  // DISCIPLINA → TÓPICOS
   subjectSelect.addEventListener("change", async () => {
     const subjectId = subjectSelect.value;
 
     topicSelect.innerHTML = `<option>Carregando...</option>`;
     topicSelect.disabled = true;
-    subSelect.innerHTML = `<option value="">Assunto (opcional)</option>`;
-    subSelect.disabled = true;
 
-    if (!subjectId) return;
+    if (!subjectId) {
+      topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
+      return;
+    }
 
     const res = await fetch(`/api/subjects/${subjectId}/topics`);
     const topics = await res.json();
@@ -116,30 +110,6 @@ function addBloco() {
     });
 
     topicSelect.disabled = false;
-  });
-
-  /* ===============================
-     TÓPICO → ASSUNTOS
-  ================================ */
-  topicSelect.addEventListener("change", async () => {
-    const topicId = topicSelect.value;
-
-    subSelect.innerHTML = `<option>Carregando...</option>`;
-    subSelect.disabled = true;
-
-    if (!topicId) return;
-
-    const res = await fetch(`/api/topics/${topicId}/subtopics`);
-    const subs = await res.json();
-
-    subSelect.innerHTML = `<option value="">Assunto (opcional)</option>`;
-
-    if (subs.length) {
-      subs.forEach(s => {
-        subSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
-      });
-      subSelect.disabled = false;
-    }
   });
 
   document.getElementById("blocos").appendChild(bloco);

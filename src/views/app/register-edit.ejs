@@ -51,19 +51,13 @@ const subjects = <%- JSON.stringify(subjects) %>;
 const entries = <%- JSON.stringify(entries) %>;
 let blocoIndex = 0;
 
-// Helper to convert minutes to hours and minutes
 function getHorasEMinutos(minutos) {
   const m = minutos || 0;
-  return {
-    horas: Math.floor(m / 60),
-    minutos: m % 60
-  };
+  return { horas: Math.floor(m / 60), minutos: m % 60 };
 }
 
 function addBloco(entry = null) {
   const idx = blocoIndex++;
-  
-  // Calculate hours and minutes for this entry
   const tempo = entry ? getHorasEMinutos(entry.minutos) : { horas: 0, minutos: 0 };
 
   const bloco = document.createElement("div");
@@ -83,10 +77,6 @@ function addBloco(entry = null) {
 
     <select name="blocos[${idx}][topic_id]" class="topic-select" disabled required>
       <option value="">Selecione o tópico</option>
-    </select>
-
-    <select name="blocos[${idx}][subtopic_id]" class="subtopic-select" disabled>
-      <option value="">🧷 Geral</option>
     </select>
 
     <div class="linha-numeros">
@@ -110,7 +100,6 @@ function addBloco(entry = null) {
 
   const subjectSelect = bloco.querySelector(".subject-select");
   const topicSelect = bloco.querySelector(".topic-select");
-  const subSelect = bloco.querySelector(".subtopic-select");
 
   // DISCIPLINA → TÓPICOS
   subjectSelect.addEventListener("change", async () => {
@@ -118,10 +107,11 @@ function addBloco(entry = null) {
 
     topicSelect.innerHTML = `<option>Carregando...</option>`;
     topicSelect.disabled = true;
-    subSelect.innerHTML = `<option value="">🧷 Geral</option>`;
-    subSelect.disabled = true;
 
-    if (!subjectId) return;
+    if (!subjectId) {
+      topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
+      return;
+    }
 
     const res = await fetch(`/api/subjects/${subjectId}/topics`);
     const topics = await res.json();
@@ -133,37 +123,9 @@ function addBloco(entry = null) {
 
     topicSelect.disabled = false;
 
-    if (entry?.topic_id) {
+    // Só pré-seleciona o tópico salvo se a matéria ainda for a original
+    if (entry?.topic_id && Number(subjectId) === entry.subject_id) {
       topicSelect.value = entry.topic_id;
-      topicSelect.dispatchEvent(new Event("change"));
-    }
-  });
-
-  // TÓPICO → ASSUNTOS
-  topicSelect.addEventListener("change", async () => {
-    const topicId = topicSelect.value;
-
-    subSelect.innerHTML = `<option>Carregando...</option>`;
-    subSelect.disabled = true;
-
-    if (!topicId) return;
-
-    const res = await fetch(`/api/topics/${topicId}/subtopics`);
-    const subs = await res.json();
-
-    subSelect.innerHTML = `<option value="">🧷 Geral</option>`;
-
-    if (subs.length) {
-      subs.forEach(s => {
-        subSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
-      });
-      subSelect.disabled = false;
-
-      if (entry?.subtopic_id) {
-        subSelect.value = entry.subtopic_id;
-      }
-    } else {
-      subSelect.disabled = true;
     }
   });
 

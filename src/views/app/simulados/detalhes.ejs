@@ -152,9 +152,6 @@
                             <% if (erro.topic) { %>
                               <span>📋 <%= erro.topic.nome %></span>
                             <% } %>
-                            <% if (erro.subtopic) { %>
-                              <span>📑 <%= erro.subtopic.nome %></span>
-                            <% } %>
                           </small>
                         <% } %>
                       </div>
@@ -218,12 +215,8 @@
                     <% }) %>
                   </select>
 
-                  <select name="topic_id" disabled onchange="loadSubtopics(this)">
+                  <select name="topic_id" disabled>
                     <option value="">Tópico</option>
-                  </select>
-
-                  <select name="subtopic_id" disabled>
-                    <option value="">Assunto (opcional)</option>
                   </select>
                 </div>
 
@@ -363,14 +356,14 @@ async function loadTopics(select) {
   const subjectId = select.value;
   const wrapper = select.parentElement;
   const topicSelect = wrapper.querySelector("select[name*='topic_id']");
-  const subSelect = wrapper.querySelector("select[name*='subtopic_id']");
 
   topicSelect.innerHTML = "<option>Carregando...</option>";
   topicSelect.disabled = true;
-  subSelect.innerHTML = "<option value=''>Assunto (opcional)</option>";
-  subSelect.disabled = true;
 
-  if (!subjectId) return;
+  if (!subjectId) {
+    topicSelect.innerHTML = "<option value=''>Tópico</option>";
+    return;
+  }
 
   const res = await fetch(`/conteudos/api/topicos/${subjectId}`);
   const topics = await res.json();
@@ -381,27 +374,6 @@ async function loadTopics(select) {
   });
 
   topicSelect.disabled = false;
-}
-
-async function loadSubtopics(select) {
-  const topicId = select.value;
-  const wrapper = select.parentElement;
-  const subSelect = wrapper.querySelector("select[name*='subtopic_id']");
-
-  subSelect.innerHTML = "<option>Carregando...</option>";
-  subSelect.disabled = true;
-
-  if (!topicId) return;
-
-  const res = await fetch(`/conteudos/api/assuntos/${topicId}`);
-  const subs = await res.json();
-
-  subSelect.innerHTML = "<option value=''>Assunto (opcional)</option>";
-  subs.forEach(s => {
-    subSelect.innerHTML += `<option value="${s.id}">${s.nome}</option>`;
-  });
-
-  subSelect.disabled = false;
 }
 
 /* =========================
@@ -485,22 +457,14 @@ function addErro() {
       </button>
     </div>
 
-    <div class="lacuna-fields" style="display:none;">
+        <div class="lacuna-fields" style="display:none;">
       <select name="erros[${idx}][subject_id]" onchange="loadTopics(this)">
         <option value="">Matéria</option>
         ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
       </select>
 
-      <select
-        name="erros[${idx}][topic_id]"
-        disabled
-        onchange="loadSubtopics(this)"
-      >
+      <select name="erros[${idx}][topic_id]" disabled>
         <option value="">Tópico</option>
-      </select>
-
-      <select name="erros[${idx}][subtopic_id]" disabled>
-        <option value="">Assunto (opcional)</option>
       </select>
     </div>
   `;

@@ -51,11 +51,6 @@ SimuladoQuestaoErro.init(
       allowNull: true,
     },
 
-    subtopic_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
-
     revisada: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

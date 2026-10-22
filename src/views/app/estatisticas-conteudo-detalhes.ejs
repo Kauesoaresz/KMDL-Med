@@ -83,7 +83,7 @@
           </div>
         </div>
         <div class="card-badge warning">
-          <%= materia.aproveitamento %>%>
+          <%= materia.aproveitamento %>%
         </div>
       </div>
 
@@ -104,7 +104,7 @@
         <div class="card-icon">🎯</div>
         <div class="card-content">
           <span class="card-label">Aproveitamento</span>
-          <div class="card-value"><%= materia.aproveitamento %>%></div>
+          <div class="card-value"><%= materia.aproveitamento %>%</div>
           <div class="card-sub">
             <% if (materia.aproveitamento >= 70) { %>
               <span class="good-text">Ótimo desempenho! 🎉</span>
@@ -137,7 +137,7 @@
             <div class="topico-header">
               <h3><%= topico.nome %></h3>
               <span class="topico-percent <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>">
-                <%= topico.aproveitamento %>%>
+                <%= topico.aproveitamento %>%
               </span>
             </div>
 
@@ -185,33 +185,6 @@
               </div>
             </div>
 
-            <!-- Assuntos do Tópico -->
-            <% if (topico.assuntos && topico.assuntos.length > 0) { %>
-              <div class="topico-assuntos">
-                <h4>📝 Assuntos (<%= topico.assuntos.length %>)</h4>
-                <div class="assuntos-list">
-                  <% topico.assuntos.forEach(function(assunto) { %>
-                    <div class="assunto-item">
-                      <div class="assunto-info">
-                        <span class="assunto-nome"><%= assunto.nome %></span>
-                      </div>
-                      <div class="assunto-stats">
-                        <%
-                          const assuntoHoras = assunto.horas;
-                          const assuntoHorasInt = Math.floor(assuntoHoras);
-                          const assuntoMinutos = Math.round((assuntoHoras - assuntoHorasInt) * 60);
-                        %>
-                        <span class="assunto-horas"><%= assuntoHorasInt %>h <%= assuntoMinutos %>min</span>
-                        <span class="assunto-questoes"><%= assunto.questoes %> questões</span>
-                        <span class="assunto-percent <%= assunto.aproveitamento >= 70 ? 'good' : assunto.aproveitamento >= 50 ? 'medium' : 'bad' %>">
-                          <%= assunto.aproveitamento %>%>
-                        </span>
-                      </div>
-                    </div>
-                  <% }); %>
-                </div>
-              </div>
-            <% } %>
           </div>
         <% }); %>
       </div>
@@ -222,7 +195,7 @@
       <div class="tabela-card">
         <div class="tabela-header">
           <h2>📊 Tabela Completa</h2>
-          <span class="tabela-sub">Todos os dados por tópico e assunto</span>
+          <span class="tabela-sub">Todos os dados por tópicoo</span>
         </div>
         <div class="table-container">
           <table class="data-table">
@@ -253,32 +226,10 @@
                   <td class="bad"><%= topico.erros %></td>
                   <td>
                     <span class="table-percent <%= topico.aproveitamento >= 70 ? 'good' : topico.aproveitamento >= 50 ? 'medium' : 'bad' %>">
-                      <%= topico.aproveitamento %>%>
+                      <%= topico.aproveitamento %>%
                     </span>
                   </td>
                 </tr>
-                <% if (topico.assuntos) { %>
-                  <% topico.assuntos.forEach(function(assunto) { %>
-                    <tr class="row-assunto">
-                      <td><span class="tipo-badge assunto">Assunto</span></td>
-                      <td class="assunto-name"><%= assunto.nome %></td>
-                      <%
-                        const tabelaAssuntoHoras = assunto.horas;
-                        const tabelaAssuntoHorasInt = Math.floor(tabelaAssuntoHoras);
-                        const tabelaAssuntoMinutos = Math.round((tabelaAssuntoHoras - tabelaAssuntoHorasInt) * 60);
-                      %>
-                      <td><%= tabelaAssuntoHorasInt %>h <%= tabelaAssuntoMinutos %>min</td>
-                      <td><%= assunto.questoes %></td>
-                      <td class="good"><%= assunto.acertos %></td>
-                      <td class="bad"><%= assunto.erros %></td>
-                      <td>
-                        <span class="table-percent <%= assunto.aproveitamento >= 70 ? 'good' : assunto.aproveitamento >= 50 ? 'medium' : 'bad' %>">
-                          <%= assunto.aproveitamento %>%>
-                        </span>
-                      </td>
-                    </tr>
-                  <% }); %>
-                <% } %>
               <% }); %>
             </tbody>
           </table>

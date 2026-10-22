@@ -1,5 +1,4 @@
-const { StudyEntry, Subject, Topic, Subtopic, StudyGoal, ReviewHistory } = require("../models");
-const sequelize = require("../config/database");
+const { StudyEntry, Subject, Topic, StudyGoal } = require("../models");
 const { Op, fn, col } = require("sequelize");
 
 // =========================
@@ -109,15 +108,7 @@ async function calcStreak(userId) {
 // ESTATÍSTICAS POR PERÍODO
 // =========================
 async function calcByPeriod(userId, dateLimit) {
-  const redacaoSubject = await Subject.findOne({
-    where: { user_id: userId, nome: "Redação" },
-    attributes: ["id"],
-    raw: true
-  });
-  const where = {
-    user_id: userId,
-    ...(redacaoSubject?.id ? { subject_id: { [Op.ne]: redacaoSubject.id } } : {})
-  };
+  const where = { user_id: userId };
 
   if (dateLimit) {
     where.data = { [Op.gte]: dateLimit };
@@ -309,34 +300,6 @@ async function calcMetas(userId) {
 }
 
 // =========================
-// REVISÕES
-// =========================
-async function calcRevisoes(userId) {
-  const totalRevisoes = await ReviewHistory.count({
-    where: { user_id: userId }
-  });
-
-  const revisoesPorMateria = await ReviewHistory.findAll({
-    where: { user_id: userId },
-    attributes: [
-      "subject_id",
-      [fn("COUNT", col("ReviewHistory.id")), "total"]
-    ],
-    include: [{ model: Subject, as: "subject", attributes: ["id", "nome"] }],
-    group: ["subject_id", "subject.id"],
-    raw: false
-  });
-
-  return {
-    total: totalRevisoes,
-    porMateria: revisoesPorMateria.map(r => ({
-      nome: r.subject?.nome || "Sem matéria",
-      total: Number(r.get("total"))
-    }))
-  };
-}
-
-// =========================
 // CONQUISTAS
 // =========================
 async function calcConquistas(userId) {
@@ -344,11 +307,12 @@ async function calcConquistas(userId) {
   const progresso = [];
 
   // Total de horas
-  const statsTotal = await StudyEntry.findOne({
+    const statsTotal = await StudyEntry.findOne({
     where: { user_id: userId },
     attributes: [
       [fn("SUM", col("horas")), "horas"],
-      [fn("SUM", col("questoes")), "questoes"]
+      [fn("SUM", col("questoes")), "questoes"],
+      [fn("SUM", col("acertos")), "acertos"]   // <- linha nova
     ],
     raw: true
   });
@@ -367,11 +331,6 @@ async function calcConquistas(userId) {
     raw: true
   });
   const diasTotal = diasRaw.length;
-
-  // Total de revisões
-  const totalRevisoes = await ReviewHistory.count({
-    where: { user_id: userId }
-  });
 
   // Taxa de acertos
   const taxaGeral = questoesTotal > 0
@@ -402,15 +361,11 @@ async function calcConquistas(userId) {
   if (diasTotal >= 7) conquistas.push({ icone: "📅", titulo: "Semana Completa", desc: "7 dias estudados" });
   if (diasTotal >= 30) conquistas.push({ icone: "🗓️", titulo: "Mês de Estudos", desc: "30 dias estudados" });
 
-  // Conquistas de revisões
-  if (totalRevisoes >= 10) conquistas.push({ icone: "🔄", titulo: "Revisor", desc: "10 revisões" });
-  if (totalRevisoes >= 50) conquistas.push({ icone: "📖", titulo: "Mestre da Revisão", desc: "50 revisões" });
-
   // Conquistas de taxa
   if (taxaGeral >= 70) conquistas.push({ icone: "🎓", titulo: "Alto Rendimento", desc: "70%+ aproveitamento" });
   if (taxaGeral >= 90) conquistas.push({ icone: "🌟", titulo: "Gênio", desc: "90%+ aproveitamento" });
 
-  return { conquistas, progresso, streak, diasTotal, horasTotal, questoesTotal, taxaGeral, totalRevisoes };
+  return { conquistas, progresso, streak, diasTotal, horasTotal, questoesTotal, taxaGeral };
 }
 
 // =========================
@@ -419,29 +374,13 @@ async function calcConquistas(userId) {
 async function calcEstatisticasConteudo(userId, period) {
   const dateLimit = getDateLimit(period);
   const where = { user_id: userId };
-  const whereAll = { user_id: userId };
-
-  const redacaoSubject = await Subject.findOne({
-    where: { user_id: userId, nome: "Redação" },
-    attributes: ["id"],
-    raw: true
-  });
-
-  if (redacaoSubject?.id) {
-    where.subject_id = { [Op.ne]: redacaoSubject.id };
-    whereAll.subject_id = { [Op.ne]: redacaoSubject.id };
-  }
 
   if (dateLimit) {
     where.data = { [Op.gte]: dateLimit };
   }
 
-  // Buscar todas as matérias do usuário
   const subjects = await Subject.findAll({
-    where: {
-      user_id: userId,
-      ...(redacaoSubject?.id ? { id: { [Op.ne]: redacaoSubject.id } } : {})
-    },
+    where: { user_id: userId },
     order: [["nome", "ASC"]],
     raw: true
   });
@@ -452,7 +391,6 @@ async function calcEstatisticasConteudo(userId, period) {
   // Para cada matéria, buscar estatísticas
   for (const subject of subjects) {
     const subjectWhere = { ...where, subject_id: subject.id };
-    const subjectWhereAll = { ...whereAll, subject_id: subject.id };
 
     // Estatísticas da matéria
     const [stats] = await StudyEntry.findAll({
@@ -604,338 +542,6 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
 }
 
 // =========================
-// ESTATÍSTICAS REDAÇÃO BÁSICO
-// =========================
-async function calcEstatisticasRedacao(userId, period) {
-  const redacaoSubject = await Subject.findOne({
-    where: { user_id: userId, nome: 'Redação' }
-  });
-
-  if (!redacaoSubject) {
-    return {
-      total: 0,
-      horas: 0,
-      mediaNota: 0,
-      notaMin: null,
-      notaMax: null,
-      totalCompetencias: 0,
-      mediaCompetencias: 0,
-      mediaC1: null,
-      mediaC2: null,
-      mediaC3: null,
-      mediaC4: null,
-      mediaC5: null,
-      ultimasRedacoes: [],
-      porRedacao: []
-    };
-  }
-
-  const dateLimit = getDateLimit(period);
-  const redacaoWhere = {
-    user_id: userId,
-    subject_id: redacaoSubject.id,
-    [Op.or]: [
-      { redacao_nota: { [Op.ne]: null } },
-      { c1: { [Op.ne]: null } },
-      { c2: { [Op.ne]: null } },
-      { c3: { [Op.ne]: null } },
-      { c4: { [Op.ne]: null } },
-      { c5: { [Op.ne]: null } }
-    ]
-  };
-
-  if (dateLimit) {
-    redacaoWhere.data = { [Op.gte]: dateLimit };
-  }
-
-  const [summary] = await StudyEntry.findAll({
-    where: redacaoWhere,
-    attributes: [
-      [fn('COUNT', col('id')), 'total_redacoes'],
-      [fn('SUM', col('horas')), 'horas'],
-      [fn('AVG', col('redacao_nota')), 'media_nota'],
-      [fn('MIN', col('redacao_nota')), 'nota_min'],
-      [fn('MAX', col('redacao_nota')), 'nota_max'],
-      [fn('SUM', col('redacao_total_competencias')), 'total_competencias'],
-      [fn('AVG', col('redacao_media_competencias')), 'media_competencias'],
-      [fn('AVG', col('c1')), 'media_c1'],
-      [fn('AVG', col('c2')), 'media_c2'],
-      [fn('AVG', col('c3')), 'media_c3'],
-      [fn('AVG', col('c4')), 'media_c4'],
-      [fn('AVG', col('c5')), 'media_c5']
-    ],
-    raw: true
-  });
-
-  const ultimasRedacoesRaw = await StudyEntry.findAll({
-    where: redacaoWhere,
-    order: [['data', 'DESC']],
-    limit: 20,
-    include: [{ model: Topic, as: 'topic', attributes: ['nome'] }],
-    raw: false
-  });
-
-  const ultimasRedacoes = ultimasRedacoesRaw.map(r => ({
-    id: r.id,
-    data: r.data,
-    tema: r.tema || 'Não informado',
-    estilo: r.topic?.nome || 'Redação',
-    nota: r.redacao_nota != null ? r.redacao_nota : (r.redacao_total_competencias != null ? r.redacao_total_competencias : null),
-    c1: r.c1,
-    c2: r.c2,
-    c3: r.c3,
-    c4: r.c4,
-    c5: r.c5,
-    totalCompetencias: r.redacao_total_competencias,
-    mediaCompetencias: r.redacao_media_competencias,
-    horas: r.horas,
-    comentario: r.redacao_comentario || null
-  }));
-
-  const redacoesOrdenadas = [...ultimasRedacoes].sort((a, b) => new Date(a.data) - new Date(b.data));
-  let notaAnterior = null;
-  const porRedacao = redacoesOrdenadas.map((r) => {
-    const notaAtual = Number(r.nota || 0);
-    const deltaNota = notaAnterior != null ? (notaAtual - notaAnterior) : null;
-    notaAnterior = notaAtual > 0 ? notaAtual : notaAnterior;
-
-    const comps = [
-      { nome: "C1", valor: Number(r.c1 || 0) },
-      { nome: "C2", valor: Number(r.c2 || 0) },
-      { nome: "C3", valor: Number(r.c3 || 0) },
-      { nome: "C4", valor: Number(r.c4 || 0) },
-      { nome: "C5", valor: Number(r.c5 || 0) }
-    ];
-
-    const melhorComp = comps.reduce((best, c) => (c.valor > best.valor ? c : best), comps[0]);
-    const piorComp = comps.reduce((worst, c) => (c.valor < worst.valor ? c : worst), comps[0]);
-
-    return {
-      ...r,
-      deltaNota,
-      melhorCompetencia: melhorComp,
-      piorCompetencia: piorComp
-    };
-  }).reverse();
-
-  const notasMaiores = ultimasRedacoes
-    .map(r => Number(r.nota || 0))
-    .filter(n => n > 0)
-    .sort((a, b) => b - a);
-
-  const metas = ultimasRedacoes.reduce((acc, r) => {
-    const nota = Number(r.nota || 0);
-    if (nota >= 600) acc.ate600++;
-    if (nota >= 700) acc.ate700++;
-    if (nota >= 800) acc.ate800++;
-    return acc;
-  }, { ate600: 0, ate700: 0, ate800: 0 });
-
-  return {
-    total: Number(summary?.total_redacoes || 0),
-    horas: Number(summary?.horas || 0),
-    mediaNota: summary?.media_nota ? Number(Number(summary.media_nota).toFixed(1)) : 0,
-    notaMin: summary?.nota_min ? Number(summary.nota_min) : null,
-    notaMax: summary?.nota_max ? Number(summary.nota_max) : null,
-    totalCompetencias: Number(summary?.total_competencias || 0),
-    mediaCompetencias: summary?.media_competencias ? Number(Number(summary.media_competencias).toFixed(1)) : 0,
-    mediaC1: summary?.media_c1 ? Number(Number(summary.media_c1).toFixed(1)) : null,
-    mediaC2: summary?.media_c2 ? Number(Number(summary.media_c2).toFixed(1)) : null,
-    mediaC3: summary?.media_c3 ? Number(Number(summary.media_c3).toFixed(1)) : null,
-    mediaC4: summary?.media_c4 ? Number(Number(summary.media_c4).toFixed(1)) : null,
-    mediaC5: summary?.media_c5 ? Number(Number(summary.media_c5).toFixed(1)) : null,
-    melhorNota: notasMaiores[0] || null,
-    piorNota: notasMaiores.length ? notasMaiores[notasMaiores.length - 1] : null,
-    porcentagem800: ultimasRedacoes.length ? Math.round((metas.ate800 / ultimasRedacoes.length) * 100) : 0,
-    porcentagem700: ultimasRedacoes.length ? Math.round((metas.ate700 / ultimasRedacoes.length) * 100) : 0,
-    ultimasRedacoes,
-    porRedacao
-  };
-}
-
-// =========================
-// ESTATÍSTICAS REDAÇÃO AVANÇADAS
-// =========================
-async function calcEstatisticasRedacaoAvancadas(userId, period) {
-  const redacaoSubject = await Subject.findOne({
-    where: { user_id: userId, nome: 'Redação' }
-  });
-
-  if (!redacaoSubject) return {};
-
-  const dateLimit = getDateLimit(period);
-  const where = {
-    user_id: userId,
-    subject_id: redacaoSubject.id,
-    [Op.or]: [
-      { redacao_nota: { [Op.ne]: null } },
-      { redacao_total_competencias: { [Op.ne]: null } }
-    ]
-  };
-
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
-
-  // Distribuição de notas (histogram) - usando literals SQL
-  // Distribuição de notas (histogram) - raw query segura
-  const notaDist = await sequelize.query(`
-    SELECT 
-      CASE
-        WHEN redacao_nota < 500 THEN 'lt500'
-        WHEN redacao_nota BETWEEN 500 AND 599 THEN '500-599'
-        WHEN redacao_nota BETWEEN 600 AND 699 THEN '600-699'
-        WHEN redacao_nota BETWEEN 700 AND 799 THEN '700-799'
-        WHEN redacao_nota BETWEEN 800 AND 899 THEN '800-899'
-        ELSE '900+'
-      END as faixa,
-      COUNT(*) as count
-    FROM study_entries 
-    WHERE user_id = ? AND subject_id = ? AND redacao_nota IS NOT NULL
-    ${dateLimit ? 'AND data >= ?' : ''}
-    GROUP BY faixa
-  `, { 
-    replacements: [userId, redacaoSubject.id, dateLimit ? dateLimit.toISOString().slice(0,10) : null],
-    type: sequelize.QueryTypes.SELECT 
-  });
-
-  const distribution = {
-    lt500: 0, '500-599': 0, '600-699': 0, '700-799': 0, '800-899': 0, '900+': 0
-  };
-  let totalCount = 0;
-  notaDist.forEach(row => {
-    distribution[row.faixa] = Number(row.count);
-    totalCount += Number(row.count);
-  });
-
-  // Top 5 estilos
-  const topEstilosRaw = await StudyEntry.findAll({
-    where,
-    include: [{ model: Topic, as: 'topic', attributes: ['nome'] }],
-    attributes: [
-      [col('topic.nome'), 'estilo'],
-      [fn('COUNT', col('StudyEntry.id')), 'total']
-    ],
-    group: ['topic.id'],
-    order: [[fn('COUNT', col('StudyEntry.id')), 'DESC']],
-    limit: 5,
-    raw: true
-  });
-
-  const topEstilos = topEstilosRaw.map(row => ({
-    estilo: row.estilo || 'Não definido',
-    total: Number(row.total)
-  }));
-
-  // Tempo médio por redação
-  const [tempoMedio] = await StudyEntry.findAll({
-    where,
-    attributes: [
-      [fn('AVG', col('horas')), 'tempo_medio']
-    ],
-    raw: true
-  });
-  const tempoMedioHoras = Number(tempoMedio?.tempo_medio || 0).toFixed(2);
-
-  // Correlação tempo x nota (simples)
-  const correlData = await StudyEntry.findAll({
-    where,
-    attributes: ['horas', 'redacao_nota', 'redacao_total_competencias'],
-    raw: true
-  });
-  const correlPoints = correlData
-    .map((r) => {
-      const x = Number(r.horas || 0);
-      const yRaw = r.redacao_nota != null ? r.redacao_nota : r.redacao_total_competencias;
-      const y = Number(yRaw || 0);
-      return { x, y };
-    })
-    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && p.x > 0 && p.y > 0);
-
-  const correl = correlPoints.length > 1 ? simpleCorrelation(correlPoints) : 0;
-
-  // Streak de redações (dias consecutivos com redação)
-  const redStreak = await calcRedacaoStreak(userId, redacaoSubject.id);
-
-  return {
-    distribution,
-    topEstilos,
-    tempoMedio: tempoMedioHoras,
-    correlacaoTempoNota: Math.round(correl * 100) / 100,
-    redacaoStreak: redStreak
-  };
-}
-
-// Helper simples para correlação Pearson
-function simpleCorrelation(data) {
-  if (data.length < 2) return 0;
-  const n = data.length;
-  const sumX = data.reduce((s, p) => s + p.x, 0);
-  const sumY = data.reduce((s, p) => s + p.y, 0);
-  const sumXY = data.reduce((s, p) => s + p.x * p.y, 0);
-  const sumXX = data.reduce((s, p) => s + p.x * p.x, 0);
-  const sumYY = data.reduce((s, p) => s + p.y * p.y, 0);
-  const num = n * sumXY - sumX * sumY;
-  const den = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
-  return den === 0 ? 0 : num / den;
-}
-
-// Streak específico para redações
-async function calcRedacaoStreak(userId, subjectId) {
-  const diasRaw = await StudyEntry.findAll({
-    where: { user_id: userId, subject_id: subjectId },
-    attributes: ['data'],
-    order: [['data', 'DESC']],
-    group: ['data'],
-    raw: true
-  });
-
-  const diasSet = new Set(diasRaw.map(d => d.data));
-  const hoje = todayISO();
-  let streak = 0;
-
-  for (let i = 0; i < 365; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
-    if (diasSet.has(iso)) streak++;
-    else break;
-  }
-
-  return streak;
-}
-
-// Detalhes de uma redação específica
-async function getRedacaoDetalhes(userId, entryId) {
-  const entry = await StudyEntry.findOne({
-    where: { id: entryId, user_id: userId },
-    include: [
-      { model: Subject, as: 'subject' },
-      { model: Topic, as: 'topic' }
-    ],
-    raw: false
-  });
-
-  if (!entry || entry.subject.nome !== 'Redação') return null;
-
-  return {
-    id: entry.id,
-    data: entry.data,
-    tema: entry.tema || "Não informado",
-    estilo: entry.topic?.nome || 'Redação',
-    horas: entry.horas,
-    nota: entry.redacao_nota,
-    c1: entry.c1, c2: entry.c2, c3: entry.c3, c4: entry.c4, c5: entry.c5,
-    totalCompetencias: entry.redacao_total_competencias,
-    mediaCompetencias: entry.redacao_media_competencias,
-    comentario: entry.redacao_comentario || null,
-    acertos: entry.acertos,
-    questoes: entry.questoes,
-    dificuldade: entry.dificuldade
-  };
-}
-
-// =========================
 // PÁGINA PRINCIPAL
 // =========================
 exports.geral = async (req, res) => {
@@ -970,14 +576,8 @@ exports.geral = async (req, res) => {
   // Metas
   const metas = await calcMetas(userId);
 
-  // Revisões
-  const revisoes = await calcRevisoes(userId);
-
   // Conquistas
   const conquistas = await calcConquistas(userId);
-
-  // Redação
-  const redacao = await calcEstatisticasRedacao(userId, period);
 
   res.render("app/statistics", {
     active: "estatisticas",
@@ -1023,9 +623,6 @@ exports.geral = async (req, res) => {
     // Metas
     metas,
 
-    // Revisões
-    revisoes,
-
     // Conquistas
     conquistas: conquistas.conquistas,
     conquistasProgresso: conquistas.progresso,
@@ -1033,7 +630,6 @@ exports.geral = async (req, res) => {
     horasTotal: conquistas.horasTotal,
     questoesTotal: conquistas.questoesTotal,
     taxaGeral: conquistas.taxaGeral,
-    totalRevisoes: conquistas.totalRevisoes
   });
 };
 
@@ -1097,41 +693,6 @@ exports.conteudo = async (req, res) => {
     // Evolução
     evolucao
   });
-};
-
-// =========================
-// REDAÇÃO
-// =========================
-exports.redacao = async (req, res) => {
-  const userId = req.session.userId;
-  const period = req.query.period || 'all';
-
-  const basic = await calcEstatisticasRedacao(userId, period);
-  const avancado = await calcEstatisticasRedacaoAvancadas(userId, period);
-
-  const redacao = { ...basic, avancado };
-
-  res.render('app/estatisticas-redacao', {
-    active: 'estatisticas',
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto,
-    period,
-    redacao
-  });
-};
-
-// Nova rota para detalhes individuais
-exports.redacaoDetalhes = async (req, res) => {
-  const userId = req.session.userId;
-  const entryId = parseInt(req.params.entryId);
-
-  const detalhes = await getRedacaoDetalhes(userId, entryId);
-
-  if (!detalhes) {
-    return res.status(404).json({ error: 'Redação não encontrada' });
-  }
-
-  res.json(detalhes);
 };
 
 // =========================
@@ -1213,7 +774,7 @@ exports.detalhesMateria = async (req, res) => {
   const topicos = [];
   let totalTopicsCount = 0;
 
-  for (const topic of topics) {
+    for (const topic of topics) {
     const topicWhere = { ...where, topic_id: topic.id };
 
     const [topicStats] = await StudyEntry.findAll({
@@ -1231,45 +792,6 @@ exports.detalhesMateria = async (req, res) => {
     const topicAcertos = Number(topicStats?.acertos) || 0;
     const topicAproveitamento = topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
 
-    // Buscar assuntos do tópico
-    const subtopics = await Subtopic.findAll({
-      where: { topic_id: topic.id },
-      order: [["nome", "ASC"]],
-      raw: true
-    });
-
-    const assuntos = [];
-    for (const subtopic of subtopics) {
-      const subtopicWhere = { ...where, subtopic_id: subtopic.id };
-
-      const [subtopicStats] = await StudyEntry.findAll({
-        where: subtopicWhere,
-        attributes: [
-          [fn("SUM", col("horas")), "horas"],
-          [fn("SUM", col("questoes")), "questoes"],
-          [fn("SUM", col("acertos")), "acertos"]
-        ],
-        raw: true
-      });
-
-      const subHoras = Number(subtopicStats?.horas) || 0;
-      const subQuestoes = Number(subtopicStats?.questoes) || 0;
-      const subAcertos = Number(subtopicStats?.acertos) || 0;
-      const subAproveitamento = subQuestoes > 0 ? Math.round((subAcertos / subQuestoes) * 100) : 0;
-
-      if (subHoras > 0 || subQuestoes > 0) {
-        assuntos.push({
-          id: subtopic.id,
-          nome: subtopic.nome,
-          horas: subHoras,
-          questoes: subQuestoes,
-          acertos: subAcertos,
-          erros: subQuestoes - subAcertos,
-          aproveitamento: subAproveitamento
-        });
-      }
-    }
-
     if (topicHoras > 0 || topicQuestoes > 0) {
       topicos.push({
         id: topic.id,
@@ -1279,7 +801,7 @@ exports.detalhesMateria = async (req, res) => {
         acertos: topicAcertos,
         erros: topicQuestoes - topicAcertos,
         aproveitamento: topicAproveitamento,
-        assuntos
+        assuntos: [] // TEMPORÁRIO: a view ainda pode iterar sobre isso
       });
       totalTopicsCount++;
     }

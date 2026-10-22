@@ -116,7 +116,6 @@ exports.detalhesSimulado = async (req, res) => {
               include: [
                 { model: require("../models").Subject, as: "subject" },
                 { model: require("../models").Topic, as: "topic" },
-                { model: require("../models").Subtopic, as: "subtopic" },
               ],
             },
           ],
@@ -225,7 +224,6 @@ exports.adicionarBloco = async (req, res) => {
           motivo: erro.motivo,
           subject_id: erro.subject_id || null,
           topic_id: erro.topic_id || null,
-          subtopic_id: erro.subtopic_id || null,
         });
       }
     }
@@ -383,10 +381,6 @@ exports.listarErros = async (req, res) => {
         {
           model: require("../models").Topic,
           as: "topic",
-        },
-        {
-          model: require("../models").Subtopic,
-          as: "subtopic",
         },
       ],
       order: [["created_at", "DESC"]],
@@ -607,8 +601,7 @@ exports.adicionarErroNoBloco = async (req, res) => {
     numero_questao,
     motivo,
     subject_id,
-    topic_id,
-    subtopic_id
+    topic_id
   } = req.body;
 
   const numero = Number(numero_questao);
@@ -658,8 +651,7 @@ exports.adicionarErroNoBloco = async (req, res) => {
       numero_questao: numero,
       motivo,
       subject_id: subject_id || null,
-      topic_id: topic_id || null,
-      subtopic_id: subtopic_id || null
+      topic_id: topic_id || null
     });
 
     return res.json({ ok: true });

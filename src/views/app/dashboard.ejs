@@ -63,10 +63,6 @@
           <span class="icon">📝</span>
           <span class="label">Registrar Estudo</span>
         </a>
-        <a href="/redacao" class="quick-action-btn">
-          <span class="icon">✍️</span>
-          <span class="label">Redação</span>
-        </a>
         <a href="/simulados/lista" class="quick-action-btn">
           <span class="icon">📋</span>
           <span class="label">Novo Simulado</span>
@@ -76,11 +72,13 @@
       <!-- =========================
            FILTRO GLOBAL
       ========================== -->
-      <section class="dashboard-filter">
-        <% filtros.forEach(f => { %>
+            <section class="dashboard-filter">
+        <% filtros.forEach(f => { 
+             const valor = f === 'mês' ? 'mes' : f;
+        %>
           <a
-            href="/dashboard?periodo=<%= f %>"
-            class="filter-btn <%= periodo === f ? 'active' : '' %>"
+            href="/dashboard?periodo=<%= valor %>"
+            class="filter-btn <%= periodo === valor ? 'active' : '' %>"
           >
             <%= f.charAt(0).toUpperCase() + f.slice(1) %>
           </a>
@@ -133,29 +131,6 @@
         </div>
 
       </section>
-
-      <!-- =========================
-           REVISÕES PENDENTES
-      ========================== -->
-      <% if (revisoesPendentes && revisoesPendentes.length > 0) { %>
-        <section class="dashboard-section revisoes-section">
-          <div class="section-header">
-            <h2>🔄 Revisões Pendentes</h2>
-            <a href="/revisoes" class="section-link">Ver todas →</a>
-          </div>
-          <div class="revisoes-grid">
-            <% revisoesPendentes.forEach(r => { %>
-              <div class="revisao-card">
-                <div class="revisao-info">
-                  <span class="revisao-materia"><%= r.subject ? r.subject.nome : 'Matéria' %></span>
-                  <span class="revisao-topico"><%= r.nome %></span>
-                </div>
-                <a href="/revisoes" class="revisao-btn">Revisar</a>
-              </div>
-            <% }) %>
-          </div>
-        </section>
-      <% } %>
 
       <!-- =========================
            METAS PRINCIPAIS
