@@ -1,170 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KMed | Perfil</title>
-
-  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
-  <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/app/profile.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <%- include("../partials/head", { title: "Perfil", css: ["perfil"] }) %>
 </head>
 <body class="page-bg">
 
-<%- include("../partials/sidebar", { active: "perfil", userNome }) %>
+<%- include("../partials/sidebar", { active: "perfil", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-  <div class="page profile-page">
+  <div class="page">
 
-    <h1>Meu Perfil</h1>
-
-    <% if (erro) { %>
-      <div class="alert error"><%= erro %></div>
-    <% } %>
-
-    <% if (ok) { %>
-      <div class="alert ok"><%= ok %></div>
-    <% } %>
-
-    <!-- Seção de Estatísticas -->
-    <div class="stats-section">
-      <div class="stats-grid">
-        
-        <div class="stat-card hours">
-          <div class="stat-icon">
-            <i class="fas fa-clock"></i>
-          </div>
-          <div class="stat-info">
-            <%
-              const totalHorasProfile = stats.totalHoras;
-              const totalHorasProfileInt = Math.floor(totalHorasProfile);
-              const totalMinutosProfile = Math.round((totalHorasProfile - totalHorasProfileInt) * 60);
-            %>
-            <span class="stat-value"><%= totalHorasProfileInt %>h <%= totalMinutosProfile %>min</span>
-            <span class="stat-label">Horas Estudadas</span>
-          </div>
-        </div>
-
-        <div class="stat-card questions">
-          <div class="stat-icon">
-            <i class="fas fa-pen"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.totalQuestoes %></span>
-            <span class="stat-label">Questões Respondidas</span>
-          </div>
-        </div>
-
-        <div class="stat-card correct">
-          <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.totalAcertos %></span>
-            <span class="stat-label">Acertos</span>
-          </div>
-        </div>
-
-        <div class="stat-card accuracy">
-          <div class="stat-icon">
-            <i class="fas fa-bullseye"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.taxaAcertos %>%</span>
-            <span class="stat-label">Taxa de Acerto</span>
-          </div>
-        </div>
-
-        <div class="stat-card exams">
-          <div class="stat-icon">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.simuladoCount %></span>
-            <span class="stat-label">Simulados Feitos</span>
-          </div>
-        </div>
-
-        <div class="stat-card streak">
-          <div class="stat-icon">
-            <i class="fas fa-fire"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.streak %></span>
-            <span class="stat-label">Dias Seguidos</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Card do Perfil -->
-    <form method="POST" enctype="multipart/form-data" class="profile-card">
-
-      <div class="avatar-section">
-        <div class="avatar">
-          <img src="<%= user.foto || '/public/img/avatar-default.png' %>" alt="Foto de perfil">
-          <label for="foto" class="avatar-edit">
-            <i class="fas fa-camera"></i>
-          </label>
-          <input type="file" id="foto" name="foto" accept="image/*">
-        </div>
-        <div class="user-name">
-          <h2><%= user.nome %></h2>
-          <p>Membro desde <%= dataCadastro %></p>
+    <!-- IDENTIDADE -->
+    <section class="card hero">
+      <img class="hero-avatar" id="hero-avatar" src="<%= user.foto || '/public/img/avatar-default.png' %>" alt="">
+      <div class="hero-info">
+        <h1><%= user.nome %></h1>
+        <p class="muted"><%= user.email %></p>
+        <% if (user.bio) { %><p class="hero-bio"><%= user.bio %></p><% } %>
+        <div class="row" style="margin-top: var(--s-2);">
+          <% if (desde) { %><span class="badge">📅 Membro desde <%= desde %></span><% } %>
+          <span class="badge badge-warn">🔥 <%= stats.streak %> <%= stats.streak === 1 ? "dia seguido" : "dias seguidos" %></span>
         </div>
       </div>
+    </section>
 
-      <div class="form-section">
-        <div class="form-group">
-          <label><i class="fas fa-user"></i> Nome</label>
-          <input type="text" name="nome" value="<%= user.nome %>" required>
-        </div>
-
-        <div class="form-group">
-          <label><i class="fas fa-envelope"></i> Email</label>
-          <input type="email" name="email" value="<%= user.email %>" required>
-        </div>
-
-        <div class="form-group">
-          <label><i class="fas fa-lock"></i> Nova senha (opcional)</label>
-          <input type="password" name="senha" placeholder="mínimo 6 caracteres">
-        </div>
-
-        <div class="form-group">
-          <label><i class="fas fa-align-left"></i> Bio / Descrição</label>
-          <textarea name="bio" placeholder="Conte um pouco sobre você... (ex: estudante de medicina, focado no vestibular...)" maxlength="500"><%= user.bio || '' %></textarea>
-          <span class="char-count"><%= (user.bio || '').length %>/500</span>
-        </div>
-
-        <button class="btn">Salvar alterações</button>
+    <!-- RESUMO -->
+    <section class="grid-4">
+      <div class="card kpi"><h3>Tempo estudado</h3><p class="value"><%= formatHours(stats.horas) %></p><span class="label"><%= stats.dias %> <%= stats.dias === 1 ? "dia" : "dias" %> de estudo</span></div>
+      <div class="card kpi"><h3>Questões</h3><p class="value"><%= stats.questoes %></p><span class="label"><%= stats.acertos %> acertos</span></div>
+      <div class="card kpi"><h3>Taxa de acerto</h3><p class="value"><%= stats.taxa === null ? "—" : stats.taxa + "%" %></p>
+        <% if (stats.taxa !== null) { %><div class="progress" style="margin-top: var(--s-2);"><span style="width: <%= stats.taxa %>%"></span></div><% } %>
       </div>
+      <div class="card kpi"><h3>Simulados</h3><p class="value"><%= stats.simulados %></p><span class="label">Finalizados</span></div>
+    </section>
 
+    <% if (erro) { %><div class="alert alert-error"><%= erro %></div><% } %>
+    <% if (ok) { %><div class="alert alert-success"><%= ok %></div><% } %>
+
+    <form method="POST" action="/perfil" enctype="multipart/form-data" autocomplete="off" class="perfil-grid">
+
+      <!-- DADOS PESSOAIS -->
+      <section class="card stack">
+        <h2 class="card-heading">Dados pessoais</h2>
+
+        <div class="photo-row">
+          <img class="photo-prev" id="photo-prev" src="<%= user.foto || '/public/img/avatar-default.png' %>" alt="">
+          <div>
+            <label for="foto" class="btn btn-sm" style="margin-bottom: var(--s-1);">📷 Trocar foto</label>
+            <input type="file" id="foto" name="foto" accept="image/*" hidden>
+            <small class="faint" style="display:block;" id="photo-name">JPG ou PNG</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" name="nome" maxlength="120" required value="<%= user.nome %>">
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required value="<%= user.email %>">
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Bio <span class="faint">(opcional)</span></label>
+          <textarea id="bio" name="bio" rows="3" maxlength="300" placeholder="Ex: Foco em Medicina, ENEM 2027"><%= user.bio || "" %></textarea>
+          <small class="faint" style="text-align:right;"><span id="bio-count">0</span>/300</small>
+        </div>
+      </section>
+
+      <!-- SEGURANÇA -->
+      <section class="card stack">
+        <h2 class="card-heading">Segurança</h2>
+        <p class="muted" style="font-size: var(--fs-sm);">Deixe em branco se não quiser trocar a senha.</p>
+
+        <div class="form-group">
+          <label for="senha_atual">Senha atual</label>
+          <input type="password" id="senha_atual" name="senha_atual" autocomplete="current-password">
+        </div>
+        <div class="form-group">
+          <label for="senha_nova">Nova senha</label>
+          <input type="password" id="senha_nova" name="senha_nova" minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="form-group">
+          <label for="senha_conf">Confirmar nova senha</label>
+          <input type="password" id="senha_conf" name="senha_conf" autocomplete="new-password">
+        </div>
+      </section>
+
+      <div class="save-bar">
+        <button type="submit" class="btn-primary">💾 Salvar alterações</button>
+        <a href="/dashboard" class="btn">Cancelar</a>
+      </div>
     </form>
+
+        <section class="card bg-card">
+      <div class="bg-preview <%= loginBg ? 'has' : '' %>"
+           <% if (loginBg) { %>style="background-image: url('<%= loginBg %>')"<% } %>>
+        <% if (!loginBg) { %><span class="faint">Fundo padrão</span><% } %>
+      </div>
+
+      <div class="stack" style="gap: var(--s-3);">
+        <div>
+          <h2 class="card-heading">🖼 Fundo do login</h2>
+          <p class="muted" style="font-size: var(--fs-sm); margin-top: 4px;">
+            A foto que aparece nas telas de entrada e cadastro. Vale neste navegador.
+          </p>
+        </div>
+
+        <form method="POST" action="/perfil/fundo" enctype="multipart/form-data" class="row">
+          <label for="fundo" class="btn">📷 Escolher imagem</label>
+          <input type="file" id="fundo" name="fundo" accept="image/jpeg,image/png,image/webp" hidden
+                 onchange="this.form.submit()">
+          <small class="faint">JPG, PNG ou WebP · até 5 MB</small>
+        </form>
+
+        <% if (loginBg) { %>
+          <form method="POST" action="/perfil/fundo/remover">
+            <button type="submit" class="btn-danger btn-sm">Remover e voltar ao padrão</button>
+          </form>
+        <% } %>
+      </div>
+    </section>
 
   </div>
 </main>
 
 <script>
-  // Atualizar contador de caracteres
-  document.querySelector('textarea[name="bio"]').addEventListener('input', function() {
-    document.querySelector('.char-count').textContent = this.value.length + '/500';
+  // pré-visualização da foto
+  const foto = document.getElementById("foto");
+  foto.addEventListener("change", () => {
+    const f = foto.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    document.getElementById("photo-prev").src = url;
+    document.getElementById("hero-avatar").src = url;
+    document.getElementById("photo-name").textContent = f.name;
   });
 
-  // Preview da foto
-  document.querySelector('input[name="foto"]').addEventListener('change', function(e) {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.querySelector('.avatar img').src = e.target.result;
-      }
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  });
+  // contador da bio
+  const bio = document.getElementById("bio");
+  const cnt = document.getElementById("bio-count");
+  const upd = () => { cnt.textContent = bio.value.length; };
+  bio.addEventListener("input", upd);
+  upd();
 </script>
 
 </body>
 </html>
-

@@ -1,58 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Editar Tópico</title>
-
-  <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/content/base.css">
-  <link rel="stylesheet" href="/public/css/content/topicos-edit.css">
+  <%- include("../partials/head", { title: "Editar tópico", css: ["conteudos"] }) %>
 </head>
-
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "conteudos", userNome }) %>
+<%- include("../partials/sidebar", { active: "conteudos", userNome, userFoto }) %>
 
+<main class="with-sidebar">
+  <div class="page">
 
-  <main class="with-sidebar">
-    <div class="container">
+    <header class="page-header">
+      <div>
+        <h1>✏️ Editar tópico</h1>
+        <p>Você pode mudar o nome ou mover o tópico para outra matéria.</p>
+      </div>
+      <a href="/conteudos/topicos?subject_id=<%= topic.subject_id %>" class="btn">← Voltar</a>
+    </header>
 
-      <div class="topbar">
-        <a href="/conteudos/topicos" class="btnSecondary">← Voltar</a>
-        
+    <% if (erro) { %><div class="alert alert-error"><%= erro %></div><% } %>
+
+    <form method="POST" action="/conteudos/topicos/<%= topic.id %>/editar" class="card edit-card stack" autocomplete="off">
+      <div class="form-group">
+        <label for="subject_id">Matéria</label>
+        <select id="subject_id" name="subject_id" required>
+          <% subjects.forEach(s => { %>
+            <option value="<%= s.id %>" <%= s.id === topic.subject_id ? "selected" : "" %>><%= s.nome %></option>
+          <% }) %>
+        </select>
       </div>
 
-      <div class="card">
-        <h1>Editar Tópico</h1>
-
-        <% if (erro) { %>
-          <div class="alert"><%= erro %></div>
-        <% } %>
-
-        <form method="POST"
-              action="/conteudos/topicos/<%= topic.id %>/editar"
-              class="formCol">
-
-          <label>Matéria</label>
-          <select name="subject_id" required>
-            <% subjects.forEach(s => { %>
-              <option value="<%= s.id %>" <%= s.id === topic.subject_id ? "selected" : "" %>>
-                <%= s.nome %>
-              </option>
-            <% }) %>
-          </select>
-
-          <label>Nome do tópico</label>
-          <input name="nome" value="<%= topic.nome %>" required />
-
-          <button type="submit">Salvar</button>
-        </form>
+      <div class="form-group">
+        <label for="nome">Nome do tópico</label>
+        <input type="text" id="nome" name="nome" maxlength="120" required autofocus value="<%= topic.nome %>">
       </div>
 
-    </div>
-  </main>
+      <div class="row">
+        <button type="submit" class="btn-primary">💾 Salvar</button>
+        <a href="/conteudos/topicos?subject_id=<%= topic.subject_id %>" class="btn">Cancelar</a>
+      </div>
+    </form>
+
+  </div>
+</main>
 
 </body>
 </html>

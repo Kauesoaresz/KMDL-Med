@@ -80,20 +80,13 @@ exports.comparar = async (req, res) => {
       ? Math.round((totalA / totalQ) * 100)
       : 0;
 
-    // Formatar data - converter para objeto Date se necessário
-    let dataObj = simulado.data_realizacao;
-    if (dataObj && typeof dataObj === 'string') {
-      dataObj = new Date(dataObj);
-    }
-    
-    const dataFormatada = dataObj && dataObj instanceof Date && !isNaN(dataObj) 
-      ? dataObj.toLocaleDateString('pt-BR')
-      : '—';
+        const iso = simulado.data_realizacao; // "YYYY-MM-DD"
+    const dataFormatada = iso ? iso.split("-").reverse().join("/") : "—";
 
     return {
       id: simulado.id,
       nome: simulado.nome,
-      data: dataObj, // Retorna objeto Date para cálculo correto
+      data: iso,
       dataFormatada,
       status: simulado.status,
       totalQ,
@@ -114,7 +107,7 @@ exports.comparar = async (req, res) => {
   let diasEntre = 0;
   if (A.data && B.data && A.data instanceof Date && B.data instanceof Date) {
     const diffTime = Math.abs(B.data.getTime() - A.data.getTime());
-    diasEntre = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diasEntre = Math.round(Math.abs(Date.parse(B.data) - Date.parse(A.data)) / 86400000);
   }
 
   /* =========================

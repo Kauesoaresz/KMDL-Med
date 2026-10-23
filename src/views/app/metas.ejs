@@ -1,177 +1,232 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KMed | Minhas Metas</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/app/metas.css" />
+  <%- include("../partials/head", { title: "Metas", css: ["metas"] }) %>
 </head>
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "metas", userNome, userFoto }) %>
+<%- include("../partials/sidebar", { active: "metas", userNome, userFoto }) %>
 
-  <main class="with-sidebar">
-    <div class="page">
+<%
+  const grupos = [
+    { key: "ativas", label: "Ativas", lista: ativas,
+      vazio: { icon: "🎯", t: "Nenhuma meta ativa", p: "Crie uma meta para acompanhar seu ritmo de estudo." } },
+    { key: "concluidas", label: "Concluídas", lista: concluidas,
+      vazio: { icon: "🏆", t: "Nenhuma meta concluída ainda", p: "Quando você bater uma meta, ela aparece aqui." } },
+    { key: "vencidas", label: "Vencidas", lista: vencidas,
+      vazio: { icon: "✨", t: "Nenhuma meta vencida", p: "Ótimo! Nenhuma meta passou do prazo sem ser concluída." } }
+  ];
+  const paceInfo = {
+    adiantada:  { label: "🚀 Adiantada", cls: "badge-ok" },
+    no_ritmo:   { label: "✅ No ritmo", cls: "badge-info" },
+    atrasada:   { label: "⚠️ Atrasada", cls: "badge-err" },
+    aguardando: { label: "⏳ Ainda não começou", cls: "" }
+  };
+%>
 
-      <!-- Header -->
-      <section class="metas-header">
-        <div class="header-text">
-          <h1>📋 Histórico de Metas</h1>
-          <p>Acompanhe todas as suas metas de estudo</p>
-        </div>
-        <a href="/dashboard" class="back-btn">
-          ← Voltar ao Dashboard
-        </a>
-      </section>
+<main class="with-sidebar">
+  <div class="page">
 
-      <!-- Stats -->
-      <section class="metas-stats">
-        <div class="stat-card concluidas">
-          <span class="stat-icon">✅</span>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.totalConcluidas %></span>
-            <span class="stat-label">Concluídas</span>
-          </div>
-        </div>
-        <div class="stat-card vencidas">
-          <span class="stat-icon">⏰</span>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.totalVencidas %></span>
-            <span class="stat-label">Vencidas</span>
-          </div>
-        </div>
-        <div class="stat-card no-prazo">
-          <span class="stat-icon">🎯</span>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.dentroDoPrazo %></span>
-            <span class="stat-label">No Prazo</span>
-          </div>
-        </div>
-        <div class="stat-card fora-prazo">
-          <span class="stat-icon">⚠️</span>
-          <div class="stat-info">
-            <span class="stat-value"><%= stats.foraDoPrazo %></span>
-            <span class="stat-label">Fora do Prazo</span>
-          </div>
-        </div>
-      </section>
+    <header class="page-header">
+      <div>
+        <h1>🎯 Metas</h1>
+        <p>Defina objetivos de horas e questões e acompanhe seu ritmo.</p>
+      </div>
+      <button type="button" class="btn-primary" id="btn-new">＋ Nova meta</button>
+    </header>
 
-      <!-- Lista de Metas -->
-      <section class="metas-lista">
-        <% if (metas && metas.length > 0) { %>
-          <% metas.forEach(meta => { %>
-            <div class="meta-card <%= meta.status %>">
-              <div class="meta-card-header">
-                <div class="meta-titulo">
-                  <span class="meta-nome"><%= meta.nome %></span>
-                  <span class="meta-status <%= meta.status %>">
-                    <% if (meta.status === 'concluida') { %>
-                      <%= meta.dentro_do_prazo ? '✅ Concluída' : '⚠️ Fora do prazo' %>
-                    <% } else { %>
-                      ⏰ Vencida
-                    <% } %>
-                  </span>
-                </div>
-                <button class="meta-delete-btn" onclick="deletarMeta(<%= meta.id %>)" title="Excluir meta">
-                  🗑️
-                </button>
-              </div>
+    <section class="grid-4">
+      <div class="card kpi"><h3>Ativas</h3><p class="value"><%= stats.ativas %></p><span class="label"><%= stats.principais %>/4 no dashboard</span></div>
+      <div class="card kpi"><h3>Concluídas</h3><p class="value"><%= stats.concluidas %></p><span class="label">Metas batidas</span></div>
+      <div class="card kpi"><h3>Vencidas</h3><p class="value"><%= stats.vencidas %></p><span class="label">Passaram do prazo</span></div>
+      <div class="card kpi">
+        <h3>Taxa de conclusão</h3>
+        <p class="value"><%= stats.taxa === null ? "—" : stats.taxa + "%" %></p>
+        <% if (stats.taxa !== null) { %><div class="progress mt"><span style="width: <%= stats.taxa %>%"></span></div><% } else { %><span class="label">Sem metas encerradas</span><% } %>
+      </div>
+    </section>
 
-              <div class="meta-dates">
-                <div class="date-item">
-                  <span class="date-label">Criada em</span>
-                  <span class="date-value"><%= meta.data_inicio %></span>
-                </div>
-                <div class="date-item">
-                  <span class="date-label">Prazo</span>
-                  <span class="date-value"><%= meta.data_limite %></span>
-                </div>
-                <% if (meta.data_conclusao) { %>
-                  <div class="date-item">
-                    <span class="date-label">Concluída em</span>
-                    <span class="date-value concluida"><%= meta.data_conclusao %></span>
-                  </div>
-                <% } %>
-              </div>
+    <div class="tabs" id="tabs">
+      <% grupos.forEach((g, i) => { %>
+        <button type="button" class="tab <%= i === 0 ? 'active' : '' %>" data-tab="<%= g.key %>">
+          <%= g.label %> <span class="badge"><%= g.lista.length %></span>
+        </button>
+      <% }) %>
+    </div>
 
-              <div class="meta-progressos">
-                <div class="progress-item">
-                  <div class="progress-header">
-                    <span class="progress-label">Horas</span>
-                    <span class="progress-values"><%= meta.horas_concluidas %>h / <%= meta.meta_horas %>h</span>
-                  </div>
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: <%= meta.progresso_horas %>%"></div>
-                  </div>
-                </div>
-                <% if (meta.meta_questoes > 0) { %>
-                  <div class="progress-item">
-                    <div class="progress-header">
-                      <span class="progress-label">Questões</span>
-                      <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
-                    </div>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: <%= meta.progresso_questoes %>%"></div>
-                    </div>
-                  </div>
-                <% } %>
-              </div>
+    <% grupos.forEach((g, i) => { %>
+      <section class="panel" data-panel="<%= g.key %>" <%= i === 0 ? '' : 'hidden' %>>
 
-              <div class="meta-footer">
-                <% if (meta.data_conclusao) { %>
-                  <span class="meta-tempo">
-                    ⏱️ Tempo para concluir: <%= meta.dias_para_conclusao %> dias
-                  </span>
-                <% } else { %>
-                  <span class="meta-tempo">
-                    ⏱️ Prazo total: <%= meta.dias_totais %> dias
-                  </span>
-                <% } %>
-              </div>
-            </div>
-          <% }) %>
-        <% } else { %>
+        <% if (g.lista.length === 0) { %>
           <div class="empty-state">
-            <span class="empty-icon">📋</span>
-            <h2>Nenhuma meta encontrada</h2>
-            <p>Você ainda não criou nenhuma meta ou todas estão ativas.</p>
-            <a href="/dashboard" class="btn-primary">
-              Criar primeira meta
-            </a>
+            <div class="empty-icon"><%= g.vazio.icon %></div>
+            <h3><%= g.vazio.t %></h3>
+            <p><%= g.vazio.p %></p>
+            <% if (g.key === "ativas") { %><p style="margin-top: var(--s-4);"><button type="button" class="btn-primary" data-new>＋ Criar primeira meta</button></p><% } %>
+          </div>
+        <% } else { %>
+          <div class="grid-2">
+            <% g.lista.forEach(m => { %>
+              <article class="card goal s-<%= m.status %> <%= m.pace ? 'p-' + m.pace.situacao : '' %>" data-id="<%= m.id %>">
+
+                <div class="goal-head">
+                  <div class="ring" style="--p: <%= m.total %>"><span><%= m.total %>%</span></div>
+
+                  <div class="goal-title">
+                    <h3 title="<%= m.nome %>"><%= m.nome %></h3>
+                    <div class="goal-sub">
+                      <% if (m.status === "ativa") { %>
+                        <span>⏰ <%= m.limite %></span><span class="dotsep">·</span><span><%= m.prazoTexto %></span>
+                      <% } else if (m.status === "concluida") { %>
+                        <span class="badge <%= m.dentroPrazo ? 'badge-ok' : 'badge-warn' %>"><%= m.dentroPrazo ? "✅ No prazo" : "⚠️ Fora do prazo" %></span>
+                        <span>em <%= m.conclusao %> · <%= m.diasParaConcluir %> dia(s)</span>
+                      <% } else { %>
+                        <span class="badge badge-err">⏰ Venceu em <%= m.limite %></span>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <div class="goal-actions">
+                    <% if (m.status === "ativa") { %>
+                      <button type="button" class="icon-btn star <%= m.eh_principal ? 'on' : '' %>" data-act="star" title="<%= m.eh_principal ? 'Remover do dashboard' : 'Mostrar no dashboard' %>"><%= m.eh_principal ? "★" : "☆" %></button>
+                    <% } %>
+                    <button type="button" class="icon-btn" data-act="edit" title="Editar">✏️</button>
+                    <button type="button" class="icon-btn" data-act="del" title="Excluir">🗑</button>
+                  </div>
+                </div>
+
+                <div class="bars">
+                  <div class="bar-item">
+                    <div class="bar-line">
+                      <span>Horas</span>
+                      <span class="num"><%= formatHours(m.feitoH) %> / <%= formatHours(m.metaH) %></span>
+                    </div>
+                    <div class="progress"><span style="width: <%= m.pH %>%"></span></div>
+                  </div>
+
+                  <% if (m.pQ !== null) { %>
+                    <div class="bar-item">
+                      <div class="bar-line">
+                        <span>Questões</span>
+                        <span class="num"><%= m.feitoQ %> / <%= m.metaQ %></span>
+                      </div>
+                      <div class="progress"><span style="width: <%= m.pQ %>%"></span></div>
+                    </div>
+                  <% } %>
+                </div>
+
+                <% if (m.status === "ativa" && m.pace) { %>
+                  <div class="pace">
+                    <span class="badge <%= paceInfo[m.pace.situacao].cls %>"><%= paceInfo[m.pace.situacao].label %></span>
+                    <div class="pace-text">
+                      <% if (m.faltaH > 0 || m.faltaQ > 0) { %>
+                        <div>Faltam
+                          <% if (m.faltaH > 0) { %><strong><%= formatHours(m.faltaH) %></strong><% } %>
+                          <% if (m.faltaH > 0 && m.faltaQ > 0) { %> e <% } %>
+                          <% if (m.faltaQ > 0) { %><strong><%= m.faltaQ %></strong> questões<% } %>
+                        </div>
+                        <div class="muted">Ritmo ideal:
+                          <% if (m.faltaH > 0) { %><strong><%= formatHours(m.pace.porDiaH) %></strong>/dia<% } %>
+                          <% if (m.faltaH > 0 && m.faltaQ > 0) { %> · <% } %>
+                          <% if (m.faltaQ > 0) { %><strong><%= m.pace.porDiaQ %></strong> questões/dia<% } %>
+                          <span class="faint">(<%= m.pace.diasRestantes %> dia(s))</span>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm" data-act="done">✓ Marcar como concluída</button>
+                <% } else if (m.status === "vencida") { %>
+                  <div class="pace">
+                    <div class="pace-text muted">
+                      Faltaram
+                      <% if (m.faltaH > 0) { %><strong><%= formatHours(m.faltaH) %></strong><% } %>
+                      <% if (m.faltaH > 0 && m.faltaQ > 0) { %> e <% } %>
+                      <% if (m.faltaQ > 0) { %><strong><%= m.faltaQ %></strong> questões<% } %>.
+                      Edite o prazo para reabrir.
+                    </div>
+                  </div>
+                <% } %>
+
+              </article>
+            <% }) %>
           </div>
         <% } %>
       </section>
+    <% }) %>
 
+  </div>
+</main>
+
+<!-- MODAL CRIAR / EDITAR -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box modal-wide">
+    <h2 id="m-title">Nova meta</h2>
+
+    <div class="stack" style="margin-top: var(--s-4); gap: var(--s-4);">
+      <div class="form-group">
+        <label for="f-nome">Nome</label>
+        <input type="text" id="f-nome" maxlength="200" placeholder="Ex: Semana de Matemática">
+      </div>
+
+      <div class="form-group">
+        <label for="f-horas">Meta de horas</label>
+        <div class="with-quick">
+          <input type="number" id="f-horas" min="0" step="0.5" placeholder="0">
+          <div class="quick">
+            <button type="button" class="btn btn-sm" data-add-h="5">+5h</button>
+            <button type="button" class="btn btn-sm" data-add-h="10">+10h</button>
+            <button type="button" class="btn btn-sm" data-add-h="20">+20h</button>
+            <button type="button" class="btn btn-sm" data-add-h="50">+50h</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="f-quest">Meta de questões <span class="faint">(opcional)</span></label>
+        <div class="with-quick">
+          <input type="number" id="f-quest" min="0" step="1" placeholder="0">
+          <div class="quick">
+            <button type="button" class="btn btn-sm" data-add-q="100">+100</button>
+            <button type="button" class="btn btn-sm" data-add-q="250">+250</button>
+            <button type="button" class="btn btn-sm" data-add-q="500">+500</button>
+            <button type="button" class="btn btn-sm" data-add-q="1000">+1000</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap: var(--s-3);">
+        <div class="form-group"><label for="f-ini">Início</label><input type="date" id="f-ini"></div>
+        <div class="form-group"><label for="f-lim">Prazo</label><input type="date" id="f-lim"></div>
+      </div>
+
+      <div class="quick">
+        <span class="faint" style="align-self:center; font-size: var(--fs-xs);">Prazo a partir do início:</span>
+        <button type="button" class="btn btn-sm" data-add-d="7">+7 dias</button>
+        <button type="button" class="btn btn-sm" data-add-d="30">+30 dias</button>
+        <button type="button" class="btn btn-sm" data-add-d="90">+90 dias</button>
+        <button type="button" class="btn btn-sm" id="q-eom">Fim do mês</button>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="f-princ">
+        <span>⭐ Mostrar no dashboard (máx. 4)</span>
+      </label>
+
+      <div class="alert alert-error" id="m-err" hidden></div>
     </div>
-  </main>
 
-  <script>
-    async function deletarMeta(id) {
-      if (!confirm('Tem certeza que deseja excluir esta meta?')) return;
-      
-      try {
-        const response = await fetch(`/api/metas/${id}`, {
-          method: 'DELETE'
-        });
-        
-        if (response.ok) {
-          location.reload();
-        } else {
-          alert('Erro ao excluir meta');
-        }
-      } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao excluir meta');
-      }
-    }
-  </script>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="m-cancel">Cancelar</button>
+      <button type="button" class="btn-primary" id="m-save">Salvar meta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.GOALS = <%- goalsJson %>;
+  window.HOJE = "<%= hoje %>";
+</script>
+<script src="/public/js/app/metas.js"></script>
 
 </body>
 </html>
-

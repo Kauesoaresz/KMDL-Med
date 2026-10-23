@@ -1,83 +1,65 @@
 const { StudyGoal, StudyEntry } = require("../models");
 const { Op, fn, col } = require("sequelize");
-const sequelize = require("../config/database");
 
 /* =========================
-   HELPERS
+   HELPERS DE DATA (fuso local)
 ========================= */
-function todayISO() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
+function toISO(d) {
+  return (
+    d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0")
+  );
 }
+const todayISO = () => toISO(new Date());
 
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
+function parseISO(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
-
-function parseDateBR(dateStr) {
-  if (!dateStr) return null;
-  
-  // Se já estiver no formato yyyy-mm-dd (do input type="date")
-  if (dateStr.includes("-") && dateStr.split("-").length === 3) {
-    return dateStr; // Já está no formato correto para o banco
-  }
-  
-  // Se estiver no formato dd/mm/yyyy
-  const [d, m, y] = dateStr.split("/");
-  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-}
-
-function daysBetween(date1, date2) {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
-  const diffTime = Math.abs(d2 - d1);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
+const diffDays = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 86400000);
+const validISO = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parseISO(s));
+const fmtBR = (iso) => (iso ? iso.split("-").reverse().join("/") : "");
 
 /* =========================
-   ATUALIZAR PROGRESSO AUTOMÁTICO
+   PROGRESSO (só do início até o prazo)
 ========================= */
 async function atualizarProgressoMeta(goal) {
   const hoje = todayISO();
-  
-  // Buscar todos os estudos a partir da data de início
-  const estudos = await StudyEntry.findAll({
-    where: {
-      user_id: goal.user_id,
-      data: { [Op.gte]: goal.data_inicio }
-    },
-    attributes: [
-      [fn("SUM", col("horas")), "horas"],
-      [fn("SUM", col("questoes")), "questoes"]
-    ],
-    raw: true
-  });
+  const ate = hoje > goal.data_limite ? goal.data_limite : hoje;
 
-  const horasConcluidas = Number(estudos[0]?.horas) || 0;
-  const questoesConcluidas = Number(estudos[0]?.questoes) || 0;
+  let horas = 0;
+  let questoes = 0;
 
-  // Atualizar o registro da meta
-  goal.horas_concluidas = horasConcluidas;
-  goal.questoes_concluidas = questoesConcluidas;
-
-  // Verificar se a meta foi concluída
-  const horasConcluidasMeta = horasConcluidas >= goal.meta_horas;
-  const questoesConcluidasMeta = goal.meta_questoes > 0 
-    ? questoesConcluidas >= goal.meta_questoes 
-    : true;
-
-  // Se passaram da data limite e não concluiu
-  if (hoje > goal.data_limite && (!horasConcluidasMeta || !questoesConcluidasMeta)) {
-    goal.status = "vencida";
+  if (ate >= goal.data_inicio) {
+    const r = await StudyEntry.findOne({
+      where: {
+        user_id: goal.user_id,
+        data: { [Op.between]: [goal.data_inicio, ate] },
+      },
+      attributes: [
+        [fn("SUM", col("horas")), "horas"],
+        [fn("SUM", col("questoes")), "questoes"],
+      ],
+      raw: true,
+    });
+    horas = Number(r?.horas) || 0;
+    questoes = Number(r?.questoes) || 0;
   }
 
-  // Se completou todas as metas
-  if (horasConcluidasMeta && questoesConcluidasMeta && goal.status === "ativa") {
-    goal.status = "concluida";
-    goal.data_conclusao = hoje;
+  goal.horas_concluidas = horas;
+  goal.questoes_concluidas = questoes;
+
+  if (goal.status === "ativa") {
+    const okH = horas >= Number(goal.meta_horas);
+    const okQ = goal.meta_questoes > 0 ? questoes >= goal.meta_questoes : true;
+
+    if (okH && okQ) {
+      goal.status = "concluida";
+      goal.data_conclusao = ate; // nunca depois do prazo
+    } else if (hoje > goal.data_limite) {
+      goal.status = "vencida";
+    }
   }
 
   await goal.save();
@@ -85,324 +67,251 @@ async function atualizarProgressoMeta(goal) {
 }
 
 /* =========================
-   CRIAR META
+   MONTAR DADOS PARA A VIEW
 ========================= */
-exports.criarMeta = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-const { nome, meta_horas, meta_questoes, data_inicio, data_limite, eh_principal } = req.body;
+function montar(g) {
+  const hoje = todayISO();
+  const metaH = Number(g.meta_horas) || 0;
+  const feitoH = Number(g.horas_concluidas) || 0;
+  const metaQ = g.meta_questoes || 0;
+  const feitoQ = g.questoes_concluidas || 0;
 
-    if (!nome || !meta_horas || !data_inicio || !data_limite) {
-      return res.status(400).json({ erro: "Preencha todos os campos obrigatórios" });
-    }
+  const pH = metaH > 0 ? Math.min(100, Math.round((feitoH / metaH) * 100)) : 0;
+  const pQ = metaQ > 0 ? Math.min(100, Math.round((feitoQ / metaQ) * 100)) : null;
+  const total = pQ === null ? pH : Math.round((pH + pQ) / 2);
 
-    const meta = await StudyGoal.create({
-      user_id: userId,
-      nome,
-      meta_horas: parseFloat(meta_horas),
-      meta_questoes: parseInt(meta_questoes) || 0,
-      data_inicio: parseDateBR(data_inicio),
-      data_limite: parseDateBR(data_limite),
-      eh_principal: eh_principal === true || eh_principal === 'true',
-      status: "ativa"
-    });
+  const m = {
+    id: g.id,
+    nome: g.nome,
+    status: g.status,
+    eh_principal: !!g.eh_principal,
+    metaH, feitoH, metaQ, feitoQ, pH, pQ, total,
+    inicio: fmtBR(g.data_inicio),
+    limite: fmtBR(g.data_limite),
+    conclusao: g.data_conclusao ? fmtBR(g.data_conclusao) : null,
+    faltaH: Math.max(0, metaH - feitoH),
+    faltaQ: Math.max(0, metaQ - feitoQ),
+    dentroPrazo: g.status === "concluida" && !!g.data_conclusao && g.data_conclusao <= g.data_limite,
+    diasParaConcluir: g.data_conclusao ? diffDays(g.data_inicio, g.data_conclusao) + 1 : null,
+    prazoTexto: null,
+    pace: null,
+  };
 
-    // Atualizar progresso inicial
-    await atualizarProgressoMeta(meta);
+  if (g.status !== "ativa") return m;
 
-    res.json({ sucesso: true, meta });
-  } catch (error) {
-    console.error("Erro ao criar meta:", error);
-    res.status(500).json({ erro: "Erro ao criar meta" });
+  const totalDias = diffDays(g.data_inicio, g.data_limite) + 1;
+  const iniciada = hoje >= g.data_inicio;
+  const decorridos = iniciada ? Math.min(totalDias, diffDays(g.data_inicio, hoje) + 1) : 0;
+  const diasRest = !iniciada ? totalDias : Math.max(1, diffDays(hoje, g.data_limite) + 1);
+  const esperado = Math.round((decorridos / totalDias) * 100);
+
+  let situacao = "aguardando";
+  if (iniciada) {
+    const dif = total - esperado;
+    situacao = dif >= 10 ? "adiantada" : dif >= -10 ? "no_ritmo" : "atrasada";
   }
-};
+
+  if (!iniciada) m.prazoTexto = `Começa em ${diffDays(hoje, g.data_inicio)} dia(s)`;
+  else if (hoje === g.data_limite) m.prazoTexto = "Último dia";
+  else m.prazoTexto = `${diffDays(hoje, g.data_limite)} dia(s) restantes`;
+
+  m.pace = {
+    situacao,
+    esperado,
+    diasRestantes: diasRest,
+    porDiaH: m.faltaH / diasRest,
+    porDiaQ: Math.ceil(m.faltaQ / diasRest),
+  };
+  return m;
+}
 
 /* =========================
-   LISTAR METAS PRINCIPAIS (ATIVAS)
+   VALIDAÇÃO
 ========================= */
-exports.listarMetasPrincipais = async (req, res) => {
-  try {
-    const userId = req.session.userId;
+function lerCampos(body) {
+  const nome = (body.nome || "").toString().trim().slice(0, 200);
+  const meta_horas = parseFloat(body.meta_horas);
+  const meta_questoes = parseInt(body.meta_questoes, 10) || 0;
+  const data_inicio = (body.data_inicio || "").toString();
+  const data_limite = (body.data_limite || "").toString();
+  const eh_principal = body.eh_principal === true || body.eh_principal === "true";
 
-    const metas = await StudyGoal.findAll({
-      where: {
-        user_id: userId,
-        eh_principal: true,
-        status: "ativa"
-      },
-      order: [["data_limite", "ASC"]],
-      limit: 4
-    });
+  let erro = null;
+  if (!nome) erro = "Dê um nome à meta.";
+  else if (!Number.isFinite(meta_horas) || meta_horas <= 0 || meta_horas > 9999) erro = "Informe uma meta de horas válida.";
+  else if (meta_questoes < 0 || meta_questoes > 1000000) erro = "Meta de questões inválida.";
+  else if (!validISO(data_inicio) || !validISO(data_limite)) erro = "Informe as datas de início e de prazo.";
+  else if (data_limite < data_inicio) erro = "O prazo não pode ser antes do início.";
 
-    // Atualizar progresso de cada meta
-    const metasAtualizadas = await Promise.all(
-      metas.map(async (meta) => {
-        const atualizada = await atualizarProgressoMeta(meta);
-        return {
-          id: atualizada.id,
-          nome: atualizada.nome,
-          meta_horas: Number(atualizada.meta_horas),
-          meta_questoes: atualizada.meta_questoes,
-          horas_concluidas: Number(atualizada.horas_concluidas),
-          questoes_concluidas: atualizada.questoes_concluidas,
-          data_inicio: atualizada.data_inicio,
-          data_limite: atualizada.data_limite,
-          data_limite_formatada: formatDate(atualizada.data_limite),
-          eh_principal: atualizada.eh_principal,
-          status: atualizada.status,
-          progresso_horas: Math.min(Math.round((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) * 100), 100),
-          progresso_questoes: atualizada.meta_questoes > 0 
-            ? Math.min(Math.round((atualizada.questoes_concluidas / atualizada.meta_questoes) * 100), 100)
-            : 100,
-          progresso_total: atualizada.meta_questoes > 0
-            ? Math.min(Math.round(((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) + (atualizada.questoes_concluidas / atualizada.meta_questoes)) / 2 * 100), 100)
-            : Math.min(Math.round((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) * 100), 100)
-        };
-      })
-    );
+  return { erro, campos: { nome, meta_horas, meta_questoes, data_inicio, data_limite, eh_principal } };
+}
 
-    res.json({ metas: metasAtualizadas });
-  } catch (error) {
-    console.error("Erro ao listar metas principais:", error);
-    res.status(500).json({ erro: "Erro ao listar metas" });
-  }
-};
+async function podeSerPrincipal(userId, excluirId) {
+  const where = { user_id: userId, eh_principal: true, status: "ativa" };
+  if (excluirId) where.id = { [Op.ne]: excluirId };
+  return (await StudyGoal.count({ where })) < 4;
+}
 
 /* =========================
-   DEFINIR COMO PRINCIPAL
+   PÁGINA
 ========================= */
-exports.definirPrincipal = async (req, res) => {
+exports.pagina = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { id } = req.params;
 
-    const meta = await StudyGoal.findOne({
-      where: { id, user_id: userId }
-    });
+    let goals = await StudyGoal.findAll({ where: { user_id: userId } });
 
-    if (!meta) {
-      return res.status(404).json({ erro: "Meta não encontrada" });
+    // atualiza as ativas (também marca como vencida/concluída)
+    for (const g of goals) {
+      if (g.status === "ativa") await atualizarProgressoMeta(g);
     }
 
-    // Se está definindo como principal
-    if (!meta.eh_principal) {
-      // Contar quantas já são principais
-      const countPrincipais = await StudyGoal.count({
-        where: {
-          user_id: userId,
-          eh_principal: true,
-          status: "ativa"
-        }
-      });
+    const todas = goals.map(montar);
 
-      if (countPrincipais >= 4) {
-        return res.status(400).json({ erro: "Máximo de 4 metas principais permitido" });
-      }
+    const ativas = todas
+      .filter((m) => m.status === "ativa")
+      .sort((a, b) => Number(b.eh_principal) - Number(a.eh_principal) || a.limite.split("/").reverse().join("").localeCompare(b.limite.split("/").reverse().join("")));
+    const concluidas = todas.filter((m) => m.status === "concluida").reverse();
+    const vencidas = todas.filter((m) => m.status === "vencida").reverse();
 
-      meta.eh_principal = true;
-      await meta.save();
-    } else {
-      // Se está removendo da principal
-      meta.eh_principal = false;
-      await meta.save();
-    }
+    const fim = concluidas.length + vencidas.length;
+    const stats = {
+      ativas: ativas.length,
+      concluidas: concluidas.length,
+      vencidas: vencidas.length,
+      taxa: fim > 0 ? Math.round((concluidas.length / fim) * 100) : null,
+      principais: ativas.filter((m) => m.eh_principal).length,
+    };
 
-    res.json({ sucesso: true, eh_principal: meta.eh_principal });
-  } catch (error) {
-    console.error("Erro ao definir meta principal:", error);
-    res.status(500).json({ erro: "Erro ao definir meta principal" });
-  }
-};
-
-/* =========================
-   ATUALIZAR PROGRESSO MANUAL
-========================= */
-exports.atualizarProgresso = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const { id } = req.params;
-
-    const meta = await StudyGoal.findOne({
-      where: { id, user_id: userId }
-    });
-
-    if (!meta) {
-      return res.status(404).json({ erro: "Meta não encontrada" });
-    }
-
-    const atualizada = await atualizarProgressoMeta(meta);
-
-    res.json({ sucesso: true, meta: atualizada });
-  } catch (error) {
-    console.error("Erro ao atualizar progresso:", error);
-    res.status(500).json({ erro: "Erro ao atualizar progresso" });
-  }
-};
-
-/* =========================
-   FINALIZAR META MANUALMENTE
-========================= */
-exports.finalizarMeta = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const { id } = req.params;
-
-    const meta = await StudyGoal.findOne({
-      where: { id, user_id: userId }
-    });
-
-    if (!meta) {
-      return res.status(404).json({ erro: "Meta não encontrada" });
-    }
-
-    meta.status = "concluida";
-    meta.data_conclusao = todayISO();
-    await meta.save();
-
-    res.json({ sucesso: true, meta });
-  } catch (error) {
-    console.error("Erro ao finalizar meta:", error);
-    res.status(500).json({ erro: "Erro ao finalizar meta" });
-  }
-};
-
-/* =========================
-   DELETAR META
-========================= */
-exports.deletarMeta = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const { id } = req.params;
-
-    const meta = await StudyGoal.findOne({
-      where: { id, user_id: userId }
-    });
-
-    if (!meta) {
-      return res.status(404).json({ erro: "Meta não encontrada" });
-    }
-
-    await meta.destroy();
-
-    res.json({ sucesso: true });
-  } catch (error) {
-    console.error("Erro ao deletar meta:", error);
-    res.status(500).json({ erro: "Erro ao deletar meta" });
-  }
-};
-
-/* =========================
-   PÁGINA DE HISTÓRICO DE METAS
-========================= */
-exports.historicoMetas = async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const userNome = req.session.userNome;
-    const userFoto = req.session.userFoto;
-
-    const hoje = todayISO();
-
-    // Metas concluídas e vencidas
-    const metas = await StudyGoal.findAll({
-      where: {
-        user_id: userId
-      },
-      order: [["created_at", "DESC"]]
-    });
-
-    // Processar dados para display
-    const metasFormatadas = metas.map(meta => {
-      const diasParaConclusao = meta.data_conclusao 
-        ? daysBetween(meta.data_inicio, meta.data_conclusao)
-        : daysBetween(meta.data_inicio, meta.data_limite);
-      
-      const diasTotais = daysBetween(meta.data_inicio, meta.data_limite);
-      const dentroDoPrazo = meta.status === "concluida" && meta.data_conclusao <= meta.data_limite;
-
-      return {
-        id: meta.id,
-        nome: meta.nome,
-        meta_horas: Number(meta.meta_horas),
-        meta_questoes: meta.meta_questoes,
-        horas_concluidas: Number(meta.horas_concluidas),
-        questoes_concluidas: meta.questoes_concluidas,
-        data_inicio: formatDate(meta.data_inicio),
-        data_limite: formatDate(meta.data_limite),
-        data_conclusao: meta.data_conclusao ? formatDate(meta.data_conclusao) : null,
-        status: meta.status,
-        dias_para_conclusao: diasParaConclusao,
-        dias_totais: diasTotais,
-        dentro_do_prazo: dentroDoPrazo,
-        progresso_horas: Math.min(Math.round((Number(meta.horas_concluidas) / Number(meta.meta_horas)) * 100), 100),
-        progresso_questoes: meta.meta_questoes > 0 
-          ? Math.min(Math.round((meta.questoes_concluidas / meta.meta_questoes) * 100), 100)
-          : 100
+    const raw = {};
+    goals.forEach((g) => {
+      raw[g.id] = {
+        id: g.id,
+        nome: g.nome,
+        meta_horas: Number(g.meta_horas),
+        meta_questoes: g.meta_questoes,
+        data_inicio: g.data_inicio,
+        data_limite: g.data_limite,
+        eh_principal: !!g.eh_principal,
       };
     });
 
-    // Estatísticas
-    const totalConcluidas = metas.filter(m => m.status === "concluida").length;
-    const totalVencidas = metas.filter(m => m.status === "vencida").length;
-    const dentroDoPrazo = metasFormatadas.filter(m => m.status === "concluida" && m.dentro_do_prazo).length;
-    const foraDoPrazo = metasFormatadas.filter(m => m.status === "concluida" && !m.dentro_do_prazo).length;
-
     res.render("app/metas", {
       active: "metas",
-      userNome,
-      userFoto,
-      metas: metasFormatadas,
-      stats: {
-        totalConcluidas,
-        totalVencidas,
-        dentroDoPrazo,
-        foraDoPrazo
-      }
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto,
+      ativas,
+      concluidas,
+      vencidas,
+      stats,
+      hoje: todayISO(),
+      goalsJson: JSON.stringify(raw).replace(/</g, "\\u003c"),
     });
-  } catch (error) {
-    console.error("Erro ao carregar histórico de metas:", error);
+  } catch (err) {
+    console.error("Erro ao carregar metas:", err);
     res.status(500).send("Erro ao carregar página");
   }
 };
 
 /* =========================
-   API: LISTAR TODAS AS METAS (para modal de seleção)
+   API
 ========================= */
-exports.listarTodasMetas = async (req, res) => {
+exports.criarMeta = async (req, res) => {
   try {
     const userId = req.session.userId;
+    const { erro, campos } = lerCampos(req.body || {});
+    if (erro) return res.status(400).json({ erro });
 
-    const metas = await StudyGoal.findAll({
-      where: {
-        user_id: userId,
-        status: "ativa"
-      },
-      order: [["created_at", "DESC"]]
-    });
+    if (campos.eh_principal && !(await podeSerPrincipal(userId))) {
+      return res.status(400).json({ erro: "Máximo de 4 metas principais. Desmarque outra primeiro." });
+    }
 
-    const metasFormatadas = await Promise.all(
-      metas.map(async (meta) => {
-        const atualizada = await atualizarProgressoMeta(meta);
-        return {
-          id: atualizada.id,
-          nome: atualizada.nome,
-          meta_horas: Number(atualizada.meta_horas),
-          meta_questoes: atualizada.meta_questoes,
-          horas_concluidas: Number(atualizada.horas_concluidas),
-          questoes_concluidas: atualizada.questoes_concluidas,
-          data_limite: formatDate(atualizada.data_limite),
-          eh_principal: atualizada.eh_principal,
-          progresso_horas: Math.min(Math.round((Number(atualizada.horas_concluidas) / Number(atualizada.meta_horas)) * 100), 100),
-          progresso_questoes: atualizada.meta_questoes > 0 
-            ? Math.min(Math.round((atualizada.questoes_concluidas / atualizada.meta_questoes) * 100), 100)
-            : 100
-        };
-      })
-    );
+    const meta = await StudyGoal.create({ user_id: userId, ...campos, status: "ativa" });
+    await atualizarProgressoMeta(meta);
 
-    res.json({ metas: metasFormatadas });
-  } catch (error) {
-    console.error("Erro ao listar todas as metas:", error);
-    res.status(500).json({ erro: "Erro ao listar metas" });
+    res.json({ sucesso: true, id: meta.id });
+  } catch (err) {
+    console.error("Erro ao criar meta:", err);
+    res.status(500).json({ erro: "Erro ao criar meta" });
   }
 };
 
+exports.editarMeta = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const meta = await StudyGoal.findOne({ where: { id: req.params.id, user_id: userId } });
+    if (!meta) return res.status(404).json({ erro: "Meta não encontrada" });
+
+    const { erro, campos } = lerCampos(req.body || {});
+    if (erro) return res.status(400).json({ erro });
+
+    if (campos.eh_principal && !(await podeSerPrincipal(userId, meta.id))) {
+      return res.status(400).json({ erro: "Máximo de 4 metas principais. Desmarque outra primeiro." });
+    }
+
+    meta.set(campos);
+    meta.status = "ativa"; // recalculada abaixo
+    meta.data_conclusao = null;
+    await atualizarProgressoMeta(meta);
+
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error("Erro ao editar meta:", err);
+    res.status(500).json({ erro: "Erro ao editar meta" });
+  }
+};
+
+exports.definirPrincipal = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const meta = await StudyGoal.findOne({ where: { id: req.params.id, user_id: userId } });
+    if (!meta) return res.status(404).json({ erro: "Meta não encontrada" });
+
+    if (!meta.eh_principal) {
+      if (meta.status !== "ativa") return res.status(400).json({ erro: "Só metas ativas podem ser principais." });
+      if (!(await podeSerPrincipal(userId, meta.id))) {
+        return res.status(400).json({ erro: "Máximo de 4 metas principais permitido." });
+      }
+      meta.eh_principal = true;
+    } else {
+      meta.eh_principal = false;
+    }
+
+    await meta.save();
+    res.json({ sucesso: true, eh_principal: meta.eh_principal });
+  } catch (err) {
+    console.error("Erro ao definir principal:", err);
+    res.status(500).json({ erro: "Erro ao definir meta principal" });
+  }
+};
+
+exports.finalizarMeta = async (req, res) => {
+  try {
+    const meta = await StudyGoal.findOne({ where: { id: req.params.id, user_id: req.session.userId } });
+    if (!meta) return res.status(404).json({ erro: "Meta não encontrada" });
+
+    const hoje = todayISO();
+    meta.status = "concluida";
+    meta.data_conclusao = hoje > meta.data_limite ? meta.data_limite : hoje;
+    meta.eh_principal = false;
+    await meta.save();
+
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error("Erro ao finalizar meta:", err);
+    res.status(500).json({ erro: "Erro ao finalizar meta" });
+  }
+};
+
+exports.deletarMeta = async (req, res) => {
+  try {
+    const meta = await StudyGoal.findOne({ where: { id: req.params.id, user_id: req.session.userId } });
+    if (!meta) return res.status(404).json({ erro: "Meta não encontrada" });
+
+    await meta.destroy();
+    res.json({ sucesso: true });
+  } catch (err) {
+    console.error("Erro ao deletar meta:", err);
+    res.status(500).json({ erro: "Erro ao deletar meta" });
+  }
+};

@@ -1,65 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>KMed | Estatísticas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/app/estatisticas-hub.css">
-
+  <%- include("../partials/head", { title: "Estatísticas", css: ["estatisticas"] }) %>
 </head>
-
 <body class="page-bg">
 
-<%- include("../partials/sidebar", { 
-  active: "estatisticas", 
-  userNome, 
-  userFoto 
-}) %>
+<%- include("../partials/sidebar", { active: "estatisticas", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-  <section class="page estatisticas-hub">
+  <div class="page">
 
-
-    <h1>📊 Estatísticas</h1>
-    <p class="sub">Escolha o que você quer analisar</p>
+    <header class="page-header">
+      <div>
+        <h1>📊 Estatísticas</h1>
+        <p>Escolha o que você quer analisar.</p>
+      </div>
+    </header>
 
     <div class="hub-grid">
-
-      <a href="/estatisticas/estudos" class="hub-card hub-card--estudos">
-
-        <h3>📚 Estudos</h3>
-        <p>Horas, questões e desempenho por matéria e tópico.</p>
+      <a href="/estatisticas/estudos" class="card hub-card" style="--c: var(--chart-2)">
+        <span class="hub-icon">📚</span>
+        <h3>Estudos</h3>
+        <p>Horas, questões, sequência e padrão semanal.</p>
+        <span class="hub-go">Abrir →</span>
       </a>
 
-      <a href="/estatisticas/simulados" class="hub-card hub-card--simulados">
+      <a href="/estatisticas/conteudo/dashboard" class="card hub-card" style="--c: var(--chart-5)">
+        <span class="hub-icon">📘</span>
+        <h3>Conteúdo</h3>
+        <p>Desempenho por matéria e por tópico.</p>
+        <span class="hub-go">Abrir →</span>
+      </a>
 
-  <h3>📝 Simulados</h3>
-  <p>
-    Análise completa de desempenho, evolução, erros e lacunas reais.
-  </p>
-</a>
+      <a href="/estatisticas/simulados" class="card hub-card" style="--c: var(--chart-1)">
+        <span class="hub-icon">📝</span>
+        <h3>Simulados</h3>
+        <p>Evolução, áreas fortes e fracas, erros e lacunas.</p>
+        <span class="hub-go">Abrir →</span>
+      </a>
 
-<a href="/estatisticas/simulados/comparar" class="hub-card">
-  <h3>⚖️ Comparar Simulados</h3>
-  <p>Compare dois simulados finalizados lado a lado.</p>
-</a>
-
-<a href="/estatisticas/conteudo/dashboard" class="hub-card">
-  <h3>📘 Conteúdo</h3>
-  <p>Análise profunda por matéria e tópico.</p>
-</a>
-
-
-
-
-     
-
+      <a href="/estatisticas/simulados/comparar" class="card hub-card" style="--c: var(--chart-3)">
+        <span class="hub-icon">⚖️</span>
+        <h3>Comparar simulados</h3>
+        <p>Dois simulados lado a lado, área por área.</p>
+        <span class="hub-go">Abrir →</span>
+      </a>
     </div>
 
-  </section>
+  </div>
 </main>
 
 </body>

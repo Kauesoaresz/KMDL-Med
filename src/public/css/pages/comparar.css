@@ -1,0 +1,43 @@
+/* =====================================================
+   COMPARAR SIMULADOS
+===================================================== */
+.card-heading { font-size: var(--fs-base); margin-bottom: var(--s-3); }
+.pos { color: var(--ok); }
+.neg { color: var(--err); }
+
+/* A = âmbar, B = índigo (mesmas cores do gráfico) */
+.tagdot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; flex-shrink: 0; }
+.tagdot.a { background: var(--chart-3); }
+.tagdot.b { background: var(--chart-1); }
+
+/* seleção */
+.cmp-form { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: var(--s-3); align-items: end; }
+.cmp-form label { display: flex; align-items: center; }
+.swap { width: 40px; padding: 8px 0; font-size: 1.1rem; }
+@media (max-width: 900px) { .cmp-form { grid-template-columns: 1fr; } .swap { width: 100%; } }
+
+/* cards de resultado */
+.cmp-card { display: flex; flex-direction: column; gap: var(--s-2); }
+.cmp-card.a { border-top: 3px solid var(--chart-3); }
+.cmp-card.b { border-top: 3px solid var(--chart-1); }
+.cmp-card.delta { border-top: 3px solid var(--border-strong); }
+.cmp-top { display: flex; align-items: center; gap: var(--s-2); }
+.cmp-big { font-size: var(--fs-2xl); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+
+/* gráfico */
+.chart-box { position: relative; height: 280px; }
+
+/* áreas */
+.area-row { display: flex; flex-direction: column; gap: 6px; }
+.area-head { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-sm); font-weight: 600; }
+.bar-pair { display: grid; grid-template-columns: 14px 1fr 44px; gap: var(--s-2); align-items: center; font-size: var(--fs-xs); }
+.bar-pair .num { text-align: right; color: var(--text-muted); }
+.fa { background: var(--chart-3) !important; }
+.fb { background: var(--chart-1) !important; }
+
+/* diagnóstico */
+.diag { border-left: 3px solid var(--border-strong); }
+.diag.pos { border-left-color: var(--ok); color: inherit; }
+.diag.neg { border-left-color: var(--err); color: inherit; }
+.diag-list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); color: var(--text-muted); }
+.diag-list strong { color: var(--text); }
