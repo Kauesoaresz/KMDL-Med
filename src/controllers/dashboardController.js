@@ -46,7 +46,7 @@ const PERIODOS = [
   { key: "total", label: "Total" },
 ];
 
-// matiz estável por matéria (ângulo áureo: nunca repete, não importa quantas)
+// fallback: matiz estável por matéria quando ela não tem cor escolhida
 function hueDe(i) {
   return Math.round((245 + i * 137.508) % 360);
 }
@@ -69,7 +69,7 @@ async function calcStreak(userId) {
   for (let i = 0; i < 3650; i++) {
     const d = new Date(h.getFullYear(), h.getMonth(), h.getDate() - i);
     if (dias.has(toISO(d))) streak++;
-    else if (i === 0) continue; // ainda não estudou hoje: conta a partir de ontem
+    else if (i === 0) continue;
     else break;
   }
   return streak;
@@ -204,13 +204,18 @@ exports.dashboard = async (req, res) => {
 
   const subjects = await Subject.findAll({
     where: { user_id: userId },
-    attributes: ["id", "nome"],
+    attributes: ["id", "nome", "hue"],
     order: [["id", "ASC"]],
     raw: true,
   });
   const nomePorId = {};
+  const huePorId = {};
   const idxPorId = {};
-  subjects.forEach((s, i) => { nomePorId[s.id] = s.nome; idxPorId[s.id] = i; });
+  subjects.forEach((s, i) => {
+    nomePorId[s.id] = s.nome;
+    huePorId[s.id] = s.hue != null ? Number(s.hue) : null;
+    idxPorId[s.id] = i;
+  });
 
   const materias = porMateriaRaw
     .map((r) => {
@@ -224,12 +229,12 @@ exports.dashboard = async (req, res) => {
         questoes: q,
         acertos: a,
         taxa: pct(a, q),
+        hue: huePorId[r.subject_id] != null
+          ? huePorId[r.subject_id]
+          : hueDe(idxPorId[r.subject_id] ?? 0),
       };
     })
     .sort((x, y) => y.horas - x.horas);
-
-  // mesma cor da matéria nos dois gráficos
-  materias.forEach((m) => { m.hue = hueDe(idxPorId[m.id] ?? 0); });
 
   const fatia = (campo) => {
     const lista = materias

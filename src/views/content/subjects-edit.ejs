@@ -20,11 +20,44 @@
 
     <% if (erro) { %><div class="alert alert-error"><%= erro %></div><% } %>
 
-    <form method="POST" action="/conteudos/materias/<%= subject.id %>/editar" class="card edit-card stack" autocomplete="off">
+    <form method="POST" action="/conteudos/materias/<%= subject.id %>/editar"
+          class="card edit-card stack" autocomplete="off">
+
       <div class="form-group">
         <label for="nome">Nome da matéria</label>
         <input type="text" id="nome" name="nome" maxlength="120" required autofocus value="<%= subject.nome %>">
       </div>
+
+      <!-- COR DA MATÉRIA -->
+      <div class="form-group">
+        <label>Cor da matéria</label>
+
+        <div class="color-picker" style="--h: <%= hueAtual %>">
+          <div class="color-preview" id="color-preview">
+            <span class="color-dot"></span>
+            <span class="color-hue" id="color-hue"><%= hueAtual %>°</span>
+          </div>
+
+          <input
+            type="range"
+            id="color-slider"
+            min="0" max="359" step="1"
+            value="<%= hueAtual %>"
+            aria-label="Matiz da cor"
+            class="color-slider"
+          />
+
+          <div class="color-actions">
+            <button type="button" class="btn btn-sm" id="color-auto" data-auto="<%= hueAuto %>">
+              ↺ Usar automático
+            </button>
+            <span class="muted color-hint">Automático = cor definida pela ordem da matéria.</span>
+          </div>
+        </div>
+
+        <input type="hidden" name="hue" id="hue-input" value="<%= subject.hue != null ? subject.hue : '' %>" />
+      </div>
+
       <div class="row">
         <button type="submit" class="btn-primary">💾 Salvar</button>
         <a href="/conteudos/materias" class="btn">Cancelar</a>
@@ -33,6 +66,33 @@
 
   </div>
 </main>
+
+<script>
+  (function () {
+    const slider = document.getElementById("color-slider");
+    const preview = document.getElementById("color-preview");
+    const hueLabel = document.getElementById("color-hue");
+    const hidden = document.getElementById("hue-input");
+    const autoBtn = document.getElementById("color-auto");
+    const picker = document.querySelector(".color-picker");
+
+    function apply(h, isAuto) {
+      picker.style.setProperty("--h", h);
+      hueLabel.textContent = h + "°";
+      slider.value = h;
+      hidden.value = isAuto ? "" : h;
+    }
+
+    // arrastou o slider → escolha manual
+    slider.addEventListener("input", () => apply(Number(slider.value), false));
+
+    // "usar automático" → guarda vazio no hidden (volta pra posição)
+    autoBtn.addEventListener("click", () => {
+      const auto = Number(autoBtn.dataset.auto);
+      apply(auto, true);
+    });
+  })();
+</script>
 
 </body>
 </html>

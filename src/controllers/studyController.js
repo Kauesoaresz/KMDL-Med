@@ -15,16 +15,25 @@ async function getGeralTopicId(userId, subjectId) {
   return topic.id;
 }
 
-// matérias + tópicos num objeto só, com a mesma cor (hue) do dashboard
+// fallback: matiz estável por matéria quando ela não tem cor escolhida
+function hueDe(i) {
+  return Math.round((245 + i * 137.508) % 360);
+}
+
+// matérias + tópicos num objeto só, com a cor (hue) da matéria
 async function subjectsWithTopics(userId) {
-  const subjects = await Subject.findAll({ where: { user_id: userId }, order: [["id", "ASC"]], raw: true });
+  const subjects = await Subject.findAll({
+    where: { user_id: userId },
+    order: [["id", "ASC"]],
+    raw: true,
+  });
   const topics = await Topic.findAll({ where: { user_id: userId }, order: [["nome", "ASC"]], raw: true });
 
   return subjects
     .map((s, i) => ({
       id: s.id,
       nome: s.nome,
-      hue: Math.round((245 + i * 137.508) % 360),
+      hue: s.hue != null ? Number(s.hue) : hueDe(i),
       topics: topics.filter((t) => t.subject_id === s.id).map((t) => ({ id: t.id, nome: t.nome })),
     }))
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));

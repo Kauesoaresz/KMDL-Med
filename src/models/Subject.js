@@ -6,11 +6,12 @@ const Subject = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
-    nome: { type: DataTypes.STRING(80), allowNull: false }
+    nome: { type: DataTypes.STRING(80), allowNull: false },
+    hue: { type: DataTypes.SMALLINT, allowNull: true, defaultValue: null },
   },
   {
     tableName: "subjects",
-    underscored: true
+    underscored: true,
   }
 );
 

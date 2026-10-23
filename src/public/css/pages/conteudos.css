@@ -69,3 +69,71 @@
 
 /* ---------- editar ---------- */
 .edit-card { max-width: 520px; }
+
+/* ---------- seletor de cor da matéria ---------- */
+.color-picker {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.color-preview {
+  display: flex; align-items: center; gap: var(--s-3);
+}
+
+.color-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: hsl(var(--h, 245) var(--chart-s) var(--chart-l));
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, hsl(var(--h, 245) var(--chart-s) var(--chart-l)) 22%, transparent);
+  flex-shrink: 0;
+}
+
+.color-hue {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.color-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    hsl(0   var(--chart-s) var(--chart-l)),
+    hsl(60  var(--chart-s) var(--chart-l)),
+    hsl(120 var(--chart-s) var(--chart-l)),
+    hsl(180 var(--chart-s) var(--chart-l)),
+    hsl(240 var(--chart-s) var(--chart-l)),
+    hsl(300 var(--chart-s) var(--chart-l)),
+    hsl(359 var(--chart-s) var(--chart-l))
+  );
+  outline: none;
+  cursor: pointer;
+}
+.color-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: hsl(var(--h, 245) var(--chart-s) var(--chart-l));
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  cursor: grab;
+}
+.color-slider::-webkit-slider-thumb:active { cursor: grabbing; }
+.color-slider::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: hsl(var(--h, 245) var(--chart-s) var(--chart-l));
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  cursor: grab;
+}
+
+.color-actions { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.color-hint { font-size: var(--fs-xs); }

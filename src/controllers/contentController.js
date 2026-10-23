@@ -45,7 +45,12 @@ async function carregarMaterias(userId) {
   contagem.forEach((c) => { porId[c.subject_id] = Number(c.total); });
 
   return subjects
-    .map((s, i) => ({ id: s.id, nome: s.nome, hue: hueDe(i), topicos: porId[s.id] || 0 }))
+    .map((s, i) => ({
+      id: s.id,
+      nome: s.nome,
+      hue: s.hue != null ? Number(s.hue) : hueDe(i),
+      topicos: porId[s.id] || 0,
+    }))
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 }
 
@@ -82,9 +87,20 @@ exports.subjectsEditPage = async (req, res) => {
   const subject = await Subject.findOne({ where: { id, user_id: req.session.userId } });
   if (!subject) return go(res, "/conteudos/materias", "erro", "Matéria não encontrada");
 
+  // hue automático (pela posição) pra usar como "voltar ao automático"
+  const todas = await Subject.findAll({
+    where: { user_id: req.session.userId },
+    order: [["id", "ASC"]],
+    raw: true,
+  });
+  const idx = todas.findIndex((s) => s.id === subject.id);
+  const hueAuto = hueDe(idx >= 0 ? idx : 0);
+
   res.render("content/subjects-edit", {
     ...base(req),
     subject,
+    hueAtual: subject.hue != null ? Number(subject.hue) : hueAuto,
+    hueAuto,
     erro: req.query.erro || null,
   });
 };
@@ -95,7 +111,20 @@ exports.subjectsUpdate = async (req, res) => {
   const nome = safeTrim(req.body.nome).slice(0, 120);
   if (!nome) return go(res, `/conteudos/materias/${id}/editar`, "erro", "Nome obrigatório");
 
-  await Subject.update({ nome }, { where: { id, user_id: userId } });
+  const raw = safeTrim(req.body.hue);
+  let hue = null;
+  if (raw !== "") {
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n) || n < 0 || n > 359) {
+      return go(res, `/conteudos/materias/${id}/editar`, "erro", "Cor inválida");
+    }
+    hue = n;
+  }
+
+  await Subject.update(
+    { nome, hue },
+    { where: { id, user_id: userId } }
+  );
   go(res, "/conteudos/materias", "ok", "Matéria atualizada");
 };
 

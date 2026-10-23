@@ -5,9 +5,6 @@
   const ATTR = { horas: "h", questoes: "q", lendario: "l" };
   const COLOR_CLASS = /^(zero|h\d+|lv\d)$/;
 
-  /* =========================
-     MODOS
-  ========================= */
   const cells = Array.from(document.querySelectorAll("#cal-grid .kmed-cal-day"));
   const grid = $("cal-grid");
 
@@ -21,7 +18,6 @@
       cell.classList.add(cell.dataset[ATTR[mode]]);
     });
 
-    // ---- ajuste: marca o modo no grid (horas / questoes / lendario) ----
     grid.classList.remove("mode-horas", "mode-questoes", "mode-lendario");
     grid.classList.add("mode-" + mode);
 
@@ -89,7 +85,10 @@
           "<th>Matéria</th><th>Tempo</th><th>Questões</th><th>Acertos</th><th>%</th>" +
           "</tr></thead><tbody>" +
           d.materias.map((m) =>
-            "<tr><td>" + esc(m.nome) + "</td><td>" + esc(m.horas) + "</td><td>" +
+            "<tr><td>" +
+              '<span class="cal-m-dot" style="background: hsl(' + (m.hue != null ? m.hue : 245) + ' var(--chart-s) var(--chart-l))"></span>' +
+              esc(m.nome) +
+            "</td><td>" + esc(m.horas) + "</td><td>" +
             m.questoes + "</td><td>" + m.acertos + "</td><td>" + m.acertoPct + "%</td></tr>"
           ).join("") +
           "</tbody></table>";

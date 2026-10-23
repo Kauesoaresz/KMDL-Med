@@ -4,7 +4,6 @@ const { Op, fn, col } = require("sequelize");
 /* =========================
    HELPERS
 ========================= */
-// Data LOCAL em YYYY-MM-DD (toISOString usa UTC e adianta o dia à noite)
 function toISO(d) {
   return (
     d.getFullYear() + "-" +
@@ -26,10 +25,15 @@ function pct(acertos, questoes) {
   return questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
 }
 
+// fallback: matiz estável por matéria
+function hueDe(i) {
+  return Math.round((245 + i * 137.508) % 360);
+}
+
 /* =========================
    MODO 1 e 2: classes h1..h12
 ========================= */
-const QUESTOES_POR_NIVEL = 10; // 1 nível a cada 10 questões (120+ = h12)
+const QUESTOES_POR_NIVEL = 10;
 
 function classeHoras(horas) {
   const n = Math.min(Math.floor(horas), 12);
@@ -43,9 +47,6 @@ function classeQuestoes(questoes) {
 
 /* =========================
    MODO 3: CALENDÁRIO LENDÁRIO
-   Ajuste os limites aqui.
-   modo "or"  = basta UM dos dois
-   modo "and" = precisa dos DOIS
 ========================= */
 const NIVEIS = [
   { nivel: 0, classe: "lv0", label: "Sem estudo",        icone: "",   modo: "none" },
@@ -72,7 +73,7 @@ function calcNivelLendario(horas, questoes) {
 }
 
 /* =========================
-   STREAK (todos os dias, não só o mês)
+   STREAK
 ========================= */
 async function calcStreak(userId) {
   const rows = await StudyEntry.findAll({
@@ -91,7 +92,7 @@ async function calcStreak(userId) {
     if (dias.has(toISO(d))) {
       streak++;
     } else if (i === 0) {
-      continue; // ainda não estudou hoje: conta a partir de ontem
+      continue;
     } else {
       break;
     }
@@ -189,27 +190,43 @@ exports.calendario = async (req, res) => {
     });
 
     const subjectIds = [...new Set(porMateriaRaw.map((r) => r.subject_id))];
-    const subjects = subjectIds.length
-      ? await Subject.findAll({
-          where: { id: subjectIds },
-          attributes: ["id", "nome"],
-          raw: true,
-        })
-      : [];
-    const nomePorId = {};
-    subjects.forEach((s) => { nomePorId[s.id] = s.nome; });
 
-    const materiasPorDia = {}; // data -> [materias]
-    const materiasMesMap = {}; // subject_id -> acumulado do mês
+    // pega todas as matérias do usuário (pra ter hue + fallback por posição)
+    const todasSubjects = await Subject.findAll({
+      where: { user_id: userId },
+      attributes: ["id", "nome", "hue"],
+      order: [["id", "ASC"]],
+      raw: true,
+    });
+    const idxPorId = {};
+    todasSubjects.forEach((s, i) => { idxPorId[s.id] = i; });
+
+    const infoPorId = {};
+    todasSubjects.forEach((s) => {
+      infoPorId[s.id] = {
+        nome: s.nome,
+        hue: s.hue != null ? Number(s.hue) : hueDe(idxPorId[s.id] ?? 0),
+      };
+    });
+    // garante fallback mesmo pra subject_id que não veio no findAll (raro)
+    subjectIds.forEach((id) => {
+      if (!infoPorId[id]) infoPorId[id] = { nome: "Sem matéria", hue: 245 };
+    });
+
+    const materiasPorDia = {};
+    const materiasMesMap = {};
 
     porMateriaRaw.forEach((r) => {
       const horas = Number(r.horas) || 0;
       const questoes = Number(r.questoes) || 0;
       const acertos = Number(r.acertos) || 0;
-      const nome = nomePorId[r.subject_id] || "Sem matéria";
+      const info = infoPorId[r.subject_id] || { nome: "Sem matéria", hue: 245 };
+      const nome = info.nome;
+      const hue = info.hue;
 
       (materiasPorDia[r.data] = materiasPorDia[r.data] || []).push({
         nome,
+        hue,
         horasNum: horas,
         horas: formatHoursMinutes(horas),
         questoes,
@@ -219,7 +236,7 @@ exports.calendario = async (req, res) => {
       });
 
       const m = (materiasMesMap[r.subject_id] = materiasMesMap[r.subject_id] || {
-        nome, horasNum: 0, questoes: 0, acertos: 0,
+        nome, hue, horasNum: 0, questoes: 0, acertos: 0,
       });
       m.horasNum += horas;
       m.questoes += questoes;
@@ -252,30 +269,29 @@ exports.calendario = async (req, res) => {
         dia: d,
         dataISO: iso,
 
-        // ---- campos que já existiam (a view atual continua funcionando) ----
         horas: formatHoursMinutes(horas),
         questoes,
         acertos,
         acertoPct,
-        cor: classeHoras(horas), // modo 1
+        cor: classeHoras(horas),
         perfeito: horas >= 6 && questoes >= 30 && acertoPct >= 80,
         isHoje: iso === hojeISO,
         futuro: iso > hojeISO,
 
-        // ---- novos ----
         horasNum: horas,
-        corQuestoes: classeQuestoes(questoes), // modo 2
-        corLendario: lendario.classe,          // modo 3
+        corQuestoes: classeQuestoes(questoes),
+        corLendario: lendario.classe,
         nivelLendario: lendario.nivel,
         labelLendario: lendario.label,
         iconeLendario: lendario.icone,
         erros: questoes - acertos,
-        materias, // para o modal
+        materias,
       });
     }
 
     const materiasMes = Object.values(materiasMesMap).map((m) => ({
       nome: m.nome,
+      hue: m.hue,
       horasNum: m.horasNum,
       horas: formatHoursMinutes(m.horasNum),
       questoes: m.questoes,
@@ -299,12 +315,10 @@ exports.calendario = async (req, res) => {
       anoProximo: mes === 12 ? ano + 1 : ano,
       mesProximo: mes === 12 ? 1 : mes + 1,
 
-      // ---- resumo (campos antigos mantidos) ----
       totalHorasMes,
       diasEstudados,
       mediaDiaria: diasEstudados > 0 ? totalHorasMes / diasEstudados : 0,
 
-      // ---- resumo (novos) ----
       streak,
       totalQuestoesMes,
       totalAcertosMes,
@@ -312,7 +326,6 @@ exports.calendario = async (req, res) => {
       mediaDiariaQuestoes: diasEstudados > 0 ? Math.round(totalQuestoesMes / diasEstudados) : 0,
       diagnostico: montarDiagnostico(materiasMes, totalHorasMes),
 
-      // ---- legenda do modo lendário ----
       niveisLendario: NIVEIS.map((n) => ({
         nivel: n.nivel,
         classe: n.classe,

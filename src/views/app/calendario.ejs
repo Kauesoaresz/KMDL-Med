@@ -7,10 +7,18 @@
 
 <%- include("../partials/sidebar", { active: "calendario", userNome, userFoto }) %>
 
+<%
+  // offset: quantas células vazias antes do dia 1 (domingo = 0)
+  const primeiroDiaSemana = new Date(
+    parseInt(diasMes[0].dataISO.slice(0, 4)),
+    parseInt(diasMes[0].dataISO.slice(5, 7)) - 1,
+    1
+  ).getDay();
+%>
+
 <main class="with-sidebar">
   <div class="page">
 
-    <!-- TOPO -->
     <header class="page-header">
       <div>
         <h1>Calendário de Estudos</h1>
@@ -26,7 +34,6 @@
       </div>
     </header>
 
-    <!-- RESUMO DO MÊS -->
     <%
       const fmtH = (h) => {
         h = h || 0;
@@ -55,7 +62,6 @@
       </div>
     </section>
 
-    <!-- DIAGNÓSTICO -->
     <% if (diagnostico) { %>
       <div class="card cal-diag diag-<%= diagnostico.nivel %>">
         <div class="cal-diag-head">
@@ -77,7 +83,6 @@
       </div>
     <% } %>
 
-    <!-- NAVEGAÇÃO DO MÊS + MODOS -->
     <div class="cal-bar">
       <div class="cal-nav">
         <a href="/calendario?ano=<%= anoAnterior %>&mes=<%= mesAnterior %>" class="btn-ghost btn-sm">⬅ Mês anterior</a>
@@ -92,13 +97,16 @@
       </div>
     </div>
 
-    <!-- GRADE -->
     <div class="cal-card">
       <div class="cal-weekdays">
-        <span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span>
+        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
       </div>
 
       <div class="kmed-calendar-grid" id="cal-grid">
+        <% for (let i = 0; i < primeiroDiaSemana; i++) { %>
+          <div class="cal-empty-cell"></div>
+        <% } %>
+
         <% diasMes.forEach(d => { %>
           <button
             type="button"
@@ -130,7 +138,6 @@
       </div>
     </div>
 
-    <!-- LEGENDAS -->
     <div class="kmed-calendar-legend" data-legend="horas">
       <span><i class="h12"></i> 12h</span>
       <span><i class="h11"></i> 11h</span>
@@ -163,7 +170,6 @@
   </div>
 </main>
 
-<!-- MODAL DO DIA -->
 <div class="cal-modal-bg" id="cal-modal">
   <div class="cal-modal-box">
     <button type="button" class="cal-modal-close" id="cal-modal-close" aria-label="Fechar">×</button>

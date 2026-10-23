@@ -27,15 +27,19 @@ function ensureInt(v) {
 }
 
 function hojeISO() {
-  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD no fuso local
+  return new Date().toLocaleDateString("en-CA");
 }
 
 function voltar(req, res, fallback) {
   return res.redirect(req.get("Referer") || fallback);
 }
 
+// fallback: matiz estável por matéria
+function hueDe(i) {
+  return Math.round((245 + i * 137.508) % 360);
+}
+
 // Cria os 4 blocos de um simulado já FECHADOS
-// (45 questões "não feitas" por área, total 0 e acertos 0)
 async function criarBlocosFechados(simulado, transaction) {
   for (const a of AREAS) {
     const bloco = await SimuladoBloco.create(
@@ -98,7 +102,7 @@ exports.listarSimulados = async (req, res) => {
 };
 
 /* =========================
-   CRIAR (já cria os 4 blocos)
+   CRIAR
 ========================= */
 exports.criarSimulado = async (req, res) => {
   const userId = req.session.userId;
@@ -106,11 +110,11 @@ exports.criarSimulado = async (req, res) => {
   const data = req.body.data_realizacao;
 
   if (!nome || !data) {
-    return res.redirect("/simulados/lista?erro=Preencha nome e data");
+    return res.redirect("/simulados?erro=Preencha nome e data");
   }
 
   if (data > hojeISO()) {
-    return res.redirect("/simulados/lista?erro=Não é permitido usar data futura");
+    return res.redirect("/simulados?erro=Não é permitido usar data futura");
   }
 
   const t = await sequelize.transaction();
@@ -127,7 +131,7 @@ exports.criarSimulado = async (req, res) => {
   } catch (err) {
     await t.rollback();
     console.error("Erro ao criar simulado:", err);
-    return res.redirect("/simulados/lista?erro=Erro ao criar simulado");
+    return res.redirect("/simulados?erro=Erro ao criar simulado");
   }
 };
 
@@ -162,13 +166,12 @@ exports.detalhesSimulado = async (req, res) => {
 
   try {
     let simulado = await carregarSimulado(id, userId);
-    if (!simulado) return res.redirect("/simulados/lista");
+    if (!simulado) return res.redirect("/simulados");
 
-    // Garante os 4 blocos (por segurança)
     const faltando = AREAS.filter(
       (a) => !simulado.blocos.some((b) => b.area === a.key)
     );
-        if (faltando.length) {
+    if (faltando.length) {
       const t = await sequelize.transaction();
       try {
         for (const a of faltando) {
@@ -203,10 +206,17 @@ exports.detalhesSimulado = async (req, res) => {
       simulado = await carregarSimulado(id, userId);
     }
 
-    const subjects = await Subject.findAll({
+    // pega todas as matérias com hue + posição estável (fallback)
+    const todasSubjects = await Subject.findAll({
       where: { user_id: userId },
       order: [["nome", "ASC"]],
+      raw: true,
     });
+    const subjects = todasSubjects.map((s, i) => ({
+      id: s.id,
+      nome: s.nome,
+      hue: s.hue != null ? Number(s.hue) : hueDe(i),
+    }));
 
     const tempos = {};
     const questoes = [];
@@ -245,14 +255,12 @@ exports.detalhesSimulado = async (req, res) => {
     });
   } catch (err) {
     console.error("ERRO detalhesSimulado:", err);
-    res.redirect("/simulados/lista");
+    res.redirect("/simulados");
   }
 };
 
 /* =========================
-   SALVAR GABARITO (JSON)
-   Só grava exceções: errada / não feita.
-   Não recria tudo, para preservar "revisada".
+   SALVAR GABARITO
 ========================= */
 exports.salvarGabarito = async (req, res) => {
   const userId = req.session.userId;
@@ -268,7 +276,6 @@ exports.salvarGabarito = async (req, res) => {
     });
     if (!simulado) return res.status(404).json({ error: "Simulado não encontrado." });
 
-    /* ---- metadados ---- */
     const nomeLimpo = (nome || "").toString().trim();
     if (!nomeLimpo) return fail("Dê um nome ao simulado.");
 
@@ -292,7 +299,6 @@ exports.salvarGabarito = async (req, res) => {
       }
     }
 
-    /* ---- questões ---- */
     const porNumero = new Map();
     for (const q of Array.isArray(questoes) ? questoes : []) {
       const n = Number(q.n);
@@ -327,7 +333,6 @@ exports.salvarGabarito = async (req, res) => {
       porNumero.set(n, item);
     }
 
-    /* ---- matérias/tópicos pertencem ao usuário? ---- */
     const items = [...porNumero.values()];
     const subjectIds = [...new Set(items.map((i) => i.subject_id).filter(Boolean))];
     const topicIds = [...new Set(items.map((i) => i.topic_id).filter(Boolean))];
@@ -341,7 +346,6 @@ exports.salvarGabarito = async (req, res) => {
       if (c !== topicIds.length) return fail("Tópico inválido.");
     }
 
-    /* ---- grava ---- */
     const t = await sequelize.transaction();
     try {
       for (const area of AREAS) {
@@ -373,7 +377,6 @@ exports.salvarGabarito = async (req, res) => {
           const ex = mapaEx.get(n);
 
           if (!novo) {
-            // voltou a ser "certa"
             if (ex) await ex.destroy({ transaction: t });
             continue;
           }
@@ -430,7 +433,7 @@ exports.salvarGabarito = async (req, res) => {
 };
 
 /* =========================
-   STATUS (em andamento <-> finalizado)
+   STATUS
 ========================= */
 exports.alterarStatus = async (req, res) => {
   const userId = req.session.userId;
@@ -465,11 +468,11 @@ exports.excluirSimulado = async (req, res) => {
 
   try {
     const simulado = await Simulado.findOne({ where: { id, user_id: userId } });
-    if (simulado) await simulado.destroy(); // CASCADE apaga blocos e erros
-    res.redirect("/simulados/lista");
+    if (simulado) await simulado.destroy();
+    res.redirect("/simulados");
   } catch (err) {
     console.error("Erro ao excluir simulado:", err);
-    res.redirect("/simulados/lista?erro=Erro ao excluir simulado");
+    res.redirect("/simulados?erro=Erro ao excluir simulado");
   }
 };
 
@@ -480,7 +483,7 @@ exports.listarErros = async (req, res) => {
   const userId = req.session.userId;
   const { area, motivo, status } = req.query;
 
-  const whereErro = { status: "errada" }; // "não feita" não entra no caderno
+  const whereErro = { status: "errada" };
   if (area) whereErro.area = area;
   if (motivo) whereErro.motivo = motivo;
   if (status === "pendentes") whereErro.revisada = false;
@@ -509,8 +512,26 @@ exports.listarErros = async (req, res) => {
       order: [["created_at", "DESC"]],
     });
 
+    // anexa hue em cada erro (fallback por posição) — usado pela view
+    const todasSubjects = await Subject.findAll({
+      where: { user_id: userId },
+      order: [["nome", "ASC"]],
+      raw: true,
+    });
+    const idxPorId = {};
+    todasSubjects.forEach((s, i) => { idxPorId[s.id] = i; });
+
+    const errosComHue = erros.map((e) => {
+      const subject = e.subject ? {
+        id: e.subject.id,
+        nome: e.subject.nome,
+        hue: e.subject.hue != null ? Number(e.subject.hue) : hueDe(idxPorId[e.subject.id] ?? 0),
+      } : null;
+      return { ...e.get({ plain: true }), subject };
+    });
+
     res.render("app/simulados/erros", {
-      erros,
+      erros: errosComHue,
       active: "simulados",
       userNome: req.session.userNome,
       qArea: area || "",

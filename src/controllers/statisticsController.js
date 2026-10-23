@@ -5,21 +5,12 @@ const { Op, fn, col } = require("sequelize");
 // HELPERS
 // =========================
 
-// Helper function to convert decimal hours to "Xh Ymin" format
 function formatHoursMinutes(decimalHours) {
   if (!decimalHours || decimalHours <= 0) return "0h 0min";
-  
   const horas = Math.floor(decimalHours);
   const minutos = Math.round((decimalHours - horas) * 60);
-  
-  if (horas === 0) {
-    return `${minutos}min`;
-  }
-  
-  if (minutos === 0) {
-    return `${horas}h`;
-  }
-  
+  if (horas === 0) return `${minutos}min`;
+  if (minutos === 0) return `${horas}h`;
   return `${horas}h ${minutos}min`;
 }
 
@@ -28,10 +19,7 @@ function calcStats(row) {
   const questoes = Number(row.questoes) || 0;
   const acertos = Number(row.acertos) || 0;
   const erros = questoes - acertos;
-  const aproveitamento = questoes > 0
-    ? Math.round((acertos / questoes) * 100)
-    : 0;
-
+  const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
   return { horas, questoes, acertos, erros, aproveitamento };
 }
 
@@ -70,6 +58,11 @@ function parseLocalDate(iso) {
   return new Date(y, m - 1, d);
 }
 
+// fallback: matiz estável por matéria
+function hueDe(i) {
+  return Math.round((245 + i * 137.508) % 360);
+}
+
 // =========================
 // CALCULAR STREAK
 // =========================
@@ -79,7 +72,7 @@ async function calcStreak(userId) {
     attributes: ["data"],
     group: ["data"],
     order: [["data", "DESC"]],
-    raw: true
+    raw: true,
   });
 
   const diasEstudadosSet = new Set(diasEstudadosRaw.map(d => d.data));
@@ -109,19 +102,16 @@ async function calcStreak(userId) {
 // =========================
 async function calcByPeriod(userId, dateLimit) {
   const where = { user_id: userId };
-
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
+  if (dateLimit) where.data = { [Op.gte]: dateLimit };
 
   const [row] = await StudyEntry.findAll({
     where,
     attributes: [
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]
+      [fn("SUM", col("acertos")), "acertos"],
     ],
-    raw: true
+    raw: true,
   });
 
   return calcStats(row || {});
@@ -132,16 +122,13 @@ async function calcByPeriod(userId, dateLimit) {
 // =========================
 async function calcDiasEstudados(userId, dateLimit) {
   const where = { user_id: userId };
-
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
+  if (dateLimit) where.data = { [Op.gte]: dateLimit };
 
   const diasRaw = await StudyEntry.findAll({
     where,
     attributes: ["data"],
     group: ["data"],
-    raw: true
+    raw: true,
   });
 
   return diasRaw.length;
@@ -157,17 +144,17 @@ async function calcEvolucao(userId, days = 30) {
   const evolucaoRaw = await StudyEntry.findAll({
     where: {
       user_id: userId,
-      data: { [Op.between]: [inicio, hoje] }
+      data: { [Op.between]: [inicio, hoje] },
     },
     attributes: [
       "data",
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]
+      [fn("SUM", col("acertos")), "acertos"],
     ],
     group: ["data"],
     order: [["data", "ASC"]],
-    raw: true
+    raw: true,
   });
 
   return evolucaoRaw.map(d => ({
@@ -175,7 +162,7 @@ async function calcEvolucao(userId, days = 30) {
     label: parseLocalDate(d.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
     horas: Number(d.horas) || 0,
     questoes: Number(d.questoes) || 0,
-    acertos: Number(d.acertos) || 0
+    acertos: Number(d.acertos) || 0,
   }));
 }
 
@@ -188,10 +175,10 @@ async function calcPorDiaSemana(userId) {
     attributes: [
       [fn("DAYOFWEEK", col("data")), "dia"],
       [fn("SUM", col("horas")), "horas"],
-      [fn("SUM", col("questoes")), "questoes"]
+      [fn("SUM", col("questoes")), "questoes"],
     ],
     group: [fn("DAYOFWEEK", col("data"))],
-    raw: true
+    raw: true,
   });
 
   const horasPorDia = [0, 0, 0, 0, 0, 0, 0];
@@ -213,12 +200,9 @@ async function calcMetas(userId) {
   const hoje = todayISO();
 
   const metasRaw = await StudyGoal.findAll({
-    where: {
-      user_id: userId,
-      status: "ativa"
-    },
+    where: { user_id: userId, status: "ativa" },
     order: [["data_limite", "ASC"]],
-    raw: true
+    raw: true,
   });
 
   const metas = [];
@@ -227,13 +211,18 @@ async function calcMetas(userId) {
     const estudos = await StudyEntry.findAll({
       where: {
         user_id: userId,
-        data: { [Op.between]: [meta.data_inicio, hoje > meta.data_limite ? meta.data_limite : hoje] }
+        data: {
+          [Op.between]: [
+            meta.data_inicio,
+            hoje > meta.data_limite ? meta.data_limite : hoje,
+          ],
+        },
       },
       attributes: [
         [fn("SUM", col("horas")), "horas"],
-        [fn("SUM", col("questoes")), "questoes"]
+        [fn("SUM", col("questoes")), "questoes"],
       ],
-      raw: true
+      raw: true,
     });
 
     const horasConcluidas = Number(estudos[0]?.horas) || 0;
@@ -248,10 +237,14 @@ async function calcMetas(userId) {
       questoesConcluidas,
       data_limite: meta.data_limite,
       progresso_horas: Math.min(Math.round((horasConcluidas / Number(meta.meta_horas)) * 100), 100),
-      progresso_questoes: meta.meta_questoes > 0
-        ? Math.min(Math.round((questoesConcluidas / meta.meta_questoes) * 100), 100)
-        : 100,
-      dias_restantes: Math.max(0, Math.ceil((new Date(meta.data_limite) - new Date(hoje)) / (1000 * 60 * 60 * 24)))
+      progresso_questoes:
+        meta.meta_questoes > 0
+          ? Math.min(Math.round((questoesConcluidas / meta.meta_questoes) * 100), 100)
+          : 100,
+      dias_restantes: Math.max(
+        0,
+        Math.ceil((new Date(meta.data_limite) - new Date(hoje)) / (1000 * 60 * 60 * 24))
+      ),
     });
   }
 
@@ -264,33 +257,32 @@ async function calcMetas(userId) {
 async function calcEstatisticasConteudo(userId, period) {
   const dateLimit = getDateLimit(period);
   const where = { user_id: userId };
-
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
+  if (dateLimit) where.data = { [Op.gte]: dateLimit };
 
   const subjects = await Subject.findAll({
     where: { user_id: userId },
     order: [["nome", "ASC"]],
-    raw: true
+    raw: true,
   });
+
+  // posição estável por id (pra fallback do hue)
+  const idPos = {};
+  subjects.forEach((s, i) => { idPos[s.id] = i; });
 
   const materias = [];
   let totalTopics = 0;
 
-  // Para cada matéria, buscar estatísticas
   for (const subject of subjects) {
     const subjectWhere = { ...where, subject_id: subject.id };
 
-    // Estatísticas da matéria
     const [stats] = await StudyEntry.findAll({
       where: subjectWhere,
       attributes: [
         [fn("SUM", col("horas")), "horas"],
         [fn("SUM", col("questoes")), "questoes"],
-        [fn("SUM", col("acertos")), "acertos"]
+        [fn("SUM", col("acertos")), "acertos"],
       ],
-      raw: true
+      raw: true,
     });
 
     const horas = Number(stats?.horas) || 0;
@@ -299,30 +291,26 @@ async function calcEstatisticasConteudo(userId, period) {
     const erros = questoes - acertos;
     const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
 
-    // Dias estudados nessa matéria
     const diasRaw = await StudyEntry.findAll({
       where: subjectWhere,
       attributes: ["data"],
       group: ["data"],
-      raw: true
+      raw: true,
     });
     const dias_estudados = diasRaw.length;
 
-    // Último estudo
     const ultimoStudy = await StudyEntry.findOne({
       where: subjectWhere,
       attributes: ["data"],
       order: [["data", "DESC"]],
-      raw: true
+      raw: true,
     });
 
-    // Só adicionar se tiver estudo no período
     if (horas > 0 || questoes > 0) {
-      // Buscar tópicos dessa matéria
       const topics = await Topic.findAll({
         where: { subject_id: subject.id },
         order: [["nome", "ASC"]],
-        raw: true
+        raw: true,
       });
 
       const topicos = [];
@@ -336,15 +324,16 @@ async function calcEstatisticasConteudo(userId, period) {
           attributes: [
             [fn("SUM", col("horas")), "horas"],
             [fn("SUM", col("questoes")), "questoes"],
-            [fn("SUM", col("acertos")), "acertos"]
+            [fn("SUM", col("acertos")), "acertos"],
           ],
-          raw: true
+          raw: true,
         });
 
         const topicHoras = Number(topicStats?.horas) || 0;
         const topicQuestoes = Number(topicStats?.questoes) || 0;
         const topicAcertos = Number(topicStats?.acertos) || 0;
-        const topicAproveitamento = topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
+        const topicAproveitamento =
+          topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
 
         if (topicHoras > 0 || topicQuestoes > 0) {
           topicos.push({
@@ -354,7 +343,7 @@ async function calcEstatisticasConteudo(userId, period) {
             questoes: topicQuestoes,
             acertos: topicAcertos,
             erros: topicQuestoes - topicAcertos,
-            aproveitamento: topicAproveitamento
+            aproveitamento: topicAproveitamento,
           });
           topicsCount++;
         }
@@ -365,6 +354,7 @@ async function calcEstatisticasConteudo(userId, period) {
       materias.push({
         id: subject.id,
         nome: subject.nome,
+        hue: subject.hue != null ? Number(subject.hue) : hueDe(idPos[subject.id] ?? 0),
         horas,
         questoes,
         acertos,
@@ -373,27 +363,25 @@ async function calcEstatisticasConteudo(userId, period) {
         dias_estudados,
         ultimo_study: ultimoStudy?.data || null,
         topicos,
-        perc_horas: 0 // será calculado depois
+        perc_horas: 0,
       });
     }
   }
 
-  // Calcular total de horas para percentuais
   const totalHoras = materias.reduce((sum, m) => sum + m.horas, 0);
   materias.forEach(m => {
     m.perc_horas = totalHoras > 0 ? Math.round((m.horas / totalHoras) * 100) : 0;
   });
 
-  // Rankings
   const rankingMelhores = [...materias].sort((a, b) => b.aproveitamento - a.aproveitamento);
   const rankingAtencao = [...materias].sort((a, b) => a.aproveitamento - b.aproveitamento);
   const rankingHoras = [...materias].sort((a, b) => b.horas - a.horas);
   const rankingQuestoes = [...materias].sort((a, b) => b.questoes - a.questoes);
 
-  // Média geral
-  const mediaGeral = materias.length > 0
-    ? Math.round(materias.reduce((sum, m) => sum + m.aproveitamento, 0) / materias.length)
-    : 0;
+  const mediaGeral =
+    materias.length > 0
+      ? Math.round(materias.reduce((sum, m) => sum + m.aproveitamento, 0) / materias.length)
+      : 0;
 
   return { materias, totalTopics, rankingMelhores, rankingAtencao, rankingHoras, rankingQuestoes, mediaGeral };
 }
@@ -408,18 +396,18 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
   const evolucaoRaw = await StudyEntry.findAll({
     where: {
       user_id: userId,
-      data: { [Op.between]: [inicio, hoje] }
+      data: { [Op.between]: [inicio, hoje] },
     },
     attributes: [
       "data",
       "subject_id",
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]
+      [fn("SUM", col("acertos")), "acertos"],
     ],
     group: ["data", "subject_id"],
     order: [["data", "ASC"]],
-    raw: true
+    raw: true,
   });
 
   return evolucaoRaw.map(d => ({
@@ -427,40 +415,29 @@ async function calcEvolucaoPorMateria(userId, days = 30) {
     subject_id: d.subject_id,
     horas: Number(d.horas) || 0,
     questoes: Number(d.questoes) || 0,
-    acertos: Number(d.acertos) || 0
+    acertos: Number(d.acertos) || 0,
   }));
 }
 
 // =========================
-// PÁGINA PRINCIPAL
+// PÁGINA PRINCIPAL (ESTUDOS)
 // =========================
 exports.geral = async (req, res) => {
   const userId = req.session.userId;
 
-  // Período atual (padrão: total)
   const period = req.query.period || "all";
   const dateLimit = getDateLimit(period);
 
-  // Stats por período
   const statsPeriodo = await calcByPeriod(userId, dateLimit);
-
-  // Stats totais
   const statsTotal = await calcByPeriod(userId, null);
 
-  // Streak
   const streak = await calcStreak(userId);
 
-  // Dias estudados
   const diasEstudados = await calcDiasEstudados(userId, dateLimit);
   const diasTotal = await calcDiasEstudados(userId, null);
 
-  // Evolução
   const evolucao = await calcEvolucao(userId, 30);
-
-  // Por dia da semana
   const { horasPorDia, questoesPorDia } = await calcPorDiaSemana(userId);
-
-  // Metas
   const metas = await calcMetas(userId);
 
   res.render("app/estatisticas-estudos", {
@@ -468,48 +445,38 @@ exports.geral = async (req, res) => {
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
 
-    // Período atual
     period,
 
-    // Stats do período
     stats: {
       horas: statsPeriodo.horas,
       questoes: statsPeriodo.questoes,
       acertos: statsPeriodo.acertos,
       erros: statsPeriodo.erros,
-      aproveitamento: statsPeriodo.aproveitamento
+      aproveitamento: statsPeriodo.aproveitamento,
     },
 
-    // Stats totais
     total: {
       horas: statsTotal.horas,
       questoes: statsTotal.questoes,
       acertos: statsTotal.acertos,
       erros: statsTotal.erros,
-      aproveitamento: statsTotal.aproveitamento
+      aproveitamento: statsTotal.aproveitamento,
     },
 
-    // Streak e dias
     streak,
     diasEstudados,
     diasTotal,
 
-    // Evolução
     evolucao,
-
-    // Por dia da semana
     horasPorDia,
     questoesPorDia,
 
-    // Metas
     metas,
 
-        // Resumo geral (reaproveita o que já foi calculado)
     horasTotal: statsTotal.horas,
     questoesTotal: statsTotal.questoes,
     taxaGeral: statsTotal.aproveitamento,
     streakGeral: streak,
-
   });
 };
 
@@ -519,20 +486,13 @@ exports.geral = async (req, res) => {
 exports.conteudo = async (req, res) => {
   const userId = req.session.userId;
 
-  // Período atual (padrão: total)
   const period = req.query.period || "all";
   const dateLimit = getDateLimit(period);
 
-  // Stats por período
   const statsPeriodo = await calcByPeriod(userId, dateLimit);
-
-  // Stats totais
   const statsTotal = await calcByPeriod(userId, null);
 
-  // Estatísticas de conteúdo
   const conteudo = await calcEstatisticasConteudo(userId, period);
-
-  // Evolução por matéria
   const evolucao = await calcEvolucaoPorMateria(userId, 30);
 
   res.render("app/estatisticas-conteudo", {
@@ -540,28 +500,24 @@ exports.conteudo = async (req, res) => {
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,
 
-    // Período atual
     period,
 
-    // Stats do período
     stats: {
       horas: statsPeriodo.horas,
       questoes: statsPeriodo.questoes,
       acertos: statsPeriodo.acertos,
       erros: statsPeriodo.erros,
-      aproveitamento: statsPeriodo.aproveitamento
+      aproveitamento: statsPeriodo.aproveitamento,
     },
 
-    // Stats totais
     total: {
       horas: statsTotal.horas,
       questoes: statsTotal.questoes,
       acertos: statsTotal.acertos,
       erros: statsTotal.erros,
-      aproveitamento: statsTotal.aproveitamento
+      aproveitamento: statsTotal.aproveitamento,
     },
 
-    // Matérias e rankings
     materias: conteudo.materias,
     totalTopics: conteudo.totalTopics,
     mediaGeral: conteudo.mediaGeral,
@@ -570,8 +526,7 @@ exports.conteudo = async (req, res) => {
     rankingHoras: conteudo.rankingHoras,
     rankingQuestoes: conteudo.rankingQuestoes,
 
-    // Evolução
-    evolucao
+    evolucao,
   });
 };
 
@@ -582,12 +537,12 @@ exports.hub = async (req, res) => {
   res.render("app/estatisticas-hub", {
     active: "estatisticas",
     userNome: req.session.userNome,
-    userFoto: req.session.userFoto
+    userFoto: req.session.userFoto,
   });
 };
 
 // =========================
-// DETALHES DE MATÉRIA ESPECÍFICA
+// DETALHES DE MATÉRIA
 // =========================
 exports.detalhesMateria = async (req, res) => {
   const userId = req.session.userId;
@@ -595,10 +550,9 @@ exports.detalhesMateria = async (req, res) => {
   const period = req.query.period || "all";
   const dateLimit = getDateLimit(period);
 
-  // Buscar a matéria
   const materia = await Subject.findOne({
     where: { id: subjectId, user_id: userId },
-    raw: true
+    raw: true,
   });
 
   if (!materia) {
@@ -606,19 +560,16 @@ exports.detalhesMateria = async (req, res) => {
   }
 
   const where = { user_id: userId, subject_id: subjectId };
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
+  if (dateLimit) where.data = { [Op.gte]: dateLimit };
 
-  // Estatísticas da matéria
   const [stats] = await StudyEntry.findAll({
     where,
     attributes: [
       [fn("SUM", col("horas")), "horas"],
       [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]
+      [fn("SUM", col("acertos")), "acertos"],
     ],
-    raw: true
+    raw: true,
   });
 
   const horas = Number(stats?.horas) || 0;
@@ -627,34 +578,31 @@ exports.detalhesMateria = async (req, res) => {
   const erros = questoes - acertos;
   const aproveitamento = questoes > 0 ? Math.round((acertos / questoes) * 100) : 0;
 
-  // Dias estudados
   const diasRaw = await StudyEntry.findAll({
     where,
     attributes: ["data"],
     group: ["data"],
-    raw: true
+    raw: true,
   });
   const dias_estudados = diasRaw.length;
 
-  // Último estudo
   const ultimoStudy = await StudyEntry.findOne({
     where,
     attributes: ["data"],
     order: [["data", "DESC"]],
-    raw: true
+    raw: true,
   });
 
-  // Buscar TODOS os tópicos da matéria
   const topics = await Topic.findAll({
     where: { subject_id: subjectId },
     order: [["nome", "ASC"]],
-    raw: true
+    raw: true,
   });
 
   const topicos = [];
   let totalTopicsCount = 0;
 
-    for (const topic of topics) {
+  for (const topic of topics) {
     const topicWhere = { ...where, topic_id: topic.id };
 
     const [topicStats] = await StudyEntry.findAll({
@@ -662,15 +610,16 @@ exports.detalhesMateria = async (req, res) => {
       attributes: [
         [fn("SUM", col("horas")), "horas"],
         [fn("SUM", col("questoes")), "questoes"],
-        [fn("SUM", col("acertos")), "acertos"]
+        [fn("SUM", col("acertos")), "acertos"],
       ],
-      raw: true
+      raw: true,
     });
 
     const topicHoras = Number(topicStats?.horas) || 0;
     const topicQuestoes = Number(topicStats?.questoes) || 0;
     const topicAcertos = Number(topicStats?.acertos) || 0;
-    const topicAproveitamento = topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
+    const topicAproveitamento =
+      topicQuestoes > 0 ? Math.round((topicAcertos / topicQuestoes) * 100) : 0;
 
     if (topicHoras > 0 || topicQuestoes > 0) {
       topicos.push({
@@ -681,11 +630,20 @@ exports.detalhesMateria = async (req, res) => {
         acertos: topicAcertos,
         erros: topicQuestoes - topicAcertos,
         aproveitamento: topicAproveitamento,
-        assuntos: [] // TEMPORÁRIO: a view ainda pode iterar sobre isso
+        assuntos: [],
       });
       totalTopicsCount++;
     }
   }
+
+  // posição por id (mesma ordem do findAll original, por nome)
+  const todas = await Subject.findAll({
+    where: { user_id: userId },
+    order: [["nome", "ASC"]],
+    raw: true,
+  });
+  const idx = todas.findIndex((s) => s.id === materia.id);
+  const hue = materia.hue != null ? Number(materia.hue) : hueDe(idx >= 0 ? idx : 0);
 
   res.render("app/estatisticas-conteudo-detalhes", {
     active: "estatisticas",
@@ -693,6 +651,7 @@ exports.detalhesMateria = async (req, res) => {
     userFoto: req.session.userFoto,
     materia: {
       ...materia,
+      hue,
       horas,
       questoes,
       acertos,
@@ -700,10 +659,8 @@ exports.detalhesMateria = async (req, res) => {
       aproveitamento,
       dias_estudados,
       ultimo_study: ultimoStudy?.data || null,
-      topicos
+      topicos,
     },
-    period
+    period,
   });
 };
-
-
