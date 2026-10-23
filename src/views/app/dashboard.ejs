@@ -339,7 +339,7 @@
       </section>
 
       <!-- =========================
-           ROW: MATÉRIAS + CONQUISTAS
+           ROW: MATÉRIAS
       ========================== -->
       <section class="dashboard-row charts-row">
 
@@ -367,47 +367,6 @@
                   </span>
                 </div>
               <% }) %>
-            </div>
-          <% } %>
-        </div>
-
-        <!-- Conquistas -->
-        <div class="dashboard-card conquistas-card">
-          <h2>🏆 Conquistas</h2>
-          <% if ((conquistas && conquistas.length > 0) || (conquistasProgresso && conquistasProgresso.length > 0)) { %>    
-            <div class="conquistas-grid">
-              <% conquistas.forEach(c => { %>
-                <div class="conquista-item conquista-concluida" title="<%= c.descricao %>">
-                  <span class="conquista-icone"><%= c.icone %></span>
-                  <span class="conquista-titulo"><%= c.titulo %></span>
-                  <span class="conquista-status">✓ Conquistado!</span>
-                </div>
-              <% }) %>
-              <% conquistasProgresso.forEach(c => { 
-                const progressoPercentual = Math.min(Math.round((c.progresso / c.meta) * 100), 100);
-              %>
-                <div class="conquista-item conquista-em-progresso" title="<%= c.descricao %>">
-                  <span class="conquista-icone"><%= c.icone %></span>
-                  <span class="conquista-titulo"><%= c.titulo %></span>
-                  <div class="conquista-progresso">
-                    <div class="conquista-progresso-bar" style="width: <%= progressoPercentual %>%"></div>
-                  </div>
-                  <span class="conquista-progresso-text"><%= progressoPercentual %>%</span>
-                </div>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <div class="conquistas-empty">
-              <p>Complete metas para desbloquear conquistas!</p>
-              <div class="stats-mini">
-                <%
-                  const miniHoras = horasTotal || 0;
-                  const miniHorasInt = Math.floor(miniHoras);
-                  const miniMinutos = Math.round((miniHoras - miniHorasInt) * 60);
-                %>
-                <span>⏱️ <%= miniHorasInt %>h <%= miniMinutos %>min</span>
-                <span>📝 <%= questoesTotal || 0 %> questões</span>
-              </div>
             </div>
           <% } %>
         </div>

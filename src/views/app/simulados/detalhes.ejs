@@ -1,512 +1,166 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>KMDL Med | <%= simulado.nome %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <link rel="stylesheet" href="/public/css/components/global-responsive.css" />
+  <link rel="stylesheet" href="/public/css/components/theme.css" />
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/app/simulados-detalhes.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ESTILO MÍNIMO (provisório, o visual de verdade é o passo 3) -->
+  <style>
+    .sim-page { padding: 20px; max-width: 1100px; }
+    .sim-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+    .sim-row input, .sim-row button, .sim-card input, .modal-box select, .modal-box textarea {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,.4);
+      background: transparent; color: inherit; font: inherit;
+    }
+    .sim-row button, .modal-box button { cursor: pointer; }
+    .sim-nome { font-size: 1.3rem; font-weight: 700; min-width: 280px; }
+    .resumo { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .resumo-item { border: 1px solid rgba(128,128,128,.4); border-radius: 12px; padding: 12px 16px; min-width: 130px; }
+    .resumo-item small { display: block; opacity: .7; }
+    .resumo-item strong { font-size: 1.2rem; }
+    .sim-card { border: 1px solid rgba(128,128,128,.4); border-radius: 14px; padding: 16px; margin-bottom: 18px; }
+    .sim-card-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .grid-q { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+    .cell { position: relative; padding: 8px 0; border-radius: 10px; border: 2px solid transparent;
+            cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+    .cell .cell-i { font-size: .7rem; }
+    .cell.certa { background: rgba(46,229,157,.25); border-color: rgba(46,229,157,.7); }
+    .cell.errada { background: rgba(239,68,68,.30); border-color: rgba(239,68,68,.8); }
+    .cell.nao_feita { background: rgba(128,128,128,.25); border-color: rgba(128,128,128,.6); opacity: .8; }
+    .lista-erros .item { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(128,128,128,.25); }
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-bg.open { display: flex; }
+    .modal-box { background: #161821; color: #fff; border-radius: 16px; padding: 22px; width: 92%; max-width: 460px; max-height: 92vh; overflow-y: auto; }
+    .motivos { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+    .motivos button { text-align: left; background: transparent; color: inherit; }
+    .motivos button.active { background: rgba(239,68,68,.35); border-color: rgba(239,68,68,.9); }
+    .modal-box select, .modal-box textarea { width: 100%; margin-top: 8px; box-sizing: border-box; background: #1a1d24; color: #fff; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+    #m-err { color: #ef4444; min-height: 1.2em; margin-top: 8px; }
+        .grid-q.locked { display: none; }
+    #btn-modo-nf.on { background: rgba(128,128,128,.4); border-color: #aaa; font-weight: 700; }
+  </style>
 </head>
 <body class="page-bg">
 
 <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-<div class="container">
+<div class="sim-page">
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <h1><%= simulado.nome %></h1>
-    <span class="status <%= simulado.status %>">
-      <%= simulado.status === "finalizado" ? "✓ Finalizado" : (simulado.status === "revisao" ? "✎ Modo Revisão" : "Em andamento") %>
+  <!-- ========== TOPO: METADADOS ========== -->
+  <a href="/simulados/lista">← Simulados</a>
+
+  <div class="sim-row" style="margin-top:10px;">
+    <input id="sim-nome" class="sim-nome" type="text" maxlength="255" value="<%= simulado.nome %>" />
+    <span>📅 <%= simulado.data_realizacao.split("-").reverse().join("/") %></span>
+    <span id="sim-status-label">
+      <%= simulado.status === "finalizado" ? "✅ Finalizado" : "⏳ Em andamento" %>
     </span>
   </div>
 
-  <div class="header-actions">
-    <% if (simulado.status === "em_andamento") { %>
-      <form action="/simulados/<%= simulado.id %>/finalizar" method="POST">
-        <button class="btn danger">Finalizar simulado</button>
-      </form>
-    <% } else if (simulado.status === "finalizado") { %>
-      <form action="/simulados/<%= simulado.id %>/revisao" method="POST">
-        <button class="btn warning">✎ Entrar em revisão</button>
-      </form>
-    <% } else if (simulado.status === "revisao") { %>
-      <form action="/simulados/<%= simulado.id %>/revisao" method="POST">
-        <button class="btn primary">✓ Finalizar revisão</button>
-      </form>
-    <% } %>
+  <div class="sim-row">
+    <label>Nota da redação (0–1000)
+      <input id="sim-redacao" type="number" min="0" max="1000" step="1"
+             value="<%= simulado.redacao_nota != null ? simulado.redacao_nota : '' %>" />
+    </label>
+
+    <button type="button" id="btn-salvar">💾 Salvar</button>
+    <button type="button" id="btn-status" data-status="<%= simulado.status %>">
+      <%= simulado.status === "finalizado" ? "↩ Reabrir" : "✅ Salvar e finalizar" %>
+    </button>
+    <span id="msg-salvo" style="opacity:.8;"></span>
   </div>
-</div>
 
-<% if (simulado.status === "revisao") { %>
-  <div class="revisao-banner">
-    <span class="icon">⚠️</span>
-    <span>Você está em <strong>modo revisão</strong>. Pode editar blocos e erros. As estatísticas serão recalculadas automaticamente.</span>
-  </div>
-<% } %>
-
-<!-- ================= RESUMO ================= -->
-<%
-  const areas = {
-    linguagens: { questoes: 0, acertos: 0 },
-    humanas: { questoes: 0, acertos: 0 },
-    naturezas: { questoes: 0, acertos: 0 },
-    matematica: { questoes: 0, acertos: 0 }
-  };
-
-  let totalGeral = 0;
-  let acertosGeral = 0;
-
-  simulado.blocos.forEach(b => {
-    areas[b.area].questoes += Number(b.total_questoes);
-    areas[b.area].acertos += Number(b.acertos);
-    totalGeral += Number(b.total_questoes);
-    acertosGeral += Number(b.acertos);
-  });
-%>
-
-<div class="section">
-  <h2 class="section-title">Resumo de Desempenho</h2>
-
-  <div class="resumo-grid">
-    <% Object.keys(areas).forEach(area => {
-      const q = areas[area].questoes;
-      const a = areas[area].acertos;
-      const percentual = q > 0 ? Math.round((a / q) * 100) : 0;
-      
-      let percentClass = '';
-      if (percentual >= 70) percentClass = 'high';
-      else if (percentual >= 50) percentClass = 'medium';
-      else if (percentual > 0) percentClass = 'low';
-    %>
-      <div class="resumo-card <%= area %>">
-        <h4><%= area.toUpperCase() %></h4>
-        
-        <% if (q > 0) { %>
-          <div class="stats">
-            <p><strong><%= a %></strong> / <%= q %></p>
-          </div>
-          <span class="percent <%= percentClass %>"><%= percentual %>%</span>
-        <% } else { %>
-          <p>—</p>
-        <% } %>
-
-      </div>
+  <!-- ========== RESUMO AO VIVO ========== -->
+  <div class="resumo">
+    <div class="resumo-item"><small>Acertos</small><strong id="sum-acertos">0</strong></div>
+    <div class="resumo-item"><small>Questões feitas</small><strong id="sum-feitas">0</strong></div>
+    <div class="resumo-item"><small>Desempenho</small><strong id="sum-pct">0%</strong></div>
+    <% areas.forEach(a => { %>
+      <div class="resumo-item"><small><%= a.label %></small><strong id="sum-<%= a.key %>">0/0 · 0%</strong></div>
     <% }) %>
   </div>
-</div>
 
+    <div class="sim-row">
+    <button type="button" id="btn-modo-nf">🚫 Modo "não feita": desligado</button>
+    <span style="opacity:.75;">
+      Desligado: certa → <strong>errada</strong> (abre o diagnóstico) → <strong>não feita</strong> → certa.
+      Ligado: cada clique alterna entre <strong>não feita</strong> e certa.
+    </span>
+  </div>
 
-<!-- ================= BLOCOS ================= -->
-<div class="section">
-  <h2 class="section-title">Blocos Realizados</h2>
-
-  <% if (simulado.blocos.length === 0) { %>
-    <div class="empty-state">
-      <div class="icon">📝</div>
-      <p>Nenhum bloco registrado ainda.</p>
-    </div>
-  <% } else { %>
-    <div class="blocos-grid">
-      <% simulado.blocos.forEach(bloco => { %>
-        <div class="bloco-card">
-
-          <!-- HEADER DO BLOCO -->
-          <div class="bloco-header">
-            <span class="area <%= bloco.area %>"><%= bloco.area.toUpperCase() %></span>
-            <span class="info">
-              <strong><%= bloco.total_questoes %></strong> questões — <strong><%= bloco.acertos %></strong> acertos
-            </span>
-            <span class="tempo"><%= bloco.tempo_minutos ? bloco.tempo_minutos + " min" : "—" %></span>
-            <span class="data"><%= bloco.data_realizacao.split("-").reverse().join("/") %></span>
-          </div>
-
-          <div class="bloco-body">
-
-            <!-- ERROS JÁ REGISTRADOS -->
-            <% if (bloco.erros.length > 0) { %>
-              <div class="erros collapsed" id="erros-<%= bloco.id %>">
-                <div class="erros-header" onclick="toggleErros(<%= bloco.id %>)">
-                  <h4>Questões erradas (<%= bloco.erros.length %>)</h4>
-                  <div class="erros-toggle">
-                    <span>Ver</span>
-                    <span class="arrow">▼</span>
-                  </div>
-                </div>
-
-                <div class="erros-list">
-                  <% bloco.erros.forEach(erro => { %>
-                    <div class="erro <%= erro.revisada ? "revisada" : "" %>">
-                      <div class="erro-info">
-                        <span>Questão <strong><%= erro.numero_questao %></strong> — <span class="motivo"><%= erro.motivo.replace("_", " ") %></span></span>
-                        
-                        <% if (erro.motivo === "lacuna") { %>
-                          <small class="details">
-                            <span>📚 <%= erro.subject ? erro.subject.nome : "—" %></span>
-                            <% if (erro.topic) { %>
-                              <span>📋 <%= erro.topic.nome %></span>
-                            <% } %>
-                          </small>
-                        <% } %>
-                      </div>
-
-                      <div class="erro-actions">
-                        <% if (!erro.revisada) { %>
-                          <form action="/simulados/erro/<%= erro.id %>/revisar" method="POST">
-                            <button class="btn small neutral">✓ Revisada</button>
-                          </form>
-                        <% } %>
-
-                        <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
-                          <a href="/simulados/erro/<%= erro.id %>/editar" class="btn small neutral">✏️</a>
-
-                          <form
-                            action="/simulados/erro/<%= erro.id %>/excluir"
-                            method="POST"
-                            onsubmit="return confirm('Excluir este erro?')"
-                          >
-                            <button class="btn small danger">✕</button>
-                          </form>
-                        <% } %>
-                      </div>
-                    </div>
-                  <% }) %>
-                </div>
-              </div>
-            <% } %>
-
-            <!-- FORM ADICIONAR ERRO (dentro do bloco) -->
-            <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
-              <form
-                id="form-erro-<%= bloco.id %>"
-                class="form-add-erro"
-                style="display:none;"
-                onsubmit="return salvarErro(event, <%= bloco.id %>)"
-              >
-
-                <div class="form-erro-grid">
-                  <input
-                    type="number"
-                    name="numero_questao"
-                    placeholder="Nº da questão"
-                    required
-                  />
-
-                  <select name="motivo" onchange="onMotivoChange(this)" required>
-                    <option value="">Motivo do erro</option>
-                    <option value="falta_conteudo">Falta de conteúdo</option>
-                    <option value="falta_atencao">Falta de atenção</option>
-                    <option value="lacuna">Lacuna de conhecimento</option>
-                  </select>
-                </div>
-
-                <!-- CAMPOS DE LACUNA -->
-                <div class="lacuna-fields" style="display:none;">
-                  <select name="subject_id" onchange="loadTopics(this)">
-                    <option value="">Matéria</option>
-                    <% subjects.forEach(s => { %>
-                      <option value="<%= s.id %>"><%= s.nome %></option>
-                    <% }) %>
-                  </select>
-
-                  <select name="topic_id" disabled>
-                    <option value="">Tópico</option>
-                  </select>
-                </div>
-
-                <div class="form-erro-actions">
-                  <button type="submit" class="btn primary small">Salvar</button>
-                  <button
-                    type="button"
-                    class="btn danger small"
-                    onclick="toggleErroForm(<%= bloco.id %>)"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-
-              </form>
-            <% } %>
-
-          </div>
-
-          <!-- AÇÕES DO BLOCO -->
-          <% if (simulado.status === "em_andamento" || simulado.status === "revisao") { %>
-            <div class="bloco-actions">
-              <button
-                type="button"
-                class="btn small primary"
-                onclick="toggleErroForm(<%= bloco.id %>)"
-              >
-                ➕ Adicionar erro
-              </button>
-
-              <a href="/simulados/bloco/<%= bloco.id %>/editar" class="btn small neutral">✏️ Editar</a>
-
-              <form
-                action="/simulados/bloco/<%= bloco.id %>/excluir"
-                method="POST"
-                onsubmit="return confirm('Excluir este bloco?')"
-                style="display: inline;"
-              >
-                <button type="submit" class="btn small danger">Excluir</button>
-              </form>
-            </div>
-          <% } %>
-
+    <!-- ========== GRADE POR ÁREA ========== -->
+  <% areas.forEach(a => { %>
+    <section class="sim-card">
+      <div class="sim-card-head">
+        <h3><%= a.label %> <small style="opacity:.6;">(<%= a.start %>–<%= a.start + 44 %>)</small></h3>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <label>⏱ Tempo (min)
+            <input id="tempo-<%= a.key %>" type="number" min="0" style="width:90px;"
+                   value="<%= tempos[a.key] != null ? tempos[a.key] : '' %>" />
+          </label>
+          <button type="button" id="lock-<%= a.key %>">🔓 Fechar área</button>
         </div>
-      <% }) %>
-    </div>
-  <% } %>
-</div>
+      </div>
+      <p id="closed-<%= a.key %>" style="display:none; opacity:.7;">
+        🔒 Área fechada: todas as questões contam como não feitas.
+      </p>
+      <div class="grid-q" id="grid-<%= a.key %>"></div>
+    </section>
+  <% }) %>
 
-
-<!-- ================= ADD BLOCO ================= -->
-<% if (simulado.status === "em_andamento") { %>
-<div class="form-bloco">
-  <h2>Adicionar novo bloco</h2>
-
-  <form id="form-add-bloco">
-
-    <div class="grid">
-      <select name="area" required>
-        <option value="">Área</option>
-        <option value="linguagens">Linguagens</option>
-        <option value="humanas">Humanas</option>
-        <option value="naturezas">Naturezas</option>
-        <option value="matematica">Matemática</option>
-      </select>
-
-      <input type="number" name="total_questoes" placeholder="Total de questões" required />
-      <input type="number" name="acertos" placeholder="Acertos" required />
-      <input type="number" name="tempo_minutos" placeholder="Tempo (min)" />
-      <input type="date" name="data_realizacao" required />
-    </div>
-
+  <!-- ========== LISTA DE ERRADAS (editar diagnóstico) ========== -->
+  <section class="sim-card">
     <h3>Questões erradas</h3>
-    <div id="erros-container"></div>
-
-    <button type="button" onclick="addErro()" class="btn small neutral" style="margin-bottom: 16px;">
-      ➕ Adicionar erro
-    </button>
-
-    <div id="erro-bloco" style="display:none; color:#ef4444; margin-top:10px;"></div>
-
-    <br>
-    <button type="submit" class="btn primary">Salvar bloco</button>
-  </form>
-
-</div>
-<% } %>
+    <div class="lista-erros" id="lista-erros"></div>
+  </section>
 
 </div>
 </main>
 
-<script>
-const subjects = <%- JSON.stringify(subjects) %>;
+<!-- ========== MODAL DE DIAGNÓSTICO ========== -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <h3 id="m-title">Questão</h3>
+    <p style="opacity:.75;">Por que você errou?</p>
 
-/* =========================
-   TOGGLE ERROS (Accordion)
-========================= */
-function toggleErros(blocoId) {
-  const errosDiv = document.getElementById("erros-" + blocoId);
-  if (!errosDiv) return;
-  
-  errosDiv.classList.toggle("collapsed");
-  
-  // Update toggle text
-  const toggleSpan = errosDiv.querySelector(".erros-toggle span:first-child");
-  if (errosDiv.classList.contains("collapsed")) {
-    toggleSpan.textContent = "Ver";
-  } else {
-    toggleSpan.textContent = "Ocultar";
-  }
-}
-
-/* =========================
-   LACUNA (COMPARTILHADO)
-========================= */
-function onMotivoChange(select) {
-  // tenta no erro-row (add bloco)
-  let lacuna = select
-    .closest(".erro-row")
-    ?.querySelector(".lacuna-fields");
-
-  // fallback: erro em bloco já salvo
-  if (!lacuna) {
-    lacuna = select
-      .closest("form")
-      ?.querySelector(".lacuna-fields");
-  }
-
-  if (!lacuna) return;
-
-  lacuna.style.display = select.value === "lacuna" ? "grid" : "none";
-}
-
-
-
-async function loadTopics(select) {
-  const subjectId = select.value;
-  const wrapper = select.parentElement;
-  const topicSelect = wrapper.querySelector("select[name*='topic_id']");
-
-  topicSelect.innerHTML = "<option>Carregando...</option>";
-  topicSelect.disabled = true;
-
-  if (!subjectId) {
-    topicSelect.innerHTML = "<option value=''>Tópico</option>";
-    return;
-  }
-
-  const res = await fetch(`/conteudos/api/topicos/${subjectId}`);
-  const topics = await res.json();
-
-  topicSelect.innerHTML = "<option value=''>Tópico</option>";
-  topics.forEach(t => {
-    topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
-  });
-
-  topicSelect.disabled = false;
-}
-
-/* =========================
-   ERRO EM BLOCO EXISTENTE
-========================= */
-function toggleErroForm(blocoId) {
-  const form = document.getElementById("form-erro-" + blocoId);
-  if (!form) return;
-  
-  if (form.style.display === "none" || form.style.display === "") {
-    form.style.display = "block";
-  } else {
-    form.style.display = "none";
-    // Reset fields
-    form.reset();
-    const lacunaFields = form.querySelector(".lacuna-fields");
-    if (lacunaFields) lacunaFields.style.display = "none";
-  }
-}
-
-async function salvarErro(event, blocoId) {
-  event.preventDefault();
-
-  const form = event.target;
-  const data = new URLSearchParams(new FormData(form));
-
-
-  const res = await fetch(`/simulados/bloco/${blocoId}/erro`, {
-    method: "POST",
-    body: data
-  });
-
-  const json = await res.json();
-
-  if (!res.ok) {
-    alert(json.error || "Erro ao salvar erro.");
-    return false;
-  }
-
-  location.reload();
-  return false;
-}
-
-let erroIndex = 0;
-
-function addErro() {
-  const container = document.getElementById("erros-container");
-  if (!container) return;
-
-  const idx = erroIndex++;
-
-  const div = document.createElement("div");
-  div.className = "erro-row";
-
-  div.innerHTML = `
-    <div class="erro-row-grid">
-      <input
-        type="number"
-        name="erros[${idx}][numero_questao]"
-        placeholder="Nº da questão"
-        required
-      />
-
-      <select
-        name="erros[${idx}][motivo]"
-        onchange="onMotivoChange(this)"
-        required
-      >
-        <option value="">Motivo</option>
-        <option value="falta_conteudo">Falta de conteúdo</option>
-        <option value="falta_atencao">Falta de atenção</option>
-        <option value="lacuna">Lacuna</option>
-      </select>
-
-      <button
-        type="button"
-        class="btn danger small"
-        onclick="this.closest('.erro-row').remove()"
-      >
-        ✕
-      </button>
+    <div class="motivos" id="m-motivos">
+      <button type="button" data-motivo="falta_atencao">👀 Falta de atenção</button>
+      <button type="button" data-motivo="falta_conteudo">📖 Falta de conteúdo</button>
+      <button type="button" data-motivo="lacuna">🕳 Lacuna de conhecimento</button>
     </div>
 
-        <div class="lacuna-fields" style="display:none;">
-      <select name="erros[${idx}][subject_id]" onchange="loadTopics(this)">
+    <div id="m-lacuna" style="display:none;">
+      <select id="m-subject">
         <option value="">Matéria</option>
-        ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
+        <% subjects.forEach(s => { %>
+          <option value="<%= s.id %>"><%= s.nome %></option>
+        <% }) %>
       </select>
-
-      <select name="erros[${idx}][topic_id]" disabled>
+      <select id="m-topic" disabled>
         <option value="">Tópico</option>
       </select>
     </div>
-  `;
 
-  container.appendChild(div);
-}
-</script>
+    <textarea id="m-anot" rows="2" maxlength="255" placeholder="Anotação rápida (opcional)"></textarea>
 
-<script>
-const form = document.getElementById("form-add-bloco");
-const erroBox = document.getElementById("erro-bloco");
+    <div id="m-err"></div>
 
-if (form) {
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    <div class="modal-actions">
+      <button type="button" id="m-cancel">Cancelar</button>
+      <button type="button" id="m-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
 
-    erroBox.style.display = "none";
-    erroBox.innerText = "";
-
-    const data = new URLSearchParams(new FormData(form));
-
-    const res = await fetch("/simulados/<%= simulado.id %>/bloco", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: data
-    });
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      erroBox.innerText = json.error || "Erro interno ao adicionar bloco.";
-      erroBox.style.display = "block";
-      return;
-    }
-
-    location.reload();
-  });
-}
-</script>
+<script>window.SIM = <%- simJson %>;</script>
+<script src="/public/js/app/simulado-grade.js"></script>
 
 </body>
 </html>
-

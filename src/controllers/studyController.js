@@ -7,6 +7,14 @@ function ensureInt(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Devolve o id do tópico "Geral" da matéria (cria se ainda não existir)
+async function getGeralTopicId(userId, subjectId) {
+  const [topic] = await Topic.findOrCreate({
+    where: { user_id: userId, subject_id: subjectId, nome: "Geral" }
+  });
+  return topic.id;
+}
+
 // =========================
 // HUB /registrar
 // =========================
@@ -53,17 +61,24 @@ exports.registerSave = async (req, res) => {
 
   await StudyEntry.destroy({ where: { user_id: userId, data } });
 
+      const geralCache = {}; // evita consultar o banco várias vezes por matéria
+
   for (const b of blocos) {
     const subject_id = ensureInt(b.subject_id);
-    const topic_id = ensureInt(b.topic_id);
-    const horas = parseFloat(b.horas) || 0;
-    const minutos = parseFloat(b.minutos) || 0;
-    const totalHoras = horas + (minutos / 60); // Converter horas e minutos para horas decimais
+    let topic_id = ensureInt(b.topic_id);
+    const totalHoras = (parseFloat(b.horas) || 0) + (parseFloat(b.minutos) || 0) / 60;
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
-    const dificuldade = b.dificuldade || "MEDIA";
 
-    if (!subject_id || !topic_id || totalHoras <= 0) continue;
+    if (!subject_id || totalHoras <= 0) continue;
+
+    // sem tópico escolhido -> "Geral" da matéria
+    if (!topic_id) {
+      if (!geralCache[subject_id]) {
+        geralCache[subject_id] = await getGeralTopicId(userId, subject_id);
+      }
+      topic_id = geralCache[subject_id];
+    }
 
     await StudyEntry.create({
       user_id: userId,
@@ -72,8 +87,7 @@ exports.registerSave = async (req, res) => {
       topic_id,
       horas: totalHoras,
       questoes,
-      acertos,
-      dificuldade
+      acertos
     });
   }
 
@@ -167,7 +181,6 @@ exports.editPage = async (req, res) => {
     horas: e.horas,
     questoes: e.questoes,
     acertos: e.acertos,
-    dificuldade: e.dificuldade
   }));
 
   res.render("app/register-edit", {
@@ -198,17 +211,24 @@ exports.editSave = async (req, res) => {
 
   await StudyEntry.destroy({ where: { user_id: userId, data } });
 
+    const geralCache = {}; // evita consultar o banco várias vezes por matéria
+
   for (const b of blocos) {
     const subject_id = ensureInt(b.subject_id);
-    const topic_id = ensureInt(b.topic_id);
-    const horas = parseFloat(b.horas) || 0;
-    const minutos = parseFloat(b.minutos) || 0;
-    const totalHoras = horas + (minutos / 60); // Converter horas e minutos para horas decimais
+    let topic_id = ensureInt(b.topic_id);
+    const totalHoras = (parseFloat(b.horas) || 0) + (parseFloat(b.minutos) || 0) / 60;
     const questoes = ensureInt(b.questoes) || 0;
     const acertos = ensureInt(b.acertos) || 0;
-    const dificuldade = b.dificuldade || "MEDIA";
 
-    if (!subject_id || !topic_id || totalHoras <= 0) continue;
+    if (!subject_id || totalHoras <= 0) continue;
+
+    // sem tópico escolhido -> "Geral" da matéria
+    if (!topic_id) {
+      if (!geralCache[subject_id]) {
+        geralCache[subject_id] = await getGeralTopicId(userId, subject_id);
+      }
+      topic_id = geralCache[subject_id];
+    }
 
     await StudyEntry.create({
       user_id: userId,
@@ -217,8 +237,7 @@ exports.editSave = async (req, res) => {
       topic_id,
       horas: totalHoras,
       questoes,
-      acertos,
-      dificuldade
+      acertos
     });
   }
 

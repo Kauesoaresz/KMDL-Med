@@ -164,31 +164,6 @@
 
       <!-- LINHA 3: DIFICULDADE E TAXA -->
       <section class="stats-row-3">
-        <!-- Por Dificuldade -->
-        <div class="stats-block dificuldade-block">
-          <h2>📊 Desempenho por Dificuldade</h2>
-          <div class="dificuldade-grid">
-            <% const cores = { MUITO_FACIL: '#22c55e', FACIL: '#4ade80', MEDIA: '#facc15', DIFICIL: '#f97316', MUITO_DIFICIL: '#ef4444' }; %>
-            <% const labels = { MUITO_FACIL: 'Muito Fácil', FACIL: 'Fácil', MEDIA: 'Média', DIFICIL: 'Difícil', MUITO_DIFICIL: 'Muito Difícil' }; %>
-            <% Object.keys(porDificuldade).forEach(function(dif) { %>
-              <% const item = porDificuldade[dif]; %>
-              <% const taxa = item.questoes > 0 ? Math.round((item.acertos / item.questoes) * 100) : 0; %>
-              <div class="dificuldade-item">
-                <div class="dificuldade-header">
-                  <span class="dificuldade-label"><%= labels[dif] %></span>
-                  <span class="dificuldade-taxa" style="color: <%= cores[dif] %>"><%= taxa %>%</span>
-                </div>
-                <div class="dificuldade-bar">
-                  <div class="dificuldade-fill" style="width: <%= taxa %>%; background: <%= cores[dif] %>"></div>
-                </div>
-                <div class="dificuldade-nums">
-                  <span><%= item.questoes %> questões</span>
-                  <span><%= item.acertos %> acertos</span>
-                </div>
-              </div>
-            <% }); %>
-          </div>
-        </div>
 
         <!-- Taxa Geral -->
         <div class="stats-block taxa-block">
@@ -262,41 +237,6 @@
 
       </section>
 
-      <!-- LINHA 5: CONQUISTAS -->
-      <section class="stats-block conquistas-block">
-        <h2>🏆 Conquistas</h2>
-        <div class="conquistas-grid">
-          <% if (conquistas && conquistas.length > 0) { %>
-            <% conquistas.forEach(function(c) { %>
-              <div class="conquista-item desbloqueada">
-                <div class="conquista-icone"><%= c.icone %></div>
-                <div class="conquista-info">
-                  <span class="conquista-titulo"><%= c.titulo %></span>
-                  <span class="conquista-desc"><%= c.desc %></span>
-                </div>
-              </div>
-            <% }); %>
-          <% } else { %>
-            <p class="no-conquistas">Comece a estudar para desbloquear conquistas!</p>
-          <% } %>
-          
-          <% if (conquistasProgresso && conquistasProgresso.length > 0) { %>
-            <% conquistasProgresso.forEach(function(c) { %>
-              <div class="conquista-item progresso">
-                <div class="conquista-icone"><%= c.icone %></div>
-                <div class="conquista-info">
-                  <span class="conquista-titulo"><%= c.titulo %></span>
-                  <span class="conquista-desc"><%= c.atual %> / <%= c.meta %></span>
-                </div>
-                <div class="conquista-bar">
-                  <div class="conquista-fill" style="width: <%= Math.round((c.atual / c.meta) * 100) %>%"></div>
-                </div>
-              </div>
-            <% }); %>
-          <% } %>
-        </div>
-      </section>
-
       <!-- LINHA 6: ESTATÍSTICAS GERAIS -->
       <section class="stats-gerais">
         <div class="stats-block geral-block">
@@ -332,7 +272,7 @@
               <span class="geral-icon">🔥</span>
               <div class="geral-info">
                 <span class="geral-value"><%= streakGeral %></span>
-                <span class="geral-label">Melhor Sequência</span>
+                <span class="geral-label">Sequência Atual</span>
               </div>
             </div>
             <div class="geral-item">

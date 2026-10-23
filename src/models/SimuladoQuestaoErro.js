@@ -5,62 +5,36 @@ class SimuladoQuestaoErro extends Model {}
 
 SimuladoQuestaoErro.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 
-    simulado_bloco_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    simulado_bloco_id: { type: DataTypes.INTEGER, allowNull: false },
 
     area: {
-      type: DataTypes.ENUM(
-        "linguagens",
-        "humanas",
-        "naturezas",
-        "matematica"
-      ),
+      type: DataTypes.ENUM("linguagens", "humanas", "naturezas", "matematica"),
       allowNull: false,
     },
 
-    numero_questao: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    // posição GLOBAL na prova (1 a 180)
+    numero_questao: { type: DataTypes.INTEGER, allowNull: false },
 
     motivo: {
-      type: DataTypes.ENUM(
-        "falta_conteudo",
-        "lacuna",
-        "falta_atencao"
-      ),
+      type: DataTypes.ENUM("falta_conteudo", "lacuna", "falta_atencao"),
+      allowNull: true, // "não feita" não tem motivo
+    },
+
+    status: {
+      type: DataTypes.ENUM("errada", "nao_feita"),
       allowNull: false,
+      defaultValue: "errada",
     },
 
-    // 🔥 NOVOS CAMPOS (LACUNA)
-    subject_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
+    subject_id: { type: DataTypes.INTEGER, allowNull: true },
+    topic_id: { type: DataTypes.INTEGER, allowNull: true },
 
-    topic_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
+    anotacao: { type: DataTypes.STRING(255), allowNull: true },
 
-    revisada: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
-
-    data_revisao: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+    revisada: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    data_revisao: { type: DataTypes.DATE, allowNull: true },
   },
   {
     sequelize,

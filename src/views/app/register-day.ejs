@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/public/css/components/theme.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/register-day.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 </head>
 <body class="page-bg">
 
@@ -32,8 +33,8 @@
 
     <form method="POST" action="/registrar/novo" id="form-dia">
 
-      <label>Data</label><br>
-      <input type="date" name="data" value="<%= hoje %>" required>
+      <label>Data</label>
+      <input type="text" name="data" id="data-input" value="<%= hoje %>">
 
       <div id="blocos"></div>
 
@@ -44,6 +45,18 @@
     </form>
   </div>
 </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
+<script>
+  flatpickr("#data-input", {
+    inline: true,
+    locale: "pt",
+    dateFormat: "Y-m-d",
+    defaultDate: "<%= hoje %>"
+  });
+</script>
 
 <script>
 const subjects = <%- JSON.stringify(subjects) %>;
@@ -63,8 +76,8 @@ function addBloco() {
       ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
     </select>
 
-    <select name="blocos[${idx}][topic_id]" class="topic-select" disabled required>
-      <option value="">Selecione o tópico</option>
+    <select name="blocos[${idx}][topic_id]" class="topic-select" disabled>
+      <option value="">Tópico (opcional)</option>
     </select>
 
     <div class="linha-numeros">
@@ -76,13 +89,6 @@ function addBloco() {
       <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
       <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
 
-      <select name="blocos[${idx}][dificuldade]">
-        <option value="MUITO_FACIL">Muito Fácil</option>
-        <option value="FACIL">Fácil</option>
-        <option value="MEDIA" selected>Média</option>
-        <option value="DIFICIL">Difícil</option>
-        <option value="MUITO_DIFICIL">Muito Difícil</option>
-      </select>
     </div>
   `;
 
@@ -97,14 +103,14 @@ function addBloco() {
     topicSelect.disabled = true;
 
     if (!subjectId) {
-      topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
+      topicSelect.innerHTML = `<option value="">Tópico (opcional)</option>`;
       return;
     }
 
     const res = await fetch(`/api/subjects/${subjectId}/topics`);
     const topics = await res.json();
 
-    topicSelect.innerHTML = `<option value="">Selecione o tópico</option>`;
+    topicSelect.innerHTML = `<option value="">Tópico (opcional)</option>`;
     topics.forEach(t => {
       topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
     });

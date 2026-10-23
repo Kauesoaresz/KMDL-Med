@@ -1,12 +1,10 @@
 const express = require("express");
 const auth = require("../middlewares/auth");
-const simuladoController = require("../controllers/simuladoController");
+const c = require("../controllers/simuladoController");
 
 const router = express.Router();
 
-// =========================
 // HUB
-// =========================
 router.get("/simulados", auth, (req, res) => {
   res.render("app/simulados/hub", {
     active: "simulados",
@@ -15,61 +13,19 @@ router.get("/simulados", auth, (req, res) => {
   });
 });
 
-// =========================
-// ERROS (GLOBAL)
-// =========================
-router.get("/simulados/erros", auth, simuladoController.listarErros);
-router.post("/simulados/erro/:erroId/revisar", auth, simuladoController.marcarErroRevisado);
+// CADERNO DE ERROS (global)
+router.get("/simulados/erros", auth, c.listarErros);
+router.post("/simulados/erro/:erroId/revisar", auth, c.marcarErroRevisado);
+router.post("/simulados/erro/:erroId/desfazer", auth, c.desfazerErroRevisado);
 
-// =========================
 // LISTA / CRIAÇÃO
-// =========================
-router.get("/simulados/lista", auth, simuladoController.listarSimulados);
-router.post("/simulados", auth, simuladoController.criarSimulado);
+router.get("/simulados/lista", auth, c.listarSimulados);
+router.post("/simulados", auth, c.criarSimulado);
 
-// =========================
-// SIMULADO
-// =========================
-router.get("/simulados/:id", auth, simuladoController.detalhesSimulado);
-router.post("/simulados/:id/bloco", auth, simuladoController.adicionarBloco);
-router.post("/simulados/:id/finalizar", auth, simuladoController.finalizarSimulado);
-router.post("/simulados/:id/revisao", auth, simuladoController.toggleRevisao);
-
-// =========================
-// BLOCO
-// =========================
-router.get("/simulados/bloco/:blocoId/editar", auth, simuladoController.editarBlocoForm);
-router.post("/simulados/bloco/:blocoId/editar", auth, simuladoController.editarBlocoSalvar);
-router.post("/simulados/bloco/:blocoId/excluir", auth, simuladoController.excluirBloco);
-
-// =========================
-// ERRO
-// =========================
-router.get("/simulados/erro/:erroId/editar", auth, simuladoController.editarErroForm);
-router.post("/simulados/erro/:erroId/editar", auth, simuladoController.editarErroSalvar);
-router.post("/simulados/erro/:erroId/excluir", auth, simuladoController.excluirErro);
-
-// =========================
-// EXCLUIR SIMULADO
-// =========================
-router.post("/simulados/:id/excluir", auth, simuladoController.excluirSimulado);
-
-// =========================
-// ADICIONAR ERRO DIRETO NO BLOCO
-// =========================
-router.post(
-  "/simulados/bloco/:blocoId/erro",
-  auth,
-  simuladoController.adicionarErroNoBloco
-);
-
-router.post(
-  "/simulados/erro/:erroId/desfazer",
-  auth,
-  simuladoController.desfazerErroRevisado
-);
-
-
-
+// SIMULADO (grade)
+router.get("/simulados/:id", auth, c.detalhesSimulado);
+router.post("/simulados/:id/gabarito", auth, c.salvarGabarito);
+router.post("/simulados/:id/status", auth, c.alterarStatus);
+router.post("/simulados/:id/excluir", auth, c.excluirSimulado);
 
 module.exports = router;

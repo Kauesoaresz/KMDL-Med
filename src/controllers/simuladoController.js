@@ -2,31 +2,87 @@ const {
   Simulado,
   SimuladoBloco,
   SimuladoQuestaoErro,
+  Subject,
+  Topic,
 } = require("../models");
-
-const { Op } = require("sequelize");
+const sequelize = require("../config/database");
 
 /* =========================
-   LISTAR SIMULADOS
+   CONSTANTES
+========================= */
+const POR_AREA = 45;
+
+const AREAS = [
+  { key: "linguagens", label: "Linguagens", start: 1 },
+  { key: "humanas", label: "Humanas", start: 46 },
+  { key: "naturezas", label: "Natureza", start: 91 },
+  { key: "matematica", label: "Matemática", start: 136 },
+];
+
+const MOTIVOS = ["falta_atencao", "falta_conteudo", "lacuna"];
+
+function ensureInt(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function hojeISO() {
+  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD no fuso local
+}
+
+function voltar(req, res, fallback) {
+  return res.redirect(req.get("Referer") || fallback);
+}
+
+// Cria os 4 blocos de um simulado já FECHADOS
+// (45 questões "não feitas" por área, total 0 e acertos 0)
+async function criarBlocosFechados(simulado, transaction) {
+  for (const a of AREAS) {
+    const bloco = await SimuladoBloco.create(
+      {
+        simulado_id: simulado.id,
+        area: a.key,
+        total_questoes: 0,
+        acertos: 0,
+        tempo_minutos: null,
+        data_realizacao: simulado.data_realizacao,
+      },
+      { transaction }
+    );
+
+    const linhas = [];
+    for (let n = a.start; n < a.start + POR_AREA; n++) {
+      linhas.push({
+        simulado_bloco_id: bloco.id,
+        area: a.key,
+        numero_questao: n,
+        status: "nao_feita",
+        motivo: null,
+      });
+    }
+    await SimuladoQuestaoErro.bulkCreate(linhas, { transaction });
+  }
+}
+
+/* =========================
+   LISTAR
 ========================= */
 exports.listarSimulados = async (req, res) => {
   const userId = req.session.userId;
-  const userNome = req.session.userNome;
-  const userFoto = req.session.userFoto || null;
 
   try {
     const simulados = await Simulado.findAll({
       where: { user_id: userId },
-      order: [["created_at", "DESC"]],
+      order: [["data_realizacao", "DESC"], ["id", "DESC"]],
     });
 
     res.render("app/simulados/lista", {
       simulados,
-      error: null,
-      ok: null,
+      error: req.query.erro || null,
+      ok: req.query.ok || null,
       active: "simulados",
-      userNome,
-      userFoto,
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto || null,
     });
   } catch (err) {
     console.error(err);
@@ -35,118 +91,154 @@ exports.listarSimulados = async (req, res) => {
       error: "Erro ao carregar simulados.",
       ok: null,
       active: "simulados",
-      userNome,
-      userFoto,
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto || null,
     });
   }
 };
 
 /* =========================
-   CRIAR SIMULADO
+   CRIAR (já cria os 4 blocos)
 ========================= */
 exports.criarSimulado = async (req, res) => {
   const userId = req.session.userId;
-  const { nome, data_realizacao } = req.body;
+  const nome = (req.body.nome || "").trim();
+  const data = req.body.data_realizacao;
 
-  console.log("=== CRIAR SIMULADO ===");
-  console.log("userId:", userId);
-  console.log("nome:", nome);
-  console.log("data_realizacao:", data_realizacao);
-
-  if (!nome || !data_realizacao) {
-    console.log("ERRO: Campos obrigatórios faltando");
-    req.flash = req.flash || {};
-    req.flash.error = "Preencha todos os campos obrigatórios.";
-    return res.redirect("/simulados/lista");
+  if (!nome || !data) {
+    return res.redirect("/simulados/lista?erro=Preencha nome e data");
   }
 
-  if (!userId) {
-    console.log("ERRO: Usuário não autenticado");
-    return res.redirect("/login");
+  if (data > hojeISO()) {
+    return res.redirect("/simulados/lista?erro=Não é permitido usar data futura");
   }
 
-  // Bloqueia datas futuras
-  const dataInput = new Date(data_realizacao);
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  
-  if (dataInput > hoje) {
-    console.log("ERRO: Data futura");
-    req.flash = req.flash || {};
-    req.flash.error = "Não é permitido criar simulados com datas futuras.";
-    return res.redirect("/simulados/lista");
-  }
-
+  const t = await sequelize.transaction();
   try {
-    const novoSimulado = await Simulado.create({
-      user_id: userId,
-      nome,
-      data_realizacao,
-    });
+    const simulado = await Simulado.create(
+      { user_id: userId, nome, data_realizacao: data },
+      { transaction: t }
+    );
 
-    console.log("Simulado criado com sucesso! ID:", novoSimulado.id);
-    res.redirect("/simulados/lista");
+    await criarBlocosFechados(simulado, t);
+
+    await t.commit();
+    return res.redirect(`/simulados/${simulado.id}`);
   } catch (err) {
+    await t.rollback();
     console.error("Erro ao criar simulado:", err);
-    req.flash = req.flash || {};
-    req.flash.error = "Erro ao criar simulado. Tente novamente.";
-    res.redirect("/simulados/lista");
+    return res.redirect("/simulados/lista?erro=Erro ao criar simulado");
   }
 };
 
-
 /* =========================
-   DETALHES DO SIMULADO
+   DETALHES (GRADE)
 ========================= */
+async function carregarSimulado(id, userId) {
+  return Simulado.findOne({
+    where: { id, user_id: userId },
+    include: [
+      {
+        model: SimuladoBloco,
+        as: "blocos",
+        include: [
+          {
+            model: SimuladoQuestaoErro,
+            as: "erros",
+            include: [
+              { model: Subject, as: "subject" },
+              { model: Topic, as: "topic" },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+}
+
 exports.detalhesSimulado = async (req, res) => {
   const userId = req.session.userId;
   const { id } = req.params;
 
   try {
-    const simulado = await Simulado.findOne({
-      where: { id, user_id: userId },
-      include: [
-        {
-          model: SimuladoBloco,
-          as: "blocos",
-          include: [
-            {
-              model: SimuladoQuestaoErro,
-              as: "erros",
-              include: [
-                { model: require("../models").Subject, as: "subject" },
-                { model: require("../models").Topic, as: "topic" },
-              ],
-            },
-          ],
-        },
-      ],
-      order: [
-        [{ model: SimuladoBloco, as: "blocos" }, "created_at", "ASC"],
-        [
-          { model: SimuladoBloco, as: "blocos" },
-          { model: SimuladoQuestaoErro, as: "erros" },
-          "created_at",
-          "ASC",
-        ],
-      ],
-    });
+    let simulado = await carregarSimulado(id, userId);
+    if (!simulado) return res.redirect("/simulados/lista");
 
-    if (!simulado) {
-      return res.redirect("/simulados/lista");
+    // Garante os 4 blocos (por segurança)
+    const faltando = AREAS.filter(
+      (a) => !simulado.blocos.some((b) => b.area === a.key)
+    );
+        if (faltando.length) {
+      const t = await sequelize.transaction();
+      try {
+        for (const a of faltando) {
+          const bloco = await SimuladoBloco.create(
+            {
+              simulado_id: simulado.id,
+              area: a.key,
+              total_questoes: 0,
+              acertos: 0,
+              tempo_minutos: null,
+              data_realizacao: simulado.data_realizacao,
+            },
+            { transaction: t }
+          );
+          const linhas = [];
+          for (let n = a.start; n < a.start + POR_AREA; n++) {
+            linhas.push({
+              simulado_bloco_id: bloco.id,
+              area: a.key,
+              numero_questao: n,
+              status: "nao_feita",
+              motivo: null,
+            });
+          }
+          await SimuladoQuestaoErro.bulkCreate(linhas, { transaction: t });
+        }
+        await t.commit();
+      } catch (e) {
+        await t.rollback();
+        throw e;
+      }
+      simulado = await carregarSimulado(id, userId);
     }
 
-    // 🔥 matérias para LACUNA
-    const subjects = await require("../models").Subject.findAll({
+    const subjects = await Subject.findAll({
       where: { user_id: userId },
       order: [["nome", "ASC"]],
     });
 
+    const tempos = {};
+    const questoes = [];
+
+    simulado.blocos.forEach((b) => {
+      tempos[b.area] = b.tempo_minutos;
+      b.erros.forEach((e) => {
+        questoes.push({
+          n: e.numero_questao,
+          estado: e.status === "nao_feita" ? "nao_feita" : "errada",
+          motivo: e.motivo,
+          subject_id: e.subject_id,
+          topic_id: e.topic_id,
+          subject_nome: e.subject ? e.subject.nome : null,
+          topic_nome: e.topic ? e.topic.nome : null,
+          anotacao: e.anotacao,
+        });
+      });
+    });
+
+    const simJson = JSON.stringify({
+      id: simulado.id,
+      areas: AREAS,
+      questoes,
+    }).replace(/</g, "\\u003c");
+
     res.render("app/simulados/detalhes", {
       simulado,
       subjects,
-      error: null,
-      ok: null,
+      areas: AREAS,
+      tempos,
+      simJson,
       active: "simulados",
       userNome: req.session.userNome,
       userFoto: req.session.userFoto || null,
@@ -157,199 +249,238 @@ exports.detalhesSimulado = async (req, res) => {
   }
 };
 
-
-
 /* =========================
-   ADICIONAR BLOCO
+   SALVAR GABARITO (JSON)
+   Só grava exceções: errada / não feita.
+   Não recria tudo, para preservar "revisada".
 ========================= */
-exports.adicionarBloco = async (req, res) => {
+exports.salvarGabarito = async (req, res) => {
   const userId = req.session.userId;
   const { id } = req.params;
+  const { nome, redacao_nota, tempos, questoes } = req.body || {};
 
-  const {
-    area,
-    total_questoes,
-    acertos,
-    tempo_minutos,
-    data_realizacao,
-    erros,
-  } = req.body;
+  const fail = (msg) => res.status(400).json({ error: msg });
 
   try {
     const simulado = await Simulado.findOne({
       where: { id, user_id: userId },
+      include: [{ model: SimuladoBloco, as: "blocos" }],
     });
+    if (!simulado) return res.status(404).json({ error: "Simulado não encontrado." });
 
-    if (!simulado || (simulado.status !== "em_andamento" && simulado.status !== "revisao")) {
-      return res.status(403).json({ error: "Simulado inválido ou já finalizado." });
-    }
+    /* ---- metadados ---- */
+    const nomeLimpo = (nome || "").toString().trim();
+    if (!nomeLimpo) return fail("Dê um nome ao simulado.");
 
-    // 🔒 SOMA TOTAL DA ÁREA
-    const totalExistente = await SimuladoBloco.sum("total_questoes", {
-      where: { simulado_id: simulado.id, area },
-    });
-
-    const totalAtual = totalExistente || 0;
-    const novoTotal = totalAtual + Number(total_questoes);
-
-    if (novoTotal > 45) {
-      return res.status(400).json({
-        error: `Não é possível adicionar este bloco. ${area.toUpperCase()} ficaria com ${novoTotal} questões (máximo 45).`
-      });
-    }
-
-    if (Number(acertos) > Number(total_questoes)) {
-      return res.status(400).json({
-        error: "Acertos não podem ser maiores que o total de questões."
-      });
-    }
-
-    const bloco = await SimuladoBloco.create({
-      simulado_id: simulado.id,
-      area,
-      total_questoes,
-      acertos,
-      tempo_minutos,
-      data_realizacao,
-    });
-
-    if (erros) {
-      const listaErros = Array.isArray(erros) ? erros : Object.values(erros);
-
-      for (const erro of listaErros) {
-        await SimuladoQuestaoErro.create({
-          simulado_bloco_id: bloco.id,
-          area,
-          numero_questao: erro.numero_questao,
-          motivo: erro.motivo,
-          subject_id: erro.subject_id || null,
-          topic_id: erro.topic_id || null,
-        });
+    let nota = null;
+    if (redacao_nota !== undefined && redacao_nota !== null && redacao_nota !== "") {
+      nota = Number(redacao_nota);
+      if (!Number.isInteger(nota) || nota < 0 || nota > 1000) {
+        return fail("A nota da redação deve ser um inteiro entre 0 e 1000.");
       }
     }
 
+    const temposLimpos = {};
+    for (const a of AREAS) {
+      const v = tempos ? tempos[a.key] : null;
+      if (v === undefined || v === null || v === "") {
+        temposLimpos[a.key] = null;
+      } else {
+        const n = Number(v);
+        if (!Number.isInteger(n) || n < 0) return fail(`Tempo inválido em ${a.label}.`);
+        temposLimpos[a.key] = n;
+      }
+    }
+
+    /* ---- questões ---- */
+    const porNumero = new Map();
+    for (const q of Array.isArray(questoes) ? questoes : []) {
+      const n = Number(q.n);
+      if (!Number.isInteger(n) || n < 1 || n > 180) return fail("Número de questão inválido.");
+      if (!["errada", "nao_feita"].includes(q.estado)) return fail("Estado de questão inválido.");
+
+      const item = {
+        n,
+        estado: q.estado,
+        motivo: null,
+        subject_id: null,
+        topic_id: null,
+        anotacao: null,
+      };
+
+      if (q.estado === "errada") {
+        if (!MOTIVOS.includes(q.motivo)) return fail(`Questão ${n}: escolha o motivo do erro.`);
+        item.motivo = q.motivo;
+
+        if (q.motivo === "lacuna") {
+          item.subject_id = ensureInt(q.subject_id);
+          item.topic_id = ensureInt(q.topic_id);
+          if (!item.subject_id || !item.topic_id) {
+            return fail(`Questão ${n}: lacuna exige matéria e tópico.`);
+          }
+        }
+
+        const anot = (q.anotacao || "").toString().trim().slice(0, 255);
+        item.anotacao = anot || null;
+      }
+
+      porNumero.set(n, item);
+    }
+
+    /* ---- matérias/tópicos pertencem ao usuário? ---- */
+    const items = [...porNumero.values()];
+    const subjectIds = [...new Set(items.map((i) => i.subject_id).filter(Boolean))];
+    const topicIds = [...new Set(items.map((i) => i.topic_id).filter(Boolean))];
+
+    if (subjectIds.length) {
+      const c = await Subject.count({ where: { id: subjectIds, user_id: userId } });
+      if (c !== subjectIds.length) return fail("Matéria inválida.");
+    }
+    if (topicIds.length) {
+      const c = await Topic.count({ where: { id: topicIds, user_id: userId } });
+      if (c !== topicIds.length) return fail("Tópico inválido.");
+    }
+
+    /* ---- grava ---- */
+    const t = await sequelize.transaction();
+    try {
+      for (const area of AREAS) {
+        let bloco = simulado.blocos.find((b) => b.area === area.key);
+        if (!bloco) {
+          bloco = await SimuladoBloco.create(
+            {
+              simulado_id: simulado.id,
+              area: area.key,
+              total_questoes: POR_AREA,
+              acertos: POR_AREA,
+              data_realizacao: simulado.data_realizacao,
+            },
+            { transaction: t }
+          );
+        }
+
+        const existentes = await SimuladoQuestaoErro.findAll({
+          where: { simulado_bloco_id: bloco.id },
+          transaction: t,
+        });
+        const mapaEx = new Map(existentes.map((e) => [e.numero_questao, e]));
+
+        let erradas = 0;
+        let naoFeitas = 0;
+
+        for (let n = area.start; n < area.start + POR_AREA; n++) {
+          const novo = porNumero.get(n);
+          const ex = mapaEx.get(n);
+
+          if (!novo) {
+            // voltou a ser "certa"
+            if (ex) await ex.destroy({ transaction: t });
+            continue;
+          }
+
+          if (novo.estado === "errada") erradas++;
+          else naoFeitas++;
+
+          const dados = {
+            area: area.key,
+            numero_questao: n,
+            status: novo.estado,
+            motivo: novo.motivo,
+            subject_id: novo.subject_id,
+            topic_id: novo.topic_id,
+            anotacao: novo.anotacao,
+          };
+
+          if (!ex) {
+            await SimuladoQuestaoErro.create(
+              { simulado_bloco_id: bloco.id, ...dados },
+              { transaction: t }
+            );
+          } else {
+            if (ex.status !== novo.estado) {
+              dados.revisada = false;
+              dados.data_revisao = null;
+            }
+            await ex.update(dados, { transaction: t });
+          }
+        }
+
+        const feitas = POR_AREA - naoFeitas;
+        await bloco.update(
+          {
+            total_questoes: feitas,
+            acertos: feitas - erradas,
+            tempo_minutos: temposLimpos[area.key],
+          },
+          { transaction: t }
+        );
+      }
+
+      await simulado.update({ nome: nomeLimpo, redacao_nota: nota }, { transaction: t });
+      await t.commit();
+      return res.json({ ok: true });
+    } catch (err) {
+      await t.rollback();
+      throw err;
+    }
+  } catch (err) {
+    console.error("ERRO salvarGabarito:", err);
+    return res.status(500).json({ error: "Erro interno ao salvar." });
+  }
+};
+
+/* =========================
+   STATUS (em andamento <-> finalizado)
+========================= */
+exports.alterarStatus = async (req, res) => {
+  const userId = req.session.userId;
+  const { id } = req.params;
+  const { status } = req.body || {};
+
+  if (!["em_andamento", "finalizado"].includes(status)) {
+    return res.status(400).json({ error: "Status inválido." });
+  }
+
+  try {
+    const simulado = await Simulado.findOne({ where: { id, user_id: userId } });
+    if (!simulado) return res.status(404).json({ error: "Simulado não encontrado." });
+
+    simulado.status = status;
+    simulado.finished_at = status === "finalizado" ? new Date() : null;
+    await simulado.save();
+
     return res.json({ ok: true });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Erro interno ao adicionar bloco." });
-  }
-};
-
-
-
-/* =========================
-   MARCAR ERRO COMO REVISADO
-========================= */
-exports.marcarErroRevisado = async (req, res) => {
-  const userId = req.session.userId;
-  const { erroId } = req.params;
-
-  try {
-    const erro = await SimuladoQuestaoErro.findOne({
-      where: { id: erroId },
-      include: [
-        {
-          model: SimuladoBloco,
-          as: "bloco",
-          include: [
-            {
-              model: Simulado,
-              as: "simulado",
-              where: { user_id: userId },
-            },
-          ],
-        },
-      ],
-    });
-
-    if (!erro) return res.redirect("/simulados/lista");
-
-    erro.revisada = true;
-    erro.data_revisao = new Date();
-    await erro.save();
-
-    res.redirect("back");
-  } catch (err) {
-    console.error(err);
-    res.redirect("/simulados/lista");
+    console.error("ERRO alterarStatus:", err);
+    return res.status(500).json({ error: "Erro interno." });
   }
 };
 
 /* =========================
-   DESFAZER REVISÃO DE ERRO
+   EXCLUIR
 ========================= */
-exports.desfazerErroRevisado = async (req, res) => {
-  const userId = req.session.userId;
-  const { erroId } = req.params;
-
-  try {
-    const erro = await SimuladoQuestaoErro.findOne({
-      where: { id: erroId },
-      include: [
-        {
-          model: SimuladoBloco,
-          as: "bloco",
-          include: [
-            {
-              model: Simulado,
-              as: "simulado",
-              where: { user_id: userId },
-            },
-          ],
-        },
-      ],
-    });
-
-    if (!erro) return res.redirect("/simulados/lista");
-
-    erro.revisada = false;
-    erro.data_revisao = null;
-    await erro.save();
-
-    res.redirect("back");
-  } catch (err) {
-    console.error(err);
-    res.redirect("/simulados/lista");
-  }
-};
-
-
-/* =========================
-   FINALIZAR SIMULADO
-========================= */
-exports.finalizarSimulado = async (req, res) => {
+exports.excluirSimulado = async (req, res) => {
   const userId = req.session.userId;
   const { id } = req.params;
 
   try {
-    const simulado = await Simulado.findOne({
-      where: { id, user_id: userId },
-    });
-
-    if (!simulado) return res.redirect("/simulados/lista");
-
-    simulado.status = "finalizado";
-    simulado.finished_at = new Date();
-    await simulado.save();
-
-    res.redirect(`/simulados/${id}`);
-  } catch (err) {
-    console.error(err);
+    const simulado = await Simulado.findOne({ where: { id, user_id: userId } });
+    if (simulado) await simulado.destroy(); // CASCADE apaga blocos e erros
     res.redirect("/simulados/lista");
+  } catch (err) {
+    console.error("Erro ao excluir simulado:", err);
+    res.redirect("/simulados/lista?erro=Erro ao excluir simulado");
   }
 };
 
 /* =========================
-   TELA GLOBAL DE ERROS
+   CADERNO DE ERROS (global)
 ========================= */
 exports.listarErros = async (req, res) => {
   const userId = req.session.userId;
-  const userNome = req.session.userNome;
-  const userFoto = req.session.userFoto || null;
-
   const { area, motivo, status } = req.query;
 
-  const whereErro = {};
+  const whereErro = { status: "errada" }; // "não feita" não entra no caderno
   if (area) whereErro.area = area;
   if (motivo) whereErro.motivo = motivo;
   if (status === "pendentes") whereErro.revisada = false;
@@ -372,16 +503,8 @@ exports.listarErros = async (req, res) => {
             },
           ],
         },
-
-        // 🔥 ISSO É O QUE FALTAVA
-        {
-          model: require("../models").Subject,
-          as: "subject",
-        },
-        {
-          model: require("../models").Topic,
-          as: "topic",
-        },
+        { model: Subject, as: "subject" },
+        { model: Topic, as: "topic" },
       ],
       order: [["created_at", "DESC"]],
     });
@@ -389,311 +512,64 @@ exports.listarErros = async (req, res) => {
     res.render("app/simulados/erros", {
       erros,
       active: "simulados",
-      userNome,
-      userFoto,
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto || null,
     });
   } catch (err) {
     console.error("ERRO LISTAR ERROS:", err);
     res.render("app/simulados/erros", {
       erros: [],
       active: "simulados",
-      userNome,
-      userFoto,
+      userNome: req.session.userNome,
+      userFoto: req.session.userFoto || null,
     });
   }
 };
 
-
-exports.excluirBloco = async (req, res) => {
-  const userId = req.session.userId;
-  const { blocoId } = req.params;
-
-  try {
-    const bloco = await SimuladoBloco.findOne({
-      where: { id: blocoId },
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    });
-
-    if (!bloco) return res.redirect("/simulados/lista");
-
-    await bloco.destroy(); // CASCADE apaga erros
-
-    res.redirect(`/simulados/${bloco.simulado.id}`);
-  } catch (err) {
-    console.error(err);
-    res.redirect("/simulados/lista");
-  }
-};
-
-exports.excluirErro = async (req, res) => {
-  const userId = req.session.userId;
-  const { erroId } = req.params;
-
-  try {
-    const erro = await SimuladoQuestaoErro.findOne({
-      where: { id: erroId },
-      include: [{
+async function buscarErroDoUsuario(erroId, userId) {
+  return SimuladoQuestaoErro.findOne({
+    where: { id: erroId },
+    include: [
+      {
         model: SimuladoBloco,
         as: "bloco",
-        include: [{
-          model: Simulado,
-          as: "simulado",
-          where: { user_id: userId }
-        }]
-      }]
-    });
+        required: true,
+        include: [
+          { model: Simulado, as: "simulado", required: true, where: { user_id: userId } },
+        ],
+      },
+    ],
+  });
+}
 
-    if (!erro) return res.redirect("/simulados/lista");
+exports.marcarErroRevisado = async (req, res) => {
+  try {
+    const erro = await buscarErroDoUsuario(req.params.erroId, req.session.userId);
+    if (!erro) return res.redirect("/simulados/erros");
 
-    const simuladoId = erro.bloco.simulado.id;
+    erro.revisada = true;
+    erro.data_revisao = new Date();
+    await erro.save();
 
-    await erro.destroy();
-
-    res.redirect(`/simulados/${simuladoId}`);
+    voltar(req, res, "/simulados/erros");
   } catch (err) {
     console.error(err);
-    res.redirect("/simulados/lista");
+    res.redirect("/simulados/erros");
   }
 };
 
-exports.editarBlocoForm = async (req, res) => {
-  const userId = req.session.userId;
-  const { blocoId } = req.params;
-
-  const bloco = await SimuladoBloco.findOne({
-    where: { id: blocoId },
-    include: [{
-      model: Simulado,
-      as: "simulado",
-      where: { user_id: userId }
-    }]
-  });
-
-  if (!bloco) return res.redirect("/simulados/lista");
-
-  res.render("app/simulados/bloco-editar", {
-    bloco,
-    simulado: bloco.simulado,
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto || null,
-    active: "simulados",
-  });
-};
-
-exports.editarBlocoSalvar = async (req, res) => {
-  const userId = req.session.userId;
-  const { blocoId } = req.params;
-  const { area, total_questoes, acertos, tempo_minutos, data_realizacao } = req.body;
-
-  const bloco = await SimuladoBloco.findOne({
-    where: { id: blocoId },
-    include: [{
-      model: Simulado,
-      as: "simulado",
-      where: { user_id: userId }
-    }]
-  });
-
-  if (!bloco) return res.redirect("/simulados/lista");
-
-  await bloco.update({
-    area,
-    total_questoes,
-    acertos,
-    tempo_minutos,
-    data_realizacao
-  });
-
-  res.redirect(`/simulados/${bloco.simulado.id}`);
-};
-
-exports.editarErroForm = async (req, res) => {
-  const userId = req.session.userId;
-  const { erroId } = req.params;
-
-  const erro = await SimuladoQuestaoErro.findOne({
-    where: { id: erroId },
-    include: [{
-      model: SimuladoBloco,
-      as: "bloco",
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    }]
-  });
-
-  if (!erro) return res.redirect("/simulados/lista");
-
-  res.render("app/simulados/erro-editar", {
-    erro,
-    simulado: erro.bloco.simulado,
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto || null,
-    active: "simulados",
-  });
-};
-
-exports.editarErroSalvar = async (req, res) => {
-  const userId = req.session.userId;
-  const { erroId } = req.params;
-  const { numero_questao, motivo } = req.body;
-
-  const erro = await SimuladoQuestaoErro.findOne({
-    where: { id: erroId },
-    include: [{
-      model: SimuladoBloco,
-      as: "bloco",
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    }]
-  });
-
-  if (!erro) return res.redirect("/simulados/lista");
-
-  await erro.update({ numero_questao, motivo });
-
-  res.redirect(`/simulados/${erro.bloco.simulado.id}`);
-};
-
-/* =========================
-   EXCLUIR SIMULADO
-========================= */
-exports.excluirSimulado = async (req, res) => {
-  const userId = req.session.userId;
-  const { id } = req.params;
-
+exports.desfazerErroRevisado = async (req, res) => {
   try {
-    const simulado = await Simulado.findOne({
-      where: { id, user_id: userId },
-    });
+    const erro = await buscarErroDoUsuario(req.params.erroId, req.session.userId);
+    if (!erro) return res.redirect("/simulados/erros");
 
-    if (!simulado) {
-      return res.redirect("/simulados/lista");
-    }
+    erro.revisada = false;
+    erro.data_revisao = null;
+    await erro.save();
 
-    // CASCADE já apaga blocos e erros
-    await simulado.destroy();
-
-    res.redirect("/simulados/lista");
+    voltar(req, res, "/simulados/erros");
   } catch (err) {
-    console.error("Erro ao excluir simulado:", err);
-    res.redirect("/simulados/lista");
-  }
-};
-
-/* =========================
-   ADICIONAR ERRO EM BLOCO
-========================= */
-exports.adicionarErroNoBloco = async (req, res) => {
-  const userId = req.session.userId;
-  const { blocoId } = req.params;
-
-  let {
-    numero_questao,
-    motivo,
-    subject_id,
-    topic_id
-  } = req.body;
-
-  const numero = Number(numero_questao);
-
-  if (!numero || numero <= 0 || !motivo) {
-    return res.status(400).json({ error: "Dados inválidos." });
-  }
-
-  try {
-    const bloco = await SimuladoBloco.findOne({
-      where: { id: blocoId },
-      include: [{
-        model: Simulado,
-        as: "simulado",
-        where: { user_id: userId }
-      }]
-    });
-
-    if (!bloco || (bloco.simulado.status !== "em_andamento" && bloco.simulado.status !== "revisao")) {
-      return res.status(403).json({ error: "Bloco inválido ou simulado já fechado." });
-    }
-
-    // 🔒 lacuna exige matéria + tópico
-    if (motivo === "lacuna" && (!subject_id || !topic_id)) {
-      return res.status(400).json({
-        error: "Para lacuna, é obrigatório informar matéria e tópico."
-      });
-    }
-
-    // 🔒 não repetir número no MESMO bloco
-    const jaExiste = await SimuladoQuestaoErro.findOne({
-      where: {
-        simulado_bloco_id: bloco.id,
-        numero_questao: numero
-      }
-    });
-
-    if (jaExiste) {
-      return res.status(400).json({
-        error: `A questão ${numero} já foi registrada neste bloco.`
-      });
-    }
-
-    await SimuladoQuestaoErro.create({
-      simulado_bloco_id: bloco.id,
-      area: bloco.area,
-      numero_questao: numero,
-      motivo,
-      subject_id: subject_id || null,
-      topic_id: topic_id || null
-    });
-
-    return res.json({ ok: true });
-  } catch (err) {
-    console.error("ERRO adicionarErroNoBloco:", err);
-    return res.status(500).json({ error: "Erro interno." });
-  }
-};
-
-/* =========================
-   ENTRAR/SAIR MODO REVISÃO
-========================= */
-exports.toggleRevisao = async (req, res) => {
-  const userId = req.session.userId;
-  const { id } = req.params;
-
-  try {
-    const simulado = await Simulado.findOne({
-      where: { id, user_id: userId },
-    });
-
-    if (!simulado) {
-      return res.redirect("/simulados/lista");
-    }
-
-    // Só permite revisão se estiver finalizado
-    if (simulado.status !== "finalizado" && simulado.status !== "revisao") {
-      return res.redirect(`/simulados/${id}`);
-    }
-
-    // Alterna o status
-    if (simulado.status === "finalizado") {
-      simulado.status = "revisao";
-    } else {
-      simulado.status = "finalizado";
-    }
-
-    await simulado.save();
-
-    res.redirect(`/simulados/${id}`);
-  } catch (err) {
-    console.error("ERRO toggleRevisao:", err);
-    res.redirect("/simulados/lista");
+    console.error(err);
+    res.redirect("/simulados/erros");
   }
 };

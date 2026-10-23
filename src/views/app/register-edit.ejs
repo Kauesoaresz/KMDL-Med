@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/public/css/components/theme.css">
   <link rel="stylesheet" href="/public/css/components/sidebar.css">
   <link rel="stylesheet" href="/public/css/app/register-edit.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 </head>
 
 <body class="page-bg">
@@ -34,7 +35,7 @@
     <form method="POST" action="/registrar/editar/<%= data %>" id="form-dia">
 
       <label>Data</label>
-      <input type="date" name="data" value="<%= data %>" required>
+      <input type="text" name="data" id="data-input" value="<%= data %>">
 
       <div id="blocos"></div>
 
@@ -45,6 +46,17 @@
     </form>
   </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
+<script>
+  flatpickr("#data-input", {
+    inline: true,
+    locale: "pt",
+    dateFormat: "Y-m-d",
+    defaultDate: "<%= data %>"
+  });
+</script>
 
 <script>
 const subjects = <%- JSON.stringify(subjects) %>;
@@ -88,13 +100,6 @@ function addBloco(entry = null) {
       <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões" value="${entry?.questoes || ''}">
       <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos" value="${entry?.acertos || ''}">
 
-      <select name="blocos[${idx}][dificuldade]">
-        <option value="MUITO_FACIL" ${entry?.dificuldade === "MUITO_FACIL" ? "selected" : ""}>Muito Fácil</option>
-        <option value="FACIL" ${entry?.dificuldade === "FACIL" ? "selected" : ""}>Fácil</option>
-        <option value="MEDIA" ${!entry || entry?.dificuldade === "MEDIA" ? "selected" : ""}>Média</option>
-        <option value="DIFICIL" ${entry?.dificuldade === "DIFICIL" ? "selected" : ""}>Difícil</option>
-        <option value="MUITO_DIFICIL" ${entry?.dificuldade === "MUITO_DIFICIL" ? "selected" : ""}>Muito Difícil</option>
-      </select>
     </div>
   `;
 

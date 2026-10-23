@@ -488,113 +488,6 @@ const userId = req.session.userId;
   const metaPercentual = Math.min(Math.round((horasHoje / metaDiaria) * 100), 100);
 
   /* =========================
-     CONQUISTAS
-  ========================= */
-  const conquistas = [];
-  const conquistasProgresso = []; // Conquistas em progresso
-  
-  // streak_7: 7 dias seguidos
-  if (streakAtual >= 7) {
-    conquistas.push({ id: "streak_7", icone: "🔥", titulo: "Semana de Ouro", descricao: "7 dias seguidos estudando", progresso: 7, meta: 7, concluida: true });
-  } else if (streakAtual >= 3) {
-    conquistasProgresso.push({ id: "streak_7", icone: "🔥", titulo: "Semana de Ouro", descricao: `${streakAtual}/7 dias`, progresso: streakAtual, meta: 7 });
-  }
-  
-  // streak_30: 30 dias seguidos
-  if (streakAtual >= 30) {
-    conquistas.push({ id: "streak_30", icone: "⚡", titulo: "Mês de Ferro", descricao: "30 dias seguidos estudando", progresso: 30, meta: 30, concluida: true });
-  } else if (streakAtual >= 7) {
-    conquistasProgresso.push({ id: "streak_30", icone: "⚡", titulo: "Mês de Ferro", descricao: `${streakAtual}/30 dias`, progresso: streakAtual, meta: 30 });
-  }
-
-  // streak_100: 100 dias seguidos
-  if (streakAtual >= 100) {
-    conquistas.push({ id: "streak_100", icone: "👑", titulo: "Lenda", descricao: "100 dias seguidos!", progresso: 100, meta: 100, concluida: true });
-  }
-
-  // Total de horas
-  const statsTotalRaw = await StudyEntry.findOne({
-    where: { user_id: userId },
-    attributes: [
-      [fn("SUM", col("horas")), "horas"],
-      [fn("SUM", col("questoes")), "questoes"]
-    ],
-    raw: true
-  });
-  const horasTotal = Number(statsTotalRaw?.horas) || 0;
-  const questoesTotal = Number(statsTotalRaw?.questoes) || 0;
-
-  // Conquistas de horas
-  if (horasTotal >= 10) {
-    conquistas.push({ id: "horas_10", icone: "🌱", titulo: "Primeiros Passos", descricao: "10 horas estudadas", progresso: 10, meta: 10, concluida: true });
-  }
-  if (horasTotal >= 50) {
-    conquistas.push({ id: "horas_50", icone: "📚", titulo: "Estudante Dedicado", descricao: "50 horas estudadas", progresso: 50, meta: 50, concluida: true });
-  }
-  if (horasTotal >= 100) {
-    conquistas.push({ id: "horas_100", icone: "⏰", titulo: "Cem Horas", descricao: "100 horas estudadas", progresso: 100, meta: 100, concluida: true });
-  } else {
-    conquistasProgresso.push({ id: "horas_100", icone: "⏰", titulo: "Cem Horas", descricao: `${Math.floor(horasTotal)}/100 horas`, progresso: horasTotal, meta: 100 });
-  }
-  if (horasTotal >= 250) {
-    conquistas.push({ id: "horas_250", icone: "🎓", titulo: "Mestre Estudioso", descricao: "250 horas estudadas", progresso: 250, meta: 250, concluida: true });
-  }
-  if (horasTotal >= 500) {
-    conquistas.push({ id: "horas_500", icone: "🏆", titulo: "Lenda dos Estudos", descricao: "500 horas estudadas", progresso: 500, meta: 500, concluida: true });
-  } else if (horasTotal >= 100) {
-    conquistasProgresso.push({ id: "horas_500", icone: "🏆", titulo: "Lenda dos Estudos", descricao: `${Math.floor(horasTotal)}/500 horas`, progresso: horasTotal, meta: 500 });
-  }
-  if (horasTotal >= 1000) {
-    conquistas.push({ id: "horas_1000", icone: "💎", titulo: "Lenda Absoluta", descricao: "1000 horas estudadas", progresso: 1000, meta: 1000, concluida: true });
-  }
-
-  // Conquistas de questões
-  if (questoesTotal >= 100) {
-    conquistas.push({ id: "questoes_100", icone: "✏️", titulo: "Praticante", descricao: "100 questões resolvidas", progresso: 100, meta: 100, concluida: true });
-  }
-  if (questoesTotal >= 500) {
-    conquistas.push({ id: "questoes_500", icone: "📝", titulo: "Questionador", descricao: "500 questões resolvidas", progresso: 500, meta: 500, concluida: true });
-  } else if (questoesTotal >= 100) {
-    conquistasProgresso.push({ id: "questoes_500", icone: "📝", titulo: "Questionador", descricao: `${questoesTotal}/500 questões`, progresso: questoesTotal, meta: 500 });
-  }
-  if (questoesTotal >= 1000) {
-    conquistas.push({ id: "questoes_1000", icone: "🧠", titulo: "Cérebros em Fogo", descricao: "1000 questões resolvidas", progresso: 1000, meta: 1000, concluida: true });
-  }
-
-  // Simulados
-  if (simuladosRaw.length >= 1) {
-    conquistas.push({ id: "simulado_1", icone: "📋", titulo: "Primeiro Passo", descricao: "Primeiro simulado realizado", progresso: 1, meta: 1, concluida: true });
-  }
-  if (simuladosRaw.length >= 5) {
-    conquistas.push({ id: "simulado_5", icone: "🎯", titulo: "Aficionado", descricao: "5 simulados realizados", progresso: 5, meta: 5, concluida: true });
-  } else if (simuladosRaw.length >= 1) {
-    conquistasProgresso.push({ id: "simulado_5", icone: "🎯", titulo: "Aficionado", descricao: `${simuladosRaw.length}/5 simulados`, progresso: simuladosRaw.length, meta: 5 });
-  }
-  if (simuladosRaw.length >= 10) {
-    conquistas.push({ id: "simulado_10", icone: "🥇", titulo: "Maratonista", descricao: "10 simulados realizados", progresso: 10, meta: 10, concluida: true });
-  }
-
-
-  // Dias estudados totais
-  const totalDiasEstudados = diasEstudadosRaw.length;
-  if (totalDiasEstudados >= 7) {
-    conquistas.push({ id: "dias_7", icone: "📅", titulo: "Semana Completa", descricao: "7 dias diferentes estudados", progresso: 7, meta: 7, concluida: true });
-  }
-  if (totalDiasEstudados >= 30) {
-    conquistas.push({ id: "dias_30", icone: "🗓️", titulo: "Mês de Estudos", descricao: "30 dias diferentes estudados", progresso: 30, meta: 30, concluida: true });
-  } else if (totalDiasEstudados >= 7) {
-    conquistasProgresso.push({ id: "dias_30", icone: "🗓️", titulo: "Mês de Estudos", descricao: `${totalDiasEstudados}/30 dias`, progresso: totalDiasEstudados, meta: 30 });
-  }
-
-  // Taxa de acertos
-  if (taxa >= 70) {
-    conquistas.push({ id: "taxa_70", icone: "🎓", titulo: "Alto Rendimento", descricao: "70%+ de aproveitamento", progresso: taxa, meta: 70, concluida: true });
-  }
-  if (taxa >= 90) {
-    conquistas.push({ id: "taxa_90", icone: "🌟", titulo: "Genio", descricao: "90%+ de aproveitamento", progresso: taxa, meta: 90, concluida: true });
-  }
-
-  /* =========================
      METAS PRINCIPAIS (para dashboard)
   ========================= */
   const metasPrincipaisRaw = await StudyGoal.findAll({
@@ -660,10 +553,6 @@ const userId = req.session.userId;
     metaDiaria,
     horasHoje,
     metaPercentual,
-    conquistas,
-    conquistasProgresso,
-    horasTotal,
-    questoesTotal,
     metasPrincipais,
     filtros
   });

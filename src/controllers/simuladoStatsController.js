@@ -158,7 +158,10 @@ exports.dashboard = async (req, res) => {
       porArea[area].simulados += 1;
 
       bloco.erros.forEach(erro => {
+        if (erro.status !== "errada") return; // "não feita" não conta como erro
+
         errosTotal.total++;
+        // ... o resto continua igual
 
         if (erro.revisada) errosTotal.revisados++;
         else errosTotal.pendentes++;

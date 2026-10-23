@@ -153,6 +153,10 @@
                                   <span class="erro-topico">📚 <%= erro.topic.nome %></span>
                                 <% } %>
                               </div>
+
+                              <% if (erro.anotacao) { %>
+                                <div class="erro-anotacao"><%= erro.anotacao %></div>
+                              <% } %>
                               
                               <% if (erro.motivo === 'lacuna' && erro.subject) { %>
                                 <div class="erro-lacuna">

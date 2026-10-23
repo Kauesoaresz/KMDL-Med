@@ -207,47 +207,6 @@ async function calcPorDiaSemana(userId) {
 }
 
 // =========================
-// POR DIFICULDADE
-// =========================
-async function calcPorDificuldade(userId, dateLimit) {
-  const where = { user_id: userId };
-
-  if (dateLimit) {
-    where.data = { [Op.gte]: dateLimit };
-  }
-
-  const porDificuldade = await StudyEntry.findAll({
-    where,
-    attributes: [
-      "dificuldade",
-      [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]
-    ],
-    group: ["dificuldade"],
-    raw: true
-  });
-
-  const resultado = {
-    MUITO_FACIL: { questoes: 0, acertos: 0 },
-    FACIL: { questoes: 0, acertos: 0 },
-    MEDIA: { questoes: 0, acertos: 0 },
-    DIFICIL: { questoes: 0, acertos: 0 },
-    MUITO_DIFICIL: { questoes: 0, acertos: 0 }
-  };
-
-  porDificuldade.forEach(d => {
-    if (resultado[d.dificuldade]) {
-      resultado[d.dificuldade] = {
-        questoes: Number(d.questoes) || 0,
-        acertos: Number(d.acertos) || 0
-      };
-    }
-  });
-
-  return resultado;
-}
-
-// =========================
 // METAS ATIVAS COM PROGRESSO
 // =========================
 async function calcMetas(userId) {
@@ -297,75 +256,6 @@ async function calcMetas(userId) {
   }
 
   return metas;
-}
-
-// =========================
-// CONQUISTAS
-// =========================
-async function calcConquistas(userId) {
-  const conquistas = [];
-  const progresso = [];
-
-  // Total de horas
-    const statsTotal = await StudyEntry.findOne({
-    where: { user_id: userId },
-    attributes: [
-      [fn("SUM", col("horas")), "horas"],
-      [fn("SUM", col("questoes")), "questoes"],
-      [fn("SUM", col("acertos")), "acertos"]   // <- linha nova
-    ],
-    raw: true
-  });
-
-  const horasTotal = Number(statsTotal?.horas) || 0;
-  const questoesTotal = Number(statsTotal?.questoes) || 0;
-
-  // streak
-  const streak = await calcStreak(userId);
-
-  // Total de dias estudados
-  const diasRaw = await StudyEntry.findAll({
-    where: { user_id: userId },
-    attributes: ["data"],
-    group: ["data"],
-    raw: true
-  });
-  const diasTotal = diasRaw.length;
-
-  // Taxa de acertos
-  const taxaGeral = questoesTotal > 0
-    ? Math.round((Number(statsTotal?.acertos) || 0) / questoesTotal * 100)
-    : 0;
-
-  // Conquistas de horas
-  if (horasTotal >= 10) conquistas.push({ icone: "🌱", titulo: "Primeiros Passos", desc: "10h estudadas" });
-  if (horasTotal >= 50) conquistas.push({ icone: "📚", titulo: "Dedicado", desc: "50h estudadas" });
-  if (horasTotal >= 100) conquistas.push({ icone: "⏰", titulo: "Cem Horas", desc: "100h estudadas" });
-  if (horasTotal >= 250) conquistas.push({ icone: "🎓", titulo: "Mestre", desc: "250h estudadas" });
-  if (horasTotal >= 500) conquistas.push({ icone: "🏆", titulo: "Lenda", desc: "500h estudadas" });
-  else if (horasTotal >= 100) progresso.push({ icone: "🏆", titulo: "Lenda", atual: horasTotal, meta: 500 });
-
-  // Conquistas de streak
-  if (streak >= 7) conquistas.push({ icone: "🔥", titulo: "Semana de Ouro", desc: "7 dias seguidos" });
-  if (streak >= 30) conquistas.push({ icone: "⚡", titulo: "Mês de Ferro", desc: "30 dias seguidos" });
-  if (streak >= 100) conquistas.push({ icone: "👑", titulo: "Lenda", desc: "100 dias seguidos" });
-  else if (streak >= 7) progresso.push({ icone: "👑", titulo: "Lenda", atual: streak, meta: 100 });
-
-  // Conquistas de questões
-  if (questoesTotal >= 100) conquistas.push({ icone: "✏️", titulo: "Praticante", desc: "100 questões" });
-  if (questoesTotal >= 500) conquistas.push({ icone: "📝", titulo: "Questionador", desc: "500 questões" });
-  if (questoesTotal >= 1000) conquistas.push({ icone: "🧠", titulo: "Cérebros em Fogo", desc: "1000 questões" });
-  else if (questoesTotal >= 500) progresso.push({ icone: "🧠", titulo: "Cérebros em Fogo", atual: questoesTotal, meta: 1000 });
-
-  // Conquistas de dias
-  if (diasTotal >= 7) conquistas.push({ icone: "📅", titulo: "Semana Completa", desc: "7 dias estudados" });
-  if (diasTotal >= 30) conquistas.push({ icone: "🗓️", titulo: "Mês de Estudos", desc: "30 dias estudados" });
-
-  // Conquistas de taxa
-  if (taxaGeral >= 70) conquistas.push({ icone: "🎓", titulo: "Alto Rendimento", desc: "70%+ aproveitamento" });
-  if (taxaGeral >= 90) conquistas.push({ icone: "🌟", titulo: "Gênio", desc: "90%+ aproveitamento" });
-
-  return { conquistas, progresso, streak, diasTotal, horasTotal, questoesTotal, taxaGeral };
 }
 
 // =========================
@@ -570,14 +460,8 @@ exports.geral = async (req, res) => {
   // Por dia da semana
   const { horasPorDia, questoesPorDia } = await calcPorDiaSemana(userId);
 
-  // Por dificuldade
-  const porDificuldade = await calcPorDificuldade(userId, dateLimit);
-
   // Metas
   const metas = await calcMetas(userId);
-
-  // Conquistas
-  const conquistas = await calcConquistas(userId);
 
   res.render("app/statistics", {
     active: "estatisticas",
@@ -617,19 +501,15 @@ exports.geral = async (req, res) => {
     horasPorDia,
     questoesPorDia,
 
-    // Por dificuldade
-    porDificuldade,
-
     // Metas
     metas,
 
-    // Conquistas
-    conquistas: conquistas.conquistas,
-    conquistasProgresso: conquistas.progresso,
-    streakGeral: conquistas.streak,
-    horasTotal: conquistas.horasTotal,
-    questoesTotal: conquistas.questoesTotal,
-    taxaGeral: conquistas.taxaGeral,
+        // Resumo geral (reaproveita o que já foi calculado)
+    horasTotal: statsTotal.horas,
+    questoesTotal: statsTotal.questoes,
+    taxaGeral: statsTotal.aproveitamento,
+    streakGeral: streak,
+
   });
 };
 
