@@ -12,6 +12,29 @@
     </a>
   </div>
 
+  <!-- ============================================================
+       BADGE COMPACTO DE GAMIFICAÇÃO
+       (aparece só se res.locals.gamif estiver preenchido)
+       ============================================================ -->
+  <% if (typeof gamif !== 'undefined' && gamif) { %>
+    <a href="/trilha" class="sidebar-gamif" title="Ir para a Trilha da Aprovação">
+      <div class="sidebar-gamif-escudo">
+        <%- escudoSVG(gamif.patente.key, 40) %>
+      </div>
+      <div class="sidebar-gamif-info">
+        <div class="sidebar-gamif-top">
+          <span class="sidebar-gamif-patente" style="color:<%= gamif.patente.cor %>">
+            <%= gamif.patente.nome %>
+          </span>
+          <span class="sidebar-gamif-nivel">Nv <strong><%= gamif.nivel %></strong></span>
+        </div>
+        <div class="sidebar-gamif-bar">
+          <div class="sidebar-gamif-bar-fill" style="width:<%= gamif.progresso.pct %>%"></div>
+        </div>
+      </div>
+    </a>
+  <% } %>
+
   <nav class="sidebar-menu">
     <a href="/dashboard"    class="item <%= active === 'dashboard'    ? 'active' : '' %>"><span>🏠</span><p>Dashboard</p></a>
     <a href="/registrar"    class="item <%= active === 'registrar'    ? 'active' : '' %>"><span>✍️</span><p>Registrar</p></a>
@@ -19,6 +42,7 @@
     <a href="/calendario"   class="item <%= active === 'calendario'   ? 'active' : '' %>"><span>📅</span><p>Calendário</p></a>
     <a href="/estatisticas" class="item <%= active === 'estatisticas' ? 'active' : '' %>"><span>📊</span><p>Estatísticas</p></a>
     <a href="/metas"        class="item <%= active === 'metas'        ? 'active' : '' %>"><span>🎯</span><p>Metas</p></a>
+    <a href="/trilha"       class="item <%= active === 'trilha'       ? 'active' : '' %>"><span>🏆</span><p>Trilha da Aprovação</p></a>
     <a href="/conteudos"    class="item <%= active === 'conteudos'    ? 'active' : '' %>"><span>📚</span><p>Conteúdos</p></a>
   </nav>
 

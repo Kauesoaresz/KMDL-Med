@@ -1,3 +1,8 @@
+// ============================================================
+// src/models/index.js
+// Associações entre os models.
+// ============================================================
+
 const User = require("./User");
 const Subject = require("./Subject");
 const Topic = require("./Topic");
@@ -6,6 +11,8 @@ const StudyGoal = require("./StudyGoal");
 const Simulado = require("./Simulado");
 const SimuladoBloco = require("./SimuladoBloco");
 const SimuladoQuestaoErro = require("./SimuladoQuestaoErro");
+const RewardUnlock = require("./RewardUnlock");
+const StreakCredit = require("./StreakCredit");
 
 // USUÁRIO
 User.hasMany(Subject, { foreignKey: "user_id", as: "subjects" });
@@ -41,7 +48,15 @@ SimuladoQuestaoErro.belongsTo(Topic, { foreignKey: "topic_id", as: "topic" });
 User.hasMany(StudyGoal, { foreignKey: "user_id", as: "goals" });
 StudyGoal.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
+// GAMIFICAÇÃO
+User.hasMany(RewardUnlock, { foreignKey: "user_id", as: "rewardUnlocks", onDelete: "CASCADE" });
+RewardUnlock.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+User.hasMany(StreakCredit, { foreignKey: "user_id", as: "streakCredits", onDelete: "CASCADE" });
+StreakCredit.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
 module.exports = {
   User, Subject, Topic, StudyEntry, StudyGoal,
   Simulado, SimuladoBloco, SimuladoQuestaoErro,
+  RewardUnlock, StreakCredit,
 };

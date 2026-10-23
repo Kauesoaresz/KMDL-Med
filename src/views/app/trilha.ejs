@@ -1,0 +1,252 @@
+<%- include("../partials/head", { title: "Trilha da Aprovação", css: ["trilha"] }) %>
+<body class="page-bg">
+<%- include("../partials/sidebar", { active: "trilha", userNome, userFoto }) %>
+
+<main class="with-sidebar">
+  <div class="page trilha-page">
+
+    <!-- ============================================================
+         HEADER FIXO DE STATUS
+         ============================================================ -->
+    <header class="trilha-header" id="trilhaHeader">
+      <div class="trilha-header-inner">
+
+        <!-- Escudo da patente (puro, sem foto) -->
+        <div class="trilha-avatar-wrap" data-patente="<%= retrato.patente.key %>">
+          <div class="trilha-avatar-escudo" id="avatarEscudo">
+            <%- escudoSVG(retrato.patente.key, 92) %>
+          </div>
+        </div>
+
+        <!-- Nome, patente, nível e barra de XP -->
+        <div class="trilha-status">
+          <div class="trilha-status-top">
+            <span class="trilha-patente" style="color: <%= retrato.patente.cor %>">
+              <%= retrato.patente.nome %>
+            </span>
+            <span class="trilha-nivel">Nível <strong><%= retrato.nivel %></strong></span>
+            <span class="trilha-streak" title="Dias seguidos estudando">
+              🔥 <strong><%= retrato.streak.streakAtual %></strong> dias
+            </span>
+          </div>
+
+          <div class="trilha-xp-bar">
+            <div class="trilha-xp-bar-fill" style="width: <%= retrato.progresso.pct %>%"></div>
+          </div>
+          <div class="trilha-xp-text">
+            <span id="xpAtualTexto"><%= retrato.progresso.xpNoNivel.toLocaleString("pt-BR") %></span>
+            / <%= retrato.progresso.xpNecessario.toLocaleString("pt-BR") %> XP
+            <span class="muted">
+              · faltam <strong id="xpFaltamTexto"><%= retrato.progresso.faltam.toLocaleString("pt-BR") %></strong> pro Nível <%= Math.min(100, retrato.nivel + 1) %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="trilha-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-modal="guia">
+            📖 Guia de XP
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" data-modal="galeria">
+            🛡️ Galeria de Patentes
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         TABS DAS 6 TRILHAS
+         ============================================================ -->
+    <nav class="trilha-tabs" role="tablist">
+      <% tabs.forEach(tab => { %>
+        <a
+          href="/trilha?t=<%= tab.key %>"
+          class="trilha-tab-shield <%= tab.ativa ? 'is-active' : '' %>"
+          role="tab"
+          aria-selected="<%= tab.ativa ? 'true' : 'false' %>"
+          style="--cor-trilha: <%= tab.cor %>"
+        >
+          <span class="trilha-tab-shield-escudo">
+            <%- escudoTrilhaSVG(tab.key, tab.estagio, 52) %>
+            <span class="trilha-tab-shield-romano"><%= tab.romano %></span>
+          </span>
+          <% if (tab.resgataveis > 0) { %>
+            <span class="trilha-tab-shield-badge" title="Marcos prontos pra resgatar"><%= tab.resgataveis %></span>
+          <% } %>
+        </a>
+      <% }) %>
+    </nav>
+
+    <!-- ============================================================
+         RESUMO DA TRILHA ATIVA
+         ============================================================ -->
+    <section class="trilha-resumo">
+      <div class="trilha-resumo-info">
+        <h2><%= trilhaAtiva.trilha.icone %> <%= trilhaAtiva.trilha.nome %></h2>
+        <p class="muted">
+          <strong><%= trilhaAtiva.trilha.valorAtual.toLocaleString("pt-BR") %></strong>
+          / <%= trilhaAtiva.trilha.teto.toLocaleString("pt-BR") %>
+          (<%= pctTrilha %>%)
+          <% if (proximo) { %>
+            · próximo marco em <strong><%= proximo.valor.toLocaleString("pt-BR") %></strong>
+          <% } %>
+        </p>
+      </div>
+      <div class="trilha-resumo-bonus">
+        <% if (xpBonusDisponivel > 0) { %>
+          <span class="badge badge-ok">+<%= xpBonusDisponivel %> XP disponível</span>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TRILHA HORIZONTAL (scroll lateral)
+         ============================================================ -->
+    <section class="trilha-scroll-wrap">
+      <button class="trilha-scroll-btn trilha-scroll-btn--left" type="button" aria-label="Rolar para a esquerda">‹</button>
+
+      <div class="trilha-scroll"
+           id="trilhaScroll"
+           data-trilha="<%= trilhaAtiva.trilha.key %>"
+           data-valor-atual="<%= trilhaAtiva.trilha.valorAtual %>">
+        <div class="trilha-track">
+          <% marcos.forEach((m, idx) => { %>
+            <%
+              let classeEstado = "is-locked";
+              if (m.resgatado) classeEstado = "is-resgatado";
+              else if (m.podeResgatar) classeEstado = "is-resgata-vel";
+              else if (m.atingido) classeEstado = "is-atingido";
+
+              const isBrasao = m.tipo === "brasao";
+              const tamanhoEscudo = isBrasao ? 64 : 0;
+            %>
+            <div
+              class="trilha-marco <%= classeEstado %> <%= isBrasao ? 'is-brasao' : 'is-mini' %>"
+              data-marco-id="<%= m.id %>"
+              data-trilha="<%= trilhaAtiva.trilha.key %>"
+              data-valor="<%= m.valor %>"
+              data-xp="<%= m.xpBonus %>"
+              data-pode-resgatar="<%= m.podeResgatar ? 'true' : 'false' %>"
+              <% if (m.podeResgatar) { %>title="Clique para resgatar +<%= m.xpBonus %> XP"<% } %>
+            >
+              <% if (isBrasao) { %>
+                <div class="trilha-marco-brasao">
+                  <%- escudoTrilhaSVG(trilhaAtiva.trilha.key, m.nivelBrasao, tamanhoEscudo) %>
+                  <span class="trilha-brasao-num">Nv <%= m.nivelBrasao %></span>
+                </div>
+              <% } else { %>
+                <div class="trilha-marco-mini">
+                  <span class="trilha-mini-xp">+<%= m.xpBonus %></span>
+                </div>
+              <% } %>
+
+              <div class="trilha-marco-label">
+                <%= m.valor.toLocaleString("pt-BR") %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <button class="trilha-scroll-btn trilha-scroll-btn--right" type="button" aria-label="Rolar para a direita">›</button>
+    </section>
+
+  </div>
+</main>
+
+<!-- ============================================================
+     MODAL: GUIA DE XP
+     ============================================================ -->
+<div class="modal-bg" id="modalGuia" aria-hidden="true">
+  <div class="modal-box modal-box--lg">
+    <div class="modal-header">
+      <h3>📖 Guia de XP</h3>
+      <button type="button" class="modal-close" data-close="guia">✕</button>
+    </div>
+    <div class="modal-body modal-body--scroll">
+      <p class="muted">Cada ação no seu estudo te dá XP. XP acumulado define seu <strong>Nível (1–100)</strong> e sua <strong>Patente</strong>.</p>
+
+      <h4>📝 Registro diário (StudyEntry)</h4>
+      <ul>
+        <li><strong>+1 XP</strong> por questão registrada</li>
+        <li><strong>+1 XP</strong> por acerto (errou = 1 XP total, acertou = 2 XP total)</li>
+        <li><strong>+10 XP</strong> por dia com pelo menos um registro</li>
+      </ul>
+
+      <h4>⏱️ Horas estudadas (por dia)</h4>
+      <ul>
+        <li>1h = 5 XP · 2h = 15 XP · 3h = 30 XP · 4h = 50 XP</li>
+        <li>5h = 75 XP · 6h = 105 XP · 7h = 140 XP · 8h = 180 XP</li>
+        <li>9h = 225 XP · 10h = 275 XP · 11h = 330 XP · 12h = 400 XP</li>
+      </ul>
+
+      <h4>🔥 Streak (dias seguidos)</h4>
+      <ul>
+        <li>1d = 10 XP · 3d = 30 XP · 7d = 70 XP · 15d = 150 XP</li>
+        <li>30d = 300 XP · 60d = 600 XP · 100d = 1.000 XP</li>
+        <li>150d = 1.500 XP · 200d = 2.000 XP · 250d = 2.500 XP · 300d = 3.000 XP</li>
+        <li><em>Se o streak quebrar, você não perde o XP. Ao voltar a subir, pode ganhar novamente.</em></li>
+      </ul>
+
+      <h4>🧪 Simulados</h4>
+      <ul>
+        <li><strong>+150 XP</strong> ao finalizar um simulado (uma vez por simulado)</li>
+        <li><strong>+5 XP</strong> por questão errada revisada no Caderno de Erros (uma vez por questão)</li>
+      </ul>
+
+      <h4>🎯 Metas</h4>
+      <ul>
+        <li><strong>+200 XP</strong> ao concluir uma meta (uma vez por meta)</li>
+      </ul>
+
+      <h4>🏆 Trilha da Aprovação</h4>
+      <ul>
+        <li>Cada marco resgatado credita <strong>XP bônus</strong> no seu saldo geral</li>
+        <li>Mini-marcos valem entre 10 e 80 XP · Brasões valem entre 150 e 500 XP</li>
+        <li><em>Se o valor da trilha cair abaixo de um marco resgatado, o XP bônus é estornado até você bater o marco de novo.</em></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL: GALERIA DE PATENTES
+     ============================================================ -->
+<div class="modal-bg" id="modalGaleria" aria-hidden="true">
+  <div class="modal-box modal-box--lg">
+    <div class="modal-header">
+      <h3>🛡️ Galeria de Patentes</h3>
+      <button type="button" class="modal-close" data-close="galeria">✕</button>
+    </div>
+    <div class="modal-body modal-body--scroll">
+      <p class="muted">10 patentes, uma a cada 10 níveis. Cada patente desbloqueia um novo escudo.</p>
+
+      <div class="galeria-grid">
+        <% PATENTES.forEach(p => {
+             const desbloqueada = retrato.nivel >= p.min;
+        %>
+          <div class="galeria-item <%= desbloqueada ? 'is-desbloqueada' : 'is-bloqueada' %>"
+               style="--cor-patente: <%= p.cor %>">
+            <div class="galeria-escudo">
+              <%- escudoSVG(p.key, 72) %>
+            </div>
+            <div class="galeria-nome"><%= p.nome %></div>
+            <div class="galeria-niveis">Nv <%= p.min %>–<%= p.max %></div>
+            <% if (!desbloqueada) { %>
+              <div class="galeria-lock">🔒</div>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST de celebração (preenchido via JS)
+     ============================================================ -->
+<div class="trilha-toast" id="trilhaToast" aria-hidden="true"></div>
+
+<script src="/public/js/app/trilha.js"></script>
+</body>
+</html>

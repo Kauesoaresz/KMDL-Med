@@ -19,6 +19,12 @@ const calendarioRoutes = require("./routes/calendarioRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 const simuladoRoutes = require("./routes/simuladoRoutes");
 const goalRoutes = require("./routes/goalRoutes");
+const trilhaRoutes = require("./routes/trilhaRoutes"); // NOVO
+
+// =========================
+// MIDDLEWARES CUSTOM
+// =========================
+const attachGamification = require("./middlewares/attachGamification");
 
 const app = express();
 
@@ -38,20 +44,25 @@ if (process.env.NODE_ENV !== 'production') {
 // Função para formatar horas em "Xh Ymin", "Xh" ou "Ymin"
 app.locals.formatHours = function(decimalHours) {
   if (!decimalHours || decimalHours <= 0) return "0min";
-  
+
   const horas = Math.floor(decimalHours);
   const minutos = Math.round((decimalHours - horas) * 60);
-  
+
   if (horas === 0) {
     return minutos + "min";
   }
-  
+
   if (minutos === 0) {
     return horas + "h";
   }
-  
+
   return horas + "h " + minutos + "min";
 };
+
+// Gamificação: helpers globais pras views (FORA do formatHours)
+app.locals.escudoSVG = require("./lib/gamification").escudoSVG;
+app.locals.escudoTrilhaSVG = require("./lib/gamification").escudoTrilhaSVG;
+app.locals.PATENTES  = require("./lib/gamification").PATENTES;
 
 // =========================
 // MIDDLEWARES
@@ -69,6 +80,9 @@ app.use(
     },
   })
 );
+
+// Gamificação: calcula res.locals.gamif em toda request autenticada
+app.use(attachGamification);
 
 // =========================
 // STATIC FILES
@@ -90,6 +104,8 @@ app.use(calendarioRoutes);
 app.use(simuladoRoutes);
 
 app.use(goalRoutes);
+
+app.use(trilhaRoutes); // NOVO
 
 app.use(apiRoutes);
 

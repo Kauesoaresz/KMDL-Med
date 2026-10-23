@@ -1,0 +1,866 @@
+/* ============================================================
+   public/css/pages/trilha.css
+   Estilos da página /trilha ("Trilha da Aprovação").
+   ============================================================ */
+
+/* ---------- Layout base ---------- */
+.trilha-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding-bottom: var(--s-7);
+}
+
+/* ============================================================
+   1. HEADER FIXO DE STATUS
+   ============================================================ */
+.trilha-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: var(--s-4) 0;
+  margin: 0 calc(var(--s-5) * -1);
+  padding-left: var(--s-5);
+  padding-right: var(--s-5);
+}
+
+.trilha-header-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Avatar com escudo da patente */
+.trilha-avatar-wrap {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+}
+
+.trilha-avatar-escudo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  animation: trilha-escudo-brilho 3.5s ease-in-out infinite;
+}
+
+@keyframes trilha-escudo-brilho {
+  0%, 100% { filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35)); }
+  50%      { filter: drop-shadow(0 4px 18px var(--accent-soft)); }
+}
+
+/* Status: nome da patente, nível, streak, barra de XP */
+.trilha-status {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.trilha-status-top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.trilha-patente {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px currentColor;
+}
+
+.trilha-nivel {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.trilha-nivel strong {
+  color: var(--text);
+  font-size: var(--fs-base);
+}
+
+.trilha-streak {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  background: var(--surface-2);
+  padding: 2px 10px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+}
+
+.trilha-streak strong {
+  color: var(--warn);
+}
+
+/* Barra de XP */
+.trilha-xp-bar {
+  height: 10px;
+  background: var(--surface-2);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: var(--s-1);
+}
+
+.trilha-xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  transition: width 0.6s var(--ease);
+  box-shadow: 0 0 12px var(--accent-soft);
+}
+
+.trilha-xp-text {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.trilha-xp-text strong {
+  color: var(--text);
+}
+
+/* Botões de ação no header */
+.trilha-actions {
+  display: flex;
+  gap: var(--s-2);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   2. TABS DAS 6 TRILHAS (em formato de escudo)
+   ============================================================ */
+.trilha-tabs {
+  display: flex;
+  gap: var(--s-5);
+  padding: var(--s-4) 0;
+  margin-bottom: var(--s-3); /* Respiro pro resumo */
+  overflow-x: auto;
+  /* Esconde a barra de scroll (Chrome/Firefox) */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.trilha-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.trilha-tab-shield {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 88px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: var(--text-muted);
+  border-radius: var(--r-md);
+  transition: transform 0.15s var(--ease), filter 0.15s var(--ease);
+}
+
+.trilha-tab-shield:hover {
+  transform: translateY(-3px);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.trilha-tab-shield.is-active {
+  color: var(--text);
+}
+
+/* Escudo + número romano */
+.trilha-tab-shield-escudo {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(0.5) brightness(0.85);
+  transition: filter 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.trilha-tab-shield-escudo svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.trilha-tab-shield:hover .trilha-tab-shield-escudo {
+  filter: grayscale(0) brightness(1);
+}
+
+.trilha-tab-shield.is-active .trilha-tab-shield-escudo {
+  filter: grayscale(0) brightness(1.1)
+          drop-shadow(0 0 12px var(--cor-trilha, var(--accent)));
+  transform: scale(1.08);
+}
+
+/* Número romano sobreposto ao escudo */
+.trilha-tab-shield-romano {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Inter", serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--on-accent);
+  text-shadow:
+    0 0 3px rgba(0, 0, 0, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.trilha-tab-shield.is-active .trilha-tab-shield-romano {
+  text-shadow:
+    0 0 6px var(--cor-trilha, var(--accent)),
+    0 0 3px rgba(0, 0, 0, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Bolinha de "resgatáveis" no canto */
+.trilha-tab-shield-badge {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  background: var(--err);
+  color: var(--on-accent);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--r-lg);
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: trilha-tab-badge-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes trilha-tab-badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+/* Responsivo: escudos menores */
+@media (max-width: 700px) {
+  .trilha-tab-shield {
+    min-width: 64px;
+  }
+  .trilha-tab-shield-escudo {
+    width: 44px;
+    height: 44px;
+  }
+  .trilha-tab-shield-romano {
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   3. RESUMO DA TRILHA ATIVA
+   ============================================================ */
+.trilha-resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.trilha-resumo-info h2 {
+  font-size: var(--fs-lg);
+  margin: 0 0 var(--s-1);
+}
+
+.trilha-resumo-info p {
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+.trilha-resumo-bonus .badge {
+  font-size: var(--fs-sm);
+  padding: 4px 12px;
+}
+
+/* ============================================================
+   4. TRILHA HORIZONTAL (scroll lateral)
+   ============================================================ */
+.trilha-scroll-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  padding: var(--s-3) 0;
+}
+
+.trilha-scroll-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s var(--ease), transform 0.15s var(--ease);
+  z-index: 5;
+}
+
+.trilha-scroll-btn:hover {
+  background: var(--surface-hover);
+  transform: scale(1.08);
+}
+
+.trilha-scroll-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+.trilha-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding: var(--s-4) 0;
+  scrollbar-width: thin;
+}
+
+.trilha-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 200px; /* Altura equilibrada e sem sobreposição */
+  padding: var(--s-5);
+  min-width: max-content;
+}
+
+/* Linha de progresso (fundo) */
+.trilha-track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: var(--s-5);
+  right: var(--s-5);
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+/* Progresso preenchido */
+.trilha-track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: var(--s-5);
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  border-radius: 2px;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: var(--trilha-progresso, 0%);
+  transition: width 0.6s var(--ease);
+  box-shadow: 0 0 10px var(--accent-soft);
+}
+
+/* Cada marco */
+.trilha-marco {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  margin-right: var(--s-5);
+  z-index: 2;
+  min-width: 64px;
+  transition: transform 0.2s var(--ease);
+}
+
+.trilha-marco:last-child {
+  margin-right: 0;
+}
+
+.trilha-marco[data-pode-resgatar="true"] {
+  cursor: pointer;
+}
+
+.trilha-marco[data-pode-resgatar="true"]:hover {
+  transform: translateY(-3px) scale(1.05);
+}
+
+.trilha-marco.is-carregando {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Mini-marco */
+.trilha-marco.is-mini {
+  min-width: 48px;
+}
+
+.trilha-marco-mini {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 2px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-faint);
+  transition: all 0.2s var(--ease);
+}
+
+.trilha-mini-xp {
+  color: inherit;
+}
+
+/* Brasão (marco grande) */
+.trilha-marco.is-brasao {
+  min-width: 88px;
+}
+
+.trilha-marco-brasao {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s var(--ease);
+}
+
+.trilha-marco-brasao svg {
+  width: 100%;
+  height: 100%;
+  filter: grayscale(0.8) brightness(0.65);
+  transition: filter 0.3s var(--ease);
+}
+
+.trilha-brasao-num {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Label do valor (embaixo do marco) */
+.trilha-marco-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: var(--s-2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---------- ESTADOS DOS MARCOS ---------- */
+
+/* locked: cinza */
+.trilha-marco.is-locked .trilha-marco-mini {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+
+.trilha-marco.is-locked .trilha-marco-brasao svg {
+  filter: grayscale(1) brightness(0.5);
+}
+
+/* atingido: cor accent */
+.trilha-marco.is-atingido .trilha-marco-mini {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.trilha-marco.is-atingido .trilha-marco-brasao svg {
+  filter: grayscale(0) brightness(1) drop-shadow(0 0 6px var(--accent-soft));
+  animation: trilha-brasao-pulso 2.4s ease-in-out infinite;
+}
+
+@keyframes trilha-brasao-pulso {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+/* resgatável: verde */
+.trilha-marco.is-resgata-vel .trilha-marco-mini,
+.trilha-marco.is-resgata-vel .trilha-marco-brasao {
+  animation: trilha-resgata-pulso 1.4s ease-in-out infinite;
+}
+
+.trilha-marco.is-resgata-vel .trilha-marco-mini {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: var(--on-accent);
+}
+
+.trilha-marco.is-resgata-vel .trilha-marco-brasao svg {
+  filter: grayscale(0) brightness(1.1) drop-shadow(0 0 10px var(--ok));
+}
+
+@keyframes trilha-resgata-pulso {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+/* resgatado: check */
+.trilha-marco.is-resgatado .trilha-marco-mini {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: var(--on-accent);
+}
+
+.trilha-marco.is-resgatado .trilha-marco-brasao svg {
+  filter: grayscale(0) brightness(1.05) drop-shadow(0 0 4px var(--ok));
+}
+
+.trilha-marco.is-resgatado .trilha-marco-mini::after {
+  content: "✓";
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.trilha-marco.is-resgatado .trilha-mini-xp {
+  display: none;
+}
+
+/* ============================================================
+   5. MODAIS
+   ============================================================ */
+.modal-box--lg {
+  max-width: 640px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s-3);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--fs-lg);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: background 0.15s var(--ease);
+}
+
+.modal-close:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.modal-body--scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: var(--s-2);
+}
+
+.modal-body h4 {
+  margin: var(--s-4) 0 var(--s-1);
+  font-size: var(--fs-base);
+  color: var(--accent-text);
+}
+
+.modal-body ul {
+  margin: 0 0 var(--s-2);
+  padding-left: var(--s-4);
+}
+
+.modal-body li {
+  font-size: var(--fs-sm);
+  margin-bottom: 4px;
+}
+
+.modal-body p {
+  font-size: var(--fs-sm);
+}
+
+/* Galeria de patentes */
+.galeria-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+}
+
+@media (max-width: 700px) {
+  .galeria-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.galeria-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  position: relative;
+  transition: transform 0.2s var(--ease);
+}
+
+.galeria-item.is-desbloqueada {
+  border-color: var(--cor-patente, var(--accent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cor-patente, var(--accent)) 40%, transparent);
+}
+
+.galeria-item.is-desbloqueada:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+.galeria-item.is-bloqueada {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.galeria-escudo {
+  width: 72px;
+  height: 72px;
+}
+
+.galeria-escudo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.galeria-nome {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--cor-patente, var(--text));
+  text-align: center;
+}
+
+.galeria-niveis {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.galeria-lock {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: var(--fs-sm);
+}
+
+/* ============================================================
+   6. TOAST DE CELEBRAÇÃO
+   ============================================================ */
+.trilha-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  background: var(--surface);
+  border: 2px solid var(--ok);
+  border-radius: var(--r-lg);
+  padding: var(--s-5) var(--s-6);
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  text-align: center;
+  box-shadow: var(--shadow-modal), 0 0 40px var(--ok);
+  transition: opacity 0.25s var(--ease), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trilha-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.trilha-toast-icon {
+  font-size: 48px;
+  margin-bottom: var(--s-2);
+  animation: trilha-toast-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes trilha-toast-bounce {
+  0%   { transform: scale(0) rotate(-20deg); }
+  60%  { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.trilha-toast-title {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--ok);
+  margin-bottom: var(--s-1);
+}
+
+.trilha-toast-xp {
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+  color: var(--accent-text);
+  text-shadow: 0 0 20px var(--accent);
+}
+
+.trilha-toast-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: var(--s-1);
+}
+
+/* Partículas de celebração */
+.trilha-confete {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: trilha-confete-fall 1.4s ease-out forwards;
+}
+
+@keyframes trilha-confete-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx, 0), var(--dy, 200px)) rotate(var(--rot, 720deg));
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   RESPONSIVO BÁSICO
+   ============================================================ */
+@media (max-width: 900px) {
+  .trilha-header-inner {
+    flex-wrap: wrap;
+  }
+  .trilha-status {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .trilha-actions {
+    order: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .trilha-avatar-wrap {
+    width: 72px;
+    height: 72px;
+  }
+  .trilha-patente {
+    font-size: var(--fs-lg);
+  }
+  .trilha-scroll-btn {
+    display: none;
+  }
+}
+
+/* ============================================================
+   TEMA CLARO (ajustes de contraste)
+   ============================================================ */
+[data-theme="light"] .trilha-header {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+[data-theme="light"] .trilha-marco.is-locked .trilha-marco-brasao svg {
+  filter: grayscale(0.9) brightness(0.85);
+}
+
+/* Ajuste para escudos da trilha nas abas e brasões */
+.trilha-tab-shield-escudo svg, 
+.trilha-marco-brasao svg {
+  filter: none !important; /* Remove o cinza forçado */
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.trilha-tab-shield:not(.is-active) .trilha-tab-shield-escudo {
+  opacity: 0.6; /* Escudos não ativos ficam meio apagados */
+}
+.trilha-tab-shield:not(.is-active) .trilha-tab-shield-escudo:hover {
+  opacity: 1;
+}
+
+.trilha-marco.is-locked .trilha-marco-brasao svg {
+  filter: grayscale(1) brightness(0.4) !important; /* Escudo bloqueado fica cinza */
+  opacity: 0.5;
+}
+
+.trilha-marco.is-atingido .trilha-marco-brasao svg,
+.trilha-marco.is-resgata-vel .trilha-marco-brasao svg,
+.trilha-marco.is-resgatado .trilha-marco-brasao svg {
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.4)) !important; /* Brilho nos escudos atingidos */
+}
+
+.trilha-marco.is-resgatado .trilha-marco-brasao svg,
+.trilha-marco.is-atingido .trilha-marco-brasao svg {
+  filter: none !important;
+  opacity: 1;
+}
+
+/* ============================================================
+   MARCADOR DE PROGRESSO NA TRILHA (sem foto)
+   ============================================================ */
+.trilha-progress-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 12px var(--accent), 0 0 4px var(--accent-soft);
+  z-index: 4; /* Fica acima da linha mas abaixo das bolinhas */
+  pointer-events: none;
+  transition: left 0.6s var(--ease);
+  animation: pulso-marker 2s infinite;
+}
+
+@keyframes pulso-marker {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7), 0 0 10px var(--accent); }
+  70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0), 0 0 10px var(--accent); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0), 0 0 10px var(--accent); }
+}
