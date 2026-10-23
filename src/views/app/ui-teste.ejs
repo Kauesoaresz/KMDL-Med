@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include("../partials/head", { title: "Teste de UI" }) %>
+  <style>
+    .swatches { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+    .sw { width: 64px; height: 40px; border-radius: var(--r-sm); border: 1px solid var(--border); }
+    .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; }
+    .cel { padding: 10px 0; text-align: center; border: 2px solid; border-radius: var(--r-md); font-weight: 600; font-size: var(--fs-sm); }
+  </style>
+</head>
+<body class="page-bg">
+<%- include("../partials/sidebar", { active, userNome, userFoto }) %>
+
+<main class="with-sidebar">
+  <div class="page">
+
+    <div class="page-header">
+      <div>
+        <h1>Teste de UI</h1>
+        <p>Todos os componentes. Alterne o tema na sidebar.</p>
+      </div>
+      <div class="chips">
+        <button class="chip">Hoje</button>
+        <button class="chip">Semana</button>
+        <button class="chip">Mês</button>
+        <button class="chip active">Total</button>
+      </div>
+    </div>
+
+    <div class="grid-4">
+      <div class="card kpi"><h3>Horas</h3><p class="value">128h 40min</p><span class="label">32 dias estudados</span></div>
+      <div class="card kpi"><h3>Questões</h3><p class="value">2.431</p><span class="label">Resolvidas</span></div>
+      <div class="card kpi"><h3>Acertos</h3><p class="value">1.689</p><span class="label">742 erros</span></div>
+      <div class="card kpi"><h3>Taxa de acerto</h3><p class="value">69%</p><span class="label">Aproveitamento</span></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card stack">
+        <h2>Botões</h2>
+        <div class="row">
+          <button class="btn-primary">Primário</button>
+          <button class="btn">Padrão</button>
+          <button class="btn-danger">Excluir</button>
+          <button class="btn-ghost">Ghost</button>
+          <button class="btn-primary btn-sm">Pequeno</button>
+          <button class="btn-primary" disabled>Desabilitado</button>
+        </div>
+
+        <h2>Badges</h2>
+        <div class="row">
+          <span class="badge">Neutro</span>
+          <span class="badge badge-accent">Destaque</span>
+          <span class="badge badge-ok">Certa</span>
+          <span class="badge badge-err">Errada</span>
+          <span class="badge badge-warn">Em andamento</span>
+          <span class="badge badge-info">Info</span>
+        </div>
+
+        <h2>Progresso</h2>
+        <div class="progress"><span style="width: 68%"></span></div>
+
+        <h2>Tabs</h2>
+        <div class="tabs">
+          <a class="tab active" href="#">Matérias</a>
+          <a class="tab" href="#">Tópicos</a>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <h2>Formulário</h2>
+        <div class="form-group"><label>Nome</label><input type="text" placeholder="Ex: Simulado 1"></div>
+        <div class="form-group"><label>Data</label><input type="date"></div>
+        <div class="form-group"><label>Matéria</label>
+          <select><option>Matemática</option><option>Biologia</option></select>
+        </div>
+        <div class="form-group"><label>Anotação</label><textarea rows="2" placeholder="Opcional"></textarea></div>
+        <div class="row">
+          <button class="btn-primary" id="abre-modal">Abrir modal</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-success">Salvo com sucesso.</div>
+    <div class="alert alert-error">Algo deu errado.</div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Matéria</th><th>Horas</th><th>Questões</th><th>Acertos</th><th>Taxa</th></tr></thead>
+        <tbody>
+          <tr><td>Matemática</td><td>42h 10min</td><td>820</td><td>574</td><td>70%</td></tr>
+          <tr><td>Biologia</td><td>30h 00min</td><td>610</td><td>451</td><td>74%</td></tr>
+          <tr><td>Química</td><td>18h 30min</td><td>402</td><td>241</td><td>60%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card stack">
+      <h2>Estados da grade (simulado)</h2>
+      <div class="grade">
+        <div class="cel state-certa">1</div><div class="cel state-certa">2</div>
+        <div class="cel state-errada">3</div><div class="cel state-certa">4</div>
+        <div class="cel state-nao_feita">5</div><div class="cel state-nao_feita">6</div>
+        <div class="cel state-certa">7</div><div class="cel state-errada">8</div>
+      </div>
+
+      <h2>Paleta dos gráficos</h2>
+      <div class="swatches">
+        <% for (let i = 1; i <= 8; i++) { %>
+          <div class="sw" style="background: var(--chart-<%= i %>)"></div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="empty-state">
+      <div class="empty-icon">📘</div>
+      <h3>Estado vazio</h3>
+      <p>Nada por aqui ainda.</p>
+    </div>
+
+  </div>
+</main>
+
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <h3>Questão 12 · Matemática</h3>
+    <p class="muted" style="margin: var(--s-2) 0 var(--s-4);">Por que você errou?</p>
+    <div class="stack" style="gap: var(--s-2);">
+      <button class="btn">👀 Falta de atenção</button>
+      <button class="btn">📖 Falta de conteúdo</button>
+      <button class="btn">🕳 Lacuna de conhecimento</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="fecha-modal">Cancelar</button>
+      <button class="btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const m = document.getElementById("modal");
+  document.getElementById("abre-modal").onclick = () => m.classList.add("open");
+  document.getElementById("fecha-modal").onclick = () => m.classList.remove("open");
+  m.onclick = (e) => { if (e.target === m) m.classList.remove("open"); };
+</script>
+</body>
+</html>

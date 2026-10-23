@@ -1,269 +1,222 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KMed | Dashboard</title>
-
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('kmed-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (!savedTheme && !prefersDark || savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    })();
-  </script>
-
-  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/components/theme.css" />
-  <link rel="stylesheet" href="/public/css/app/dashboard.css" />
-
+  <%- include("../partials/head", { title: "Dashboard", css: ["dashboard"] }) %>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { active: "dashboard", userNome, userFoto }) %>
+<%- include("../partials/sidebar", { active: "dashboard", userNome, userFoto }) %>
 
-  <main class="with-sidebar">
-    <div class="page">
+<main class="with-sidebar">
+  <div class="page">
 
-      <!-- TOPO -->
-      <section class="welcome-card">
-        <div class="welcome-text">
-          <h1>Olá, <%= userNome %>! 👋</h1>
-          <p>Seu objetivo está cada dia mais próximo.</p>
+    <!-- TOPO -->
+    <header class="page-header">
+      <div>
+        <h1>Olá, <%= userNome %> 👋</h1>
+        <p>Seu objetivo está cada dia mais próximo.</p>
+      </div>
+
+      <div class="streak">
+        <span class="streak-icon">🔥</span>
+        <div>
+          <strong class="num"><%= streak %></strong>
+          <small><%= streak === 1 ? "dia seguido" : "dias seguidos" %></small>
         </div>
+      </div>
+    </header>
 
-        <div class="streak-box">
-          <span class="streak-fire">🔥</span>
-          <strong><%= streak %> <%= streak === 1 ? "dia seguido" : "dias seguidos" %></strong>
-        </div>
-      </section>
+    <!-- AÇÕES + FILTRO -->
+    <div class="toolbar">
+      <div class="row">
+        <a href="/registrar/novo" class="btn-primary">📝 Registrar estudo</a>
+        <a href="/simulados/lista" class="btn">📋 Novo simulado</a>
+      </div>
 
-      <!-- AÇÕES RÁPIDAS -->
-      <section class="quick-actions">
-        <a href="/registrar/novo" class="quick-action-btn">
-          <span class="icon">📝</span>
-          <span class="label">Registrar Estudo</span>
-        </a>
-        <a href="/simulados/lista" class="quick-action-btn">
-          <span class="icon">📋</span>
-          <span class="label">Novo Simulado</span>
-        </a>
-      </section>
-
-      <!-- FILTRO -->
-      <section class="dashboard-filter">
+      <div class="dashboard-filter">
         <% periodos.forEach(p => { %>
           <a href="/dashboard?periodo=<%= p.key %>"
-             class="filter-btn <%= periodo === p.key ? 'active' : '' %>">
-            <%= p.label %>
-          </a>
+             class="filter-btn <%= periodo === p.key ? 'active' : '' %>"><%= p.label %></a>
         <% }) %>
-      </section>
+      </div>
+    </div>
 
-      <!-- KPIs -->
-      <section class="dashboard-cards">
-        <div class="card kpi">
-          <h3>Horas</h3>
-          <p class="value"><%= formatHours(stats.horas) %></p>
-          <span class="label"><%= stats.dias %> <%= stats.dias === 1 ? "dia estudado" : "dias estudados" %></span>
-        </div>
+    <!-- KPIs -->
+    <section class="grid-4">
+      <div class="card kpi">
+        <h3>Horas</h3>
+        <p class="value"><%= formatHours(stats.horas) %></p>
+        <span class="label"><%= stats.dias %> <%= stats.dias === 1 ? "dia estudado" : "dias estudados" %></span>
+      </div>
 
-        <div class="card kpi">
-          <h3>Questões</h3>
-          <p class="value"><%= stats.questoes %></p>
-          <span class="label">Resolvidas</span>
-        </div>
+      <div class="card kpi">
+        <h3>Questões</h3>
+        <p class="value"><%= stats.questoes %></p>
+        <span class="label">Resolvidas</span>
+      </div>
 
-        <div class="card kpi">
-          <h3>Acertos</h3>
-          <p class="value"><%= stats.acertos %></p>
-          <span class="label"><%= stats.erros %> erros</span>
-        </div>
+      <div class="card kpi">
+        <h3>Acertos</h3>
+        <p class="value"><%= stats.acertos %></p>
+        <span class="label"><%= stats.erros %> erros</span>
+      </div>
 
-        <div class="card kpi">
-          <h3>Taxa de acerto</h3>
-          <p class="value"><%= stats.taxa %>%</p>
-          <span class="label">Aproveitamento</span>
-        </div>
-      </section>
+      <div class="card kpi">
+        <h3>Taxa de acerto</h3>
+        <p class="value"><%= stats.taxa %>%</p>
+        <div class="progress mt"><span style="width: <%= stats.taxa %>%"></span></div>
+      </div>
+    </section>
 
-      <!-- PIZZAS -->
-      <section class="dashboard-row charts-row">
+    <!-- PIZZAS -->
+    <section class="grid-2">
 
-        <div class="dashboard-card chart-card">
-          <h2>⏱ Horas por matéria</h2>
-          <% if (pizzaHoras.itens.length === 0) { %>
-            <p class="muted">Nenhum estudo neste período.</p>
-          <% } else { %>
-            <div class="chart-container-rosca">
-              <canvas id="pizzaHoras"></canvas>
-            </div>
-            <div class="materias-legend">
-              <% pizzaHoras.itens.forEach(m => { %>
-                <div class="legend-item">
-                  <span class="legend-color" style="background: <%= m.cor %>"></span>
-                  <span class="legend-name"><%= m.nome %></span>
-                  <span class="legend-value"><%= formatHours(m.valor) %> · <%= m.share %>%</span>
-                </div>
-              <% }) %>
-            </div>
-          <% } %>
-        </div>
-
-        <div class="dashboard-card chart-card">
-          <h2>📝 Questões por matéria</h2>
-          <% if (pizzaQuestoes.itens.length === 0) { %>
-            <p class="muted">Nenhuma questão neste período.</p>
-          <% } else { %>
-            <div class="chart-container-rosca">
-              <canvas id="pizzaQuestoes"></canvas>
-            </div>
-            <div class="materias-legend">
-              <% pizzaQuestoes.itens.forEach(m => { %>
-                <div class="legend-item">
-                  <span class="legend-color" style="background: <%= m.cor %>"></span>
-                  <span class="legend-name"><%= m.nome %></span>
-                  <span class="legend-value"><%= m.valor %> · <%= m.share %>%</span>
-                </div>
-              <% }) %>
-            </div>
-          <% } %>
-        </div>
-
-      </section>
-
-      <!-- TABELA POR MATÉRIA -->
-      <% if (materias.length > 0) { %>
-      <section class="dashboard-section">
-        <div class="section-header"><h2>📚 Por matéria</h2></div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse;">
-            <thead>
-              <tr style="text-align:left;">
-                <th>Matéria</th><th>Horas</th><th>Questões</th><th>Acertos</th><th>Taxa</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% materias.forEach(m => { %>
-                <tr>
-                  <td>
-                    <span class="legend-color" style="background: <%= m.cor %>; display:inline-block;"></span>
-                    <%= m.nome %>
-                  </td>
-                  <td><%= formatHours(m.horas) %></td>
-                  <td><%= m.questoes %></td>
-                  <td><%= m.acertos %></td>
-                  <td><%= m.questoes > 0 ? m.taxa + "%" : "—" %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <% } %>
-
-      <!-- METAS PRINCIPAIS -->
-      <section class="dashboard-section metas-section">
-        <div class="section-header">
-          <h2>🎯 Minhas Metas</h2>
-          <a href="/metas" class="section-link">Gerenciar metas →</a>
-        </div>
-
-        <% if (metas.length > 0) { %>
-          <div class="metas-grid">
-            <% metas.forEach(meta => { %>
-              <div class="meta-card-dashboard">
-                <div class="meta-card-header">
-                  <span class="meta-nome"><%= meta.nome %></span>
-                  <span class="meta-prazo">⏰ <%= meta.data_limite_formatada %></span>
-                </div>
-
-                <div class="meta-progressos">
-                  <div class="progress-item">
-                    <div class="progress-header">
-                      <span class="progress-label">Horas</span>
-                      <span class="progress-values"><%= formatHours(meta.horas_concluidas) %> / <%= meta.meta_horas %>h</span>
-                    </div>
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: <%= meta.progresso_horas %>%"></div>
-                    </div>
-                  </div>
-
-                  <% if (meta.progresso_questoes !== null) { %>
-                    <div class="progress-item">
-                      <div class="progress-header">
-                        <span class="progress-label">Questões</span>
-                        <span class="progress-values"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
-                      </div>
-                      <div class="progress-bar">
-                        <div class="progress-fill" style="width: <%= meta.progresso_questoes %>%"></div>
-                      </div>
-                    </div>
-                  <% } %>
-                </div>
-
-                <div class="meta-footer">
-                  <span class="meta-progresso-total"><%= meta.progresso_total %>% completo</span>
-                </div>
-              </div>
-            <% }) %>
-          </div>
+      <div class="card">
+        <h2 class="card-heading">⏱ Horas por matéria</h2>
+        <% if (pizzaHoras.itens.length === 0) { %>
+          <p class="muted empty-note">Nenhum estudo neste período.</p>
         <% } else { %>
-          <div class="metas-empty">
-            <p>Você ainda não tem metas principais.</p>
-            <p class="metas-hint">Crie uma meta em <a href="/metas">Metas</a> e marque como principal para aparecer aqui.</p>
+          <div class="pie-wrap">
+            <div class="pie-canvas"><canvas id="pizzaHoras"></canvas></div>
+            <ul class="legend">
+              <% pizzaHoras.itens.forEach(m => { %>
+                <li>
+                  <i style="background: hsl(<%= m.hue %> var(--chart-s) var(--chart-l))"></i>
+                  <span class="legend-name"><%= m.nome %></span>
+                  <span class="legend-val num"><%= formatHours(m.valor) %> · <%= m.share %>%</span>
+                </li>
+              <% }) %>
+            </ul>
           </div>
         <% } %>
-      </section>
+      </div>
 
-    </div>
-  </main>
+      <div class="card">
+        <h2 class="card-heading">📝 Questões por matéria</h2>
+        <% if (pizzaQuestoes.itens.length === 0) { %>
+          <p class="muted empty-note">Nenhuma questão neste período.</p>
+        <% } else { %>
+          <div class="pie-wrap">
+            <div class="pie-canvas"><canvas id="pizzaQuestoes"></canvas></div>
+            <ul class="legend">
+              <% pizzaQuestoes.itens.forEach(m => { %>
+                <li>
+                  <i style="background: hsl(<%= m.hue %> var(--chart-s) var(--chart-l))"></i>
+                  <span class="legend-name"><%= m.nome %></span>
+                  <span class="legend-val num"><%= m.valor %> · <%= m.share %>%</span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+      </div>
 
-  <script>
-    const DATA = <%- chartJson %>;
+    </section>
 
-    function fmtHoras(h) {
-      const hi = Math.floor(h);
-      const mi = Math.round((h - hi) * 60);
-      return hi + "h " + mi + "min";
-    }
+    <!-- METAS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🎯 Minhas metas</h2>
+        <a href="/metas" class="btn-ghost btn-sm">Gerenciar →</a>
+      </div>
 
-    function pizza(canvasId, itens, formatar) {
-      const el = document.getElementById(canvasId);
-      if (!el || !itens.length) return;
+      <% if (metas.length > 0) { %>
+        <div class="grid-2">
+          <% metas.forEach(meta => { %>
+            <div class="card meta">
+              <div class="meta-top">
+                <strong><%= meta.nome %></strong>
+                <span class="badge">⏰ <%= meta.data_limite_formatada %></span>
+              </div>
 
-      new Chart(el, {
-        type: "pie",
-        data: {
-          labels: itens.map(i => i.nome),
-          datasets: [{
-            data: itens.map(i => i.valor),
-            backgroundColor: itens.map(i => i.cor),
-            borderWidth: 0,
-            hoverOffset: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => " " + ctx.label + ": " + formatar(ctx.raw)
-              }
-            }
-          }
+              <div class="meta-item">
+                <div class="meta-line">
+                  <span>Horas</span>
+                  <span class="num"><%= formatHours(meta.horas_concluidas) %> / <%= meta.meta_horas %>h</span>
+                </div>
+                <div class="progress"><span style="width: <%= meta.progresso_horas %>%"></span></div>
+              </div>
+
+              <% if (meta.progresso_questoes !== null) { %>
+                <div class="meta-item">
+                  <div class="meta-line">
+                    <span>Questões</span>
+                    <span class="num"><%= meta.questoes_concluidas %> / <%= meta.meta_questoes %></span>
+                  </div>
+                  <div class="progress"><span style="width: <%= meta.progresso_questoes %>%"></span></div>
+                </div>
+              <% } %>
+
+              <span class="meta-total"><%= meta.progresso_total %>% completo</span>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <div class="empty-icon">🎯</div>
+          <h3>Nenhuma meta principal</h3>
+          <p>Crie uma em <a href="/metas">Metas</a> e marque como principal para ela aparecer aqui.</p>
+        </div>
+      <% } %>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  const DATA = <%- chartJson %>;
+
+  function fmtHoras(h) {
+    const hi = Math.floor(h);
+    return hi + "h " + Math.round((h - hi) * 60) + "min";
+  }
+
+  const charts = [];
+
+  function corHue(h) {
+    const cs = getComputedStyle(document.documentElement);
+    return "hsl(" + h + " " + cs.getPropertyValue("--chart-s").trim() + " " + cs.getPropertyValue("--chart-l").trim() + ")";
+  }
+
+  function pizza(id, itens, fmt) {
+    const el = document.getElementById(id);
+    if (!el || !itens.length) return;
+
+    const surface = getComputedStyle(document.documentElement).getPropertyValue("--surface").trim();
+
+    charts.push(new Chart(el, {
+      type: "pie",
+      data: {
+        labels: itens.map(i => i.nome),
+        datasets: [{
+          data: itens.map(i => i.valor),
+          backgroundColor: itens.map(i => corHue(i.hue)),
+          borderColor: surface,
+          borderWidth: 2,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => " " + c.label + ": " + fmt(c.raw) } }
         }
-      });
-    }
+      }
+    }));
+  }
 
+  function desenhar() {
+    charts.splice(0).forEach(c => c.destroy());
     pizza("pizzaHoras", DATA.horas, fmtHoras);
-    pizza("pizzaQuestoes", DATA.questoes, (v) => v + " questões");
-  </script>
+    pizza("pizzaQuestoes", DATA.questoes, v => v + " questões");
+  }
+
+  desenhar();
+  document.addEventListener("themechange", desenhar); // refaz as cores ao trocar o tema
+</script>
 
 </body>
 </html>

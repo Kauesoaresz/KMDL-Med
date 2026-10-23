@@ -1,44 +1,36 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
+  const html = document.documentElement;
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const burger = document.getElementById("hamburger");
+  const toggle = document.getElementById("themeToggle");
 
-const sidebar = document.getElementById("sidebar")
-const hamburger = document.getElementById("hamburger")
-const overlay = document.getElementById("overlay")
-
-// Função para abrir/fechar sidebar no mobile
-const toggleSidebar = () => {
-  sidebar.classList.toggle("active")
-  overlay.classList.toggle("active")
-  hamburger.classList.toggle("active")
-}
-
-// Função para fechar sidebar
-const closeSidebar = () => {
-  sidebar.classList.remove("active")
-  overlay.classList.remove("active")
-  hamburger.classList.remove("active")
-}
-
-// Evento do hamburger
-hamburger.addEventListener("click", (e) => {
-  e.stopPropagation()
-  toggleSidebar()
-})
-
-// Evento do overlay
-overlay.addEventListener("click", () => {
-  closeSidebar()
-})
-
-// Fechar ao pressionar ESC
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeSidebar()
+  /* ---------- menu (janela estreita) ---------- */
+  function setMenu(open) {
+    sidebar.classList.toggle("open", open);
+    overlay.classList.toggle("show", open);
   }
-})
+  if (burger) burger.addEventListener("click", () => setMenu(!sidebar.classList.contains("open")));
+  if (overlay) overlay.addEventListener("click", () => setMenu(false));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
 
-// Prevenir clique dentro do sidebar de fechar
-sidebar.addEventListener("click", (e) => {
-  e.stopPropagation()
-})
+  /* ---------- tema (escuro é o padrão) ---------- */
+  function paint() {
+    const light = html.getAttribute("data-theme") === "light";
+    if (!toggle) return;
+    toggle.querySelector(".theme-icon").textContent = light ? "☀️" : "🌙";
+    toggle.querySelector(".theme-label").textContent = light ? "Tema claro" : "Tema escuro";
+  }
 
-})
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const light = html.getAttribute("data-theme") === "light";
+      if (light) html.removeAttribute("data-theme");
+      else html.setAttribute("data-theme", "light");
+      try { localStorage.setItem("kmed-theme", light ? "dark" : "light"); } catch (e) {}
+      paint();
+      document.dispatchEvent(new Event("themechange")); // gráficos podem escutar isto
+    });
+  }
+  paint();
+})();

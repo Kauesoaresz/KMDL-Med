@@ -23,4 +23,12 @@ router.get("/registrar/editar/:data", auth, study.editPage);
 router.post("/registrar/editar/:data", auth, study.editSave);
 router.post("/registrar/excluir/:data", auth, study.deleteDay);
 
+router.get("/ui-teste", auth, (req, res) => {
+  res.render("app/ui-teste", {
+    active: "dashboard",
+    userNome: req.session.userNome,
+    userFoto: req.session.userFoto
+  });
+});
+
 module.exports = router;

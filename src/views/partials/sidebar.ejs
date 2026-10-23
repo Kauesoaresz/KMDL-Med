@@ -1,86 +1,41 @@
-<button class="hamburger" id="hamburger" aria-label="Abrir Menu">
-  <span></span>
-  <span></span>
-  <span></span>
+<button class="hamburger" id="hamburger" aria-label="Abrir menu">
+  <span></span><span></span><span></span>
 </button>
-
 <div class="overlay" id="overlay"></div>
 
 <aside class="sidebar" id="sidebar">
 
   <div class="sidebar-brand">
     <a href="/dashboard">
-      <img src="/public/img/Logo sistema.png" class="logo">
+      <img src="/public/img/Logo sistema.png" class="logo" alt="">
       <span>KMDL Med</span>
     </a>
   </div>
 
   <nav class="sidebar-menu">
-  <a href="/dashboard" class="item <%= active === 'dashboard' ? 'active' : '' %>"><span>🏠</span><p>Dashboard</p></a>
-  <a href="/registrar" class="item <%= active === 'registrar' ? 'active' : '' %>"><span>✍️</span><p>Registrar</p></a>
-  <a href="/estatisticas" class="item <%= active === 'estatisticas' ? 'active' : '' %>"><span>📊</span><p>Estatísticas</p></a>
-  <a href="/calendario" class="item <%= active === 'calendario' ? 'active' : '' %>"><span>📅</span><p>Calendário</p></a>
-  <a href="/simulados" class="item <%= active === 'simulados' ? 'active' : '' %>"><span>📘</span><p>Simulados</p></a>
-  <a href="/conteudos" class="item <%= active === 'conteudos' ? 'active' : '' %>"><span>📚</span><p>Conteúdos</p></a>
-</nav>
+    <a href="/dashboard"    class="item <%= active === 'dashboard'    ? 'active' : '' %>"><span>🏠</span><p>Dashboard</p></a>
+    <a href="/registrar"    class="item <%= active === 'registrar'    ? 'active' : '' %>"><span>✍️</span><p>Registrar</p></a>
+    <a href="/simulados"    class="item <%= active === 'simulados'    ? 'active' : '' %>"><span>📘</span><p>Simulados</p></a>
+    <a href="/calendario"   class="item <%= active === 'calendario'   ? 'active' : '' %>"><span>📅</span><p>Calendário</p></a>
+    <a href="/estatisticas" class="item <%= active === 'estatisticas' ? 'active' : '' %>"><span>📊</span><p>Estatísticas</p></a>
+    <a href="/metas"        class="item <%= active === 'metas'        ? 'active' : '' %>"><span>🎯</span><p>Metas</p></a>
+    <a href="/conteudos"    class="item <%= active === 'conteudos'    ? 'active' : '' %>"><span>📚</span><p>Conteúdos</p></a>
+  </nav>
 
   <div class="sidebar-footer">
-
-    <button class="theme-toggle" id="themeToggle" aria-label="Alternar Tema">
-      <span class="theme-icon theme-icon-dark">🌙</span>
-      <span class="theme-icon theme-icon-light">☀️</span>
-      <p class="theme-label">Modo</p>
+    <button class="item" id="themeToggle" type="button" aria-label="Alternar tema">
+      <span class="theme-icon">🌙</span>
+      <p class="theme-label">Tema escuro</p>
     </button>
 
-    <a href="/perfil" class="item profile">
-      <img src="<%= userFoto || '/public/img/avatar-default.png' %>">
+    <a href="/perfil" class="item profile <%= active === 'perfil' ? 'active' : '' %>">
+      <img src="<%= userFoto || '/public/img/avatar-default.png' %>" alt="">
       <p><%= userNome || 'Usuário' %></p>
     </a>
 
-    <a href="/logout" class="item logout">
-      <span>🚪</span>
-      <p>Sair</p>
-    </a>
-
+    <a href="/logout" class="item logout"><span>🚪</span><p>Sair</p></a>
   </div>
 
 </aside>
 
 <script src="/public/js/app/sidebar.js"></script>
-
-<script>
-  (function() {
-    const toggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    
-    // Check for saved theme preference or default to dark
-    const savedTheme = localStorage.getItem('kmed-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const currentTheme = savedTheme || (prefersDark ? 'dark' : 'dark');
-    
-    // Apply theme on load
-    if (currentTheme === 'light') {
-      html.setAttribute('data-theme', 'light');
-    }
-    
-    // Remove no-transition class after load
-    window.addEventListener('load', function() {
-      document.body.classList.remove('no-transition');
-    });
-    
-    // Toggle click handler
-    if (toggle) {
-      toggle.addEventListener('click', function() {
-        const isLight = html.getAttribute('data-theme') === 'light';
-        
-        if (isLight) {
-          html.removeAttribute('data-theme');
-          localStorage.setItem('kmed-theme', 'dark');
-        } else {
-          html.setAttribute('data-theme', 'light');
-          localStorage.setItem('kmed-theme', 'light');
-        }
-      });
-    }
-  })();
-</script>

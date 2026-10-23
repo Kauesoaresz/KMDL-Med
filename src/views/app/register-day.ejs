@@ -1,128 +1,131 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMDL Med | Registrar Novo Dia</title>
-
-  <!-- Prevent flash of wrong theme -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('kmed-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (!savedTheme && !prefersDark || savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    })();
-  </script>
-
-  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/app/register-day.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <%- include("../partials/head", { title: editing ? "Editar dia" : "Registrar estudo", css: ["registrar"] }) %>
 </head>
 <body class="page-bg">
 
-<%- include("../partials/sidebar", { active: "registrar", userNome }) %>
+<%- include("../partials/sidebar", { active: "registrar", userNome, userFoto }) %>
 
 <main class="with-sidebar">
   <div class="page">
-    <h1>Registrar novo dia</h1>
-    <a href="/registrar" class="btn-back">← Voltar</a>
 
-    <form method="POST" action="/registrar/novo" id="form-dia">
+    <header class="page-header">
+      <div>
+        <h1><%= editing ? "Editar dia" : "Registrar estudo" %></h1>
+        <p id="date-label" class="date-label"></p>
+      </div>
+      <a href="/registrar/lista" class="btn">📚 Dias registrados</a>
+    </header>
 
-      <label>Data</label>
-      <input type="text" name="data" id="data-input" value="<%= hoje %>">
+    <form id="form-dia" method="POST" autocomplete="off"
+          action="<%= editing ? '/registrar/editar/' + data : '/registrar/novo' %>">
+      <input type="hidden" name="data" id="f-data" value="<%= data %>">
+      <div id="hidden"></div>
 
-      <div id="blocos"></div>
+      <div class="reg-layout">
 
-      <button type="button" class="btn-add" onclick="addBloco()">+ Adicionar bloco</button>
+        <!-- ============ LATERAL ============ -->
+        <aside class="reg-side">
 
-      <br><br>
-      <button type="submit" class="btn-primary">Salvar dia</button>
+          <% if (!editing) { %>
+          <div class="card cal-card">
+            <div class="cal-head">
+              <button type="button" class="cal-nav" id="cal-prev" aria-label="Mês anterior">‹</button>
+              <strong id="cal-title"></strong>
+              <button type="button" class="cal-nav" id="cal-next" aria-label="Próximo mês">›</button>
+            </div>
+            <div class="cal-week"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+            <div class="cal-days" id="cal-days"></div>
+            <div class="cal-quick">
+              <button type="button" class="btn btn-sm" id="q-hoje">Hoje</button>
+              <button type="button" class="btn btn-sm" id="q-ontem">Ontem</button>
+            </div>
+            <div class="alert alert-warn dup" id="dup" hidden>
+              Este dia já tem registro e será <strong>substituído</strong>.
+              <a href="#" id="dup-link">Editar este dia →</a>
+            </div>
+          </div>
+          <% } %>
+
+          <div class="card save-card">
+            <div class="sum-grid">
+              <div><small>Tempo</small><strong class="num" id="s-tempo">0min</strong></div>
+              <div><small>Questões</small><strong class="num" id="s-q">0</strong></div>
+              <div><small>Acertos</small><strong class="num" id="s-a">0</strong></div>
+              <div><small>Aproveit.</small><strong class="num" id="s-pct">—</strong></div>
+            </div>
+            <div class="alert alert-error" id="f-err" hidden></div>
+            <button type="submit" class="btn-primary btn-save" id="btn-save">💾 Salvar dia</button>
+            <small class="faint center">Ctrl + Enter também salva</small>
+          </div>
+        </aside>
+
+        <!-- ============ PRINCIPAL ============ -->
+        <section class="reg-main">
+
+          <div class="card composer">
+            <div class="band">
+              <div class="band-label">Matéria</div>
+              <div class="chip-grid" id="subj-chips"></div>
+            </div>
+
+            <div class="band">
+              <div class="band-label">Tópico <span class="faint">(opcional)</span></div>
+              <div class="chip-grid topics-box" id="topic-chips"></div>
+            </div>
+
+            <div class="band band-fields off" id="comp-fields">
+              <div class="field-block">
+                <div class="band-label">Tempo</div>
+                <div class="time-display">
+                  <input type="number" id="t-h" min="0" value="0" aria-label="Horas"><span>h</span>
+                  <input type="number" id="t-m" min="0" max="59" value="0" aria-label="Minutos"><span>min</span>
+                </div>
+                <div class="quick">
+                  <button type="button" class="btn btn-sm" data-add="15">+15</button>
+                  <button type="button" class="btn btn-sm" data-add="30">+30</button>
+                  <button type="button" class="btn btn-sm" data-add="60">+1h</button>
+                  <button type="button" class="btn btn-sm" data-add="120">+2h</button>
+                  <button type="button" class="btn-ghost btn-sm" id="t-reset">Zerar</button>
+                </div>
+              </div>
+
+              <div class="field-block">
+                <div class="band-label">Questões <span class="faint">(opcional)</span></div>
+                <div class="qa-row">
+                  <input type="number" id="c-q" min="0" placeholder="Feitas" aria-label="Questões feitas">
+                  <input type="number" id="c-a" min="0" placeholder="Acertos" aria-label="Acertos">
+                  <span class="badge" id="c-pct">—</span>
+                </div>
+                <div class="alert alert-error" id="c-err" hidden></div>
+              </div>
+
+              <button type="button" class="btn-primary btn-add" id="c-add">＋ Adicionar<br><small>Enter</small></button>
+            </div>
+          </div>
+
+          <div class="card blocks-card">
+            <div class="section-header">
+              <h2 class="card-heading">Blocos do dia</h2>
+              <span class="badge" id="count">0</span>
+            </div>
+            <div id="blocks" class="blocks"></div>
+          </div>
+
+        </section>
+      </div>
     </form>
+
   </div>
 </main>
 
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
 <script>
-  flatpickr("#data-input", {
-    inline: true,
-    locale: "pt",
-    dateFormat: "Y-m-d",
-    defaultDate: "<%= hoje %>"
-  });
+  window.REG = <%- JSON.stringify({
+    subjects, entries, registered: diasRegistrados, hoje, data, editing
+  }).replace(/</g, "\\u003c") %>;
 </script>
-
-<script>
-const subjects = <%- JSON.stringify(subjects) %>;
-let blocoIndex = 0;
-
-function addBloco() {
-  const idx = blocoIndex++;
-
-  const bloco = document.createElement("div");
-  bloco.className = "bloco";
-
-  bloco.innerHTML = `
-    <button type="button" class="btn-remove" onclick="this.closest('.bloco').remove()">🗑</button>
-
-    <select name="blocos[${idx}][subject_id]" class="subject-select" required>
-      <option value="">Selecione a disciplina</option>
-      ${subjects.map(s => `<option value="${s.id}">${s.nome}</option>`).join("")}
-    </select>
-
-    <select name="blocos[${idx}][topic_id]" class="topic-select" disabled>
-      <option value="">Tópico (opcional)</option>
-    </select>
-
-    <div class="linha-numeros">
-      <div class="input-group time-input">
-        <input type="number" name="blocos[${idx}][horas]" placeholder="Horas" min="0" value="0" required>
-        <span class="time-separator">:</span>
-        <input type="number" name="blocos[${idx}][minutos]" placeholder="Min" min="0" max="59" value="0" required>
-      </div>
-      <input type="number" name="blocos[${idx}][questoes]" placeholder="Questões">
-      <input type="number" name="blocos[${idx}][acertos]" placeholder="Acertos">
-
-    </div>
-  `;
-
-  const subjectSelect = bloco.querySelector(".subject-select");
-  const topicSelect = bloco.querySelector(".topic-select");
-
-  // DISCIPLINA → TÓPICOS
-  subjectSelect.addEventListener("change", async () => {
-    const subjectId = subjectSelect.value;
-
-    topicSelect.innerHTML = `<option>Carregando...</option>`;
-    topicSelect.disabled = true;
-
-    if (!subjectId) {
-      topicSelect.innerHTML = `<option value="">Tópico (opcional)</option>`;
-      return;
-    }
-
-    const res = await fetch(`/api/subjects/${subjectId}/topics`);
-    const topics = await res.json();
-
-    topicSelect.innerHTML = `<option value="">Tópico (opcional)</option>`;
-    topics.forEach(t => {
-      topicSelect.innerHTML += `<option value="${t.id}">${t.nome}</option>`;
-    });
-
-    topicSelect.disabled = false;
-  });
-
-  document.getElementById("blocos").appendChild(bloco);
-}
-
-addBloco();
-</script>
+<script src="/public/js/app/registrar.js"></script>
 
 </body>
 </html>

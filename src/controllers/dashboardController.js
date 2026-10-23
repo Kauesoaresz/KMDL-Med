@@ -46,11 +46,10 @@ const PERIODOS = [
   { key: "total", label: "Total" },
 ];
 
-const PALETA = [
-  "#2ee59d", "#4da3ff", "#f0c75e", "#a78bfa", "#ef4444",
-  "#22c55e", "#f59e0b", "#ec4899", "#14b8a6", "#8b5cf6",
-  "#f97316", "#06b6d4",
-];
+// matiz estável por matéria (ângulo áureo: nunca repete, não importa quantas)
+function hueDe(i) {
+  return Math.round((245 + i * 137.508) % 360);
+}
 
 /* =========================
    STREAK (todos os dias)
@@ -203,12 +202,15 @@ exports.dashboard = async (req, res) => {
     raw: true,
   });
 
-  const ids = porMateriaRaw.map((r) => r.subject_id);
-  const subjects = ids.length
-    ? await Subject.findAll({ where: { id: ids }, attributes: ["id", "nome"], raw: true })
-    : [];
+  const subjects = await Subject.findAll({
+    where: { user_id: userId },
+    attributes: ["id", "nome"],
+    order: [["id", "ASC"]],
+    raw: true,
+  });
   const nomePorId = {};
-  subjects.forEach((s) => { nomePorId[s.id] = s.nome; });
+  const idxPorId = {};
+  subjects.forEach((s, i) => { nomePorId[s.id] = s.nome; idxPorId[s.id] = i; });
 
   const materias = porMateriaRaw
     .map((r) => {
@@ -227,7 +229,7 @@ exports.dashboard = async (req, res) => {
     .sort((x, y) => y.horas - x.horas);
 
   // mesma cor da matéria nos dois gráficos
-  materias.forEach((m, i) => { m.cor = PALETA[i % PALETA.length]; });
+  materias.forEach((m) => { m.hue = hueDe(idxPorId[m.id] ?? 0); });
 
   const fatia = (campo) => {
     const lista = materias
@@ -239,7 +241,7 @@ exports.dashboard = async (req, res) => {
       itens: lista.map((m) => ({
         nome: m.nome,
         valor: m[campo],
-        cor: m.cor,
+        hue: m.hue,
         share: pct(m[campo], total),
       })),
     };

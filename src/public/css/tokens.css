@@ -1,0 +1,136 @@
+/* =====================================================
+   TOKENS: o único lugar com cores e medidas do site
+   Escuro = padrão | Claro = [data-theme="light"]
+===================================================== */
+:root {
+  color-scheme: dark;
+
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* superfícies */
+  --bg: #14151a;
+  --bg-sidebar: #101115;
+  --surface: #1b1c22;
+  --surface-2: #22232a;
+  --surface-hover: #292a33;
+
+  /* bordas */
+  --border: #2a2c35;
+  --border-strong: #3a3c49;
+
+  /* texto */
+  --text: #e9eaee;
+  --text-muted: #a0a3af;
+  --text-faint: #6c6f7c;
+
+  /* destaque (marca) */
+  --accent: #6366f1;
+  --accent-hover: #7c7ff5;
+  --accent-soft: rgba(99, 102, 241, 0.16);
+  --accent-text: #a5a8fb;
+  --on-accent: #ffffff;
+
+  /* semânticas */
+  --ok: #34d399;
+  --ok-soft: rgba(52, 211, 153, 0.16);
+  --err: #f87171;
+  --err-soft: rgba(248, 113, 113, 0.16);
+  --warn: #fbbf24;
+  --warn-soft: rgba(251, 191, 36, 0.16);
+  --info: #60a5fa;
+  --info-soft: rgba(96, 165, 250, 0.16);
+  --skip: #7b7e8c;
+  --skip-soft: rgba(123, 126, 140, 0.2);
+
+  /* paleta de gráficos (pizzas etc.) */
+  --chart-1: #6366f1;
+  --chart-2: #34d399;
+  --chart-3: #fbbf24;
+  --chart-4: #f472b6;
+  --chart-5: #60a5fa;
+  --chart-6: #fb923c;
+  --chart-7: #a78bfa;
+  --chart-8: #2dd4bf;
+  --chart-s: 70%;
+  --chart-l: 62%;
+
+  /* espaçamento */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  /* raios */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  /* sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+  /* tipografia */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2rem;
+
+  /* layout */
+  --sidebar-w: 248px;
+  --ease: 150ms ease;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f6f8;
+  --bg-sidebar: #fbfbfc;
+  --surface: #ffffff;
+  --surface-2: #f1f1f5;
+  --surface-hover: #e9e9ef;
+
+  --border: #e3e3ea;
+  --border-strong: #cfcfda;
+
+  --text: #1c1d23;
+  --text-muted: #5f6270;
+  --text-faint: #8e91a0;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: rgba(79, 70, 229, 0.1);
+  --accent-text: #4338ca;
+  --on-accent: #ffffff;
+
+  --ok: #059669;
+  --ok-soft: rgba(5, 150, 105, 0.12);
+  --err: #dc2626;
+  --err-soft: rgba(220, 38, 38, 0.1);
+  --warn: #b45309;
+  --warn-soft: rgba(217, 119, 6, 0.14);
+  --info: #2563eb;
+  --info-soft: rgba(37, 99, 235, 0.1);
+  --skip: #8e91a0;
+  --skip-soft: rgba(142, 145, 160, 0.18);
+
+  --chart-1: #4f46e5;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ec4899;
+  --chart-5: #3b82f6;
+  --chart-6: #f97316;
+  --chart-7: #8b5cf6;
+  --chart-8: #14b8a6;
+  --chart-s: 65%;
+  --chart-l: 46%;
+
+  --shadow-sm: 0 1px 2px rgba(20, 20, 40, 0.06);
+  --shadow-md: 0 6px 20px rgba(20, 20, 40, 0.08);
+  --shadow-modal: 0 24px 60px rgba(20, 20, 40, 0.25);
+}

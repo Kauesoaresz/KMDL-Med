@@ -15,33 +15,52 @@ async function getGeralTopicId(userId, subjectId) {
   return topic.id;
 }
 
+// matérias + tópicos num objeto só, com a mesma cor (hue) do dashboard
+async function subjectsWithTopics(userId) {
+  const subjects = await Subject.findAll({ where: { user_id: userId }, order: [["id", "ASC"]], raw: true });
+  const topics = await Topic.findAll({ where: { user_id: userId }, order: [["nome", "ASC"]], raw: true });
+
+  return subjects
+    .map((s, i) => ({
+      id: s.id,
+      nome: s.nome,
+      hue: Math.round((245 + i * 137.508) % 360),
+      topics: topics.filter((t) => t.subject_id === s.id).map((t) => ({ id: t.id, nome: t.nome })),
+    }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+}
+
+function hojeLocalISO() {
+  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD no fuso local
+}
+
 // =========================
 // HUB /registrar
 // =========================
-exports.hub = async (req, res) => {
-  res.render("app/register-hub", {
-    active: "registrar",
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto
-  });
-};
+exports.hub = (req, res) => res.redirect("/registrar/novo");
 
 // =========================
 // REGISTRAR NOVO DIA
 // =========================
 exports.registerPage = async (req, res) => {
   const userId = req.session.userId;
+  const hoje = hojeLocalISO();
 
-  const subjects = await Subject.findAll({
+  const subjects = await subjectsWithTopics(userId);
+  const dias = await StudyEntry.findAll({
     where: { user_id: userId },
-    order: [["nome", "ASC"]]
+    attributes: ["data"],
+    group: ["data"],
+    raw: true
   });
-
-  const hoje = new Date().toISOString().slice(0, 10);
 
   res.render("app/register-day", {
     subjects,
+    entries: [],
+    editing: false,
+    data: hoje,
     hoje,
+    diasRegistrados: dias.map((d) => d.data),
     active: "registrar",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto
@@ -143,56 +162,34 @@ exports.editPage = async (req, res) => {
   const userId = req.session.userId;
   const data = req.params.data;
 
-  const subjects = await Subject.findAll({
-    where: { user_id: userId },
-    order: [["nome", "ASC"]]
-  });
-
-  const entriesRaw = await StudyEntry.findAll({
+  const rows = await StudyEntry.findAll({
     where: { user_id: userId, data },
     order: [["id", "ASC"]],
-    include: [
-      {
-        model: Subject,
-        as: "subject",
-        attributes: ["id", "nome"]
-      },
-      {
-        model: Topic,
-        as: "topic",
-        attributes: ["id", "nome"]
-      }
-    ]
+    raw: true
   });
 
-  if (!entriesRaw.length) {
-    return res.redirect("/registrar/lista");
-  }
+  if (!rows.length) return res.redirect("/registrar/lista");
 
-  // 🔥 formata exatamente como o front espera (converte horas para minutos)
-  const entries = entriesRaw.map(e => ({
+  const entries = rows.map((e) => ({
     subject_id: e.subject_id,
-    subject_nome: e.subject?.nome || "",
-
     topic_id: e.topic_id,
-    topic_nome: e.topic?.nome || "",
-
-    minutos: Math.round(e.horas * 60), // Converter horas para minutos
-    horas: e.horas,
+    minutos: Math.round(Number(e.horas) * 60),
     questoes: e.questoes,
-    acertos: e.acertos,
+    acertos: e.acertos
   }));
 
-  res.render("app/register-edit", {
-    data,
-    subjects,
+  res.render("app/register-day", {
+    subjects: await subjectsWithTopics(userId),
     entries,
+    editing: true,
+    data,
+    hoje: hojeLocalISO(),
+    diasRegistrados: [],
     active: "registrar",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto
   });
 };
-
 
 // =========================
 // SALVAR EDIÇÃO

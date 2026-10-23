@@ -1,123 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>KMed | Dias Registrados</title>
-
-  <!-- Prevent flash of wrong theme -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('kmed-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (!savedTheme && !prefersDark || savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    })();
-  </script>
-
-  <link rel="stylesheet" href="/public/css/components/global-responsive.css">
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-  <link rel="stylesheet" href="/public/css/app/register-list.css" />
+  <%- include("../partials/head", { title: "Dias registrados", css: ["registrar"] }) %>
 </head>
-
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", { 
-    active: "registrar", 
-    userNome 
-  }) %>
+<%- include("../partials/sidebar", { active: "registrar", userNome, userFoto }) %>
 
-  <main class="with-sidebar">
-    <div class="page">
+<main class="with-sidebar">
+  <div class="page">
 
-      <h1>Dias registrados</h1>
-      <a href="/registrar" class="btn-back">← Voltar</a>
+    <%
+      const meses = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+      const totH = dias.reduce((s, d) => s + d.total_horas, 0);
+      const totQ = dias.reduce((s, d) => s + d.total_questoes, 0);
+      const totA = dias.reduce((s, d) => s + d.total_acertos, 0);
+      const fmtH = (h) => { const hi = Math.floor(h); return hi + "h " + Math.round((h - hi) * 60) + "min"; };
+    %>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Horas</th>
-            <th>Questões</th>
-            <th>Acertos</th>
-            <th>%</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+    <header class="page-header">
+      <div>
+        <h1>Dias registrados</h1>
+        <p>Veja, edite ou exclua seus dias de estudo.</p>
+      </div>
+      <a href="/registrar/novo" class="btn-primary">＋ Registrar dia</a>
+    </header>
 
-        <tbody>
-          <% if (dias.length === 0) { %>
-            <tr class="empty">
-              <td colspan="6">Nenhum dia registrado</td>
-            </tr>
-          <% } %>
+    <section class="grid-4">
+      <div class="card kpi"><h3>Dias</h3><p class="value"><%= dias.length %></p></div>
+      <div class="card kpi"><h3>Tempo total</h3><p class="value"><%= fmtH(totH) %></p></div>
+      <div class="card kpi"><h3>Questões</h3><p class="value"><%= totQ %></p></div>
+      <div class="card kpi"><h3>Acerto geral</h3><p class="value"><%= totQ > 0 ? Math.round(totA / totQ * 100) + "%" : "—" %></p></div>
+    </section>
 
-          <% dias.forEach(d => { 
-            const percent = d.total_questoes > 0
-              ? ((d.total_acertos / d.total_questoes) * 100).toFixed(1)
-              : 0;
-
-            const percentClass =
-              percent >= 85 ? "good" :
-              percent >= 70 ? "medium" :
-              "bad";
-
-            // 🔥 FORMATAÇÃO SEGURA DA DATA (SEM Date())
-            const [year, month, day] = d.data.split("-");
-            const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-            const mesLabel = meses[parseInt(month, 10) - 1];
-          %>
-
-            <tr>
-              <td data-label="Data">
-                <strong style="font-size:1rem">
-                  <%= `${day} ${mesLabel} ${year}` %>
-                </strong>
-
-                <% if (d.materias && d.materias.length) { %>
-                  <div style="font-size:.7rem;opacity:.6;margin-top:2px">
-                    <%= d.materias.join(", ") %>
+    <% if (dias.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <h3>Nenhum dia registrado</h3>
+        <p>Comece registrando o estudo de hoje.</p>
+      </div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Data</th><th>Tempo</th><th>Questões</th><th>Acertos</th><th>Taxa</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% dias.forEach(d => {
+              const p = d.total_questoes > 0 ? Math.round(d.total_acertos / d.total_questoes * 100) : null;
+              const [y, m, dd] = d.data.split("-");
+            %>
+              <tr>
+                <td>
+                  <strong><%= dd %> <%= meses[parseInt(m, 10) - 1] %> <%= y %></strong>
+                  <% if (d.materias && d.materias.length) { %>
+                    <div class="faint" style="font-size: var(--fs-xs);"><%= d.materias.join(", ") %></div>
+                  <% } %>
+                </td>
+                <td><%= fmtH(d.total_horas) %></td>
+                <td><%= d.total_questoes %></td>
+                <td><%= d.total_acertos %></td>
+                <td>
+                  <% if (p !== null) { %>
+                    <span class="badge <%= p >= 70 ? 'badge-ok' : p >= 50 ? 'badge-warn' : 'badge-err' %>"><%= p %>%</span>
+                  <% } else { %><span class="faint">—</span><% } %>
+                </td>
+                <td>
+                  <div class="row" style="justify-content:flex-end; flex-wrap:nowrap;">
+                    <a href="/registrar/editar/<%= d.data %>" class="btn btn-sm">✏️ Editar</a>
+                    <form method="POST" action="/registrar/excluir/<%= d.data %>" class="inline-form"
+                          onsubmit="return confirm('Excluir este dia?')">
+                      <button type="submit" class="btn-danger btn-sm">🗑</button>
+                    </form>
                   </div>
-                <% } %>
-              </td>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
 
-              <td data-label="Horas">
-                <% 
-                  const horas = d.total_horas;
-                  const horasInt = Math.floor(horas);
-                  const minutos = Math.round((horas - horasInt) * 60);
-                %>
-                <%= horasInt %>h <%= minutos %>min
-              </td>
-              <td data-label="Questões"><%= d.total_questoes %></td>
-              <td data-label="Acertos"><%= d.total_acertos %></td>
-
-              <td data-label="%">
-                <span class="percent <%= percentClass %>">
-                  <%= percent %>%
-                </span>
-              </td>
-
-              <td data-label="Ações" class="actions">
-                <a href="/registrar/editar/<%= d.data %>">✏️ Editar</a>
-
-                <form 
-                  method="POST" 
-                  action="/registrar/excluir/<%= d.data %>" 
-                  onsubmit="return confirm('Deseja realmente excluir este dia?')">
-                  <button type="submit">🗑 Excluir</button>
-                </form>
-              </td>
-            </tr>
-
-          <% }) %>
-        </tbody>
-      </table>
-
-    </div>
-  </main>
+  </div>
+</main>
 
 </body>
 </html>

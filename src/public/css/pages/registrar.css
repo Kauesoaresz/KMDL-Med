@@ -1,0 +1,145 @@
+/* =====================================================
+   REGISTRAR (novo / editar / lista)
+===================================================== */
+[hidden] { display: none !important; }
+
+.date-label { text-transform: capitalize; }
+.center { text-align: center; display: block; }
+.card-heading { font-size: var(--fs-base); }
+.empty-note { padding: var(--s-4) 0; text-align: center; }
+
+/* ---------- layout ---------- */
+.reg-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: start;
+}
+.reg-side { position: sticky; top: var(--s-5); display: flex; flex-direction: column; gap: var(--s-3); }
+.reg-main { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+
+@media (max-width: 1000px) {
+  .reg-layout { grid-template-columns: 1fr; }
+  .reg-side { position: static; }
+}
+
+/* ---------- calendário compacto ---------- */
+.cal-card, .save-card { padding: var(--s-4); }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2); }
+.cal-head strong { text-transform: capitalize; font-size: var(--fs-sm); }
+.cal-nav {
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text); cursor: pointer; line-height: 1;
+}
+.cal-nav:hover { background: var(--surface-hover); }
+
+.cal-week, .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-week span { text-align: center; font-size: 0.6875rem; font-weight: 600; color: var(--text-faint); padding: 2px 0; }
+
+.cal-day {
+  position: relative; height: 32px;
+  border: 1px solid transparent; border-radius: var(--r-sm);
+  background: none; color: var(--text); padding: 0;
+  font-size: var(--fs-sm); font-variant-numeric: tabular-nums; cursor: pointer;
+  transition: background var(--ease);
+}
+.cal-day:hover:not(:disabled) { background: var(--surface-hover); }
+.cal-day.today { border-color: var(--border-strong); }
+.cal-day.sel { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.cal-day.has::after {
+  content: ""; position: absolute; bottom: 3px; left: 50%;
+  width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--ok);
+}
+.cal-day.sel.has::after { background: var(--on-accent); }
+.cal-day:disabled { opacity: .28; cursor: default; }
+.cal-day.empty { visibility: hidden; }
+
+.cal-quick { display: flex; gap: var(--s-2); margin-top: var(--s-3); }
+.dup { margin-top: var(--s-3); display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); }
+
+/* ---------- resumo + salvar ---------- */
+.save-card { display: flex; flex-direction: column; gap: var(--s-3); }
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+.sum-grid div { background: var(--surface-2); border-radius: var(--r-md); padding: var(--s-2) var(--s-3); }
+.sum-grid small { display: block; font-size: 0.6875rem; color: var(--text-faint); }
+.sum-grid strong { font-size: var(--fs-base); }
+.btn-save { width: 100%; padding: 11px 14px; font-size: var(--fs-base); }
+
+/* ---------- composer ---------- */
+.composer { padding: 0; overflow: hidden; }
+.band { padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--border); }
+.band:last-child { border-bottom: none; }
+.band-label {
+  font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--text-faint); margin-bottom: var(--s-2);
+}
+
+.chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.topics-box { min-height: 74px; max-height: 118px; overflow-y: auto; align-content: flex-start; }
+.hint { color: var(--text-faint); font-size: var(--fs-sm); padding: 6px 0; }
+
+.pick {
+  --c: hsl(var(--h, 245) var(--chart-s) var(--chart-l));
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 11px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--fs-sm); font-weight: 500; cursor: pointer;
+  transition: background var(--ease), border-color var(--ease), transform var(--ease);
+}
+.pick i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+.pick:hover { border-color: var(--border-strong); background: var(--surface-hover); }
+.pick:active { transform: scale(.97); }
+.pick.on {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 20%, transparent);
+  font-weight: 600;
+}
+
+/* ---------- tempo + questões + adicionar ---------- */
+.band-fields {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--s-5);
+  align-items: end;
+  transition: opacity var(--ease);
+}
+.band-fields.off { opacity: .4; pointer-events: none; }
+.field-block { display: flex; flex-direction: column; gap: var(--s-2); }
+
+.time-display { display: flex; align-items: baseline; gap: 6px; }
+.time-display input {
+  width: 68px; padding: 6px; text-align: center;
+  font-size: var(--fs-xl); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.time-display span { color: var(--text-muted); font-weight: 600; font-size: var(--fs-sm); }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.qa-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--s-2); align-items: center; max-width: 340px; }
+.qa-row input { padding: 11px 12px; font-size: var(--fs-base); font-variant-numeric: tabular-nums; }
+.qa-row .badge { padding: 8px 12px; font-size: var(--fs-sm); min-width: 52px; justify-content: center; }
+
+.btn-add { height: 64px; padding: 0 var(--s-5); flex-direction: column; gap: 0; line-height: 1.2; }
+.btn-add small { font-size: 0.6875rem; opacity: .75; font-weight: 500; }
+
+@media (max-width: 1250px) {
+  .band-fields { grid-template-columns: 1fr 1fr; }
+  .btn-add { grid-column: 1 / -1; height: 44px; flex-direction: row; gap: var(--s-2); }
+}
+
+/* ---------- blocos do dia ---------- */
+.blocks-card { padding: var(--s-4) var(--s-5); display: flex; flex-direction: column; gap: var(--s-3); }
+.blocks { display: flex; flex-direction: column; gap: 6px; }
+.block {
+  --c: hsl(var(--h, 245) var(--chart-s) var(--chart-l));
+  display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap;
+  padding: var(--s-2) var(--s-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border); border-left: 3px solid var(--c);
+  border-radius: var(--r-md);
+}
+.block-main { flex: 1; min-width: 160px; }
+.block-actions { display: flex; gap: 2px; margin-left: auto; }
