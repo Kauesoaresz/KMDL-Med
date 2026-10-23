@@ -795,3 +795,123 @@
   }
 }
 
+/* =====================================================
+   NOVOS: botão do dia, modos, lendário, modal
+   ===================================================== */
+
+/* o dia agora é <button> */
+button.kmed-cal-day {
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+button.kmed-cal-day:disabled { cursor: default; }
+
+/* alternador de modos */
+.cal-modes { display: flex; gap: 8px; flex-wrap: wrap; }
+.cal-modes button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #1f2330);
+  background: var(--bg-tertiary, #101216);
+  color: var(--text-secondary, #9aa1ad);
+  font: inherit; font-size: .85rem; cursor: pointer;
+}
+.cal-modes button.active {
+  color: var(--text-primary, #e5e7eb);
+  border-color: var(--accent, #8bbcff);
+  font-weight: 700;
+}
+
+/* ícone do modo lendário (só aparece nele) */
+.kmed-cal-day .day-icon {
+  position: absolute; top: 4px; right: 6px;
+  font-size: 1rem; pointer-events: none; display: none;
+}
+.kmed-calendar-grid.mode-lendario .day-icon { display: block; }
+
+/* ---- níveis lendário (dark) ---- */
+.kmed-cal-day.lv0 { background: var(--bg-secondary, #0f1116); color: var(--text-muted, #6b7280); }
+.kmed-cal-day.lv1 { background: #3f1d1d; color: #fca5a5; }
+.kmed-cal-day.lv2 { background: #5f2a1a; color: #fdba74; }
+.kmed-cal-day.lv3 { background: #7c4a03; color: #fde047; }
+.kmed-cal-day.lv4 { background: #6b7020; color: #bef264; }
+.kmed-cal-day.lv5 { background: #365314; color: #86efac; }
+.kmed-cal-day.lv6 { background: #14532d; color: #4ade80; }
+.kmed-cal-day.lv7 { background: #064e3b; color: #34d399; border: 1px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,.45); }
+.kmed-cal-day.lv8 {
+  background: linear-gradient(135deg, #1e1b4b, #4338ca);
+  color: #fff; border: 1px solid #818cf8;
+  box-shadow: 0 0 15px rgba(99,102,241,.5);
+}
+
+/* ---- níveis lendário (light) ---- */
+[data-theme="light"] .kmed-cal-day.lv0 { background: #e2e8f0; color: #64748b; border-color: #cbd5e1; }
+[data-theme="light"] .kmed-cal-day.lv1 { background: #ef4444; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv2 { background: #f97316; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv3 { background: #eab308; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv4 { background: #84cc16; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv5 { background: #22c55e; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv6 { background: #16a34a; color: #fff; }
+[data-theme="light"] .kmed-cal-day.lv7 { background: #0d9488; color: #fff; border-color: #f59e0b; }
+[data-theme="light"] .kmed-cal-day.lv8 { background: linear-gradient(135deg, #4338ca, #6366f1); color: #fff; }
+
+/* ---- legenda do lendário ---- */
+.kmed-calendar-legend .lv0 { background: var(--bg-secondary, #0f1116); }
+.kmed-calendar-legend .lv1 { background: #3f1d1d; }
+.kmed-calendar-legend .lv2 { background: #5f2a1a; }
+.kmed-calendar-legend .lv3 { background: #7c4a03; }
+.kmed-calendar-legend .lv4 { background: #6b7020; }
+.kmed-calendar-legend .lv5 { background: #365314; }
+.kmed-calendar-legend .lv6 { background: #14532d; }
+.kmed-calendar-legend .lv7 { background: #064e3b; }
+.kmed-calendar-legend .lv8 { background: linear-gradient(135deg, #1e1b4b, #4338ca); }
+[data-theme="light"] .kmed-calendar-legend .lv1 { background: #ef4444; }
+[data-theme="light"] .kmed-calendar-legend .lv2 { background: #f97316; }
+[data-theme="light"] .kmed-calendar-legend .lv3 { background: #eab308; }
+[data-theme="light"] .kmed-calendar-legend .lv4 { background: #84cc16; }
+[data-theme="light"] .kmed-calendar-legend .lv5 { background: #22c55e; }
+[data-theme="light"] .kmed-calendar-legend .lv6 { background: #16a34a; }
+[data-theme="light"] .kmed-calendar-legend .lv7 { background: #0d9488; }
+[data-theme="light"] .kmed-calendar-legend .lv8 { background: linear-gradient(135deg, #4338ca, #6366f1); }
+.kmed-calendar-legend em { opacity: .6; font-style: normal; }
+
+/* ---- resumo: 6 cards + diagnóstico ---- */
+.kmed-month-summary .sub-inline { font-size: .75rem; font-weight: 500; opacity: .7; }
+.kmed-month-summary > .diag { grid-column: 1 / -1; }
+.kmed-month-summary .diag-text { font-size: .85rem; color: var(--text-secondary, #9aa1ad); line-height: 1.4; }
+.kmed-month-summary .diag-alerta strong { color: #ef4444; }
+.kmed-month-summary .diag-medio strong { color: #eab308; }
+
+/* ---- modal ---- */
+.cal-modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.65); align-items: center; justify-content: center;
+}
+.cal-modal-bg.open { display: flex; }
+.cal-modal-box {
+  position: relative; width: 92%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+  background: var(--bg-card, #14161a); color: var(--text-primary, #eaeaea);
+  border: 1px solid var(--border-color, #1f2229); border-radius: 16px; padding: 22px;
+}
+.cal-modal-close {
+  position: absolute; top: 10px; right: 14px; background: none; border: none;
+  font-size: 1.6rem; color: inherit; cursor: pointer;
+}
+.cal-m-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.cal-m-kpis div { background: var(--bg-tertiary, #101216); border-radius: 10px; padding: 8px; text-align: center; }
+.cal-m-kpis small { display: block; font-size: .65rem; opacity: .7; text-transform: uppercase; }
+.cal-m-kpis strong { font-size: .95rem; }
+.cal-m-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.cal-m-table th, .cal-m-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border-color, #1f2229); }
+.cal-empty { opacity: .7; }
+.cal-modal-actions { margin-top: 16px; text-align: right; }
+.cal-btn {
+  display: inline-block; padding: 8px 14px; border-radius: 10px; text-decoration: none;
+  border: 1px solid var(--accent, #8bbcff); color: var(--accent, #8bbcff); font-size: .85rem;
+}
+
+@media (max-width: 600px) {
+  .cal-m-kpis { grid-template-columns: repeat(2, 1fr); }
+  .kmed-calendar-legend[data-legend] { display: flex; } /* mostra a legenda ativa no mobile */
+}

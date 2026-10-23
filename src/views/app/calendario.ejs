@@ -6,6 +6,16 @@
 
   <title>KMed | Calendário</title>
 
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('kmed-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (!savedTheme && !prefersDark || savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
   <link rel="stylesheet" href="/public/css/components/theme.css" />
   <link rel="stylesheet" href="/public/css/components/sidebar.css" />
   <link rel="stylesheet" href="/public/css/app/calendario.css" />
@@ -13,11 +23,7 @@
 
 <body class="page-bg">
 
-  <%- include("../partials/sidebar", {
-    active: "calendario",
-    userNome,
-    userFoto
-  }) %>
+  <%- include("../partials/sidebar", { active: "calendario", userNome, userFoto }) %>
 
   <main class="with-sidebar">
     <div class="page">
@@ -27,88 +33,165 @@
         <p>Veja sua constância de estudos mês a mês.</p>
       </div>
 
-      <div class="kmed-calendar-nav">
-        <a href="/calendario?ano=<%= anoAnterior %>&mes=<%= mesAnterior %>">
-          ⬅ Mês anterior
-        </a>
-
-        <strong><%= mesLabel %></strong>
-
-        <a href="/calendario?ano=<%= anoProximo %>&mes=<%= mesProximo %>">
-          Próximo mês ➜
-        </a>
-      </div>
-
-      <div class="kmed-calendar-grid">
-  <% diasMes.forEach(d => { %>
-
-      <a
-      class="kmed-cal-day <%= d.cor %> 
-             <%= d.isHoje ? 'today' : '' %>
-             <%= d.futuro ? 'future' : '' %>
-             <%= d.perfeito ? 'perfect' : '' %>"
-      <% if (!d.futuro) { %>
-        href="/registrar/editar/<%= d.dataISO %>"
-      <% } %>
-    >
-      <span class="day-number"><%= d.dia %></span>
-
-      <% if (d.horas && d.horas !== '0h 0min') { %>
-        <span class="day-hours"><%= d.horas %></span>
-      <% } %>
-
-      <% if (d.questoes && d.questoes > 0) { %>
-        <span class="day-stats" aria-label="Estatísticas do dia">
-          <span class="day-stats-questoes"><%= `Q${d.questoes}` %></span>
-          <span class="day-stats-acerto"><%= Math.round(d.acertoPct) %>%</span>
-        </span>
-      <% } %>
-
-    </a>
-
-
-  <% }) %>
-</div>
-
-
-        <div class="kmed-calendar-legend">
-          <span><i class="h12"></i> 12h</span>
-          <span><i class="h11"></i> 11h</span>
-          <span><i class="h10"></i> 10h</span>
-          <span><i class="h9"></i> 9h</span>
-          <span><i class="h8"></i> 8h+</span>
-          <span><i class="h7"></i> 7h</span>
-          <span><i class="h6"></i> 6h</span>
-          <span><i class="h5"></i> 5h</span>
-          <span><i class="h4"></i> 4h</span>
-          <span><i class="h3"></i> 3h</span>
-          <span><i class="h2"></i> 2h</span>
-          <span><i class="h1"></i> 1h</span>
-          <span><i class="zero"></i> 0h</span>
-        </div>
-
-      </div>
-
+      <!-- RESUMO DO MÊS -->
+      <%
+        const fmtH = (h) => {
+          h = h || 0;
+          const hi = Math.floor(h);
+          const mi = Math.round((h - hi) * 60);
+          return hi + "h " + mi + "min";
+        };
+      %>
       <div class="kmed-month-summary">
         <div>
-          <small>Total de horas</small>
-          <% const horasMes = totalHorasMes || 0; const horasMesInt = Math.floor(horasMes); const minutosMes = Math.round((horasMes - horasMesInt) * 60); %><strong><%= horasMesInt %>h <%= minutosMes %>min</strong>
+          <small>🔥 Sequência atual</small>
+          <strong><%= streak %> <%= streak === 1 ? "dia" : "dias" %></strong>
         </div>
-
+        <div>
+          <small>Total de horas</small>
+          <strong><%= fmtH(totalHorasMes) %></strong>
+        </div>
+        <div>
+          <small>Total de questões</small>
+          <strong><%= totalQuestoesMes %> <span class="sub-inline">(<%= acertoPctMes %>% acerto)</span></strong>
+        </div>
+        <div>
+          <small>Média de horas / dia</small>
+          <strong><%= fmtH(mediaDiaria) %></strong>
+        </div>
+        <div>
+          <small>Média de questões / dia</small>
+          <strong><%= mediaDiariaQuestoes %></strong>
+        </div>
         <div>
           <small>Dias estudados</small>
           <strong><%= diasEstudados %></strong>
         </div>
 
-        <div>
-          <small>Média por dia</small>
-          <% const mediaHoras = mediaDiaria || 0; const mediaHorasInt = Math.floor(mediaHoras); const mediaMinutos = Math.round((mediaHoras - mediaHorasInt) * 60); %><strong><%= mediaHorasInt %>h <%= mediaMinutos %>min</strong>
+        <div class="diag diag-<%= diagnostico ? diagnostico.nivel : 'neutro' %>">
+          <small>🩺 Diagnóstico: matéria mais estudada</small>
+          <% if (diagnostico) { %>
+            <strong><%= diagnostico.materia %></strong>
+            <span class="diag-text">
+              <%= diagnostico.horas %> (<%= diagnostico.share %>% do seu tempo)
+              · <%= diagnostico.questoes %> questões · <%= diagnostico.acertoPct %>% de acerto.
+              <%= diagnostico.texto %>
+            </span>
+          <% } else { %>
+            <span class="diag-text">Sem dados suficientes neste mês.</span>
+          <% } %>
         </div>
+      </div>
+
+      <!-- NAVEGAÇÃO DO MÊS -->
+      <div class="kmed-calendar-nav">
+        <a href="/calendario?ano=<%= anoAnterior %>&mes=<%= mesAnterior %>">⬅ Mês anterior</a>
+        <strong><%= mesLabel %></strong>
+        <a href="/calendario?ano=<%= anoProximo %>&mes=<%= mesProximo %>">Próximo mês ➜</a>
+      </div>
+
+      <!-- ALTERNADOR DE MODOS -->
+      <div class="cal-modes" id="cal-modes">
+        <button type="button" data-mode="horas" class="active">⏱ Horas</button>
+        <button type="button" data-mode="questoes">📝 Questões</button>
+        <button type="button" data-mode="lendario">🔥 Lendário</button>
+      </div>
+
+      <!-- GRADE -->
+      <div class="kmed-calendar-grid" id="cal-grid">
+        <% diasMes.forEach(d => { %>
+          <button
+            type="button"
+            class="kmed-cal-day <%= d.cor %> <%= d.isHoje ? 'today' : '' %> <%= d.futuro ? 'future' : '' %> <%= d.perfeito ? 'perfect' : '' %>"
+            data-dia="<%= d.dia %>"
+            data-h="<%= d.cor %>"
+            data-q="<%= d.corQuestoes %>"
+            data-l="<%= d.corLendario %>"
+            <%= d.futuro ? 'disabled' : '' %>
+          >
+            <span class="day-number"><%= d.dia %></span>
+
+            <% if (d.iconeLendario) { %>
+              <span class="day-icon"><%= d.iconeLendario %></span>
+            <% } %>
+
+            <% if (d.horas && d.horas !== '0h 0min') { %>
+              <span class="day-hours"><%= d.horas %></span>
+            <% } %>
+
+            <% if (d.questoes && d.questoes > 0) { %>
+              <span class="day-stats">
+                <span class="day-stats-questoes">Q<%= d.questoes %></span>
+                <span class="day-stats-acerto"><%= Math.round(d.acertoPct) %>%</span>
+              </span>
+            <% } %>
+          </button>
+        <% }) %>
+      </div>
+
+      <!-- LEGENDAS (uma por modo) -->
+      <div class="kmed-calendar-legend" data-legend="horas">
+        <span><i class="h12"></i> 12h</span>
+        <span><i class="h11"></i> 11h</span>
+        <span><i class="h10"></i> 10h</span>
+        <span><i class="h9"></i> 9h</span>
+        <span><i class="h8"></i> 8h</span>
+        <span><i class="h7"></i> 7h</span>
+        <span><i class="h6"></i> 6h</span>
+        <span><i class="h5"></i> 5h</span>
+        <span><i class="h4"></i> 4h</span>
+        <span><i class="h3"></i> 3h</span>
+        <span><i class="h2"></i> 2h</span>
+        <span><i class="h1"></i> 1h</span>
+        <span><i class="zero"></i> 0h</span>
+      </div>
+
+      <div class="kmed-calendar-legend" data-legend="questoes" style="display:none;">
+        <% for (let i = 12; i >= 1; i--) { %>
+          <span><i class="h<%= i %>"></i> <%= i === 12 ? '111+' : ((i - 1) * 10 + 1) + '–' + (i * 10) %> q</span>
+        <% } %>
+        <span><i class="zero"></i> 0</span>
+      </div>
+
+      <div class="kmed-calendar-legend" data-legend="lendario" style="display:none;">
+        <% niveisLendario.slice().reverse().forEach(n => { %>
+          <span title="<%= n.regra %>"><i class="<%= n.classe %>"></i> <%= n.icone %> <%= n.label %> <em>(<%= n.regra %>)</em></span>
+        <% }) %>
       </div>
 
     </div>
   </main>
 
+  <!-- MODAL DO DIA -->
+  <div class="cal-modal-bg" id="cal-modal">
+    <div class="cal-modal-box">
+      <button type="button" class="cal-modal-close" id="cal-modal-close" aria-label="Fechar">×</button>
+      <h3 id="cal-m-title"></h3>
+      <div id="cal-m-body"></div>
+      <div class="cal-modal-actions">
+        <a id="cal-m-edit" href="#" class="cal-btn">✏️ Editar dia</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.CAL = {
+      dias: <%- JSON.stringify(diasMes.map(d => ({
+        dia: d.dia,
+        data: d.dataISO,
+        horas: d.horas,
+        horasNum: d.horasNum,
+        questoes: d.questoes,
+        acertos: d.acertos,
+        erros: d.erros,
+        acertoPct: d.acertoPct,
+        nivel: d.labelLendario,
+        icone: d.iconeLendario,
+        materias: d.materias
+      }))).replace(/</g, '\\u003c') %>
+    };
+  </script>
+  <script src="/public/js/app/calendario.js"></script>
+
 </body>
 </html>
-
