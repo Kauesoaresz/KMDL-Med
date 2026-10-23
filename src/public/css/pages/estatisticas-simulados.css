@@ -1,0 +1,102 @@
+/* =====================================================
+   ESTATÍSTICAS · SIMULADOS
+===================================================== */
+
+.card-heading { font-size: var(--fs-base); margin-bottom: var(--s-3); }
+.empty-note { padding: var(--s-5) 0; text-align: center; }
+
+.kpi .value.small { font-size: var(--fs-lg); text-transform: capitalize; }
+.kpi .value.ok  { color: var(--ok); }
+.kpi .value.err { color: var(--err); }
+.kpi .label .ok  { color: var(--ok); font-weight: 600; }
+.kpi .label .err { color: var(--err); font-weight: 600; }
+
+/* ---------- rankings ---------- */
+.rank-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.rank-list li {
+  display: grid; grid-template-columns: 22px 1fr auto auto;
+  align-items: center; gap: var(--s-2);
+  font-size: var(--fs-sm);
+}
+.rank-pos {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-2); color: var(--text-muted);
+  font-size: var(--fs-xs); font-weight: 700;
+}
+.rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-sub  { font-size: var(--fs-xs); }
+.rank-val  { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rank-val.ok  { color: var(--ok); }
+.rank-val.err { color: var(--err); }
+
+/* extremos */
+.extremes { display: flex; flex-direction: column; gap: var(--s-3); }
+.extreme {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.extreme:last-child { border-bottom: none; }
+.extreme-ico { font-size: 1.4rem; }
+.extreme small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.extreme strong { display: block; font-size: var(--fs-sm); font-weight: 650; word-break: break-word; }
+.extreme .ok  { color: var(--ok); font-weight: 700; font-size: var(--fs-sm); }
+.extreme .err { color: var(--err); font-weight: 700; font-size: var(--fs-sm); }
+
+/* ---------- gráficos ---------- */
+.chart-box { position: relative; height: 280px; }
+
+/* ---------- área ---------- */
+.area-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-4);
+}
+.area-card { display: flex; flex-direction: column; gap: var(--s-3); }
+.area-head { display: flex; align-items: center; gap: var(--s-2); }
+.area-ico { font-size: 1.2rem; }
+.area-name { font-size: var(--fs-base); font-weight: 650; flex: 1; }
+
+.area-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); }
+.area-stats small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.area-stats strong { font-size: var(--fs-sm); font-weight: 700; }
+.area-stats .ok  { color: var(--ok); }
+.area-stats .err { color: var(--err); }
+
+.area-foot { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-xs); }
+
+/* ---------- erros ---------- */
+.err-block { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+@media (max-width: 900px) { .err-block { grid-template-columns: 1fr; } }
+
+.err-kpis {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+
+.motivos-list { display: flex; flex-direction: column; gap: var(--s-3); }
+.motivo-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 40px;
+  align-items: center; gap: var(--s-2);
+  font-size: var(--fs-sm);
+}
+.motivo-label { color: var(--text-muted); }
+.motivo-bar { height: 8px; }
+.motivo-val { text-align: right; font-weight: 700; }
+
+/* ---------- lacunas ---------- */
+.lac-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.lac-list li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+.lac-list li:last-child { border-bottom: none; }
+.lac-list strong { font-weight: 700; color: var(--text); }
+
+/* ---------- tabela ---------- */
+.table .ok  { color: var(--ok); font-weight: 600; }
+.table .err { color: var(--err); font-weight: 600; }

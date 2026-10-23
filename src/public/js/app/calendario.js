@@ -9,6 +9,7 @@
      MODOS
   ========================= */
   const cells = Array.from(document.querySelectorAll("#cal-grid .kmed-cal-day"));
+  const grid = $("cal-grid");
 
   function setMode(mode) {
     if (!ATTR[mode]) mode = "horas";
@@ -20,7 +21,9 @@
       cell.classList.add(cell.dataset[ATTR[mode]]);
     });
 
-    $("cal-grid").classList.toggle("mode-lendario", mode === "lendario");
+    // ---- ajuste: marca o modo no grid (horas / questoes / lendario) ----
+    grid.classList.remove("mode-horas", "mode-questoes", "mode-lendario");
+    grid.classList.add("mode-" + mode);
 
     document.querySelectorAll("#cal-modes button").forEach((b) => {
       b.classList.toggle("active", b.dataset.mode === mode);

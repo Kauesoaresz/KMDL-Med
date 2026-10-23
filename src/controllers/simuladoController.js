@@ -513,6 +513,9 @@ exports.listarErros = async (req, res) => {
       erros,
       active: "simulados",
       userNome: req.session.userNome,
+      qArea: area || "",
+      qMotivo: motivo || "",
+      qStatus: status || "",
       userFoto: req.session.userFoto || null,
     });
   } catch (err) {
@@ -521,6 +524,9 @@ exports.listarErros = async (req, res) => {
       erros: [],
       active: "simulados",
       userNome: req.session.userNome,
+      qArea: area || "",
+      qMotivo: motivo || "",
+      qStatus: status || "",
       userFoto: req.session.userFoto || null,
     });
   }

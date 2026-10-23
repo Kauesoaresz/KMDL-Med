@@ -463,7 +463,7 @@ exports.geral = async (req, res) => {
   // Metas
   const metas = await calcMetas(userId);
 
-  res.render("app/statistics", {
+  res.render("app/estatisticas-estudos", {
     active: "estatisticas",
     userNome: req.session.userNome,
     userFoto: req.session.userFoto,

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <%- include("../partials/head", { title: "Estatísticas · Estudos", css: ["estatisticas-estudos"] }) %>
+</head>
+<body class="page-bg">
+
+<%- include("../partials/sidebar", { active: "estatisticas", userNome, userFoto }) %>
+
+<main class="with-sidebar">
+  <div class="page">
+
+    <header class="page-header">
+      <div>
+        <h1>📚 Estudos</h1>
+        <p>Sua evolução de horas e questões.</p>
+      </div>
+      <a href="/estatisticas" class="btn-ghost btn-sm">← Estatísticas</a>
+    </header>
+
+    <!-- FILTRO -->
+    <div class="chips">
+      <a href="/estatisticas/estudos?period=week"  class="chip <%= period === 'week'  ? 'active' : '' %>">📅 Semana</a>
+      <a href="/estatisticas/estudos?period=month" class="chip <%= period === 'month' ? 'active' : '' %>">🗓 Mês</a>
+      <a href="/estatisticas/estudos?period=all"   class="chip <%= period === 'all'   ? 'active' : '' %>">∞ Total</a>
+    </div>
+
+    <!-- KPIs -->
+    <section class="grid-4">
+      <div class="card kpi">
+        <h3>Tempo estudado</h3>
+        <p class="value"><%= formatHours(stats.horas) %></p>
+        <span class="label">
+          <%= period === 'week' ? 'Nesta semana' : period === 'month' ? 'Neste mês' : 'Total geral' %>
+          · <%= formatHours(total.horas) %> no total
+        </span>
+      </div>
+
+      <div class="card kpi">
+        <h3>Questões</h3>
+        <p class="value"><%= stats.questoes %></p>
+        <span class="label">
+          <span class="ok">✓ <%= stats.acertos %></span>
+          <span class="err">✗ <%= stats.erros %></span>
+          · <%= stats.aproveitamento %>%
+        </span>
+      </div>
+
+      <div class="card kpi">
+        <h3>Sequência</h3>
+        <p class="value"><%= streak %> <span class="kpi-unit">dias</span></p>
+        <span class="label"><%= diasTotal %> dias estudados no total</span>
+      </div>
+
+      <div class="card kpi">
+        <h3>Dias estudados</h3>
+        <p class="value"><%= diasEstudados %></p>
+        <span class="label">
+          <% const denom = period === 'week' ? 7 : period === 'month' ? 30 : (diasTotal || 1); %>
+          <%= Math.round((diasEstudados / denom) * 100) %>% do período
+        </span>
+      </div>
+    </section>
+
+    <!-- GRÁFICOS -->
+    <section class="grid-2">
+      <div class="card">
+        <h2 class="card-heading">📈 Evolução · últimos 30 dias</h2>
+        <% if (evolucao.length === 0) { %>
+          <p class="muted empty-note">Sem registros nos últimos 30 dias.</p>
+        <% } else { %>
+          <div class="chart-box"><canvas id="chartEvolucao"></canvas></div>
+        <% } %>
+      </div>
+
+      <div class="card">
+        <h2 class="card-heading">🗓 Padrão semanal</h2>
+        <div class="chart-box"><canvas id="chartSemana"></canvas></div>
+      </div>
+    </section>
+
+    <!-- PERFORMANCE + METAS -->
+    <section class="grid-2">
+
+      <div class="card">
+        <h2 class="card-heading">🎯 Performance</h2>
+        <div class="perf">
+          <div class="perf-ring">
+            <svg viewBox="0 0 36 36" class="perf-svg">
+              <path class="perf-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <path class="perf-fill"
+                    stroke-dasharray="<%= stats.aproveitamento %>, 100"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <text x="18" y="20.35" class="perf-text"><%= stats.aproveitamento %>%</text>
+            </svg>
+          </div>
+          <div class="perf-info">
+            <div><small>Acertos</small><strong class="num ok"><%= stats.acertos %></strong></div>
+            <div><small>Erros</small><strong class="num err"><%= stats.erros %></strong></div>
+            <div><small>Total</small><strong class="num"><%= stats.questoes %></strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-heading">🎯 Metas ativas</h2>
+        <% if (!metas || metas.length === 0) { %>
+          <p class="muted">Nenhuma meta ativa. <a href="/metas">Criar meta</a>.</p>
+        <% } else { %>
+          <div class="metas-list">
+            <% metas.forEach(function(m) { %>
+              <div class="meta-row">
+                <div class="meta-row-head">
+                  <strong><%= m.nome %></strong>
+                  <span class="muted"><%= m.dias_restantes %> dias</span>
+                </div>
+                <div class="progress"><span style="width: <%= m.progresso_horas %>%"></span></div>
+                <div class="meta-row-info">
+                  <span><%= formatHours(m.horasConcluidas) %> / <%= m.meta_horas %>h</span>
+                  <% if (m.meta_questoes > 0) { %>
+                    <span><%= m.questoesConcluidas %> / <%= m.meta_questoes %> questões</span>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  window.STATS = {
+    evolucao: <%- JSON.stringify(evolucao || []).replace(/</g, '\\u003c') %>,
+    horasPorDia: <%- JSON.stringify(horasPorDia || [0,0,0,0,0,0,0]) %>,
+    questoesPorDia: <%- JSON.stringify(questoesPorDia || [0,0,0,0,0,0,0]) %>
+  };
+</script>
+<script src="/public/js/app/estatisticas-estudos.js"></script>
+
+</body>
+</html>

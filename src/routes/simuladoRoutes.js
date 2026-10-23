@@ -4,14 +4,9 @@ const c = require("../controllers/simuladoController");
 
 const router = express.Router();
 
-// HUB
-router.get("/simulados", auth, (req, res) => {
-  res.render("app/simulados/hub", {
-    active: "simulados",
-    userNome: req.session.userNome,
-    userFoto: req.session.userFoto || null,
-  });
-});
+// LISTA = porta de entrada de Simulados
+router.get("/simulados", auth, c.listarSimulados);
+router.get("/simulados/lista", auth, (req, res) => res.redirect("/simulados"));
 
 // CADERNO DE ERROS (global)
 router.get("/simulados/erros", auth, c.listarErros);

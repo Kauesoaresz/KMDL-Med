@@ -1,462 +1,310 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>KMed | Estatísticas de Simulados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="/public/css/components/theme.css">
-  <link rel="stylesheet" href="/public/css/components/sidebar.css">
-  <link rel="stylesheet" href="/public/css/app/simulados-estatisticas.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <%- include("../partials/head", { title: "Estatísticas · Simulados", css: ["estatisticas-simulados"] }) %>
 </head>
-
 <body class="page-bg">
 
-<%- include("../partials/sidebar", {
-  active: "estatisticas",
-  userNome,
-  userFoto
-}) %>
+<%- include("../partials/sidebar", { active: "estatisticas", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-  <div class="page simulado-page">
+  <div class="page">
 
-    <!-- HEADER -->
-    <header class="simulado-header">
-      <div class="header-content">
-        <h1>📝 Estatísticas de Simulados</h1>
-        <p class="sub">Análise completa para otimizar sua preparação para o enem</p>
+    <header class="page-header">
+      <div>
+        <h1>📝 Simulados</h1>
+        <p>Evolução, áreas e análise de erros.</p>
       </div>
-      
-      <!-- FILTRO DE PERÍODO -->
-      <div class="period-filter">
-        <a href="/estatisticas/simulados?periodo=30" class="filter-btn <%= periodo === '30' ? 'active' : '' %>">
-          <span class="filter-icon">📅</span> 30 Dias
-        </a>
-        <a href="/estatisticas/simulados?periodo=90" class="filter-btn <%= periodo === '90' ? 'active' : '' %>">
-          <span class="filter-icon">🗓️</span> 90 Dias
-        </a>
-        <a href="/estatisticas/simulados?periodo=180" class="filter-btn <%= periodo === '180' ? 'active' : '' %>">
-          <span class="filter-icon">📆</span> 6 Meses
-        </a>
-        <a href="/estatisticas/simulados?periodo=365" class="filter-btn <%= periodo === '365' ? 'active' : '' %>">
-          <span class="filter-icon">📅</span> 1 Ano
-        </a>
-        <a href="/estatisticas/simulados?periodo=total" class="filter-btn <%= periodo === 'total' ? 'active' : '' %>">
-          <span class="filter-icon">∞</span> Total
-        </a>
-      </div>
+      <a href="/estatisticas" class="btn-ghost btn-sm">← Estatísticas</a>
     </header>
 
-    <!-- LINHA 1: CARDS PRINCIPAIS KPIs -->
-    <section class="stats-cards-grid">
-      <!-- Card Total Simulados -->
-      <div class="stat-card main-card simulados">
-        <div class="card-icon">📋</div>
-        <div class="card-content">
-          <span class="card-label">Simulados Realizados</span>
-          <div class="card-value"><%= totalSimulados %></div>
-          <div class="card-sub">
-            <span class="finalizados-text">✓ <%= simuladosFinalizados %> finalizados</span>
-            <span class="andamento-text">⏳ <%= simuladosEmAndamento %> em andamento</span>
-          </div>
-        </div>
-        <div class="card-badge">
-          <%= simuladosRevisao || 0 %> em revisão
-        </div>
+    <!-- FILTRO -->
+    <div class="chips">
+      <a href="/estatisticas/simulados?periodo=30"    class="chip <%= periodo === '30'    ? 'active' : '' %>">30 dias</a>
+      <a href="/estatisticas/simulados?periodo=90"    class="chip <%= periodo === '90'    ? 'active' : '' %>">90 dias</a>
+      <a href="/estatisticas/simulados?periodo=180"   class="chip <%= periodo === '180'   ? 'active' : '' %>">6 meses</a>
+      <a href="/estatisticas/simulados?periodo=365"   class="chip <%= periodo === '365'   ? 'active' : '' %>">1 ano</a>
+      <a href="/estatisticas/simulados?periodo=total" class="chip <%= periodo === 'total' ? 'active' : '' %>">∞ Total</a>
+    </div>
+
+    <!-- KPIs -->
+    <section class="grid-4">
+      <div class="card kpi">
+        <h3>Simulados</h3>
+        <p class="value"><%= totalSimulados %></p>
+        <span class="label"><%= simuladosFinalizados %> finalizados · <%= simuladosEmAndamento %> em andamento</span>
       </div>
 
-      <!-- Card Questões -->
-      <div class="stat-card main-card questoes">
-        <div class="card-icon">📝</div>
-        <div class="card-content">
-          <span class="card-label">Questões Respondidas</span>
-          <div class="card-value"><%= totalQuestoes %></div>
-          <div class="card-sub">
-            <span class="acertos-text">✓ <%= totalAcertos %> acertos</span>
-            <span class="erros-text">✗ <%= totalErros %> erros</span>
-          </div>
-        </div>
-        <div class="card-badge success">
-          <%= aproveitamento %>% aproveitamento
-        </div>
+      <div class="card kpi">
+        <h3>Questões</h3>
+        <p class="value"><%= totalQuestoes %></p>
+        <span class="label">
+          <span class="ok">✓ <%= totalAcertos %></span>
+          <span class="err">✗ <%= totalErros %></span>
+          · <%= aproveitamento %>%
+        </span>
       </div>
 
-      <!-- Card Média -->
-      <div class="stat-card main-card media">
-        <div class="card-icon">🎯</div>
-        <div class="card-content">
-          <span class="card-label">Média de Acertos</span>
-          <div class="card-value"><%= mediaAcertos %></div>
-          <div class="card-sub">
-            <% if (aproveitamento >= 70) { %>
-              <span class="good-text">Ótimo desempenho! 🔥</span>
-            <% } else if (aproveitamento >= 50) { %>
-              <span class="medium-text">Pode melhorar 💪</span>
-            <% } else { %>
-              <span class="bad-text">Precisa focar mais 🎯</span>
-            <% } %>
-          </div>
-        </div>
-        <div class="card-badge">
-          <%= consistencia %>% consistência
-        </div>
+      <div class="card kpi">
+        <h3>Média de acertos</h3>
+        <p class="value"><%= mediaAcertos %></p>
+        <span class="label">Consistência: <%= consistencia %>%</span>
       </div>
 
-      <!-- Card Tempo -->
-      <div class="stat-card main-card tempo">
-        <div class="card-icon">⏱️</div>
-        <div class="card-content">
-          <span class="card-label">Tempo Total</span>
-          <div class="card-value"><%= totalTempoMinutos %>min</div>
-          <div class="card-sub">
-            <span class="media-text"><%= mediaTempo %>min média</span>
-            <span class="velocidade-text"><%= velocidadeMedia %> quests/min</span>
-          </div>
-        </div>
-        <div class="card-badge warning">
-          <%= diasDesdeUltimo !== null ? diasDesdeUltimo + ' dias atrás' : 'Nenhum' %>
-        </div>
+      <div class="card kpi">
+        <h3>Tempo total</h3>
+        <p class="value"><%= totalTempoMinutos %>min</p>
+        <span class="label">
+          <%= mediaTempo %>min média · <%= velocidadeMedia %> q/min
+        </span>
       </div>
     </section>
 
-    <!-- LINHA 2: RANKINGS -->
-    <section class="rankings-section">
-      <!-- Top 5 Melhores -->
-      <div class="ranking-card melhores">
-        <div class="ranking-header">
-          <h2>🏆 Top 5 - Melhores</h2>
-          <span class="ranking-sub">Maior aproveitamento</span>
-        </div>
-        <div class="ranking-list">
-          <% if (rankingMelhores.length > 0) { %>
-            <% rankingMelhores.forEach((item, index) => { %>
-              <div class="ranking-item">
-                <span class="ranking-posicao <%= index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '' %>">
-                  <%= index + 1 %>
-                </span>
-                <div class="ranking-info">
-                  <span class="ranking-nome"><%= item.nome %></span>
-                  <span class="ranking-detalhes"><%= item.acertos %>/<%= item.questoes %> acertos • <%= item.data.split('-').reverse().join('/') %></span>
-                </div>
-                <span class="ranking-percent good">
-                  <%= item.percentual %>%
-                </span>
-              </div>
-            <% }); %>
-          <% } else { %>
-            <p class="empty-msg">Nenhum simulado ainda</p>
-          <% } %>
-        </div>
+    <!-- RANKINGS -->
+    <section class="grid-3">
+
+      <div class="card rank-card">
+        <h2 class="card-heading">🏆 Melhores</h2>
+        <% if (!rankingMelhores.length) { %>
+          <p class="muted">Sem simulados.</p>
+        <% } else { %>
+          <ol class="rank-list">
+            <% rankingMelhores.forEach(function(r, i) { %>
+              <li>
+                <span class="rank-pos"><%= i + 1 %></span>
+                <span class="rank-name"><%= r.nome %></span>
+                <span class="rank-sub muted"><%= r.acertos %>/<%= r.questoes %></span>
+                <span class="rank-val ok"><%= r.percentual %>%</span>
+              </li>
+            <% }) %>
+          </ol>
+        <% } %>
       </div>
 
-      <!-- Top 5 para Melhorar -->
-      <div class="ranking-card melhorar">
-        <div class="ranking-header">
-          <h2>⚠️ Precisa Atenção</h2>
-          <span class="ranking-sub">Menor aproveitamento</span>
-        </div>
-        <div class="ranking-list">
-          <% if (rankingPiores.length > 0) { %>
-            <% rankingPiores.forEach((item, index) => { %>
-              <div class="ranking-item">
-                <span class="ranking-posicao attention">
-                  <%= index + 1 %>
-                </span>
-                <div class="ranking-info">
-                  <span class="ranking-nome"><%= item.nome %></span>
-                  <span class="ranking-detalhes"><%= item.acertos %>/<%= item.questoes %> acertos • <%= item.data.split('-').reverse().join('/') %></span>
-                </div>
-                <span class="ranking-percent bad">
-                  <%= item.percentual %>%
-                </span>
-              </div>
-            <% }); %>
-          <% } else { %>
-            <p class="empty-msg">Nenhum simulado ainda</p>
-          <% } %>
-        </div>
+      <div class="card rank-card">
+        <h2 class="card-heading">⚠️ Atenção</h2>
+        <% if (!rankingPiores.length) { %>
+          <p class="muted">Sem simulados.</p>
+        <% } else { %>
+          <ol class="rank-list">
+            <% rankingPiores.forEach(function(r, i) { %>
+              <li>
+                <span class="rank-pos"><%= i + 1 %></span>
+                <span class="rank-name"><%= r.nome %></span>
+                <span class="rank-sub muted"><%= r.acertos %>/<%= r.questoes %></span>
+                <span class="rank-val err"><%= r.percentual %>%</span>
+              </li>
+            <% }) %>
+          </ol>
+        <% } %>
       </div>
 
-      <!-- Melhor e Pior Extremos -->
-      <div class="ranking-card extremos">
-        <div class="ranking-header">
-          <h2>📊 Extremos</h2>
-          <span class="ranking-sub">Melhor e pior resultado</span>
-        </div>
-        <div class="extremos-content">
-          <div class="extremo-item melhor">
-            <span class="extremo-icon">🥇</span>
-            <div class="extremo-info">
-              <span class="extremo-label">Melhor</span>
-              <span class="extremo-nome"><%= melhorSimulado?.nome || '—' %></span>
-              <span class="extremo-percent good"><%= melhorSimulado?.percentual || 0 %>%</span>
+      <div class="card rank-card">
+        <h2 class="card-heading">📊 Extremos</h2>
+        <div class="extremes">
+          <div class="extreme">
+            <span class="extreme-ico">🥇</span>
+            <div>
+              <small>Melhor</small>
+              <strong><%= melhorSimulado ? melhorSimulado.nome : "—" %></strong>
+              <span class="ok"><%= melhorSimulado ? melhorSimulado.percentual : 0 %>%</span>
             </div>
           </div>
-          <div class="extremo-item pior">
-            <span class="extremo-icon">📉</span>
-            <div class="extremo-info">
-              <span class="extremo-label">Pior</span>
-              <span class="extremo-nome"><%= piorSimulado?.nome || '—' %></span>
-              <span class="extremo-percent bad"><%= piorSimulado?.percentual || 0 %>%</span>
+          <div class="extreme">
+            <span class="extreme-ico">📉</span>
+            <div>
+              <small>Pior</small>
+              <strong><%= piorSimulado ? piorSimulado.nome : "—" %></strong>
+              <span class="err"><%= piorSimulado ? piorSimulado.percentual : 0 %>%</span>
+            </div>
+          </div>
+          <div class="extreme">
+            <span class="extreme-ico">💪</span>
+            <div>
+              <small>Área mais forte</small>
+              <strong><%= areaMaisForte && areaMaisForte.nome ? areaMaisForte.nome : "—" %></strong>
+              <span class="ok"><%= areaMaisForte ? areaMaisForte.percentual : 0 %>%</span>
+            </div>
+          </div>
+          <div class="extreme">
+            <span class="extreme-ico">🎯</span>
+            <div>
+              <small>Área a melhorar</small>
+              <strong><%= areaMaisFraca && areaMaisFraca.nome ? areaMaisFraca.nome : "—" %></strong>
+              <span class="err"><%= areaMaisFraca ? areaMaisFraca.percentual : 0 %>%</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Áreas -->
-      <div class="ranking-card areas-card">
-        <div class="ranking-header">
-          <h2>📚 Áreas</h2>
-          <span class="ranking-sub">Forte vs Fraca</span>
-        </div>
-        <div class="areas-content">
-          <div class="area-item forte">
-            <span class="area-icon">💪</span>
-            <div class="area-info">
-              <span class="area-label">Mais Forte</span>
-              <span class="area-nome"><%= areaMaisForte?.nome ? areaMaisForte.nome.toUpperCase() : '—' %></span>
-              <span class="area-percent good"><%= areaMaisForte?.percentual || 0 %>%</span>
-            </div>
-          </div>
-          <div class="area-item fraca">
-            <span class="area-icon">🎯</span>
-            <div class="area-info">
-              <span class="area-label">Precisa Melhorar</span>
-              <span class="area-nome"><%= areaMaisFraca?.nome ? areaMaisFraca.nome.toUpperCase() : '—' %></span>
-              <span class="area-percent bad"><%= areaMaisFraca?.percentual || 0 %>%</span>
-            </div>
-          </div>
-        </div>
+    </section>
+
+    <!-- GRÁFICOS -->
+    <section class="grid-2">
+      <div class="card">
+        <h2 class="card-heading">📊 Acertos vs erros por área</h2>
+        <div class="chart-box"><canvas id="chartArea"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-heading">📈 Evolução · aproveitamento</h2>
+        <% if (!evolucao.length) { %>
+          <p class="muted empty-note">Sem simulados com questões.</p>
+        <% } else { %>
+          <div class="chart-box"><canvas id="chartEvolucao"></canvas></div>
+        <% } %>
       </div>
     </section>
 
-    <!-- LINHA 3: GRÁFICOS -->
-    <section class="charts-grid">
-      <!-- Desempenho por Área -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <h2>📊 Desempenho por Área</h2>
-          <span class="chart-sub">Questões e acertos por área</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="areaChart"></canvas>
-        </div>
+    <!-- DETALHAMENTO POR ÁREA -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🎯 Detalhamento por área</h2>
       </div>
 
-      <!-- Evolução ao Longo do Tempo -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <h2>📈 Evolução</h2>
-          <span class="chart-sub">Aproveitamento ao longo dos simulados</span>
-        </div>
-        <div class="chart-container">
-          <canvas id="evolucaoChart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <!-- LINHA 4: DETALHAMENTO POR ÁREA -->
-    <section class="areas-detalhamento">
-      <h2 class="section-title">🎯 Detalhamento por Área</h2>
-      
-      <div class="areas-grid">
-        <% 
+      <div class="area-grid">
+        <%
           const areaNames = {
-            linguagens: 'Linguagens',
-            humanas: 'Humanas',
-            naturezas: 'Naturezas',
-            matematica: 'Matemática'
+            linguagens: "Linguagens", humanas: "Humanas",
+            naturezas: "Naturezas",  matematica: "Matemática"
           };
           const areaIcons = {
-            linguagens: '📖',
-            humanas: '🏛️',
-            naturezas: '🔬',
-            matematica: '➗'
+            linguagens: "📖", humanas: "🏛️", naturezas: "🔬", matematica: "➗"
           };
         %>
-        
-        <% Object.entries(porArea).forEach(([area, dados]) => { %>
-          <div class="area-card">
-            <div class="area-card-header">
-              <span class="area-card-icon"><%= areaIcons[area] %></span>
-              <h3><%= areaNames[area] %></h3>
-              <span class="area-card-percent <%= dados.percentual >= 70 ? 'good' : dados.percentual >= 50 ? 'medium' : 'bad' %>">
-                <%= dados.percentual %>%
+        <% Object.entries(porArea).forEach(function([key, d]) { %>
+          <article class="card area-card">
+            <header class="area-head">
+              <span class="area-ico"><%= areaIcons[key] %></span>
+              <h3 class="area-name"><%= areaNames[key] %></h3>
+              <span class="badge <%= d.percentual >= 70 ? 'badge-ok' : d.percentual >= 50 ? 'badge-warn' : 'badge-err' %>">
+                <%= d.percentual %>%
               </span>
-            </div>
-            
-            <div class="area-card-stats">
-              <div class="area-stat">
-                <span class="stat-icon">📝</span>
-                <div class="stat-info">
-                  <span class="stat-value"><%= dados.questoes %></span>
-                  <span class="stat-label">Questões</span>
-                </div>
-              </div>
-              <div class="area-stat">
-                <span class="stat-icon">✓</span>
-                <div class="stat-info">
-                  <span class="stat-value good"><%= dados.acertos %></span>
-                  <span class="stat-label">Acertos</span>
-                </div>
-              </div>
-              <div class="area-stat">
-                <span class="stat-icon">✗</span>
-                <div class="stat-info">
-                  <span class="stat-value bad"><%= dados.erros %></span>
-                  <span class="stat-label">Erros</span>
-                </div>
-              </div>
-              <div class="area-stat">
-                <span class="stat-icon">⏱️</span>
-                <div class="stat-info">
-                  <span class="stat-value"><%= dados.tempoMedio %>min</span>
-                  <span class="stat-label">Tempo Médio</span>
-                </div>
-              </div>
+            </header>
+
+            <div class="area-stats">
+              <div><small>Questões</small><strong class="num"><%= d.questoes %></strong></div>
+              <div><small>Acertos</small><strong class="num ok"><%= d.acertos %></strong></div>
+              <div><small>Erros</small><strong class="num err"><%= d.erros %></strong></div>
+              <div><small>Tempo médio</small><strong class="num"><%= d.tempoMedio %>min</strong></div>
             </div>
 
-            <!-- Barra de progresso -->
-            <div class="area-progress">
-              <div class="progress-bar">
-                <div class="progress-fill <%= dados.percentual >= 70 ? 'good' : dados.percentual >= 50 ? 'medium' : 'bad' %>" 
-                     style="width: <%= dados.percentual %>%"></div>
-              </div>
-              <span class="progress-text"><%= dados.percentual %>%</span>
-            </div>
+            <div class="progress"><span style="width: <%= d.percentual %>%"></span></div>
 
-            <div class="area-extra">
-              <span class="extra-item">📅 <%= dados.simulados %> simulados</span>
-              <span class="extra-item">⚡ <%= dados.velocidade %> quests/min</span>
+            <div class="area-foot muted">
+              <span>📅 <%= d.simulados %> simulados</span>
+              <span>⚡ <%= d.velocidade %> q/min</span>
             </div>
-          </div>
-        <% }); %>
+          </article>
+        <% }) %>
       </div>
     </section>
 
-    <!-- LINHA 5: ANÁLISE DE ERROS -->
-    <section class="erros-section">
-      <h2 class="section-title">❌ Análise de Erros</h2>
-      
-      <div class="erros-grid">
-        <!-- KPIs de Erros -->
-        <div class="erros-kpis">
-          <div class="erro-kpi-card">
-            <span class="erro-kpi-icon">📊</span>
-            <div class="erro-kpi-content">
-              <span class="erro-kpi-value"><%= errosTotal %></span>
-              <span class="erro-kpi-label">Total de Erros</span>
-            </div>
+    <!-- ANÁLISE DE ERROS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">❌ Análise de erros</h2>
+      </div>
+
+      <div class="err-block">
+        <div class="err-kpis">
+          <div class="card kpi">
+            <h3>Total</h3>
+            <p class="value"><%= errosTotal %></p>
+            <span class="label">Erros registrados</span>
           </div>
-          <div class="erro-kpi-card revisados">
-            <span class="erro-kpi-icon">✓</span>
-            <div class="erro-kpi-content">
-              <span class="erro-kpi-value"><%= errosRevisados %></span>
-              <span class="erro-kpi-label">Revisados</span>
-            </div>
+          <div class="card kpi">
+            <h3>Revisados</h3>
+            <p class="value ok"><%= errosRevisados %></p>
+            <span class="label"><%= taxaRevisao %>% do total</span>
           </div>
-          <div class="erro-kpi-card pendentes">
-            <span class="erro-kpi-icon">⏳</span>
-            <div class="erro-kpi-content">
-              <span class="erro-kpi-value"><%= errosPendentes %></span>
-              <span class="erro-kpi-label">Pendentes</span>
-            </div>
+          <div class="card kpi">
+            <h3>Pendentes</h3>
+            <p class="value err"><%= errosPendentes %></p>
+            <span class="label">A revisar</span>
           </div>
-          <div class="erro-kpi-card taxa">
-            <span class="erro-kpi-icon">📈</span>
-            <div class="erro-kpi-content">
-              <span class="erro-kpi-value"><%= taxaRevisao %>%</span>
-              <span class="erro-kpi-label">Taxa de Revisão</span>
-            </div>
+          <div class="card kpi">
+            <h3>Motivo dominante</h3>
+            <p class="value small"><%= motivoDominante ? motivoDominante.replace('_', ' ') : '—' %></p>
+            <span class="label">Mais frequente</span>
           </div>
         </div>
 
-        <!-- Por Motivo -->
-        <div class="erros-motivos">
-          <h3>📋 Erros por Motivo</h3>
+        <div class="card motivos-card">
+          <h2 class="card-heading">📋 Erros por motivo</h2>
           <div class="motivos-list">
-            <div class="motivo-item">
-              <span class="motivo-nome">Falta de Conteúdo</span>
-              <div class="motivo-bar-container">
-                <div class="motivo-bar" style="width: <%= errosTotal > 0 ? (errosPorMotivo.falta_conteudo / errosTotal * 100) : 0 %>%"></div>
+            <%
+              const motivos = [
+                { key: "falta_conteudo", label: "Falta de conteúdo" },
+                { key: "falta_atencao",  label: "Falta de atenção" },
+                { key: "lacuna",         label: "Lacuna" },
+              ];
+            %>
+            <% motivos.forEach(function(m) { %>
+              <div class="motivo-row">
+                <span class="motivo-label"><%= m.label %></span>
+                <div class="progress motivo-bar">
+                  <span style="width: <%= errosTotal > 0 ? Math.round((errosPorMotivo[m.key] / errosTotal) * 100) : 0 %>%"></span>
+                </div>
+                <span class="motivo-val num"><%= errosPorMotivo[m.key] %></span>
               </div>
-              <span class="motivo-value"><%= errosPorMotivo.falta_conteudo %></span>
-            </div>
-            <div class="motivo-item">
-              <span class="motivo-nome">Falta de Atenção</span>
-              <div class="motivo-bar-container">
-                <div class="motivo-bar" style="width: <%= errosTotal > 0 ? (errosPorMotivo.falta_atencao / errosTotal * 100) : 0 %>%"></div>
-              </div>
-              <span class="motivo-value"><%= errosPorMotivo.falta_atencao %></span>
-            </div>
-            <div class="motivo-item">
-              <span class="motivo-nome">Lacuna de Conteúdo</span>
-              <div class="motivo-bar-container">
-                <div class="motivo-bar" style="width: <%= errosTotal > 0 ? (errosPorMotivo.lacuna / errosTotal * 100) : 0 %>%"></div>
-              </div>
-              <span class="motivo-value"><%= errosPorMotivo.lacuna %></span>
-            </div>
+            <% }) %>
           </div>
-          <p class="motivo-dominante">
-            <strong>Motivo dominante:</strong> 
-            <%= motivoDominante ? motivoDominante.replace('_', ' ').toUpperCase() : '—' %>
-          </p>
         </div>
       </div>
     </section>
 
-    <!-- LINHA 6: LACUNAS -->
-    <section class="lacunas-section">
-      <h2 class="section-title">🔍 Lacunas de Conteúdo</h2>
-      
-      <div class="lacunas-grid">
-        <!-- Matérias -->
-        <div class="lacuna-col">
-          <h3>📘 Matérias</h3>
-          <% if (lacunas.materias.length > 0) { %>
-            <ul class="lacunas-lista">
-              <% lacunas.materias.forEach(l => { %>
-                <li>
-                  <span><%= l.nome %></span>
-                  <strong><%= l.total %></strong>
-                </li>
-              <% }); %>
-            </ul>
+    <!-- LACUNAS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🔍 Lacunas de conteúdo</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="card-heading">📘 Por matéria</h2>
+          <% if (!lacunas.materias.length) { %>
+            <p class="muted">Nenhuma lacuna registrada.</p>
           <% } else { %>
-            <p class="empty-lacuna">Nenhuma lacuna registrada</p>
+            <ul class="lac-list">
+              <% lacunas.materias.forEach(function(l) { %>
+                <li><span><%= l.nome %></span><strong class="num"><%= l.total %></strong></li>
+              <% }) %>
+            </ul>
           <% } %>
         </div>
 
-        <!-- Tópicos -->
-        <div class="lacuna-col">
-          <h3>📗 Tópicos</h3>
-          <% if (lacunas.topicos.length > 0) { %>
-            <ul class="lacunas-lista">
-              <% lacunas.topicos.forEach(l => { %>
-                <li>
-                  <span><%= l.nome %></span>
-                  <strong><%= l.total %></strong>
-                </li>
-              <% }); %>
-            </ul>
+        <div class="card">
+          <h2 class="card-heading">📗 Por tópico</h2>
+          <% if (!lacunas.topicos.length) { %>
+            <p class="muted">Nenhuma lacuna registrada.</p>
           <% } else { %>
-            <p class="empty-lacuna">Nenhuma lacuna registrada</p>
+            <ul class="lac-list">
+              <% lacunas.topicos.forEach(function(l) { %>
+                <li><span><%= l.nome %></span><strong class="num"><%= l.total %></strong></li>
+              <% }) %>
+            </ul>
           <% } %>
         </div>
       </div>
     </section>
 
-    <!-- LINHA 7: TABELA COMPLETA DE EVOLUÇÃO -->
-    <section class="tabela-section">
-      <div class="tabela-card">
-        <div class="tabela-header">
-          <h2>📊 Evolução Completa</h2>
-          <span class="tabela-sub">Histórico de todos os simulados</span>
+    <!-- TABELA -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">📊 Histórico</h2>
+        <span class="muted"><%= evolucao.length %> simulados</span>
+      </div>
+
+      <% if (!evolucao.length) { %>
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <h3>Nenhum simulado com questões ainda</h3>
+          <p>Preencha a grade de um simulado para ver o histórico.</p>
         </div>
-        <div class="table-container">
-          <table class="data-table">
+      <% } else { %>
+        <div class="table-wrap">
+          <table class="table">
             <thead>
               <tr>
                 <th>Simulado</th>
@@ -467,55 +315,45 @@
                 <th>Erros</th>
                 <th>%</th>
                 <th>Δ</th>
-                <th>Média Móvel</th>
+                <th>M. móvel</th>
                 <th>Tempo</th>
               </tr>
             </thead>
             <tbody>
-              <% if (evolucao.length > 0) { %>
-                <% evolucao.forEach(e => { %>
-                  <tr>
-                    <td class="simulado-name"><%= e.nome %></td>
-                    <td>
-                      <% if (e.status === 'finalizado') { %>
-                        <span class="status-badge finished">✓ Finalizado</span>
-                      <% } else if (e.status === 'revisao') { %>
-                        <span class="status-badge review">🔄 Revisão</span>
-                      <% } else { %>
-                        <span class="status-badge ongoing">⏳ Andamento</span>
-                      <% } %>
-                    </td>
-                    <td><%= e.data.split('-').reverse().join('/') %></td>
-                    <td><%= e.questoes %></td>
-                    <td class="good"><%= e.acertos %></td>
-                    <td class="bad"><%= e.erros %></td>
-                    <td>
-                      <span class="table-percent <%= e.percentual >= 70 ? 'good' : e.percentual >= 50 ? 'medium' : 'bad' %>">
-                        <%= e.percentual %>%
-                      </span>
-                    </td>
-                    <td>
-                      <% if (e.delta > 0) { %>
-                        <span class="delta good">+<%= e.delta %>%</span>
-                      <% } else if (e.delta < 0) { %>
-                        <span class="delta bad"><%= e.delta %>%</span>
-                      <% } else { %>
-                        <span class="delta neutral">—</span>
-                      <% } %>
-                    </td>
-                    <td><%= e.mediaMovel %>%</td>
-                    <td><%= e.tempo || 0 %>min</td>
-                  </tr>
-                <% }); %>
-              <% } else { %>
+              <% evolucao.forEach(function(e) { %>
                 <tr>
-                  <td colspan="10" class="empty-row">Nenhum simulado com questões registradas</td>
+                  <td><%= e.nome %></td>
+                  <td>
+                    <span class="badge <%= e.status === 'finalizado' ? 'badge-ok' : 'badge-warn' %>">
+                      <%= e.status === 'finalizado' ? '✓ Finalizado' : '⏳ Em andamento' %>
+                    </span>
+                  </td>
+                  <td><%= e.data.split('-').reverse().join('/') %></td>
+                  <td><%= e.questoes %></td>
+                  <td class="ok"><%= e.acertos %></td>
+                  <td class="err"><%= e.erros %></td>
+                  <td>
+                    <span class="badge <%= e.percentual >= 70 ? 'badge-ok' : e.percentual >= 50 ? 'badge-warn' : 'badge-err' %>">
+                      <%= e.percentual %>%
+                    </span>
+                  </td>
+                  <td>
+                    <% if (e.delta > 0) { %>
+                      <span class="ok">+<%= e.delta %>%</span>
+                    <% } else if (e.delta < 0) { %>
+                      <span class="err"><%= e.delta %>%</span>
+                    <% } else { %>
+                      <span class="muted">—</span>
+                    <% } %>
+                  </td>
+                  <td><%= e.mediaMovel %>%</td>
+                  <td><%= e.tempo || 0 %>min</td>
                 </tr>
-              <% } %>
+              <% }) %>
             </tbody>
           </table>
         </div>
-      </div>
+      <% } %>
     </section>
 
   </div>
@@ -523,140 +361,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Dados do servidor
-  var evolucaoData = <%- JSON.stringify(evolucao || []) %>;
-  var porAreaData = <%- JSON.stringify(porArea || {}) %>;
-  var currentPeriod = "<%= periodo %>";
-
-  // Cores
-  const colors = {
-    linguagens: 'rgba(59, 130, 246, 0.8)',   // azul
-    humanas: 'rgba(139, 92, 246, 0.8)',       // roxo
-    naturezas: 'rgba(34, 197, 94, 0.8)',      // verde
-    matematica: 'rgba(249, 115, 22, 0.8)',    // laranja
-    blue: 'rgba(59, 130, 246, 0.8)',
-    green: 'rgba(34, 197, 94, 0.8)',
-    yellow: 'rgba(250, 204, 21, 0.8)',
-    red: 'rgba(239, 68, 68, 0.8)',
-    purple: 'rgba(139, 92, 246, 0.8)',
-    orange: 'rgba(249, 115, 22, 0.8)'
+  window.SIMSTATS = {
+    porArea: <%- JSON.stringify(porArea || {}).replace(/</g, '\\u003c') %>,
+    evolucao: <%- JSON.stringify(evolucao || []).replace(/</g, '\\u003c') %>
   };
-
-  // Gráfico de Área (Barras)
-  const ctxArea = document.getElementById('areaChart');
-  if (ctxArea) {
-    const areaLabels = {
-      linguagens: 'Linguagens',
-      humanas: 'Humanas',
-      naturezas: 'Naturezas',
-      matematica: 'Matemática'
-    };
-    
-    new Chart(ctxArea, {
-      type: 'bar',
-      data: {
-        labels: Object.keys(porAreaData).map(k => areaLabels[k]),
-        datasets: [
-          {
-            label: 'Acertos',
-            data: Object.values(porAreaData).map(a => a.acertos),
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-            borderRadius: 6
-          },
-          {
-            label: 'Erros',
-            data: Object.values(porAreaData).map(a => a.erros),
-            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-            borderRadius: 6
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { color: '#e5e7eb', padding: 15 }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            ticks: { color: '#9ca3af' }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: '#9ca3af' }
-          }
-        }
-      }
-    });
-  }
-
-  // Gráfico de Evolução (Linha)
-  const ctxEvolucao = document.getElementById('evolucaoChart');
-  if (ctxEvolucao && evolucaoData.length > 0) {
-    new Chart(ctxEvolucao, {
-      type: 'line',
-      data: {
-        labels: evolucaoData.map(e => e.nome),
-        datasets: [
-          {
-            label: 'Aproveitamento',
-            data: evolucaoData.map(e => e.percentual),
-            borderColor: 'rgba(59, 130, 246, 1)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
-            pointBorderColor: '#fff',
-            pointRadius: 5
-          },
-          {
-            label: 'Média Móvel (3)',
-            data: evolucaoData.map(e => e.mediaMovel),
-            borderColor: 'rgba(139, 92, 246, 1)',
-            backgroundColor: 'transparent',
-            borderDash: [5, 5],
-            tension: 0.4,
-            pointBackgroundColor: 'rgba(139, 92, 246, 1)',
-            pointRadius: 3
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { color: '#e5e7eb', padding: 15 }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            ticks: { 
-              color: '#9ca3af',
-              callback: function(value) { return value + '%'; }
-            }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { 
-              color: '#9ca3af',
-              maxRotation: 45,
-              minRotation: 45
-            }
-          }
-        }
-      }
-    });
-  }
 </script>
+<script src="/public/js/app/estatisticas-simulados.js"></script>
+
 </body>
 </html>

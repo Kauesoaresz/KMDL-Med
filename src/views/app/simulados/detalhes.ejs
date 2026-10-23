@@ -1,165 +1,154 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>KMDL Med | <%= simulado.nome %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="/public/css/components/global-responsive.css" />
-  <link rel="stylesheet" href="/public/css/components/theme.css" />
-  <link rel="stylesheet" href="/public/css/components/sidebar.css" />
-
-  <!-- ESTILO MÍNIMO (provisório, o visual de verdade é o passo 3) -->
-  <style>
-    .sim-page { padding: 20px; max-width: 1100px; }
-    .sim-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
-    .sim-row input, .sim-row button, .sim-card input, .modal-box select, .modal-box textarea {
-      padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,.4);
-      background: transparent; color: inherit; font: inherit;
-    }
-    .sim-row button, .modal-box button { cursor: pointer; }
-    .sim-nome { font-size: 1.3rem; font-weight: 700; min-width: 280px; }
-    .resumo { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .resumo-item { border: 1px solid rgba(128,128,128,.4); border-radius: 12px; padding: 12px 16px; min-width: 130px; }
-    .resumo-item small { display: block; opacity: .7; }
-    .resumo-item strong { font-size: 1.2rem; }
-    .sim-card { border: 1px solid rgba(128,128,128,.4); border-radius: 14px; padding: 16px; margin-bottom: 18px; }
-    .sim-card-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .grid-q { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
-    .cell { position: relative; padding: 8px 0; border-radius: 10px; border: 2px solid transparent;
-            cursor: pointer; font: inherit; color: inherit; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-    .cell .cell-i { font-size: .7rem; }
-    .cell.certa { background: rgba(46,229,157,.25); border-color: rgba(46,229,157,.7); }
-    .cell.errada { background: rgba(239,68,68,.30); border-color: rgba(239,68,68,.8); }
-    .cell.nao_feita { background: rgba(128,128,128,.25); border-color: rgba(128,128,128,.6); opacity: .8; }
-    .lista-erros .item { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(128,128,128,.25); }
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 2000; align-items: center; justify-content: center; }
-    .modal-bg.open { display: flex; }
-    .modal-box { background: #161821; color: #fff; border-radius: 16px; padding: 22px; width: 92%; max-width: 460px; max-height: 92vh; overflow-y: auto; }
-    .motivos { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
-    .motivos button { text-align: left; background: transparent; color: inherit; }
-    .motivos button.active { background: rgba(239,68,68,.35); border-color: rgba(239,68,68,.9); }
-    .modal-box select, .modal-box textarea { width: 100%; margin-top: 8px; box-sizing: border-box; background: #1a1d24; color: #fff; }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-    #m-err { color: #ef4444; min-height: 1.2em; margin-top: 8px; }
-        .grid-q.locked { display: none; }
-    #btn-modo-nf.on { background: rgba(128,128,128,.4); border-color: #aaa; font-weight: 700; }
-  </style>
+  <%- include("../../partials/head", { title: simulado.nome, css: ["detalhes"] }) %>
 </head>
 <body class="page-bg">
 
 <%- include("../../partials/sidebar", { active: "simulados", userNome, userFoto }) %>
 
 <main class="with-sidebar">
-<div class="sim-page">
+  <div class="page sim-page">
 
-  <!-- ========== TOPO: METADADOS ========== -->
-  <a href="/simulados/lista">← Simulados</a>
+    <!-- TOPO STICKY -->
+    <header class="sim-topbar">
+      <div class="sim-topbar-row">
+        <a href="/simulados" class="btn-ghost btn-sm">← Simulados</a>
 
-  <div class="sim-row" style="margin-top:10px;">
-    <input id="sim-nome" class="sim-nome" type="text" maxlength="255" value="<%= simulado.nome %>" />
-    <span>📅 <%= simulado.data_realizacao.split("-").reverse().join("/") %></span>
-    <span id="sim-status-label">
-      <%= simulado.status === "finalizado" ? "✅ Finalizado" : "⏳ Em andamento" %>
-    </span>
-  </div>
+        <input id="sim-nome" class="sim-nome" type="text" maxlength="255" value="<%= simulado.nome %>" />
 
-  <div class="sim-row">
-    <label>Nota da redação (0–1000)
-      <input id="sim-redacao" type="number" min="0" max="1000" step="1"
-             value="<%= simulado.redacao_nota != null ? simulado.redacao_nota : '' %>" />
-    </label>
+        <span class="sim-badge <%= simulado.status %>" id="sim-status-label">
+          <%= simulado.status === "finalizado" ? "✅ Finalizado" : "⏳ Em andamento" %>
+        </span>
 
-    <button type="button" id="btn-salvar">💾 Salvar</button>
-    <button type="button" id="btn-status" data-status="<%= simulado.status %>">
-      <%= simulado.status === "finalizado" ? "↩ Reabrir" : "✅ Salvar e finalizar" %>
-    </button>
-    <span id="msg-salvo" style="opacity:.8;"></span>
-  </div>
-
-  <!-- ========== RESUMO AO VIVO ========== -->
-  <div class="resumo">
-    <div class="resumo-item"><small>Acertos</small><strong id="sum-acertos">0</strong></div>
-    <div class="resumo-item"><small>Questões feitas</small><strong id="sum-feitas">0</strong></div>
-    <div class="resumo-item"><small>Desempenho</small><strong id="sum-pct">0%</strong></div>
-    <% areas.forEach(a => { %>
-      <div class="resumo-item"><small><%= a.label %></small><strong id="sum-<%= a.key %>">0/0 · 0%</strong></div>
-    <% }) %>
-  </div>
-
-    <div class="sim-row">
-    <button type="button" id="btn-modo-nf">🚫 Modo "não feita": desligado</button>
-    <span style="opacity:.75;">
-      Desligado: certa → <strong>errada</strong> (abre o diagnóstico) → <strong>não feita</strong> → certa.
-      Ligado: cada clique alterna entre <strong>não feita</strong> e certa.
-    </span>
-  </div>
-
-    <!-- ========== GRADE POR ÁREA ========== -->
-  <% areas.forEach(a => { %>
-    <section class="sim-card">
-      <div class="sim-card-head">
-        <h3><%= a.label %> <small style="opacity:.6;">(<%= a.start %>–<%= a.start + 44 %>)</small></h3>
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-          <label>⏱ Tempo (min)
-            <input id="tempo-<%= a.key %>" type="number" min="0" style="width:90px;"
-                   value="<%= tempos[a.key] != null ? tempos[a.key] : '' %>" />
-          </label>
-          <button type="button" id="lock-<%= a.key %>">🔓 Fechar área</button>
-        </div>
+        <span class="sim-date">📅 <%= simulado.data_realizacao.split("-").reverse().join("/") %></span>
       </div>
-      <p id="closed-<%= a.key %>" style="display:none; opacity:.7;">
-        🔒 Área fechada: todas as questões contam como não feitas.
-      </p>
-      <div class="grid-q" id="grid-<%= a.key %>"></div>
-    </section>
-  <% }) %>
 
-  <!-- ========== LISTA DE ERRADAS (editar diagnóstico) ========== -->
-  <section class="sim-card">
-    <h3>Questões erradas</h3>
-    <div class="lista-erros" id="lista-erros"></div>
-  </section>
+      <div class="sim-topbar-row">
+        <label class="sim-inline">
+          <span>Redação</span>
+          <input id="sim-redacao" type="number" min="0" max="1000" step="1"
+                 value="<%= simulado.redacao_nota != null ? simulado.redacao_nota : '' %>" placeholder="0–1000" />
+        </label>
 
-</div>
+        <button type="button" id="btn-salvar" class="btn">💾 Salvar</button>
+        <button type="button" id="btn-status" class="btn-primary"
+                data-status="<%= simulado.status %>">
+          <%= simulado.status === "finalizado" ? "↩ Reabrir" : "✅ Salvar e finalizar" %>
+        </button>
+
+        <span id="msg-salvo" class="sim-save-msg"></span>
+      </div>
+
+      <!-- RESUMO -->
+      <div class="sim-summary">
+        <div class="sim-sum-item"><small>Acertos</small><strong id="sum-acertos">0</strong></div>
+        <div class="sim-sum-item"><small>Feitas</small><strong id="sum-feitas">0</strong></div>
+        <div class="sim-sum-item"><small>Desempenho</small><strong id="sum-pct">0%</strong></div>
+        <% areas.forEach(a => { %>
+          <div class="sim-sum-item"><small><%= a.label %></small><strong id="sum-<%= a.key %>">0/0 · 0%</strong></div>
+        <% }) %>
+      </div>
+    </header>
+
+    <!-- CORPO: grade + lista lateral -->
+    <div class="sim-body">
+
+      <div class="sim-main">
+        <!-- SWITCH modo não feita -->
+        <div class="sim-switch-bar">
+          <label class="sim-switch">
+            <input type="checkbox" id="btn-modo-nf" />
+            <span class="sim-switch-track"><span class="sim-switch-dot"></span></span>
+            <span class="sim-switch-label">Modo “não feita”</span>
+          </label>
+          <span class="sim-switch-hint">
+            Desligado: certa → errada → não feita → certa.
+            Ligado: alterna direto entre não feita e certa.
+          </span>
+        </div>
+
+        <!-- GRADES -->
+        <% areas.forEach(a => { %>
+          <section class="sim-area">
+            <header class="sim-area-head">
+              <h3><%= a.label %> <small class="muted">(<%= a.start %>–<%= a.start + 44 %>)</small></h3>
+              <div class="sim-area-actions">
+                <label class="sim-inline">
+                  <span>⏱ min</span>
+                  <input id="tempo-<%= a.key %>" type="number" min="0"
+                         value="<%= tempos[a.key] != null ? tempos[a.key] : '' %>" />
+                </label>
+                <button type="button" id="lock-<%= a.key %>" class="btn-sm btn">🔓 Fechar área</button>
+              </div>
+            </header>
+
+            <p id="closed-<%= a.key %>" class="sim-closed" style="display:none;">
+              🔒 Área fechada: todas as questões contam como não feitas.
+            </p>
+
+            <div class="sim-grid" id="grid-<%= a.key %>"></div>
+          </section>
+        <% }) %>
+      </div>
+
+      <!-- LISTA DE ERRADAS -->
+      <aside class="sim-aside">
+        <div class="sim-aside-head">
+          <h3>✕ Questões erradas</h3>
+          <span class="muted" id="err-count"></span>
+        </div>
+        <div class="sim-erros" id="lista-erros"></div>
+      </aside>
+
+    </div>
+
+  </div>
 </main>
 
-<!-- ========== MODAL DE DIAGNÓSTICO ========== -->
+<!-- MODAL DE DIAGNÓSTICO -->
 <div class="modal-bg" id="modal">
   <div class="modal-box">
     <h3 id="m-title">Questão</h3>
-    <p style="opacity:.75;">Por que você errou?</p>
+    <p class="muted">Por que você errou?</p>
 
-    <div class="motivos" id="m-motivos">
+    <div class="sim-motivos" id="m-motivos">
       <button type="button" data-motivo="falta_atencao">👀 Falta de atenção</button>
       <button type="button" data-motivo="falta_conteudo">📖 Falta de conteúdo</button>
       <button type="button" data-motivo="lacuna">🕳 Lacuna de conhecimento</button>
     </div>
 
-    <div id="m-lacuna" style="display:none;">
-      <select id="m-subject">
-        <option value="">Matéria</option>
-        <% subjects.forEach(s => { %>
-          <option value="<%= s.id %>"><%= s.nome %></option>
-        <% }) %>
-      </select>
-      <select id="m-topic" disabled>
-        <option value="">Tópico</option>
-      </select>
-    </div>
+    <div id="m-lacuna" class="m-lacuna" style="display:none;">
+  <div class="m-band">
+    <div class="m-band-label">Matéria</div>
+    <div class="chip-grid" id="m-subj-chips"></div>
+  </div>
 
-    <textarea id="m-anot" rows="2" maxlength="255" placeholder="Anotação rápida (opcional)"></textarea>
+  <div class="m-band">
+    <div class="m-band-label">Tópico</div>
+    <div class="chip-grid" id="m-topic-chips"></div>
+  </div>
+</div>
 
-    <div id="m-err"></div>
+    <textarea id="m-anot" rows="2" maxlength="255" placeholder="Anotação (opcional)"></textarea>
+
+    <div id="m-err" class="sim-err"></div>
 
     <div class="modal-actions">
-      <button type="button" id="m-cancel">Cancelar</button>
-      <button type="button" id="m-ok">Confirmar</button>
+      <button type="button" id="m-cancel" class="btn">Cancelar</button>
+      <button type="button" id="m-ok" class="btn-primary">Confirmar</button>
     </div>
   </div>
 </div>
 
-<script>window.SIM = <%- simJson %>;</script>
+<script>
+
+window.SIM = Object.assign(
+  <%- simJson %>,
+  { subjects: <%- JSON.stringify(subjects.map(s => ({ id: s.id, nome: s.nome, hue: s.hue || 245 }))).replace(/</g, '\\u003c') %> }
+);
+
+</script>
 <script src="/public/js/app/simulado-grade.js"></script>
 
 </body>

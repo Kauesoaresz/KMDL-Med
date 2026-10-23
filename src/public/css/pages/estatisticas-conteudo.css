@@ -1,0 +1,70 @@
+/* =====================================================
+   ESTATÍSTICAS · CONTEÚDO
+===================================================== */
+
+.card-heading { font-size: var(--fs-base); margin-bottom: var(--s-3); }
+.empty-note { padding: var(--s-5) 0; text-align: center; }
+
+.kpi .label .ok  { color: var(--ok); font-weight: 600; }
+.kpi .label .err { color: var(--err); font-weight: 600; }
+
+/* ---------- rankings ---------- */
+.rank-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.rank-list li {
+  display: grid; grid-template-columns: 22px 1fr auto;
+  align-items: center; gap: var(--s-2);
+  font-size: var(--fs-sm);
+}
+.rank-pos {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-2); color: var(--text-muted);
+  font-size: var(--fs-xs); font-weight: 700;
+}
+.rank-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-val  { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rank-val.ok  { color: var(--ok); }
+.rank-val.err { color: var(--err); }
+
+/* ---------- gráficos ---------- */
+.chart-box { position: relative; height: 260px; }
+
+/* ---------- grades de matérias ---------- */
+.mat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--s-4);
+}
+
+.mat-card {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  transition: border-color var(--ease), transform var(--ease);
+}
+.mat-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+
+.mat-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+.mat-name { font-size: var(--fs-base); font-weight: 650; word-break: break-word; }
+
+.mat-stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.mat-stats small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.mat-stats strong { font-size: var(--fs-sm); font-weight: 700; }
+.mat-stats .ok  { color: var(--ok); }
+.mat-stats .err { color: var(--err); }
+
+.mat-foot { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-xs); }
+
+.mat-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.topic-pill {
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-xs);
+}
+
+.mat-open { align-self: flex-start; }

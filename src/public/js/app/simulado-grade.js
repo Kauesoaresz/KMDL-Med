@@ -294,12 +294,15 @@
     renderLista();
   }
 
-  /* =========================
-     MODAL DE DIAGNÓSTICO
+    /* =========================
+     MODAL DE DIAGNÓSTICO (chips)
   ========================= */
   let modalN = null;
   let modalNew = false;
-  let draft = { motivo: null };
+  let draft = { motivo: null, subject_id: null, topic_id: null };
+
+  // cache de tópicos por matéria (evita fetch repetido)
+  const topicsCache = {};
 
   function showMotivo() {
     document.querySelectorAll("#m-motivos button").forEach((b) => {
@@ -308,45 +311,95 @@
     $("m-lacuna").style.display = draft.motivo === "lacuna" ? "block" : "none";
   }
 
-  async function loadTopics(subjectId, selected) {
-    const sel = $("m-topic");
-    sel.innerHTML = '<option value="">Tópico</option>';
-    sel.disabled = true;
-    if (!subjectId) return;
+  function renderSubjChips() {
+    const box = $("m-subj-chips");
+    if (!S.subjects || !S.subjects.length) {
+      box.innerHTML = '<span class="muted">Nenhuma matéria cadastrada.</span>';
+      return;
+    }
+    box.innerHTML = S.subjects
+      .map((s) =>
+        '<button type="button" class="pick' + (draft.subject_id === s.id ? " on" : "") +
+        '" style="--h:' + s.hue + '" data-id="' + s.id + '"><i></i>' + escapeHtml(s.nome) + "</button>"
+      )
+      .join("");
+  }
 
+  function renderTopicChips(topics) {
+    const box = $("m-topic-chips");
+    if (!topics || !topics.length) {
+      box.innerHTML = '<span class="muted">Escolha uma matéria primeiro.</span>';
+      return;
+    }
+    box.innerHTML = topics
+      .filter((t) => t.nome.trim().toLowerCase() !== "geral")
+      .map((t) =>
+        '<button type="button" class="pick' + (draft.topic_id === t.id ? " on" : "") +
+        '" data-id="' + t.id + '"><i></i>' + escapeHtml(t.nome) + "</button>"
+      )
+      .join("") || '<span class="muted">Esta matéria não tem tópicos.</span>';
+  }
+
+  async function loadTopicsForSubject(subjectId) {
+    if (topicsCache[subjectId]) {
+      renderTopicChips(topicsCache[subjectId]);
+      return;
+    }
+    $("m-topic-chips").innerHTML = '<span class="muted">Carregando tópicos…</span>';
     try {
       const res = await fetch("/conteudos/api/topicos/" + subjectId);
       const topics = await res.json();
-      topics.forEach((t) => {
-        const o = document.createElement("option");
-        o.value = t.id;
-        o.textContent = t.nome;
-        sel.appendChild(o);
-      });
-      sel.disabled = false;
-      if (selected) sel.value = String(selected);
+      topicsCache[subjectId] = topics;
+      renderTopicChips(topics);
     } catch (e) {
       $("m-err").textContent = "Não foi possível carregar os tópicos.";
+      $("m-topic-chips").innerHTML = "";
     }
   }
+
+  $("m-subj-chips").addEventListener("click", (e) => {
+    const b = e.target.closest(".pick");
+    if (!b) return;
+    const id = Number(b.dataset.id);
+    draft.subject_id = id;
+    draft.topic_id = null;
+    renderSubjChips();
+    loadTopicsForSubject(id);
+    $("m-err").textContent = "";
+  });
+
+  $("m-topic-chips").addEventListener("click", (e) => {
+    const b = e.target.closest(".pick");
+    if (!b) return;
+    draft.topic_id = Number(b.dataset.id);
+    // repinta só o "on" dos chips
+    $("m-topic-chips").querySelectorAll(".pick").forEach((el) => {
+      el.classList.toggle("on", Number(el.dataset.id) === draft.topic_id);
+    });
+    $("m-err").textContent = "";
+  });
 
   async function openModal(n, isNew) {
     modalN = n;
     modalNew = isNew;
     const q = state[n];
 
-    draft = { motivo: q.motivo || null };
+    draft = {
+      motivo: q.motivo || null,
+      subject_id: q.subject_id || null,
+      topic_id: q.topic_id || null,
+    };
+
     $("m-title").textContent = "Questão " + n + " — " + areaOf(n).label;
     $("m-anot").value = q.anotacao || "";
     $("m-err").textContent = "";
-    $("m-subject").value = q.subject_id ? String(q.subject_id) : "";
-    $("m-topic").innerHTML = '<option value="">Tópico</option>';
-    $("m-topic").disabled = true;
+
+    renderSubjChips();
+    if (draft.subject_id) await loadTopicsForSubject(draft.subject_id);
+    else $("m-topic-chips").innerHTML = '<span class="muted">Escolha uma matéria primeiro.</span>';
+
     showMotivo();
-
     $("modal").classList.add("open");
-
-    if (q.subject_id) await loadTopics(q.subject_id, q.topic_id);
   }
 
   function closeModal() {
@@ -381,16 +434,18 @@
     };
 
     if (draft.motivo === "lacuna") {
-      const sId = $("m-subject").value;
-      const tId = $("m-topic").value;
-      if (!sId || !tId) {
+      if (!draft.subject_id || !draft.topic_id) {
         $("m-err").textContent = "Lacuna exige matéria e tópico.";
         return;
       }
-      item.subject_id = Number(sId);
-      item.topic_id = Number(tId);
-      item.subject_nome = $("m-subject").selectedOptions[0].textContent;
-      item.topic_nome = $("m-topic").selectedOptions[0].textContent;
+      const subj = S.subjects.find((s) => s.id === draft.subject_id);
+      const topics = topicsCache[draft.subject_id] || [];
+      const top = topics.find((t) => t.id === draft.topic_id);
+
+      item.subject_id = draft.subject_id;
+      item.topic_id = draft.topic_id;
+      item.subject_nome = subj ? subj.nome : null;
+      item.topic_nome = top ? top.nome : null;
     }
 
     state[modalN] = item;
@@ -408,7 +463,6 @@
     showMotivo();
   });
 
-  $("m-subject").addEventListener("change", () => loadTopics($("m-subject").value, null));
   $("m-ok").addEventListener("click", confirmModal);
   $("m-cancel").addEventListener("click", cancelModal);
   $("modal").addEventListener("click", (e) => { if (e.target.id === "modal") cancelModal(); });

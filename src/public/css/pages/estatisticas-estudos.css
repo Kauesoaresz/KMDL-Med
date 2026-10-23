@@ -1,0 +1,40 @@
+/* =====================================================
+   ESTATÍSTICAS · ESTUDOS
+===================================================== */
+
+.card-heading { font-size: var(--fs-base); margin-bottom: var(--s-3); }
+.empty-note { padding: var(--s-5) 0; text-align: center; }
+
+/* KPIs */
+.kpi .value .kpi-unit { font-size: var(--fs-lg); font-weight: 600; color: var(--text-muted); }
+.kpi .label .ok  { color: var(--ok); font-weight: 600; }
+.kpi .label .err { color: var(--err); font-weight: 600; }
+
+/* gráficos */
+.chart-box { position: relative; height: 260px; }
+
+/* performance */
+.perf { display: flex; align-items: center; gap: var(--s-5); }
+.perf-ring { width: 160px; flex-shrink: 0; }
+.perf-svg { width: 100%; height: auto; transform: rotate(-90deg); }
+.perf-bg   { fill: none; stroke: var(--surface-2); stroke-width: 3.2; }
+.perf-fill { fill: none; stroke: var(--accent); stroke-width: 3.2; stroke-linecap: round;
+             transition: stroke-dasharray 400ms ease; }
+.perf-text { transform: rotate(90deg); transform-origin: 18px 18px;
+             fill: var(--text); font-size: 6px; font-weight: 700; text-anchor: middle; }
+
+.perf-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-3); flex: 1; }
+.perf-info small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.perf-info strong { font-size: var(--fs-lg); font-weight: 700; }
+.perf-info .ok  { color: var(--ok); }
+.perf-info .err { color: var(--err); }
+
+/* metas */
+.metas-list { display: flex; flex-direction: column; gap: var(--s-3); }
+.meta-row {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-3);
+  background: var(--surface-2); border-radius: var(--r-md);
+}
+.meta-row-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+.meta-row-info { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-muted); }

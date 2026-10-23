@@ -1,0 +1,306 @@
+/* =====================================================
+   CALENDÁRIO
+===================================================== */
+
+/* ---------- barra: navegação + modos ---------- */
+.cal-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-4); flex-wrap: wrap;
+}
+.cal-nav { display: flex; align-items: center; gap: var(--s-3); }
+.cal-month { font-size: var(--fs-lg); font-weight: 650; letter-spacing: -0.01em; }
+
+/* ---------- diagnóstico ---------- */
+.cal-diag-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.cal-diag-stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-3); margin: var(--s-3) 0;
+}
+.cal-diag-stats small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.cal-diag-stats strong { font-size: var(--fs-lg); font-weight: 700; }
+.cal-diag-text { font-size: var(--fs-sm); }
+.cal-diag.diag-bom     { border-left: 3px solid var(--ok); }
+.cal-diag.diag-medio   { border-left: 3px solid var(--warn); }
+.cal-diag.diag-alerta  { border-left: 3px solid var(--err); }
+.cal-diag.diag-neutro  { border-left: 3px solid var(--border-strong); }
+
+@media (max-width: 700px) {
+  .cal-diag-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- card da grade ---------- */
+.cal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+}
+
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-2); margin-bottom: var(--s-2);
+  font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--text-faint); text-align: center;
+}
+
+/* ---------- grade ---------- */
+.kmed-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+
+.kmed-cal-day {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  padding: var(--s-2);
+  display: flex; flex-direction: column; gap: 2px;
+  align-items: flex-start; justify-content: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font: inherit; cursor: pointer;
+  transition: transform var(--ease), border-color var(--ease), background var(--ease);
+  overflow: hidden;
+}
+.kmed-cal-day:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.kmed-cal-day:disabled { cursor: default; }
+
+.kmed-cal-day .day-number {
+  font-size: var(--fs-sm); font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.kmed-cal-day .day-icon {
+  position: absolute; top: 4px; right: 6px;
+  font-size: 0.95rem; line-height: 1;
+}
+
+.kmed-cal-day .day-hours,
+.kmed-cal-day .day-stats {
+  margin-top: auto;
+  font-size: var(--fs-xs); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.kmed-cal-day .day-hours { color: var(--text); }
+.kmed-cal-day .day-stats {
+  display: flex; gap: 4px; flex-wrap: wrap; color: var(--text-muted);
+}
+.kmed-cal-day .day-stats-questoes { color: var(--text); }
+.kmed-cal-day .day-stats-acerto   { color: var(--ok); font-weight: 700; }
+
+/* hoje */
+.kmed-cal-day.today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft) inset;
+}
+.kmed-cal-day.today .day-number { color: var(--accent-text); }
+
+/* futuro */
+.kmed-cal-day.future { opacity: .4; }
+
+/* dia perfeito */
+.kmed-cal-day.perfect::after {
+  content: "";
+  position: absolute; inset: 3px;
+  border-radius: calc(var(--r-md) - 3px);
+  border: 1px solid var(--warn);
+  pointer-events: none;
+}
+
+/* =====================================================
+   VISIBILIDADE POR MODO
+   Regra: cada modo mostra só o que ele representa.
+===================================================== */
+
+/* Horas: mostra só horas */
+#cal-grid.mode-horas .day-stats { display: none; }
+#cal-grid.mode-horas .day-icon  { display: none; }
+
+/* Questões: mostra só questões + % */
+#cal-grid.mode-questoes .day-hours { display: none; }
+#cal-grid.mode-questoes .day-icon  { display: none; }
+
+/* Lendário: mostra só o ícone */
+#cal-grid.mode-lendario .day-hours { display: none; }
+#cal-grid.mode-lendario .day-stats { display: none; }
+#cal-grid.mode-lendario .day-icon  { font-size: 1.25rem; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* =====================================================
+   CORES — HORAS / QUESTÕES
+   Regra: vermelho = ruim (pouco), verde = bom (muito).
+   Gradiente de matiz 0° (vermelho) → 140° (verde).
+   Saturação/luminosidade vindas dos tokens do tema.
+===================================================== */
+
+/* zero: neutro (sem dado) */
+.kmed-cal-day.zero { background: var(--surface-2); }
+
+/* 1..12: do vermelho ao verde */
+.kmed-cal-day.h1  { background: hsl(0   var(--chart-s) calc(var(--chart-l) - 6%)); }
+.kmed-cal-day.h2  { background: hsl(12  var(--chart-s) calc(var(--chart-l) - 4%)); }
+.kmed-cal-day.h3  { background: hsl(24  var(--chart-s) calc(var(--chart-l) - 2%)); }
+.kmed-cal-day.h4  { background: hsl(40  var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h5  { background: hsl(58  var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h6  { background: hsl(76  var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h7  { background: hsl(94  var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h8  { background: hsl(108 var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h9  { background: hsl(120 var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.h10 { background: hsl(130 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-cal-day.h11 { background: hsl(138 var(--chart-s) calc(var(--chart-l) + 4%)); }
+.kmed-cal-day.h12 { background: hsl(145 var(--chart-s) calc(var(--chart-l) + 6%)); }
+
+/* texto legível em qualquer fundo forte */
+.kmed-cal-day[class*="h"] .day-hours,
+.kmed-cal-day[class*="h"] .day-stats { color: rgba(0,0,0,.78); }
+.kmed-cal-day[class*="h"] .day-stats-acerto { color: rgba(0,0,0,.9); }
+.kmed-cal-day[class*="h"] .day-number { color: rgba(0,0,0,.6); }
+
+/* nos níveis mais escuros (h1..h3) mantemos texto claro */
+.kmed-cal-day.h1,
+.kmed-cal-day.h2,
+.kmed-cal-day.h3 { color: #fff; }
+.kmed-cal-day.h1 .day-number,
+.kmed-cal-day.h2 .day-number,
+.kmed-cal-day.h3 .day-number,
+.kmed-cal-day.h1 .day-hours,
+.kmed-cal-day.h2 .day-hours,
+.kmed-cal-day.h3 .day-hours,
+.kmed-cal-day.h1 .day-stats,
+.kmed-cal-day.h2 .day-stats,
+.kmed-cal-day.h3 .day-stats { color: rgba(255,255,255,.9); }
+
+/* =====================================================
+   CORES — LENDÁRIO (lv0..lv8)
+   Mantém a ideia de "quanto melhor, mais quente/forte".
+===================================================== */
+.kmed-cal-day.lv0 { background: var(--surface-2); border-style: dashed; color: var(--text-faint); }
+.kmed-cal-day.lv1 { background: hsl(210 calc(var(--chart-s) - 15%) calc(var(--chart-l) - 8%)); }
+.kmed-cal-day.lv2 { background: hsl(200 var(--chart-s) calc(var(--chart-l) - 4%)); }
+.kmed-cal-day.lv3 { background: hsl(170 var(--chart-s) var(--chart-l)); }
+.kmed-cal-day.lv4 { background: hsl(140 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-cal-day.lv5 { background: hsl(105 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-cal-day.lv6 { background: hsl(45  var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-cal-day.lv7 { background: hsl(20  var(--chart-s) calc(var(--chart-l) - 2%)); }
+.kmed-cal-day.lv8 { background: hsl(345 var(--chart-s) calc(var(--chart-l) - 6%)); }
+
+/* texto legível nos níveis escuros do lendário */
+.kmed-cal-day.lv1,
+.kmed-cal-day.lv2,
+.kmed-cal-day.lv7,
+.kmed-cal-day.lv8 { color: #fff; }
+.kmed-cal-day.lv1 .day-number,
+.kmed-cal-day.lv2 .day-number,
+.kmed-cal-day.lv7 .day-number,
+.kmed-cal-day.lv8 .day-number { color: rgba(255,255,255,.85); }
+.kmed-cal-day.lv1 .day-hours,
+.kmed-cal-day.lv2 .day-hours,
+.kmed-cal-day.lv7 .day-hours,
+.kmed-cal-day.lv8 .day-hours,
+.kmed-cal-day.lv1 .day-stats,
+.kmed-cal-day.lv2 .day-stats,
+.kmed-cal-day.lv7 .day-stats,
+.kmed-cal-day.lv8 .day-stats { color: rgba(255,255,255,.9); }
+
+/* ---------- legendas ---------- */
+.kmed-calendar-legend {
+  display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: var(--fs-xs); color: var(--text-muted);
+}
+.kmed-calendar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.kmed-calendar-legend em { color: var(--text-faint); font-style: normal; }
+
+.kmed-calendar-legend i {
+  display: inline-block; width: 12px; height: 12px;
+  border-radius: 3px; border: 1px solid var(--border);
+}
+.kmed-calendar-legend i.zero { background: var(--surface-2); }
+.kmed-calendar-legend i.h1  { background: hsl(0   var(--chart-s) calc(var(--chart-l) - 6%)); }
+.kmed-calendar-legend i.h2  { background: hsl(12  var(--chart-s) calc(var(--chart-l) - 4%)); }
+.kmed-calendar-legend i.h3  { background: hsl(24  var(--chart-s) calc(var(--chart-l) - 2%)); }
+.kmed-calendar-legend i.h4  { background: hsl(40  var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h5  { background: hsl(58  var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h6  { background: hsl(76  var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h7  { background: hsl(94  var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h8  { background: hsl(108 var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h9  { background: hsl(120 var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.h10 { background: hsl(130 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-calendar-legend i.h11 { background: hsl(138 var(--chart-s) calc(var(--chart-l) + 4%)); }
+.kmed-calendar-legend i.h12 { background: hsl(145 var(--chart-s) calc(var(--chart-l) + 6%)); }
+
+.kmed-calendar-legend i.lv0 { background: var(--surface-2); }
+.kmed-calendar-legend i.lv1 { background: hsl(210 calc(var(--chart-s) - 15%) calc(var(--chart-l) - 8%)); }
+.kmed-calendar-legend i.lv2 { background: hsl(200 var(--chart-s) calc(var(--chart-l) - 4%)); }
+.kmed-calendar-legend i.lv3 { background: hsl(170 var(--chart-s) var(--chart-l)); }
+.kmed-calendar-legend i.lv4 { background: hsl(140 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-calendar-legend i.lv5 { background: hsl(105 var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-calendar-legend i.lv6 { background: hsl(45  var(--chart-s) calc(var(--chart-l) + 2%)); }
+.kmed-calendar-legend i.lv7 { background: hsl(20  var(--chart-s) calc(var(--chart-l) - 2%)); }
+.kmed-calendar-legend i.lv8 { background: hsl(345 var(--chart-s) calc(var(--chart-l) - 6%)); }
+
+/* ---------- modal do dia ---------- */
+.cal-modal-bg {
+  position: fixed; inset: 0; z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(2px);
+}
+.cal-modal-bg.open { display: flex; }
+
+.cal-modal-box {
+  position: relative;
+  width: 92%; max-width: 520px; max-height: 88vh; overflow-y: auto;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: var(--s-5); box-shadow: var(--shadow-modal);
+  display: flex; flex-direction: column; gap: var(--s-3);
+}
+.cal-modal-box h3 { font-size: var(--fs-lg); }
+
+.cal-modal-close {
+  position: absolute; top: var(--s-2); right: var(--s-2);
+  width: 32px; height: 32px; border-radius: var(--r-sm);
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 1.25rem; line-height: 1;
+}
+.cal-modal-close:hover { background: var(--surface-hover); color: var(--text); }
+
+.cal-modal-actions { display: flex; justify-content: flex-end; }
+
+.cal-empty { color: var(--text-muted); }
+
+.cal-m-kpis {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+.cal-m-kpis small { display: block; color: var(--text-faint); font-size: var(--fs-xs); }
+.cal-m-kpis strong { font-size: var(--fs-base); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 520px) {
+  .cal-m-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.cal-m-nivel { font-size: var(--fs-sm); color: var(--text-muted); }
+
+.cal-m-table {
+  width: 100%; border-collapse: collapse; font-size: var(--fs-sm);
+}
+.cal-m-table th {
+  text-align: left; padding: 8px 10px;
+  font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--text-faint);
+  border-bottom: 1px solid var(--border);
+}
+.cal-m-table td {
+  padding: 9px 10px; border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.cal-m-table tbody tr:hover { background: var(--surface-2); }
